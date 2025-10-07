@@ -26,19 +26,21 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="max-w-7xl mx-auto flex h-20 items-center justify-between px-4 md:px-8">
         {/* --- Logo --- */}
-        <a href="/" className="flex items-center gap-2">
+        <a href="/" className="flex items-center">
           <img
             src="/logo.webp"
             alt="Marcelino’s Logo"
             className="w-10 h-10 object-contain"
           />
-          <span className="text-2xl font-bold text-black">Marcelino’s</span>
+          <span className="text-2xl font-extrabold text-black">
+            Marcelino’s
+          </span>
         </a>
 
         {/* --- Desktop Navigation --- */}
         <nav className="hidden md:flex items-center gap-8">
           <NavigationMenu>
-            <NavigationMenuList className="flex items-center gap-6">
+            <NavigationMenuList className="flex items-center gap-4">
               {navLinks.map((item) => (
                 <NavigationMenuItem key={item.href}>
                   <NavigationMenuLink asChild>

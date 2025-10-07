@@ -59,6 +59,13 @@ function Footer() {
           </Form>
         </div>
       </div>
+      <hr className=" border-white/20 mx-auto" />
+      <p className="text-center text-sm text-white/80">
+        <small>
+          &copy; {new Date().getFullYear()} Marcelino's Place | All Rights
+          Reserved.
+        </small>
+      </p>
     </footer>
   );
 }
