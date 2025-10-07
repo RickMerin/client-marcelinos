@@ -50,7 +50,9 @@ function Footer() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full text-black text-lg">
+              <Button
+                type="submit"
+                className="w-full text-black text-lg py-6 font-bold">
                 Subscribe
               </Button>
             </form>
