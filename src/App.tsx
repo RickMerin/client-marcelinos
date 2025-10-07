@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { routes } from "./routes/route";
 import Header from "./layouts/Header";
 import Footer from "./layouts/Footer";
+import { Spinner } from "./components/ui/spinner";
 
 // Layout component to wrap pages with consistent structure
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -21,7 +22,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 const App = () => {
   return (
     <Router>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Spinner />}>
         <Routes>
           {routes.map(({ path, component: Component }, index) => (
             <Route
