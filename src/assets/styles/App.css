@@ -1,6 +1,6 @@
 :root {
   --primary-color: #3490dc;
-  --default-color: #f4c95dd1;
+  --default-color: #f4c95d;
   --default-color-hover: #e6b84f;
 }
 
@@ -10,5 +10,5 @@
 }
 
 .yellow {
-  color: #f4c95d;
+  color: var(--default-color);
 }
