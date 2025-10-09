@@ -25,7 +25,7 @@ function Footer() {
         {/* ---------------------------------- */}
         <section className="col-span-3 md:col-span-1">
           <h3 className="yellow md:text-lg font-bold">
-            Marcelino's Resort <br /> Hotel
+            Marcelino's Resort Hotel
           </h3>
           <p>
             Experience luxury and comfort at its finest. Subscribe to our
