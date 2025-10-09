@@ -116,12 +116,12 @@ export function BannerCarousel() {
                         variants={fadeUp}
                         transition={{ duration: 0.7, delay: 0.4 }}
                         className="flex flex-col w-1/2 md:flex-row items-center justify-center gap-4 md:gap-8">
-                        <Button className="py-4 md:py-5 font-bold uppercase border-2 border-transparent text-xs md:text-sm">
+                        <Button className="w-full md:w-auto py-4 md:py-5 font-bold uppercase border-2 border-transparent text-sm">
                           OUR ROOMS
                         </Button>
                         <Button
                           variant="outline"
-                          className="py-4 md:py-5 font-bold uppercase border-2 text-white text-xs md:text-sm">
+                          className="w-full md:w-auto py-4 md:py-5 font-bold uppercase border-2 text-white text-sm">
                           OUR ROOMS
                         </Button>
                       </motion.div>
