@@ -1,8 +1,10 @@
+import { BannerCarousel } from "@/components/carousels/BannerCarousel";
+
 function Home() {
   return (
-    <div>
-      <h1 className="">Home Page</h1>
-    </div>
+    <>
+      <BannerCarousel />
+    </>
   );
 }
 

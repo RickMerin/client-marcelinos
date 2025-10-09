@@ -12,9 +12,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="w-full h-full flex-grow py-3">
-        <div className="container mx-auto">{children}</div>
-      </main>
+      <main className="w-full h-full flex-grow">{children}</main>
       <Footer />
     </div>
   );

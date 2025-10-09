@@ -55,7 +55,7 @@ export default function Header() {
             </NavigationMenuList>
           </NavigationMenu>
 
-          <Button className="bg-[#E6B84F] hover:bg-yellow-500 text-white font-semibold rounded-md">
+          <Button className="bg-[var(--default-color)] hover:bg-yellow-500 text-white font-semibold rounded-md">
             Book Now
           </Button>
         </nav>

@@ -76,7 +76,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 
         <Button
           type="submit"
-          className="w-full text-black text-lg py-6 font-bold">
+          className="w-full text-black text-lg py-6 font-bold ">
           {submitLabel}
         </Button>
       </form>
