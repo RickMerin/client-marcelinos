@@ -105,36 +105,37 @@ Finally, render your form using the wrapper component.
 
 Here’s a minimal working example:
 
-````tsx
+```tsx
 import { z } from "zod";
 import { FormWrapper } from "./FormWrapper";
 
 const contactSchema = z.object({
-email: z.string().email("Invalid email"),
+  email: z.string().email("Invalid email"),
 });
 
 export default function ContactForm() {
-const fields = [
-{
-name: "email",
-placeholder: "Enter your email",
-type: "email" as const,
-},
-];
+  const fields = [
+    {
+      name: "email",
+      placeholder: "Enter your email",
+      type: "email" as const,
+    },
+  ];
 
-const handleSubmit = (values: z.infer<typeof contactSchema>) => {
-console.log("Form submitted:", values);
-};
+  const handleSubmit = (values: z.infer<typeof contactSchema>) => {
+    console.log("Form submitted:", values);
+  };
 
-return (
-<FormWrapper
+  return (
+    <FormWrapper
       schema={contactSchema}
       fields={fields}
       onSubmit={handleSubmit}
       submitLabel="Subscribe"
     />
-);
+  );
 }
+```
 
 🧠 Notes & Best Practices
 
@@ -162,4 +163,4 @@ To support more input types (e.g., select, switch, checkbox), just extend this s
     />
   );
 }
-````
+```
