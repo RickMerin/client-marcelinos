@@ -17,7 +17,7 @@ import image1 from "@/assets/img/banner-1.webp";
 export function BannerCarousel() {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  // const plugin = useRef(Autoplay({ delay: 4000 }));
+  const plugin = useRef(Autoplay({ delay: 4000 }));
 
   useEffect(() => {
     if (!api) return;
@@ -40,7 +40,7 @@ export function BannerCarousel() {
   return (
     <Carousel
       opts={{ align: "start", loop: true }}
-      // plugins={[plugin.current]}
+      plugins={[plugin.current]}
       setApi={setApi}>
       <CarouselContent className="ml-0 gap-0 [&>*]:pl-0 [&>*]:mr-0">
         {Array.from({ length: 5 }).map((_, index) => {
