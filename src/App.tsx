@@ -1,9 +1,9 @@
-import "./App.css";
+import "./assets/styles/App.css";
 import { Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { routes } from "./routes/route";
-import Header from "./layouts/Header";
-import Footer from "./layouts/Footer";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 import { Spinner } from "./components/ui/spinner";
 
 // Layout component to wrap pages with consistent structure
