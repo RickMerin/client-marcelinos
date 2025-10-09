@@ -17,7 +17,7 @@ import image1 from "@/assets/img/banner-1.webp";
 export function BannerCarousel() {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const plugin = useRef(Autoplay({ delay: 4000 }));
+  const plugin = useRef(Autoplay({ delay: 5000 }));
 
   useEffect(() => {
     if (!api) return;
@@ -115,13 +115,13 @@ export function BannerCarousel() {
                       <motion.div
                         variants={fadeUp}
                         transition={{ duration: 0.7, delay: 0.4 }}
-                        className="flex gap-8">
-                        <Button className="py-4 md:py-6 font-bold uppercase border-2 border-transparent text-xs md:text-sm">
+                        className="flex flex-col w-1/2 md:flex-row items-center justify-center gap-4 md:gap-8">
+                        <Button className="py-4 md:py-5 font-bold uppercase border-2 border-transparent text-xs md:text-sm">
                           OUR ROOMS
                         </Button>
                         <Button
                           variant="outline"
-                          className="py-4 md:py-6 font-bold uppercase border-2 text-white text-xs md:text-sm">
+                          className="py-4 md:py-5 font-bold uppercase border-2 text-white text-xs md:text-sm">
                           OUR ROOMS
                         </Button>
                       </motion.div>
