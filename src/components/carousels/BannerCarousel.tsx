@@ -17,7 +17,7 @@ import image1 from "@/assets/img/banner-1.webp";
 export function BannerCarousel() {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const plugin = useRef(Autoplay({ delay: 4000 }));
+  // const plugin = useRef(Autoplay({ delay: 4000 }));
 
   useEffect(() => {
     if (!api) return;
@@ -40,7 +40,7 @@ export function BannerCarousel() {
   return (
     <Carousel
       opts={{ align: "start", loop: true }}
-      plugins={[plugin.current]}
+      // plugins={[plugin.current]}
       setApi={setApi}>
       <CarouselContent className="ml-0 gap-0 [&>*]:pl-0 [&>*]:mr-0">
         {Array.from({ length: 5 }).map((_, index) => {
@@ -82,11 +82,26 @@ export function BannerCarousel() {
                       {/* Main WritingText animation */}
                       <motion.div
                         variants={fadeUp}
-                        transition={{ duration: 0.8, delay: 0.2 }}>
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="flex justify-center items-center w-full px-2">
                         <WritingText
-                          className="text-white text-4xl md:text-6xl/relaxed text-center font-bold"
                           text="MAKE YOUR STAY COMFORTABLE"
                           inView={true}
+                          style={{
+                            fontSize: "clamp(2rem, 6vw, 3.5rem)",
+                            lineHeight: "1.2",
+                            fontWeight: "bold",
+                            color: "white",
+                            textAlign: "center",
+                            textTransform: "uppercase",
+                            width: "100%",
+                            display: "flex",
+                            gap: "0.7rem",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            wordBreak: "break-word",
+                          }}
                           transition={{
                             type: "spring",
                             bounce: 0,
