@@ -20,10 +20,10 @@ function Footer() {
     { name: "Sitemap", href: "/sitemap" },
   ];
   return (
-    <footer className="bg-black p-4 text-white space-y-4">
+    <footer className="bg-black px-4 py-10 text-white space-y-4">
       <div className="container max-w-6xl mx-auto grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-8">
         {/* ---------------------------------- */}
-        <section className="col-span-3 md:col-span-1">
+        <section className="col-span-3 md:col-span-1 mb-5 md:mb-0">
           <h3 className="yellow md:text-lg font-bold">
             Marcelino's Resort Hotel
           </h3>
@@ -86,7 +86,7 @@ function Footer() {
           </ul>
         </section>
       </div>
-      <hr className=" border-white/20 mx-auto" />
+      <hr className=" border-white/20 mx-auto my-10" />
       <p className="text-center text-sm text-white/80">
         <small>
           &copy; {new Date().getFullYear()} Marcelino's Place | All Rights
