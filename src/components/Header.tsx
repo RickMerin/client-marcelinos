@@ -71,7 +71,7 @@ export default function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="top" className="bg-white">
-            <nav className="flex flex-wrap justify-content-center items-center gap-5 mt-10 p-5">
+            <nav className="flex flex-wrap justify-content-center items-center gap-5 md:mt-10 p-5">
               {navLinks.map((item) => (
                 <a
                   key={item.href}

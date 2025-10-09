@@ -2,12 +2,10 @@
   --primary-color: #3490dc;
   --default-color: #f4c95dd1;
   --default-color-hover: #e6b84f;
-  --font-family: "Manrope", monospace;
 }
 
 * {
   box-sizing: border-box;
-  font-family: var(--font-family);
   scroll-behavior: smooth;
 }
 
