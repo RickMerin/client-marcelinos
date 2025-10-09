@@ -1,13 +1,30 @@
-import { Facebook, Instagram, Twitter } from "lucide-react";
+import { Facebook, Instagram, Twitter, ArrowRight } from "lucide-react";
 import ContactForm from "./forms/ContactForm";
 
 function Footer() {
+  const first_link = [
+    { name: "Home", href: "/" },
+    { name: "About", href: "/about" },
+    { name: "Rooms", href: "/rooms" },
+    { name: "Services", href: "/services" },
+    { name: "Gallery", href: "/gallery" },
+    { name: "Review", href: "/review" },
+  ];
+
+  const second_link = [
+    { name: "Refund Policy", href: "/refund-policy" },
+    { name: "Terms & Conditions", href: "/terms-and-conditions" },
+    { name: "Privacy Policy", href: "/privacy-policy" },
+    { name: "FAQs", href: "/faqs" },
+    { name: "Careers", href: "/careers" },
+    { name: "Sitemap", href: "/sitemap" },
+  ];
   return (
     <footer className="bg-black p-4 text-white space-y-4">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="container mx-auto grid grid-cols-3 md:grid-cols-4 gap-8">
         {/* ---------------------------------- */}
-        <section>
-          <h3 className="yellow text-lg font-bold">
+        <section className="col-span-3 md:col-span-1">
+          <h3 className="yellow md:text-lg font-bold">
             Marcelino's Resort <br /> Hotel
           </h3>
           <p>
@@ -19,8 +36,8 @@ function Footer() {
 
         {/* ----------------------------------- */}
 
-        <section>
-          <h3 className="yellow text-lg font-bold">Contact Info</h3>
+        <section className="col-span-1 md:col-span-1">
+          <h3 className="yellow md:text-lg font-bold">Contact Info</h3>
           <ul className="mt-4">
             <li>
               <p>09********</p>
@@ -35,6 +52,38 @@ function Footer() {
             <Instagram className="yellow" size={30} />
             <Twitter className="yellow" size={30} />
           </div>
+        </section>
+
+        {/* ----------------------------------- */}
+
+        <section>
+          <h3 className="yellow md:text-lg font-bold">Quick Links</h3>
+          <ul className="mt-4 space-y-2">
+            {first_link.map((link) => (
+              <li key={link.name} className="flex items-center gap-2">
+                <ArrowRight size={16} className="yellow" />
+                <a href={link.href} className="hover:underline text-sm">
+                  {link.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* ----------------------------------- */}
+
+        <section>
+          <h3 className="yellow md:text-lg font-bold">Quick Links</h3>
+          <ul className="mt-4 space-y-2">
+            {second_link.map((link) => (
+              <li key={link.name} className="flex items-center gap-2">
+                <ArrowRight size={16} className="yellow" />
+                <a href={link.href} className="hover:underline text-sm">
+                  {link.name}
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
       </div>
       <hr className=" border-white/20 mx-auto" />
