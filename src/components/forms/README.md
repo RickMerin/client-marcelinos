@@ -3,7 +3,7 @@
 A lightweight, reusable form generator built with React Hook Form, Zod, and shadcn/ui.
 It allows developers to quickly scaffold and validate forms without repetitive boilerplate.
 
--
+---
 
 ⚙️ Features
 
@@ -17,7 +17,7 @@ It allows developers to quickly scaffold and validate forms without repetitive b
 
 🧾 Handles both Input and Textarea automatically
 
--
+---
 
 📦 File Structure
 
@@ -33,7 +33,7 @@ src/
     └── ContactForm.tsx      # Example usage
 ```
 
--
+---
 
 🚀 Getting Started
 
@@ -56,7 +56,9 @@ const contactSchema = z.object({
 
 > 💡 **Pro tip:** Always type your schema values with `z.infer<typeof schema>` to ensure form consistency.
 
-- **3. Define Your Fields**
+---
+
+**3. Define Your Fields**
 
 Each field in the form is represented by a simple config object.
 
@@ -77,8 +79,10 @@ const fields = [
 | `placeholder?` | `string`                                                    | Input placeholder                   |
 | `type?`        | `"text" \| "number" \| "email" \| "password" \| "textarea"` | Defaults to `"text"`                |
 
-- **4. Handle Submission**
-  Define your submit handler. It receives strongly typed form data.
+---
+
+**4. Handle Submission**
+Define your submit handler. It receives strongly typed form data.
 
 ```tsx
 const handleSubmit = (values: z.infer<typeof contactSchema>) => {
@@ -86,7 +90,9 @@ const handleSubmit = (values: z.infer<typeof contactSchema>) => {
 };
 ```
 
-- **5. Use the Wrapper**
+---
+
+**5. Use the Wrapper**
 
 Finally, render your form using the wrapper component.
 
@@ -99,7 +105,7 @@ Finally, render your form using the wrapper component.
 />
 ```
 
--
+---
 
 🧰 **Props Reference**
 | Prop | Type | Required | Description |
@@ -110,7 +116,7 @@ Finally, render your form using the wrapper component.
 | `submitLabel` | `string` | ❌ | Custom submit button label |
 | `buttons` | `React.ReactNode[]` | ❌ | Optional extra buttons (e.g., cancel) |
 
--
+---
 
 🧪 **Example — Contact Form**
 
@@ -148,7 +154,7 @@ export default function ContactForm() {
 }
 ```
 
--
+---
 
 🧠 **Notes & Best Practices**
 
@@ -160,7 +166,7 @@ Prefer composable, small schemas (can be reused across forms).
 
 Add new field types (like select, checkbox, etc.) directly inside FormWrapper.
 
--
+---
 
 💡 **Extending It**
 
