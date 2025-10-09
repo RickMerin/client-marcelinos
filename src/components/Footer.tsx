@@ -21,7 +21,7 @@ function Footer() {
   ];
   return (
     <footer className="bg-black p-4 text-white space-y-4">
-      <div className="container mx-auto grid grid-cols-3 md:grid-cols-4 gap-8">
+      <div className="container mx-auto grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-8">
         {/* ---------------------------------- */}
         <section className="col-span-3 md:col-span-1">
           <h3 className="yellow md:text-lg font-bold">
