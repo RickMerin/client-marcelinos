@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { routes } from "./routes/route";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import NotFound from "./pages/NotFound";
 import { Spinner } from "./components/ui/spinner";
 
 // Layout component to wrap pages with consistent structure
