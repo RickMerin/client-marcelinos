@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useForm, SubmitHandler, Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,44 +11,91 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea"; // ✅ add this
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { ChevronDownIcon, Minus, Plus } from "lucide-react";
 
-// Define the Field type
+// ---------- Types ----------
 type Field = {
   name: string;
   label?: string;
   placeholder?: string;
-  type?: "text" | "number" | "email" | "password" | "textarea";
+  type?:
+    | "text"
+    | "number"
+    | "email"
+    | "password"
+    | "textarea"
+    | "counter"
+    | "calendar"
+    | "date";
+  className?: string;
+  disabled?: boolean;
+  readOnly?: boolean;
 };
 
-// Define the props for FormWrapper
 interface FormWrapperProps<T extends z.ZodType<any, any>> {
   schema: T;
   fields: Field[];
   buttons?: React.ReactNode[];
   onSubmit: SubmitHandler<z.infer<T>>;
   submitLabel?: string;
+  className?: string;
+  onChangeFields?: (values: Partial<z.infer<T>>) => Partial<z.infer<T>>; // ✅ added
 }
 
-// FormWrapper component
+// ---------- Component ----------
 export function FormWrapper<T extends z.ZodType<any, any>>({
   schema,
   fields,
   onSubmit,
   submitLabel = "Submit",
+  className,
+  onChangeFields,
 }: FormWrapperProps<T>) {
-  // Initialize the form with react-hook-form and zodResolver
+  const [open, setOpen] = React.useState(false);
+
   const form = useForm<z.output<T>>({
     resolver: zodResolver(schema) as any,
     defaultValues: Object.fromEntries(
-      fields.map((f) => [f.name, ""])
+      fields.map((f) => [f.name, f.type === "counter" ? 1 : ""])
     ) as z.output<T>,
   });
 
+  // ✅ Auto update computed fields (e.g., check_out)
+  // Watch only specific form values, not the entire object
+  const days = form.watch("days" as Path<z.output<T>>);
+  const checkIn = form.watch("check_in" as Path<z.output<T>>);
+
+  React.useEffect(() => {
+    if (!onChangeFields) return;
+
+    const updated = onChangeFields({
+      days,
+      check_in: checkIn,
+    } as unknown as Partial<z.infer<T>>);
+    if (updated) {
+      Object.entries(updated).forEach(([key, val]) => {
+        const currentVal = form.getValues(key as Path<z.output<T>>);
+        // ✅ Prevent unnecessary re-renders if value didn't actually change
+        if (currentVal !== val) {
+          form.setValue(key as Path<z.output<T>>, val as any, {
+            shouldValidate: false,
+          });
+        }
+      });
+    }
+  }, [days, checkIn, onChangeFields]);
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className={className}>
         {fields.map((field) => (
           <FormField
             key={field.name}
@@ -57,16 +105,142 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
               <FormItem>
                 <FormLabel>{field.label}</FormLabel>
                 <FormControl>
-                  {field.type === "textarea" ? (
-                    <Textarea {...inputField} placeholder={field.placeholder} />
-                  ) : (
-                    <Input
-                      {...inputField}
-                      type={field.type || "text"}
-                      placeholder={field.placeholder}
-                      className="border-none bg-[#1E1E1E]"
-                    />
-                  )}
+                  {(() => {
+                    switch (field.type) {
+                      case "textarea":
+                        return (
+                          <Textarea
+                            {...inputField}
+                            placeholder={field.placeholder}
+                          />
+                        );
+
+                      case "counter":
+                        return (
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              onClick={() =>
+                                form.setValue(
+                                  field.name as Path<z.output<T>>,
+                                  Math.max(
+                                    1,
+                                    (form.getValues(
+                                      field.name as Path<z.output<T>>
+                                    ) || 1) - 1
+                                  ) as any
+                                )
+                              }>
+                              <Minus />
+                            </Button>
+                            <Input
+                              {...inputField}
+                              type="number"
+                              value={
+                                form.watch(field.name as Path<z.output<T>>) || 1
+                              }
+                              min={1}
+                              onChange={(e) =>
+                                form.setValue(
+                                  field.name as Path<z.output<T>>,
+                                  Math.max(1, Number(e.target.value)) as any
+                                )
+                              }
+                            />
+                            <Button
+                              type="button"
+                              onClick={() =>
+                                form.setValue(
+                                  field.name as Path<z.output<T>>,
+                                  ((form.getValues(
+                                    field.name as Path<z.output<T>>
+                                  ) || 0) + 1) as any
+                                )
+                              }>
+                              <Plus />
+                            </Button>
+                          </div>
+                        );
+
+                      case "calendar":
+                        return (
+                          <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                id="date"
+                                className="w-48 justify-between font-normal">
+                                {inputField.value
+                                  ? new Date(
+                                      inputField.value
+                                    ).toLocaleDateString("en-US", {
+                                      year: "numeric",
+                                      month: "long",
+                                      day: "numeric",
+                                    })
+                                  : "Select date"}
+                                <ChevronDownIcon />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto overflow-hidden p-0"
+                              align="start">
+                              <Calendar
+                                mode="single"
+                                selected={inputField.value}
+                                captionLayout="dropdown"
+                                disabled={(date) =>
+                                  date <
+                                  new Date(new Date().setHours(0, 0, 0, 0))
+                                }
+                                onSelect={(date) => {
+                                  inputField.onChange(date);
+                                  setOpen(false);
+                                }}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        );
+
+                      case "date":
+                        return (
+                          <Input
+                            {...inputField}
+                            type="text"
+                            className={field.className}
+                            disabled={field.disabled}
+                            readOnly={field.readOnly}
+                            value={
+                              inputField.value
+                                ? new Date(inputField.value).toLocaleDateString(
+                                    "en-US",
+                                    {
+                                      year: "numeric",
+                                      month: "long",
+                                      day: "numeric",
+                                    }
+                                  )
+                                : "Select Check-in Date First"
+                            }
+                            onChange={(e) =>
+                              inputField.onChange(new Date(e.target.value))
+                            }
+                          />
+                        );
+
+                      default:
+                        return (
+                          <Input
+                            {...inputField}
+                            type={field.type || "text"}
+                            placeholder={field.placeholder}
+                            className={field.className}
+                            disabled={field.disabled}
+                            readOnly={field.readOnly}
+                          />
+                        );
+                    }
+                  })()}
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -76,7 +250,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 
         <Button
           type="submit"
-          className="w-full text-black text-lg py-6 font-bold ">
+          className="w-full text-black text-lg py-6 font-bold">
           {submitLabel}
         </Button>
       </form>
