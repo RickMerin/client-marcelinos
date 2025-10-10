@@ -100,7 +100,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./libs/queryClient";
+import { queryClient } from "./lib/queryClient";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -118,7 +118,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 ### 🔹 1. GET (Data Fetching)
 
 ```tsx
-import { useApiQuery } from "@/libs/hooks/useApiQuery";
+import { useApiQuery } from "@/lib/hooks/useApiQuery";
 
 function UserList() {
   const { data, isLoading, error } = useApiQuery(["users"], "/users");
@@ -141,8 +141,8 @@ function UserList() {
 ### 🔹 2. POST (Create Resource)
 
 ```tsx
-import { useApiMutation } from "@/libs/hooks/useApiMutation";
-import { queryClient } from "@/libs/queryClient";
+import { useApiMutation } from "@/lib/hooks/useApiMutation";
+import { queryClient } from "@/lib/queryClient";
 
 function AddUser() {
   const createUser = useApiMutation("post", {
@@ -213,7 +213,7 @@ deleteUser.mutate({ url: `/users/123` });
 If you need to call the API outside React (e.g., utilities or services):
 
 ```tsx
-import { API } from "@/libs/apiClient";
+import { API } from "@/lib/apiClient";
 
 const users = await API.get<User[]>("/users");
 const newUser = await API.post<User>("/users", { name: "Rick" });
@@ -303,7 +303,7 @@ Example with Vitest:
 
 ```ts
 import { describe, it, expect, vi } from "vitest";
-import { API } from "@/libs/apiClient";
+import { API } from "@/lib/apiClient";
 import axios from "axios";
 
 vi.mock("axios");
