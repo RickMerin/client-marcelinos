@@ -1,5 +1,10 @@
+import { Gem } from "lucide-react";
 function About() {
-  return <div>About</div>;
+  return <div>
+    <Gem className="yellow" />
+    
+    </div>;
 }
 
 export default About;
+
