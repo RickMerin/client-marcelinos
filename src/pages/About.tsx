@@ -4,9 +4,7 @@ import CardsSection from '@/components/cards/AboutUsCards';
 function About() {
   return (
     <div className="about-container">
-      <center id='logo-container'><img src={logo} alt="Marcelino's Logo" className="logo" 
-      
-      /></center>
+      <center id='logo-container'><img src={logo} alt="Marcelino's Logo" className="logo"/></center>
 
       <div className='txt'>
         <div className="about-heading">
