@@ -1,5 +1,6 @@
 import { BannerCarousel } from "@/components/carousels/BannerCarousel";
 import BookingForm from "@/components/forms/BookingForm";
+import ImageCarousel from '../components/imagecarousel/ImageCarousel';
 import About from "./About";
 import FAQ from "./FAQ";
 
@@ -8,10 +9,13 @@ function Home() {
     <>
       <BannerCarousel />
       <BookingForm/>
+      <ImageCarousel />
       <About/>
       <FAQ/>
     </>
   );
 }
+
+
 
 export default Home;
