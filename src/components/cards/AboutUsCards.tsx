@@ -4,7 +4,6 @@ import wine from '../../assets/img/wine-toast.svg';
 import handshake from '../../assets/img/handshake.svg'; 
 import {
   Card,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -12,35 +11,43 @@ import {
 function CardsSection() {
   return (
     <div className="cards">
-      <Card className="flex-1 text-center bg-neutral-200 c-text-color shadow-md shadow-gray-500/40 rounded-2xl transition-transform transform hover:scale-105">
+      <Card className="flex-1 card-item text-center bg-neutral-200 c-text-color shadow-md shadow-gray-500/40 rounded-2xl transition-transform transform hover:scale-105">
         <CardHeader>
-        <img src={diamond} alt="diamond svg" className="card-icon "/>          
+                    <div className="card-icon">
+        <img src={diamond} alt="diamond svg"/>   
+        </div>       
         <CardTitle className="text-lg-w">Timeless<br/>Elegance</CardTitle>
-          <CardDescription className='desc c-text-color'>
-            Marcelino’s Place offers a refined venue where every celebration is
+        <p>Marcelino’s Place offers a refined venue where every celebration is
             crafted with sophistication and lasting beauty.
-          </CardDescription>
+        </p>
+      
         </CardHeader>
       </Card>
 
-      <Card className="flex-1 text-center shadow-md shadow-gray-500/40 bg-green text-white rounded-2xl transition-transform transform hover:scale-105">
+      <Card className="flex-1 card-item text-center bg-neutral-200 c-text-color shadow-md shadow-gray-500/40 rounded-2xl transition-transform transform hover:scale-105">
         <CardHeader>
-          <img src={wine} alt="wine toast svg" className="card-icon"/>          
+          <div className="card-icon">
+          <img src={wine} alt="wine toast svg"/>  
+          </div>        
           <CardTitle className="">Elegant<br></br>Gatherings</CardTitle>
-          <CardDescription className="text-white text-sm desc">
-            A sophisticated venue designed for weddings, parties, and life’s
+            <p>
+              A sophisticated venue designed for weddings, parties, and life’s
             cherished occasions.
-          </CardDescription>
+            </p>
+        
         </CardHeader>
       </Card>
 
-      <Card className="flex-1 bg-neutral-200 text-center shadow-md shadow-gray-500/40 rounded-2xl transition-transform transform hover:scale-105">
+      <Card className="flex-1 card-item bg-neutral-200 text-center shadow-md shadow-gray-500/40 rounded-2xl transition-transform transform hover:scale-105">
         <CardHeader>
-        <img src={handshake} alt="handshake svg" className="card-icon"/>          
-        <CardTitle className="text-lg-w font-">Refined<br/>Hospitality</CardTitle>
-          <CardDescription className='desc c-text-color'>
-            We blend elegance with heartfelt service for every celebration.
-          </CardDescription>  
+        <div className="card-icon">
+          <img src={handshake} alt="handshake svg"/>
+        </div>
+                  
+        <CardTitle className="text-lg-w font-">Refined<br/>Hospitality</CardTitle><p>
+          We blend elegance with heartfelt service for every celebration.
+        </p>
+          
         </CardHeader>
       </Card>
     </div>
