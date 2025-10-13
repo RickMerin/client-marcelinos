@@ -1,4 +1,5 @@
 import CardItem from "@/components/cards/CardItem";
+
 function Rooms() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
