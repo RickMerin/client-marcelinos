@@ -13,13 +13,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { DrawerTemplate } from "@/components/drawer/DrawerTemplate";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { ChevronDownIcon, Minus, Plus } from "lucide-react";
+import { ChevronDownIcon, HousePlus, Minus, Plus } from "lucide-react";
+import { RoomsGrid, RoomData } from "@/components/rooms/";
 
 // ---------- Types ----------
 type Field = {
@@ -34,10 +36,14 @@ type Field = {
     | "textarea"
     | "counter"
     | "calendar"
+    | "select"
+    | "drawer"
     | "date";
+
   className?: string;
   disabled?: boolean;
   readOnly?: boolean;
+  options?: any[]; // ✅ changed to plural
 };
 
 interface FormWrapperProps<T extends z.ZodType<any, any>> {
@@ -59,6 +65,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
   className,
   onChangeFields,
 }: FormWrapperProps<T>) {
+  // Drawer state
   const [open, setOpen] = React.useState(false);
 
   const form = useForm<z.output<T>>({
@@ -226,6 +233,35 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                               inputField.onChange(new Date(e.target.value))
                             }
                           />
+                        );
+
+                      case "drawer":
+                        return (
+                          <DrawerTemplate
+                            title="Room Selection"
+                            description="Note: Only available rooms are selectable."
+                            trigger={
+                              <Button
+                                variant="outline"
+                                className="w-full border-1 border-black text-black text-lg py-6">
+                                <HousePlus size={40} /> Select Room(s)
+                              </Button>
+                            }>
+                            <RoomsGrid
+                              rooms={field.options as RoomData[]} // ✅ changed to singular
+                              selectedRooms={inputField.value || []}
+                              onSelect={inputField.onChange}
+                            />
+
+                            <div className="pt-4">
+                              <p className="text-sm text-muted-foreground">
+                                Selected:{" "}
+                                {inputField.value && inputField.value.length > 0
+                                  ? inputField.value.join(", ")
+                                  : "None"}
+                              </p>
+                            </div>
+                          </DrawerTemplate>
                         );
 
                       default:

@@ -1,7 +1,15 @@
 import { z } from "zod";
 import { FormWrapper } from "./FormWrapper";
+import { useApiQuery } from "@/lib/hooks/useApiQuery";
 
-// Define schema
+/**
+ * Defines a schema for booking data using the zod library.
+ * @returns A zod object schema for booking data with the following properties:
+ * - days: A number representing the number of days for the booking (minimum 1).
+ * - check_in: A preprocessed date value for the check-in date.
+ * - check_out: A preprocessed date value for the check-out date (optional).
+ * - rooms: An array of numbers representing the selected rooms (minimum 1).
+ */
 const bookingSchema = z.object({
   days: z.number().min(1, "Invalid number of days"),
   check_in: z.preprocess(
@@ -26,9 +34,18 @@ const bookingSchema = z.object({
         : undefined,
     z.date("Select check-in date").optional()
   ),
+  rooms: z.array(z.number()).min(1, "Select at least one room"),
 });
 
 export default function BookingForm() {
+  // Fetch room data using a custom hook
+  const { data } = useApiQuery(["rooms"], "/rooms");
+
+  console.log(data);
+
+  /**
+   * An array of field objects representing different input fields for a form.
+   */
   const fields = [
     {
       name: "days", // ✅ must match schema
@@ -47,6 +64,12 @@ export default function BookingForm() {
       type: "date" as const,
       label: "Check-out Date",
       readOnly: true,
+    },
+    {
+      name: "rooms",
+      type: "drawer" as const,
+      label: "Rooms",
+      options: (data ?? []) as any[],
     },
   ];
 
