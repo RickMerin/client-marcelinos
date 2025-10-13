@@ -1,13 +1,9 @@
 
-.green {
-  color: #1f5d1e;
-}
+
 
 .bg-green {
   background-color: #1f5d1e;
 }
-
-
 .about-container {
   text-align: center;
   padding: 40px;
@@ -63,22 +59,37 @@
   justify-content: center;
   gap: 20px;
   margin-top: 30px;
-  width: calc(100% - 7% );
+  width: calc(100% - 4% );
 }
 
-.card-icon {
-  width: 40px;
-  height: auto;
+.card-item:hover{
+  background-color: #1f5d1e;
+  color: white;
+  p:hover {
+  color: white;
+}
 }
 
-.text-lg-w {
-  color: #1E1E1E;
-}
-.c-text-color{
-  color: #1b1a1a;
-}
 .desc {
   margin-top: 10px;
   font-size: 12px;
   line-height: 1.5;
+}
+
+p {
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+
+.card-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card-icon img {
+  width: 40px;
+  height: auto;
 }

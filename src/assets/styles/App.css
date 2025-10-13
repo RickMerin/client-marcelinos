@@ -12,3 +12,19 @@
 .yellow {
   color: var(--default-color);
 }
+
+.yellow-bg {
+  background-color: var(--default-color);
+}
+
+.yellow-bg:hover {
+  background-color: #F0B100;
+}
+
+.green {
+  color: #1f5d1e;
+}
+
+.green-bg {
+  background-color: #1f5d1e;
+}
