@@ -10,9 +10,9 @@ function Home() {
     <>
       <BannerCarousel />
       <BookingForm/>
+      <About/>
       <Services/>
       <ImageCarousel />
-      <About/>
       <FAQ/>
     </>
   );
