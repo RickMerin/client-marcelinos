@@ -32,8 +32,8 @@ const ImageCarousel: React.FC = () => {
           transform: 'translateY(0)',
         }}
       >
-        <span style={{ color: '#22543D' }}>OUR</span>{' '}
-        <span style={{ color: '#F4C542' }}>GALLERY</span>
+        <span className='green header'>OUR</span>{' '}
+        <span className='yellow header'>GALLERY</span>
       </h2>
 
       <Swiper

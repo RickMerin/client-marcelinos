@@ -28,3 +28,8 @@
 .green-bg {
   background-color: #1f5d1e;
 }
+
+.header {
+  font-size: 40px;
+  font-weight: bold;
+}

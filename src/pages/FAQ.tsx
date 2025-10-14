@@ -34,10 +34,10 @@ function FAQ() {
 
   return (
     <div>
-        <h2 className="text-3xl font-bold mt-4 text-center md:text-center">
-          <span className="green">FREQUENTLY</span>{" "}
-          <span className="yellow">ASKED</span>{" "}
-          <span className="green">QUESTIONS</span>
+        <h2 className="text-3xl font-bold mt-10 text-center md:text-center">
+          <span className="green header">FREQUENTLY</span>{" "}
+          <span className="yellow header">ASKED</span>{" "}
+          <span className="green header">QUESTIONS</span>
 
         </h2>
     <div className="faq-container flex flex-col md:flex-row gap-8 py-12 px-6 md:px-20">

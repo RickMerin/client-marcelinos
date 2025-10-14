@@ -31,8 +31,8 @@ const Services = () => {
     <section className="w-full py-16 bg-gray-50">
       {/* 🟢 Section Title */}
       <h2 className="text-3xl font-bold text-center mb-12">
-        <span className="text-green-800">OUR </span>
-        <span className="text-yellow-500">SERVICES</span>
+        <span className="green header">OUR </span>
+        <span className="yellow header">SERVICES</span>
       </h2>
 
       {/* 🟢 Services Cards Container */}

@@ -8,8 +8,8 @@ function About() {
 
       <div className='txt'>
         <div className="about-heading">
-        <span className="green">ABOUT</span>
-        <span className="yellow">US</span>
+        <span className="green header">ABOUT</span>
+        <span className="yellow header">US</span>
       </div>
 
       <div className="welcome-section left">
