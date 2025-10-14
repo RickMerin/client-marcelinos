@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { FormWrapper } from "./FormWrapper";
-import { useApiQuery } from "@/lib/hooks/useApiQuery";
 
 /**
  * Defines a schema for booking data using the zod library.
@@ -38,11 +37,6 @@ const bookingSchema = z.object({
 });
 
 export default function BookingForm() {
-  // Fetch room data using a custom hook
-  const { data } = useApiQuery(["rooms"], "/rooms");
-
-  console.log(data);
-
   /**
    * An array of field objects representing different input fields for a form.
    */
@@ -65,12 +59,6 @@ export default function BookingForm() {
       label: "Check-out Date",
       readOnly: true,
     },
-    {
-      name: "rooms",
-      type: "drawer" as const,
-      label: "Rooms",
-      options: (data ?? []) as any[],
-    },
   ];
 
   const handleSubmit = (values: z.infer<typeof bookingSchema>) => {
@@ -82,7 +70,7 @@ export default function BookingForm() {
       schema={bookingSchema}
       fields={fields}
       onSubmit={handleSubmit}
-      className="space-y-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"
+      className="space-y-6 px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center justify-center"
       submitLabel="Book Now"
       onChangeFields={(values) => {
         if (values.days && values.check_in) {

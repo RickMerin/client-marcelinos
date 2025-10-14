@@ -13,15 +13,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { DrawerTemplate } from "@/components/drawer/DrawerTemplate";
+
+import { cn } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { ChevronDownIcon, HousePlus, Minus, Plus } from "lucide-react";
-import { RoomsGrid, RoomData } from "@/components/rooms/";
+import { ChevronDownIcon, Minus, Plus } from "lucide-react";
 
 // ---------- Types ----------
 type Field = {
@@ -176,7 +176,13 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                               <Button
                                 variant="outline"
                                 id="date"
-                                className="w-48 justify-between font-normal">
+                                className={cn(
+                                  "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-12 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                                  "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                                  "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+                                  className,
+                                  "overflow-hidden text-ellipsis whitespace-nowrap"
+                                )}>
                                 {inputField.value
                                   ? new Date(
                                       inputField.value
@@ -185,8 +191,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                       month: "long",
                                       day: "numeric",
                                     })
-                                  : "Select date"}
-                                <ChevronDownIcon />
+                                  : "Select your Check-in Date"}
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent
@@ -233,35 +238,6 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                               inputField.onChange(new Date(e.target.value))
                             }
                           />
-                        );
-
-                      case "drawer":
-                        return (
-                          <DrawerTemplate
-                            title="Room Selection"
-                            description="Note: Only available rooms are selectable."
-                            trigger={
-                              <Button
-                                variant="outline"
-                                className="w-full border-1 border-black text-black text-lg py-6">
-                                <HousePlus size={40} /> Select Room(s)
-                              </Button>
-                            }>
-                            <RoomsGrid
-                              rooms={field.options as RoomData[]} // ✅ changed to singular
-                              selectedRooms={inputField.value || []}
-                              onSelect={inputField.onChange}
-                            />
-
-                            <div className="pt-4">
-                              <p className="text-sm text-muted-foreground">
-                                Selected:{" "}
-                                {inputField.value && inputField.value.length > 0
-                                  ? inputField.value.join(", ")
-                                  : "None"}
-                              </p>
-                            </div>
-                          </DrawerTemplate>
                         );
 
                       default:
