@@ -1,38 +1,33 @@
-# 🏨 Services Component Documentation
+# 🏨 Services Component
 
 ## 📘 Overview
-The `Services` component is a **React functional component** that displays a section of service cards — such as hotel booking, resort packages, concierge support, and dining experience.  
-It uses **static data** for each card and is styled with **Tailwind CSS** and **ShadCN UI** components.
+The **`Services`** component is a React functional component that displays a collection of service cards such as **Hotel Booking**, **Resort Packages**, **24/7 Concierge**, and **Dining Experience**.  
+It uses **static data** (hardcoded list) and is styled using **Tailwind CSS** and **ShadCN UI** components.
 
 ---
 
-## 🧩 File Location
+## 🧩 File Path
 src/components/Services.tsx
 
-yaml
-Copy code
-
----
-
 ## ⚙️ Dependencies
+
 Make sure you have the following installed:
 
 ```bash
 npm install lucide-react
-This component also uses:
+Also used:
 
-@/components/ui/card → from shadcn/ui
+@/components/ui/card → ShadCN UI card component
 
-Tailwind CSS → for responsive and hover styling
+Tailwind CSS → for responsive design and hover effects
 
-🧠 Component Structure
-tsx
-Copy code
+🧠 Full Component Code
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Hotel, Umbrella, ConciergeBell, Coffee } from "lucide-react";
 
 const Services = () => {
+  // 🟢 Static data for service cards
   const services = [
     {
       icon: <Hotel size={48} />,
@@ -58,11 +53,13 @@ const Services = () => {
 
   return (
     <section className="w-full py-16 bg-gray-50">
+      {/* 🟢 Section Header */}
       <h2 className="text-3xl font-bold text-center mb-12">
-        <span className="text-green-700">OUR </span>
+        <span className="text-green-800">OUR </span>
         <span className="text-yellow-500">SERVICES</span>
       </h2>
 
+      {/* 🟢 Services Cards */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6">
         {services.map((service, index) => (
           <Card
@@ -88,28 +85,31 @@ const Services = () => {
 };
 
 export default Services;
+
 🖌️ Design Notes
-The section background is light gray (bg-gray-50) for subtle contrast.
 
-Each card changes color on hover:
+Background: Light gray (bg-gray-50) for a soft neutral tone.
 
-Background → Green (hover:bg-green-800)
+Hover Effects:
 
-Text → White
+Card background turns green (hover:bg-green-800)
 
-Icon → Slightly scaled up for interactivity
+Text color changes to white
 
-Responsive grid:
+Icon slightly enlarges on hover
 
-1 column on small screens
+Responsive Grid Layout:
 
-4 columns on large screens
+1 column on mobile
+
+2 on small screens
+
+3–4 on medium and large screens
 
 📄 Usage Example
-To display the component in your homepage:
 
-tsx
-Copy code
+You can include this component in your homepage or any other page like this:
+
 import Services from "@/components/Services";
 
 const Home = () => {
