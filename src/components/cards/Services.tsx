@@ -2,28 +2,32 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Hotel, Umbrella, ConciergeBell, Coffee } from "lucide-react";
 
-const Services = () => {
-  // 🟢 Static data for your cards
+function Services() {
+  // 🟢 Static data for your service cards
   const services = [
     {
       icon: <Hotel size={48} />,
       title: "Hotel Booking",
-      description: "Book your stay in just a few clicks.",
+      description:
+        "Easily browse and reserve hotel rooms online. View room details, availability, and pricing — all in one place.",
     },
     {
       icon: <Umbrella size={48} />,
       title: "Resort Packages",
-      description: "Relax and unwind with our exclusive deals.",
+      description:
+        "Choose from exclusive resort deals that include accommodations, dining, and leisure activities designed for relaxation.",
     },
     {
       icon: <ConciergeBell size={48} />,
       title: "24/7 Concierge",
-      description: "Get premium support anytime, anywhere.",
+      description:
+        "Access round-the-clock assistance for your travel needs — from booking transportation to arranging special requests.",
     },
     {
       icon: <Coffee size={48} />,
       title: "Dining Experience",
-      description: "Enjoy world-class meals and beverages.",
+      description:
+        "Enjoy fine dining with curated menus from top chefs, available through pre-booked meal packages or on-site restaurants.",
     },
   ];
 
@@ -58,6 +62,6 @@ const Services = () => {
       </div>
     </section>
   );
-};
+}
 
 export default Services;
