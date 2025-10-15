@@ -16,12 +16,11 @@ function Home() {
       <BannerCarousel />
       <BookingForm/>
       <About/>
+      <RoomCard />
       <Services/>
       <ImageCarousel />
       < ClientReviews />
       <img src={banner} alt="marcelinos-banner" />
-      <About/>
-      <RoomCard />
       <FAQ/>
       <LocationMap/>
     </>
