@@ -21,12 +21,9 @@ function About() {
       </div>
       <><CardsSection /></>
       </div>
-      
     </div>
   );
 }
-
-
 
 export default About;
 

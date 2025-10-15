@@ -7,7 +7,7 @@ function Rooms() {
         Rooms
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-4 space-y-4">
-              {[0,1,2,3,4].map((item)=> (
+              {[0,1,2,3,4.5].map(()=> (
         <CardItem/>
     ))}
       </div>
