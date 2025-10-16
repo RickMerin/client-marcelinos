@@ -21,7 +21,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { ChevronDownIcon, Minus, Plus } from "lucide-react";
+import { Minus, Plus, CalendarArrowDown } from "lucide-react";
 
 // ---------- Types ----------
 type Field = {
@@ -183,15 +183,18 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                   className,
                                   "overflow-hidden text-ellipsis whitespace-nowrap"
                                 )}>
-                                {inputField.value
-                                  ? new Date(
-                                      inputField.value
-                                    ).toLocaleDateString("en-US", {
+                                {inputField.value ? (
+                                  new Date(inputField.value).toLocaleDateString(
+                                    "en-US",
+                                    {
                                       year: "numeric",
                                       month: "long",
                                       day: "numeric",
-                                    })
-                                  : "Select your Check-in Date"}
+                                    }
+                                  )
+                                ) : (
+                                  <CalendarArrowDown />
+                                )}
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent

@@ -70,7 +70,7 @@ export default function BookingForm() {
       schema={bookingSchema}
       fields={fields}
       onSubmit={handleSubmit}
-      className="space-y-6 px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center justify-center"
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 items-end gap-4"
       submitLabel="Book Now"
       onChangeFields={(values) => {
         if (values.days && values.check_in) {

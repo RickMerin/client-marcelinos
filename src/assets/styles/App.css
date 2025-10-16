@@ -2,6 +2,7 @@
   --primary-color: #3490dc;
   --default-color: #f4c95d;
   --default-color-hover: #e6b84f;
+  --light-gray: #f3f3f3;
 }
 
 * {
@@ -18,7 +19,7 @@
 }
 
 .yellow-bg:hover {
-  background-color: #F0B100;
+  background-color: #f0b100;
 }
 
 .green {
