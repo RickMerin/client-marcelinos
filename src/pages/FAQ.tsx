@@ -34,12 +34,6 @@ function FAQ() {
 
   return (
     <div>
-        <h2 className="text-3xl font-bold mt-10 text-center md:text-center">
-          <span className="green header">FREQUENTLY</span>{" "}
-          <span className="yellow header">ASKED</span>{" "}
-          <span className="green header">QUESTIONS</span>
-
-        </h2>
     <div className="faq-container flex flex-col md:flex-row gap-8 py-12 px-6 md:px-20">
         
       {/* Contact Form */}
@@ -85,6 +79,12 @@ function FAQ() {
 
       {/* FAQ Section */}
       <div className="w-full md:w-1/2">
+      <h2 className="text-3xl font-bold mb-3 text-center md:text-center">
+          <span className="green header">FREQUENTLY</span>{" "}
+          <span className="yellow header">ASKED</span>{" "}
+          <span className="green header">QUESTIONS</span>
+
+        </h2>
         <div className="space-y-4">
           {faqs.map((faq, index) => (
             <div
