@@ -1,12 +1,12 @@
 import { BannerCarousel } from "@/components/carousels/BannerCarousel";
 import BookingForm from "@/components/forms/BookingForm";
 import ImageCarousel from '../components/imagecarousel/ImageCarousel';
-import About from "../components/cards/About";
-import ClientReviews  from "../components/cards/ClientReviews";
+import About from "../components/sections/About";
+import ClientReviews  from "../components/sections/ClientReviews";
 // import banner from '../assets/img/marcelinos-banner.jpg';
 import EventVenues from "../components/cards/EventVenue";
 import RoomCard from "@/components/cards/RoomCard";
-import FAQ from "./FAQ";
+import FAQ from "../components/sections/FAQ";
 import LocationMap from "@/components/map/LocationMap";
 import Services from "../components/cards/Services";
 
