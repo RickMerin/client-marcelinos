@@ -6,7 +6,7 @@ import ClientReviews  from "../components/sections/ClientReviews";
 // import banner from '../assets/img/marcelinos-banner.jpg';
 import EventVenues from "../components/cards/EventVenue";
 import RoomCard from "@/components/cards/RoomCard";
-import FAQ from "../components/sections/FAQ";
+import FAQ from "../components/sections/ContactForm";
 import LocationMap from "@/components/map/LocationMap";
 import Services from "../components/cards/Services";
 
