@@ -1,4 +1,4 @@
-# 🎠 What We Are Doing Right Now (Making Carousel Image and How to Use)
+# 🎠 Reusable Image Carousel (Making Carousel Image and How to Use)
 
 ## 🧩 Overview
 
