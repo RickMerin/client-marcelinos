@@ -43,8 +43,7 @@ function RoomCard() {
           maxWidth: "1200px",
           margin: "0 auto",
           paddingBottom: "50px",
-        }}
-      >
+        }}>
         {rooms.map((room) => (
           <SwiperSlide key={room.id}>
             <CardItem image={room.image} title={room.title} />
