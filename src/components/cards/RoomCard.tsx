@@ -8,14 +8,14 @@ import CardItem from "./CardItem";
 
 function RoomCard() {
   const rooms = [
-    { id: 1, title: "Exclusive Room", image: "src/assets/img/room1.jpg" },
-    { id: 2, title: "Deluxe Room", image: "src/assets/img/room2.jpg" },
+    { id: 1, title: "Exclusive Room", image: "src/assets/img/room3.jpg" },
+    { id: 2, title: "Deluxe Room", image: "src/assets/img/room3.jpg" },
     { id: 3, title: "Family Suite", image: "src/assets/img/room3.jpg" },
-    { id: 4, title: "Luxury Room", image: "src/assets/img/room4.jpg" },
+    { id: 4, title: "Luxury Room", image: "src/assets/img/room3.jpg" },
   ];
 
   return (
-    <section className="min-h-screen bg-gray-50 py-10">
+    <section className="">
       <h1 className="text-4xl font-bold text-center mb-10">
         <span className="text-green-900">OUR</span>{" "}
         <span className="text-yellow-500">ROOMS</span>
