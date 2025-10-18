@@ -1,32 +1,26 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Hotel, Umbrella, ConciergeBell, Coffee } from "lucide-react";
+import { Wifi, Car, Waves } from "lucide-react";
 
 function Services() {
   // 🟢 Static data for your service cards
   const services = [
     {
-      icon: <Hotel size={48} />,
-      title: "Hotel Booking",
+      icon: <Wifi size={48} />,
+      title: "Free Wi-Fi",
       description:
-        "Easily browse and reserve hotel rooms online. View room details, availability, and pricing — all in one place.",
+        "Stay connected with our high-speed wireless internet, available throughout all hotel areas and guest rooms.",
     },
     {
-      icon: <Umbrella size={48} />,
-      title: "Resort Packages",
+      icon: <Car size={48} />,
+      title: "Valet Parking",
       description:
-        "Choose from exclusive resort deals that include accommodations, dining, and leisure activities designed for relaxation.",
+        "Enjoy hassle-free parking with our 24/7 valet service — convenience and care for your vehicle from arrival to departure.",
     },
     {
-      icon: <ConciergeBell size={48} />,
-      title: "24/7 Concierge",
+      icon: <Waves size={48} />,
+      title: "Swimming Pool",
       description:
-        "Access round-the-clock assistance for your travel needs — from booking transportation to arranging special requests.",
-    },
-    {
-      icon: <Coffee size={48} />,
-      title: "Dining Experience",
-      description:
-        "Enjoy fine dining with curated menus from top chefs, available through pre-booked meal packages or on-site restaurants.",
+        "Relax and unwind in our outdoor swimming pool with a view — perfect for leisure, exercise, or a sunset dip.",
     },
   ];
 
@@ -34,12 +28,12 @@ function Services() {
     <section className="w-full py-16 bg-gray-50">
       {/* 🟢 Section Title */}
       <h2 className="text-3xl font-bold text-center mb-12">
-        <span className="green header">OUR </span>
-        <span className="yellow header">SERVICES</span>
+        <span className="text-green-700">OUR </span>
+        <span className="text-yellow-500">SERVICES</span>
       </h2>
 
       {/* 🟢 Services Cards Container */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6">
+      <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-6">
         {services.map((service, index) => (
           <Card
             key={index}
