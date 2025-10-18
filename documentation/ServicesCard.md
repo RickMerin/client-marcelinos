@@ -1,1 +1,0 @@
-### How ServicesCard Component Works

@@ -30,9 +30,9 @@ function EventVenues() {
   ];
 
   return (
-    <section className="w-full py-16 bg-gray-50">
+    <section className="w-full py-16 bg-white-50">
       {/* 🟢 Section Title */}
-      <h2 className="text-3xl font-bold text-center mb-12">
+      <h2 className="text-4xl font-bold text-center mb-12">
         <span className="text-green-800">EVENT </span>
         <span className="text-yellow-500">VENUE</span>
       </h2>
