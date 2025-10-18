@@ -6,26 +6,27 @@ function FAQ() {
   const faqs = [
     {
       question: "What payment methods do you accept?",
-      answer: "We accept major credit cards, debit cards, and cash payments.",
+      answer: "We accept gcash, paypal, and cash payments.",
     },
     {
       question: "What is your check-in and check-out time?",
       answer: "Check-in starts at 2:00 PM, and check-out is until 12:00 PM.",
     },
     {
-      question: "Is breakfast included in the room rate?",
-      answer: "Yes, breakfast is included in selected room rates.",
-    },
-    {
-      question: "Do you offer airport transfer services?",
+      question: "Is Wi-Fi available in all rooms?",
       answer:
-        "Yes, we provide airport pickup and drop-off services. Please contact our concierge at least 24 hours in advance to arrange your transfer and confirm the rates.",
+        "Yes, complimentary high-speed Wi-Fi is available in all rooms and public areas.",
     },
     {
       question: "Is there a cancellation fee?",
       answer:
         "Cancellations made within 24 hours of the check-in date may incur a fee. Please review your booking details for more information.",
     },
+    {
+    question: "Do you have facilities for events or meetings?",
+    answer:
+      "Yes, we have function rooms and event spaces suitable for meetings, parties, and small gatherings. Contact our events team for more details.",
+  },
   ];
 
   const toggleFAQ = (index) => {
@@ -34,12 +35,6 @@ function FAQ() {
 
   return (
     <div>
-        <h2 className="text-3xl font-bold mt-10 text-center md:text-center">
-          <span className="green header">FREQUENTLY</span>{" "}
-          <span className="yellow header">ASKED</span>{" "}
-          <span className="green header">QUESTIONS</span>
-
-        </h2>
     <div className="faq-container flex flex-col md:flex-row gap-8 py-12 px-6 md:px-20">
         
       {/* Contact Form */}
@@ -85,6 +80,12 @@ function FAQ() {
 
       {/* FAQ Section */}
       <div className="w-full md:w-1/2">
+      <h2 className="text-3xl font-bold mb-3 text-center md:text-center">
+          <span className="green header">FREQUENTLY</span>{" "}
+          <span className="yellow header">ASKED</span>{" "}
+          <span className="green header">QUESTIONS</span>
+
+        </h2>
         <div className="space-y-4">
           {faqs.map((faq, index) => (
             <div

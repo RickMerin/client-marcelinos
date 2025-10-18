@@ -15,13 +15,20 @@ Make sure you have the following installed:
 
 ```bash
 npm install lucide-react
+``` 
+
+---
+
 Also used:
 
 @/components/ui/card → ShadCN UI card component
 
 Tailwind CSS → for responsive design and hover effects
 
-🧠 Full Component Code
+---
+
+## 🧠 Full Component Code
+```tsx
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Hotel, Umbrella, ConciergeBell, Coffee } from "lucide-react";
@@ -83,8 +90,10 @@ const Services = () => {
     </section>
   );
 };
+```
+---
 
-export default Services;
+### export default Services;
 
 🖌️ Design Notes
 
@@ -110,6 +119,9 @@ Responsive Grid Layout:
 
 You can include this component in your homepage or any other page like this:
 
+---
+
+```tsx
 import Services from "@/components/Services";
 
 const Home = () => {
@@ -123,3 +135,4 @@ const Home = () => {
 };
 
 export default Home;
+```

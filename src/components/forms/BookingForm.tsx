@@ -44,7 +44,9 @@ export default function BookingForm() {
     {
       name: "days", // ✅ must match schema
       type: "counter" as const,
-      label: "Number of Days",
+      label: "Number of Day(s)",
+      inputMode: "numeric",
+      pattern: "[0-9]*",
     },
     {
       name: "check_in", // ✅ must match schema
@@ -58,6 +60,7 @@ export default function BookingForm() {
       type: "date" as const,
       label: "Check-out Date",
       readOnly: true,
+      className: "bg-gray-300/50 cursor-not-allowed text-center",
     },
   ];
 
@@ -70,7 +73,7 @@ export default function BookingForm() {
       schema={bookingSchema}
       fields={fields}
       onSubmit={handleSubmit}
-      className="space-y-6 px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center justify-center"
+      className="space-y-6 px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:gap-4 items-center justify-center"
       submitLabel="Book Now"
       onChangeFields={(values) => {
         if (values.days && values.check_in) {

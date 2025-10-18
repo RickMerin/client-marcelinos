@@ -30,6 +30,11 @@
 }
 
 .header {
-  font-size: 40px;
+  font-size: 34px;
   font-weight: bold;
 }
+
+.swiper-pagination-bullet:nth-child(n+4) {
+  display: none !important;
+}
+
