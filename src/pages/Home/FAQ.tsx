@@ -29,57 +29,16 @@ function FAQ() {
   },
   ];
 
-  const toggleFAQ = (index) => {
+  const toggleFAQ = (index:any) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
 
   return (
     <div>
-    <div className="faq-container flex flex-col md:flex-row gap-8 py-12 px-6 md:px-20">
         
-      {/* Contact Form */}
-      <div className="w-full md:w-1/2 bg-white shadow-lg rounded-2xl p-6">
-        <h2 className="text-2xl yellow font-bold text-center mb-6">
-          Contact Us
-        </h2>
-        <form className="flex flex-col space-y-4">
-          <input
-            type="text"
-            placeholder="Full Name"
-            className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-600"
-          />
-          <input
-            type="email"
-            placeholder="Email Address"
-            className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-600"
-          />
-          <input
-            type="tel"
-            placeholder="Phone Number"
-            className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-600"
-          />
-          <select className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-600">
-            <option>Subject</option>
-            <option>Booking Inquiry</option>
-            <option>Event Request</option>
-            <option>Other</option>
-          </select>
-          <textarea
-            placeholder="Your Message"
-            rows="4"
-            className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-600"
-          ></textarea>
-          <button
-            type="submit"
-            className="yellow-bg text-white font-semibold py-3 rounded-lg hover:bg-yellow-600 transition"
-          >
-            Send Message
-          </button>
-        </form>
-      </div>
 
       {/* FAQ Section */}
-      <div className="w-full md:w-1/2">
+      <div className="w-full">
       <h2 className="text-3xl font-bold mb-3 text-center md:text-center">
           <span className="green header">FREQUENTLY</span>{" "}
           <span className="yellow header">ASKED</span>{" "}
@@ -110,7 +69,6 @@ function FAQ() {
           ))}
         </div>
       </div>
-    </div>
     </div>
 
   );

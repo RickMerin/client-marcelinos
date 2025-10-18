@@ -1,42 +1,5 @@
-  /** Client review data (static)*/
-  // const reviews = [
-  //   {
-  //     name: "Sophia L.",
-  //     date: "August 15, 2025",
-  //     text: "The attention to detail was impressive. From the décor to the hospitality, everything was perfect!",
-  //     stars: 4,
-  //     img: client1,
-  //   },
-  //   {
-  //     name: "David & Anna",
-  //     date: "September 3, 2025",
-  //     text: "Marcelino's Place is a gem! The elegant setting and exceptional service made our anniversary celebration unforgettable.",
-  //     stars: 5,
-  //     img: client1,
-  //   },
-  //   {
-  //     name: "Sophia L.",
-  //     date: "August 15, 2025",
-  //     text: "The attention to detail was impressive. From the décor to the hospitality, everything was perfect!",
-  //     stars: 4,
-  //     img: client1,
-  //   },
-  //   {
-  //     name: "Michael R.",
-  //     date: "July 20, 2025",
-  //     text: "A beautiful venue with a warm ambiance — our wedding reception turned out exactly as we dreamed.",
-  //     stars: 5,
-  //     img: client1,
-  //   },
-  // ];
-
-  // dynamic through API in future iterations
-
- /**
- * ClientReviews Component
- */
-
-import { useState, useRef, useEffect } from "react";
+  
+import {  useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -50,31 +13,42 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
+const reviews = [
+    {
+      name: "Sophia L.",
+      date: "August 15, 2025",
+      text: "The attention to detail was impressive. From the décor to the hospitality, everything was perfect!",
+      stars: 4,
+      img: client1,
+    },
+    {
+      name: "David & Anna",
+      date: "September 3, 2025",
+      text: "Marcelino's Place is a gem! The elegant setting and exceptional service made our anniversary celebration unforgettable.",
+      stars: 5,
+      img: client1,
+    },
+    {
+      name: "Sophia L.",
+      date: "August 15, 2025",
+      text: "The attention to detail was impressive. From the décor to the hospitality, everything was perfect!",
+      stars: 4,
+      img: client1,
+    },
+    {
+      name: "Michael R.",
+      date: "July 20, 2025",
+      text: "A beautiful venue with a warm ambiance — our wedding reception turned out exactly as we dreamed.",
+      stars: 5,
+      img: client1,
+    },
+  ];
+
 function ClientReviews() {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const swiperRef = useRef<SwiperType | null>(null);
-  const [reviews, setReviews] = useState([]);
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/reviews")
-      .then((res) => res.json())
-      .then((data) => {
-        const simplified = data.map((item) => ({
-          name: `${item.guest.first_name} ${item.guest.last_name}`,
-          date: new Date(item.review_date).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-          text: item.review_text,
-          stars: item.stars,
-          img: client1,
-        }));
-        setReviews(simplified);
-      })
-      .catch((err) => console.error("Error fetching reviews:", err));
-  }, []);
 
   return (
     <div className="bg-[#faf7f2] py-16 flex flex-col items-center relative overflow-hidden">
