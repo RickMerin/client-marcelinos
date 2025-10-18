@@ -147,6 +147,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                 form.watch(field.name as Path<z.output<T>>) || 1
                               }
                               min={1}
+                              className="text-center"
                               onChange={(e) =>
                                 form.setValue(
                                   field.name as Path<z.output<T>>,

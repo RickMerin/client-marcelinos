@@ -44,7 +44,7 @@ export default function BookingForm() {
     {
       name: "days", // ✅ must match schema
       type: "counter" as const,
-      label: "Number of Days",
+      label: "Number of Day(s)",
       inputMode: "numeric",
       pattern: "[0-9]*",
     },
@@ -60,8 +60,7 @@ export default function BookingForm() {
       type: "date" as const,
       label: "Check-out Date",
       readOnly: true,
-      disabled: true,
-      // className: "text-[var(--default-color)]",
+      className: "bg-gray-300/50 cursor-not-allowed",
     },
   ];
 
