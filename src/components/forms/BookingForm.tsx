@@ -60,7 +60,7 @@ export default function BookingForm() {
       type: "date" as const,
       label: "Check-out Date",
       readOnly: true,
-      className: "bg-gray-300/50 cursor-not-allowed",
+      className: "bg-gray-300/50 cursor-not-allowed text-center",
     },
   ];
 
