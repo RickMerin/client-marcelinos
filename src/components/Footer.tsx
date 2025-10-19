@@ -3,12 +3,12 @@ import ContactForm from "./forms/ContactForm";
 
 function Footer() {
   const first_link = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Rooms", href: "/rooms" },
-    { name: "Services", href: "/services" },
-    { name: "Gallery", href: "/gallery" },
-    { name: "Review", href: "/review" },
+    { name: "Home", href: "#home" },
+    { name: "About", href: "#about" },
+    { name: "Rooms", href: "#rooms" },
+    { name: "Services", href: "#services" },
+    { name: "Gallery", href: "#gallery" },
+    { name: "Review", href: "#reviews" },
   ];
 
   const second_link = [

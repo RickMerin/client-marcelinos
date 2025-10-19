@@ -39,6 +39,7 @@ export function BannerCarousel() {
 
   return (
     <Carousel
+      id="home"
       opts={{ align: "start", loop: true }}
       plugins={[plugin.current]}
       setApi={setApi}>

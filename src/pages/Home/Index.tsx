@@ -1,7 +1,7 @@
 import { BannerCarousel } from "@/components/carousels/BannerCarousel";
 import BookingForm from "@/components/forms/BookingForm";
 import About from "./About";
-import ImageCarousel from "@/components/imagecarousel/ImageCarousel";
+import OurGallery from "@/pages/Home/OurGallery";
 import ClientReviews from "./ClientReviews";
 import EventVenues from "./EventVenue";
 import RoomCard from "@/pages/Home/RoomCard";
@@ -24,7 +24,7 @@ function Home() {
       <RoomCard />
       <EventVenues />
       <Services />
-      <ImageCarousel />
+      <OurGallery />
       <ClientReviews />
       <FAQ />
       <LocationMap />

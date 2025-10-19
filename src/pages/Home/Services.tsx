@@ -31,7 +31,7 @@ function Services() {
   ];
 
   return (
-    <section className="w-full py-16 bg-gray-50">
+    <section id="services" className="w-full py-16 bg-gray-50">
       {/* 🟢 Section Title */}
       <h2 className="text-3xl font-bold text-center mb-12">
         <span className="green header">OUR </span>
