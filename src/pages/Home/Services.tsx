@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Hotel, Umbrella, ConciergeBell, Coffee } from "lucide-react";
 
@@ -44,8 +43,7 @@ function Services() {
         {services.map((service, index) => (
           <Card
             key={index}
-            className="group w-full h-56 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer bg-white hover:bg-green-800 flex flex-col items-center justify-center text-center"
-          >
+            className="group w-full h-56 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer bg-white hover:bg-green-800 flex flex-col items-center justify-center text-center">
             <CardContent className="flex flex-col items-center justify-center text-center p-6">
               <div className="text-yellow-400 mb-3 group-hover:scale-110 transition-transform duration-300">
                 {service.icon}
