@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { ShoppingCart, Star } from "lucide-react";
 import EventVenueSkeleton from "@/components/skeleton/EventVenueSkeleton";
+import { pricingFormat } from "@/lib/pricingFormat";
 
 function EventVenues() {
   const dummy_img_url =
@@ -66,7 +67,7 @@ function EventVenues() {
                 />
 
                 <span className="absolute top-3 left-3 bg-yellow-400 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {venue.price}
+                  {pricingFormat(venue.price)}/night
                 </span>
 
                 <div className="absolute top-3 right-3 bg-white p-1 rounded-full shadow-md">

@@ -12,8 +12,8 @@ function EventVenueSkeleton() {
           <CardContent>
             <Skeleton className="h-8 w-40 rounded-md" />
             <Skeleton className="h-20 w-full rounded-md mt-2" />
-            <Skeleton className="h-6 w-22 rounded-md mt-2" />
-            <Skeleton className="h-9 w-30 rounded-md mt-2" />
+            <Skeleton className="h-6 w-24 rounded-md mt-2" />
+            <Skeleton className="h-9 w-32 rounded-md mt-2" />
           </CardContent>
         </Card>
       ))}
