@@ -6,7 +6,7 @@ import ClientReviews from "./ClientReviews";
 import EventVenues from "./EventVenue";
 import RoomCard from "@/pages/Home/RoomCard";
 import FAQ from "./ContactForm";
-import LocationMap from "@/components/map/LocationMap";
+import LocationMap from "@/pages/Home/LocationMap";
 import Services from "./Services";
 
 function Home() {
