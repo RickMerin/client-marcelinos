@@ -13,6 +13,7 @@ export default function ContactForm() {
       name: "email",
       placeholder: "Enter your email",
       type: "email" as const,
+      className: "border-none bg-[#1E1E1E]",
     },
   ];
 
@@ -27,6 +28,7 @@ export default function ContactForm() {
       fields={fields}
       onSubmit={handleSubmit}
       submitLabel="Subscribe"
+      className="flex flex-col gap-4"
     />
   );
 }

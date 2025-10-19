@@ -13,13 +13,13 @@ export default function Header() {
   const [open, setOpen] = useState(false);
 
   const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
-    { label: "Room", href: "/room" },
-    { label: "Services", href: "/services" },
-    { label: "Gallery", href: "/gallery" },
-    { label: "Review", href: "/review" },
-    { label: "Faq", href: "/faq" },
+    { label: "Home", href: "#home" },
+    { label: "About", href: "#about" },
+    { label: "Rooms", href: "#rooms" },
+    { label: "Services", href: "#services" },
+    { label: "Gallery", href: "#gallery" },
+    { label: "Review", href: "#reviews" },
+    { label: "Faq", href: "#faq" },
   ];
 
   return (
