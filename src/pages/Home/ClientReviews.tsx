@@ -1,5 +1,4 @@
-  
-import {  useRef } from "react";
+import { useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -14,41 +13,47 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 const reviews = [
-    {
-      name: "Sophia L.",
-      date: "August 15, 2025",
-      text: "The attention to detail was impressive. From the décor to the hospitality, everything was perfect!",
-      stars: 4,
-      img: client1,
-    },
-    {
-      name: "David & Anna",
-      date: "September 3, 2025",
-      text: "Marcelino's Place is a gem! The elegant setting and exceptional service made our anniversary celebration unforgettable.",
-      stars: 5,
-      img: client1,
-    },
-    {
-      name: "Sophia L.",
-      date: "August 15, 2025",
-      text: "The attention to detail was impressive. From the décor to the hospitality, everything was perfect!",
-      stars: 4,
-      img: client1,
-    },
-    {
-      name: "Michael R.",
-      date: "July 20, 2025",
-      text: "A beautiful venue with a warm ambiance — our wedding reception turned out exactly as we dreamed.",
-      stars: 5,
-      img: client1,
-    },
-  ];
+  {
+    name: "Sophia L.",
+    date: "August 15, 2025",
+    text: "The attention to detail was impressive. From the décor to the hospitality, everything was perfect!",
+    stars: 4,
+    img: client1,
+  },
+  {
+    name: "David & Anna",
+    date: "September 3, 2025",
+    text: "Marcelino's Place is a gem! The elegant setting and exceptional service made our anniversary celebration unforgettable.",
+    stars: 5,
+    img: client1,
+  },
+  {
+    name: "Sophia L.",
+    date: "August 15, 2025",
+    text: "The attention to detail was impressive. From the décor to the hospitality, everything was perfect!",
+    stars: 4,
+    img: client1,
+  },
+  {
+    name: "Michael R.",
+    date: "July 20, 2025",
+    text: "A beautiful venue with a warm ambiance — our wedding reception turned out exactly as we dreamed.",
+    stars: 5,
+    img: client1,
+  },
+  {
+    name: "Michael R.",
+    date: "July 20, 2025",
+    text: "A beautiful venue with a warm ambiance — our wedding reception turned out exactly as we dreamed.",
+    stars: 5,
+    img: client1,
+  },
+];
 
 function ClientReviews() {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const swiperRef = useRef<SwiperType | null>(null);
-
 
   return (
     <div className="bg-[#faf7f2] py-16 flex flex-col items-center relative overflow-hidden">
@@ -61,15 +66,13 @@ function ClientReviews() {
         {/* Navigation Buttons */}
         <button
           ref={prevRef}
-          className="absolute left-2 sm:-left-10 top-1/2 -translate-y-1/2 z-30 bg-white w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-md flex items-center justify-center hover:bg-yellow-400 hover:text-white transition"
-        >
+          className="absolute left-2 sm:-left-10 top-1/2 -translate-y-1/2 z-30 bg-white w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-md flex items-center justify-center hover:bg-yellow-400 hover:text-white transition">
           <ChevronLeft className="w-5 h-5" />
         </button>
 
         <button
           ref={nextRef}
-          className="absolute right-2 sm:-right-10 top-1/2 -translate-y-1/2 z-30 bg-white w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-md flex items-center justify-center hover:bg-yellow-400 hover:text-white transition"
-        >
+          className="absolute right-2 sm:-right-10 top-1/2 -translate-y-1/2 z-30 bg-white w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-md flex items-center justify-center hover:bg-yellow-400 hover:text-white transition">
           <ChevronRight className="w-5 h-5" />
         </button>
 
@@ -107,8 +110,7 @@ function ClientReviews() {
               spaceBetween: 25,
             },
           }}
-          className="pb-10"
-        >
+          className="pb-10">
           {reviews.map((review, i) => (
             <SwiperSlide key={i}>
               {({ isActive, isPrev, isNext }) => (
@@ -123,13 +125,11 @@ function ClientReviews() {
                   style={{
                     transformOrigin: "center center",
                     transitionProperty: "transform, opacity, filter",
-                    filter: isActive ? "blur(0px)" : "blur(3px)", 
-                  }}
-                >
+                    filter: isActive ? "blur(0px)" : "blur(3px)",
+                  }}>
                   <Card
                     className="bg-white gap-0 item-stretch shadow-md rounded-2xl p-6 sm:p-8 text-left flex flex-col justify-between
-                               w-[90vw] sm:w-[400px] md:w-[450px] h-auto sm:h-[270px] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                                >
+                               w-[90vw] sm:w-[400px] md:w-[450px] h-auto sm:h-[270px] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <img
                         src={review.img}
@@ -152,23 +152,23 @@ function ClientReviews() {
                     </div>
 
                     {/* Star Rating */}
-                      <div className="flex gap-1 mt-3 mb-2">
-                        {[...Array(5)].map((_, idx) => (
-                          <Star
-                            key={idx}
-                            className={`w-5 h-5 ${
-                              idx < review.stars
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
+                    <div className="flex gap-1 mt-3 mb-2">
+                      {[...Array(5)].map((_, idx) => (
+                        <Star
+                          key={idx}
+                          className={`w-5 h-5 ${
+                            idx < review.stars
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
 
-                      {/* Review Text */}
-                      <p className="text-gray-700 text-[12px] leading-relaxed mt-0 mb-8">
-                        {review.text}
-                      </p>
+                    {/* Review Text */}
+                    <p className="text-gray-700 text-[12px] leading-relaxed mt-0 mb-8">
+                      {review.text}
+                    </p>
                   </Card>
                 </div>
               )}
