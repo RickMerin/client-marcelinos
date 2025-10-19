@@ -3,11 +3,11 @@ import BookingForm from "@/components/forms/BookingForm";
 import About from "./About";
 import ImageCarousel from "@/components/imagecarousel/ImageCarousel";
 import ClientReviews from "./ClientReviews";
-import EventVenues from "../../components/cards/EventVenue";
+import EventVenues from "./EventVenue";
 import RoomCard from "@/pages/Home/RoomCard";
 import FAQ from "./ContactForm";
 import LocationMap from "@/components/map/LocationMap";
-import Services from "../../components/cards/Services";
+import Services from "./Services";
 
 function Home() {
   return (
