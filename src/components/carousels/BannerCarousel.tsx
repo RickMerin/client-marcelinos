@@ -123,7 +123,7 @@ export function BannerCarousel() {
                         <Button
                           variant="outline"
                           className="w-full md:w-auto py-4 md:py-5 font-bold uppercase border-2 text-white text-sm">
-                          BOOK ROOM
+                          BOOK A ROOM
                         </Button>
                       </motion.div>
                     </motion.section>

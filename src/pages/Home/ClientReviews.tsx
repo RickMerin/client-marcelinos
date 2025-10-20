@@ -52,7 +52,7 @@ const reviews = [
     },
   ];
 
-function ClientReviews() {
+function Reviews() {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const swiperRef = useRef<SwiperType | null>(null);
@@ -67,7 +67,8 @@ function ClientReviews() {
   };
 
   return (
-    <div className="bg-[#faf7f2] py-16 flex flex-col items-center relative overflow-hidden">
+    <div id="reviews">
+      <div className="bg-[#faf7f2] py-16 flex flex-col items-center relative overflow-hidden">
       <h1 className="text-3xl font-bold text-center mb-12">
         <span className="green header">CLIENT</span>{" "}
         <span className="yellow header">REVIEWS</span>
@@ -211,7 +212,8 @@ function ClientReviews() {
         </div>
       </div>
     </div>
+    </div>
   );
 }
 
-export default ClientReviews;
+export default Reviews;
