@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { FormWrapper } from "./FormWrapper";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Defines a schema for booking data using the zod library.
@@ -10,30 +11,12 @@ import { FormWrapper } from "./FormWrapper";
  * - rooms: An array of numbers representing the selected rooms (minimum 1).
  */
 const bookingSchema = z.object({
-  days: z.number().min(1, "Invalid number of days"),
-  check_in: z.preprocess(
-    (val) =>
-      val === "" || val == null
-        ? undefined
-        : typeof val === "string" ||
-          typeof val === "number" ||
-          val instanceof Date
-        ? new Date(val)
-        : undefined,
-    z.date("Select check-in date")
-  ),
-  check_out: z.preprocess(
-    (val) =>
-      val === "" || val == null
-        ? undefined
-        : typeof val === "string" ||
-          typeof val === "number" ||
-          val instanceof Date
-        ? new Date(val)
-        : undefined,
-    z.date("Select check-in date").optional()
-  ),
-  rooms: z.array(z.number()).min(1, "Select at least one room"),
+  days: z.coerce.number().min(1, "Invalid number of days"),
+  check_in: z.coerce.date({
+    error: "Select check-in date",
+  }),
+  check_out: z.coerce.date().optional(),
+  rooms: z.array(z.number()).min(1, "Select at least one room").optional(),
 });
 
 export default function BookingForm() {
@@ -64,8 +47,12 @@ export default function BookingForm() {
     },
   ];
 
+  // Create a browser history object for navigation purposes
+  const navigate = useNavigate();
+
   const handleSubmit = (values: z.infer<typeof bookingSchema>) => {
-    console.log("Form submitted:", values); // should log { days: <number> }
+    navigate("/create-booking");
+    console.log("Form submitted:", values);
   };
 
   return (
