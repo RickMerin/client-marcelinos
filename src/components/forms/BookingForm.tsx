@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { FormWrapper } from "./FormWrapper";
+import { useHistory } from "react-router-dom";
 
 /**
  * Defines a schema for booking data using the zod library.
@@ -63,6 +64,8 @@ export default function BookingForm() {
       className: "bg-gray-300/50 cursor-not-allowed text-center",
     },
   ];
+
+  const history = useHistory();
 
   const handleSubmit = (values: z.infer<typeof bookingSchema>) => {
     console.log("Form submitted:", values); // should log { days: <number> }
