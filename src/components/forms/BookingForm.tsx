@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { FormWrapper } from "./FormWrapper";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { createBrowserHistory } from "history";
 
 /**
  * Defines a schema for booking data using the zod library.
@@ -65,10 +66,20 @@ export default function BookingForm() {
     },
   ];
 
-  const history = useHistory();
+  // Use React Router's navigate hook for navigation within the app
+  const navigate = useNavigate();
+  
+  // Create a browser history instance from the history module
+  const history = createBrowserHistory();
 
   const handleSubmit = (values: z.infer<typeof bookingSchema>) => {
-    console.log("Form submitted:", values); // should log { days: <number> }
+    console.log("Form submitted:", values);
+    
+    // Navigate to booking page with form data using React Router's navigate
+    navigate('/create-booking', { state: { bookingData: values } });
+    
+    // Also log the current history state for debugging
+    console.log("Current history location:", history.location);
   };
 
   return (
