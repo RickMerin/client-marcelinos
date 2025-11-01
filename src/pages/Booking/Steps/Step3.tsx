@@ -1,66 +1,175 @@
-"use client"
+"use client";
 
-import type React from "react"
+import React from "react";
+import { Button } from "@/components/ui/button";
 
-import { Label } from "@/components/ui/label"
-
-interface PreferencesFormProps {
-  formData: any
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
+interface Props {
+  formData: any;
+  onEdit: () => void;
+  onProceed: () => void;
+  selectedRoom?: {
+    name: string;
+    floor: string;
+    bed_type: string;
+    price: number;
+  };
 }
 
-export function Step3({ formData, handleInputChange }: PreferencesFormProps) {
+export function Step3({ formData, onEdit, onProceed, selectedRoom }: Props) {
+  const {
+    check_in,
+    check_out,
+    firstName,
+    lastName,
+    middleName,
+    gender,
+    phone,
+    email,
+    address,
+  } = formData;
+
+  // Compute days difference and total
+  const days =
+    check_in && check_out
+      ? Math.ceil(
+          (new Date(check_out).getTime() - new Date(check_in).getTime()) /
+            (1000 * 60 * 60 * 24)
+        )
+      : 0;
+
+  const price = selectedRoom?.price || 0;
+  const total = days * price;
+
   return (
-    <div className="space-y-6">
-      <div>
-        <Label htmlFor="category" className="text-sm font-semibold">
-          Preferred Category
-        </Label>
-        <select
-          id="category"
-          name="category"
-          value={formData.category}
-          onChange={handleInputChange}
-          className="mt-2 w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <option value="">Select a category</option>
-          <option value="technology">Technology</option>
-          <option value="business">Business</option>
-          <option value="health">Health</option>
-          <option value="education">Education</option>
-          <option value="entertainment">Entertainment</option>
-        </select>
+    <div className="space-y-8">
+      <h2 className="text-3xl font-bold text-center mb-6">
+        Review Booking Details
+      </h2>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Left column */}
+        <div className="space-y-4">
+          {/* Selected Date */}
+          <div className="border rounded-md shadow-sm">
+            <div className="bg-green-600 text-white px-4 py-2 font-semibold rounded-t-md">
+              Selected Date
+            </div>
+            <div className="p-4 text-sm text-gray-800 grid grid-cols-3 gap-2">
+              <p>
+                <strong>Days</strong>
+                <br />
+                {days || "—"} Days
+              </p>
+              <p>
+                <strong>Check-In</strong>
+                <br />
+                {check_in || "—"}
+              </p>
+              <p>
+                <strong>Check-Out</strong>
+                <br />
+                {check_out || "—"}
+              </p>
+            </div>
+          </div>
+
+          {/* Selected Room */}
+          <div className="border rounded-md shadow-sm">
+            <div className="bg-green-600 text-white px-4 py-2 font-semibold rounded-t-md">
+              Selected Room
+            </div>
+            <div className="p-4 text-sm text-gray-800 grid grid-cols-3 gap-2">
+              <p>
+                <strong>Name</strong>
+                <br />
+                {selectedRoom?.name || "—"}
+              </p>
+              <p>
+                <strong>Floor</strong>
+                <br />
+                {selectedRoom?.floor || "—"}
+              </p>
+              <p>
+                <strong>Bed Type</strong>
+                <br />
+                {selectedRoom?.bed_type || "—"}
+              </p>
+            </div>
+          </div>
+
+          {/* Total Billing */}
+          <div className="border rounded-md shadow-sm">
+            <div className="bg-green-600 text-white px-4 py-2 font-semibold rounded-t-md">
+              Total Billing
+            </div>
+            <div className="p-4 text-sm text-gray-800 grid grid-cols-4 gap-2">
+              <p className="col-span-1">
+                <strong>Name</strong>
+                <br />
+                {selectedRoom?.name || "—"}
+              </p>
+              <p className="col-span-1">
+                <strong>Price</strong>
+                <br />₱{price.toLocaleString()}
+              </p>
+              <p className="col-span-1">
+                <strong>Days</strong>
+                <br />
+                {days}
+              </p>
+              <p className="col-span-1">
+                <strong>Total</strong>
+                <br />₱{total.toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div className="border rounded-md shadow-sm h-fit">
+          <div className="bg-green-600 text-white px-4 py-2 font-semibold rounded-t-md">
+            Personal Information
+          </div>
+          <div className="p-4 text-sm text-gray-800 space-y-1">
+            <p>
+              <strong>Last Name:</strong> {lastName}
+            </p>
+            <p>
+              <strong>First Name:</strong> {firstName}
+            </p>
+            <p>
+              <strong>Middle Name:</strong> {middleName}
+            </p>
+            <p>
+              <strong>Gender:</strong> {gender}
+            </p>
+            <p>
+              <strong>Phone Number:</strong> {phone}
+            </p>
+            <p>
+              <strong>Email Address:</strong> {email}
+            </p>
+            <p>
+              <strong>Address:</strong> {address}
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <input
-            id="newsletter"
-            name="newsletter"
-            type="checkbox"
-            checked={formData.newsletter}
-            onChange={handleInputChange}
-            className="w-4 h-4 rounded border-input cursor-pointer"
-          />
-          <Label htmlFor="newsletter" className="text-sm font-medium cursor-pointer">
-            Subscribe to our newsletter
-          </Label>
-        </div>
+      {/* Buttons */}
+      <div className="flex items-center justify-between mt-8">
+        <button
+          onClick={onEdit}
+          className="text-sm underline text-gray-600 hover:text-gray-800">
+          ← Edit Details
+        </button>
 
-        <div className="flex items-center gap-3">
-          <input
-            id="notifications"
-            name="notifications"
-            type="checkbox"
-            checked={formData.notifications}
-            onChange={handleInputChange}
-            className="w-4 h-4 rounded border-input cursor-pointer"
-          />
-          <Label htmlFor="notifications" className="text-sm font-medium cursor-pointer">
-            Enable push notifications
-          </Label>
-        </div>
+        <Button
+          onClick={onProceed}
+          className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-3 rounded-md">
+          Continue
+        </Button>
       </div>
     </div>
-  )
+  );
 }
