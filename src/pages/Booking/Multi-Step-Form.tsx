@@ -7,6 +7,7 @@ import {
   PartyPopper,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,6 +17,7 @@ import { Step2 } from "./Steps/Step2";
 import { Step3 } from "./Steps/Step3";
 import { Step4 } from "./Steps/Step4";
 import { Step5 } from "./Steps/Step5";
+import { formatDate } from "@/lib/formatDate";
 
 const STEPS = [
   { id: 1, icon: <HousePlus /> },
@@ -28,6 +30,7 @@ const STEPS = [
 export interface FormData {
   check_in: string;
   check_out: string;
+  days: number;
   rooms: any[]; // allow multiple if you change UI later
   firstName: string;
   middleName: string;
@@ -60,9 +63,14 @@ export function MultiStepForm() {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [submitting, setSubmitting] = useState(false);
 
+  const reservationDate = JSON.parse(
+    localStorage.getItem("reservationDate") || "{}"
+  );
+
   const [formData, setFormData] = useState<FormData>({
-    check_in: "",
-    check_out: "",
+    check_in: formatDate(reservationDate?.check_in) || "",
+    check_out: formatDate(reservationDate?.check_out) || "",
+    days: reservationDate?.days || 1,
     rooms: [],
     firstName: "",
     middleName: "",
@@ -82,8 +90,6 @@ export function MultiStepForm() {
     idFile: null,
   });
 
-  console.log("Form Data:", formData);
-
   const handleNext = () => {
     if (currentStep < STEPS.length && isStepComplete(currentStep)) {
       setCurrentStep((s) => s + 1);
@@ -91,7 +97,13 @@ export function MultiStepForm() {
     }
   };
 
+  const navigate = useNavigate();
+
   const handlePrevious = () => {
+    if (currentStep === 1) {
+      navigate("/");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
     if (currentStep > 1) {
       setCurrentStep((s) => s - 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -261,7 +273,6 @@ export function MultiStepForm() {
             <Button
               variant="ghost"
               onClick={handlePrevious}
-              disabled={currentStep === 1}
               className="px-6 py-2">
               ← Back
             </Button>

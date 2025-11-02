@@ -13,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-
 import { cn } from "@/lib/utils";
 import {
   Popover,
@@ -23,7 +22,6 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarDays, Minus, Plus } from "lucide-react";
 
-// ---------- Types ----------
 type Field = {
   name: string;
   label?: string;
@@ -39,24 +37,22 @@ type Field = {
     | "select"
     | "drawer"
     | "date";
-
   className?: string;
   disabled?: boolean;
   readOnly?: boolean;
-  options?: any[]; // ✅ changed to plural
+  options?: any[];
+  value?: any;
 };
 
 interface FormWrapperProps<T extends z.ZodType<any, any>> {
   schema: T;
   fields: Field[];
-  buttons?: React.ReactNode[];
   onSubmit: SubmitHandler<z.infer<T>>;
   submitLabel?: string;
   className?: string;
-  onChangeFields?: (values: Partial<z.infer<T>>) => Partial<z.infer<T>>; // ✅ added
+  onChangeFields?: (values: Partial<z.infer<T>>) => Partial<z.infer<T>>;
 }
 
-// ---------- Component ----------
 export function FormWrapper<T extends z.ZodType<any, any>>({
   schema,
   fields,
@@ -65,40 +61,38 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
   className,
   onChangeFields,
 }: FormWrapperProps<T>) {
-  // Drawer state
   const [open, setOpen] = React.useState(false);
+
+  // ✅ derive default values from fields
+  const defaultValues = Object.fromEntries(
+    fields.map((f) => [f.name, f.value ?? (f.type === "counter" ? 1 : "")])
+  ) as z.output<T>;
 
   const form = useForm<z.output<T>>({
     resolver: zodResolver(schema) as any,
-    defaultValues: Object.fromEntries(
-      fields.map((f) => [f.name, f.type === "counter" ? 1 : ""])
-    ) as z.output<T>,
+    defaultValues,
   });
 
-  // ✅ Auto update computed fields (e.g., check_out)
-  // Watch only specific form values, not the entire object
   const days = form.watch("days" as Path<z.output<T>>);
   const checkIn = form.watch("check_in" as Path<z.output<T>>);
 
+  // ✅ dynamically update computed fields like check_out
   React.useEffect(() => {
     if (!onChangeFields) return;
-
     const updated = onChangeFields({
       days,
       check_in: checkIn,
     } as unknown as Partial<z.infer<T>>);
     if (updated) {
       Object.entries(updated).forEach(([key, val]) => {
-        const currentVal = form.getValues(key as Path<z.output<T>>);
-        // ✅ Prevent unnecessary re-renders if value didn't actually change
-        if (currentVal !== val) {
+        const current = form.getValues(key as Path<z.output<T>>);
+        if (val && current !== val)
           form.setValue(key as Path<z.output<T>>, val as any, {
             shouldValidate: false,
           });
-        }
       });
     }
-  }, [days, checkIn, onChangeFields]);
+  }, [days, checkIn]);
 
   return (
     <Form {...form}>
@@ -110,7 +104,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
             name={field.name as Path<z.output<T>>}
             render={({ field: inputField }) => (
               <FormItem>
-                <FormLabel>{field.label}</FormLabel>
+                {field.label && <FormLabel>{field.label}</FormLabel>}
                 <FormControl>
                   {(() => {
                     switch (field.type) {
@@ -143,16 +137,10 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                             <Input
                               {...inputField}
                               type="number"
-                              value={
-                                form.watch(field.name as Path<z.output<T>>) || 1
-                              }
-                              min={1}
                               className="text-center"
+                              min={1}
                               onChange={(e) =>
-                                form.setValue(
-                                  field.name as Path<z.output<T>>,
-                                  Math.max(1, Number(e.target.value)) as any
-                                )
+                                inputField.onChange(Number(e.target.value))
                               }
                             />
                             <Button
@@ -176,13 +164,10 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                             <PopoverTrigger asChild>
                               <Button
                                 variant="outline"
-                                id="date"
                                 className={cn(
-                                  "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-12 w-full min-w-0 rounded-md border bg-transparent px-2 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-                                  "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                                  "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-                                  className,
-                                  "overflow-hidden text-ellipsis whitespace-nowrap"
+                                  "justify-start text-left font-normal h-12",
+                                  !inputField.value && "text-muted-foreground",
+                                  field.className
                                 )}>
                                 {inputField.value ? (
                                   new Date(inputField.value).toLocaleDateString(
@@ -194,28 +179,27 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                     }
                                   )
                                 ) : (
-                                  <div className="flex justify-start gap-2">
-                                    <CalendarDays />
-                                    <span>Select Date</span>
+                                  <div className="flex items-center gap-2">
+                                    <CalendarDays size={16} />
+                                    <span>
+                                      {field.placeholder || "Pick date"}
+                                    </span>
                                   </div>
                                 )}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent
-                              className="w-auto overflow-hidden p-0"
-                              align="start">
+                            <PopoverContent align="start" className="p-0">
                               <Calendar
                                 mode="single"
                                 selected={inputField.value}
-                                captionLayout="dropdown"
-                                disabled={(date) =>
-                                  date <
-                                  new Date(new Date().setHours(0, 0, 0, 0))
-                                }
                                 onSelect={(date) => {
                                   inputField.onChange(date);
                                   setOpen(false);
                                 }}
+                                disabled={(date) =>
+                                  date <
+                                  new Date(new Date().setHours(0, 0, 0, 0))
+                                }
                               />
                             </PopoverContent>
                           </Popover>
@@ -227,8 +211,8 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                             {...inputField}
                             type="text"
                             className={field.className}
-                            disabled={field.disabled}
                             readOnly={field.readOnly}
+                            disabled={field.disabled}
                             value={
                               inputField.value
                                 ? new Date(inputField.value).toLocaleDateString(
@@ -239,10 +223,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                       day: "numeric",
                                     }
                                   )
-                                : "Select Check-in Date First"
-                            }
-                            onChange={(e) =>
-                              inputField.onChange(new Date(e.target.value))
+                                : "Select Check-in Date"
                             }
                           />
                         );
@@ -266,7 +247,6 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
             )}
           />
         ))}
-
         <Button
           type="submit"
           className="w-full text-black text-lg py-6 font-bold">

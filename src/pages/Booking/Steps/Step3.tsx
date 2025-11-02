@@ -1,7 +1,6 @@
-"use client";
-
-import React from "react";
 import { Button } from "@/components/ui/button";
+import { pricingFormat } from "@/lib/pricingFormat";
+import { pluralize } from "@/lib/plural";
 
 interface Props {
   formData: any;
@@ -26,17 +25,11 @@ export function Step3({ formData, onEdit, onProceed, selectedRoom }: Props) {
     phone,
     email,
     address,
+    days,
+    rooms,
   } = formData;
 
-  // Compute days difference and total
-  const days =
-    check_in && check_out
-      ? Math.ceil(
-          (new Date(check_out).getTime() - new Date(check_in).getTime()) /
-            (1000 * 60 * 60 * 24)
-        )
-      : 0;
-
+  console.log(rooms);
   const price = selectedRoom?.price || 0;
   const total = days * price;
 
@@ -58,17 +51,17 @@ export function Step3({ formData, onEdit, onProceed, selectedRoom }: Props) {
               <p>
                 <strong>Days</strong>
                 <br />
-                {days || "—"} Days
+                {days || "—"} {pluralize(days, "Day")}
               </p>
               <p>
                 <strong>Check-In</strong>
                 <br />
-                {check_in || "—"}
+                {check_in || "—"} - 12PM
               </p>
               <p>
                 <strong>Check-Out</strong>
                 <br />
-                {check_out || "—"}
+                {check_out || "—"} - 2PM
               </p>
             </div>
           </div>
@@ -78,23 +71,42 @@ export function Step3({ formData, onEdit, onProceed, selectedRoom }: Props) {
             <div className="bg-green-600 text-white px-4 py-2 font-semibold rounded-t-md">
               Selected Room
             </div>
-            <div className="p-4 text-sm text-gray-800 grid grid-cols-3 gap-2">
-              <p>
-                <strong>Name</strong>
-                <br />
-                {selectedRoom?.name || "—"}
-              </p>
-              <p>
-                <strong>Floor</strong>
-                <br />
-                {selectedRoom?.floor || "—"}
-              </p>
-              <p>
-                <strong>Bed Type</strong>
-                <br />
-                {selectedRoom?.bed_type || "—"}
-              </p>
-            </div>
+            {formData.rooms.map(
+              (
+                room: {
+                  type: string;
+                  floor: string;
+                  bed_type: string;
+                  price: number;
+                },
+                index: number
+              ) => (
+                <div
+                  key={index}
+                  className="p-4 text-sm text-gray-800 grid grid-cols-4 gap-2">
+                  <p>
+                    <strong>Name</strong>
+                    <br />
+                    {room.type || "—"}
+                  </p>
+                  <p>
+                    <strong>Price</strong>
+                    <br />
+                    {pricingFormat(room.price) || "—"}
+                  </p>
+                  <p>
+                    <strong>Floor</strong>
+                    <br />
+                    {room.floor || "—"}
+                  </p>
+                  <p>
+                    <strong>Bed Type</strong>
+                    <br />
+                    {room.bed_type || "—"}
+                  </p>
+                </div>
+              )
+            )}
           </div>
 
           {/* Total Billing */}
@@ -103,11 +115,6 @@ export function Step3({ formData, onEdit, onProceed, selectedRoom }: Props) {
               Total Billing
             </div>
             <div className="p-4 text-sm text-gray-800 grid grid-cols-4 gap-2">
-              <p className="col-span-1">
-                <strong>Name</strong>
-                <br />
-                {selectedRoom?.name || "—"}
-              </p>
               <p className="col-span-1">
                 <strong>Price</strong>
                 <br />₱{price.toLocaleString()}
