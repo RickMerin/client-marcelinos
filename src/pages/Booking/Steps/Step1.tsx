@@ -46,7 +46,7 @@ export function Step1({ formData, setSelectedRooms }: Props) {
             <RoomCard
               key={room.id}
               id={room.id}
-              title={room.title}
+              title={room.type}
               description={room.description}
               images={room.images}
               size={room.size}

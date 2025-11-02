@@ -162,21 +162,6 @@ export function Step3({ formData, onEdit, onProceed, selectedRoom }: Props) {
           </div>
         </div>
       </div>
-
-      {/* Buttons */}
-      <div className="flex items-center justify-between mt-8">
-        <button
-          onClick={onEdit}
-          className="text-sm underline text-gray-600 hover:text-gray-800">
-          ← Edit Details
-        </button>
-
-        <Button
-          onClick={onProceed}
-          className="bg-amber-400 hover:bg-amber-500 text-black px-6 py-3 rounded-md">
-          Continue
-        </Button>
-      </div>
     </div>
   );
 }

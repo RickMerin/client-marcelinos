@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -13,6 +13,38 @@ interface Props {
 }
 
 export function Step2({ formData, handleInputChange, onFileUpload }: Props) {
+  const lastNameRef = useRef<HTMLInputElement>(null);
+  const middleNameRef = useRef<HTMLInputElement>(null);
+  const firstNameRef = useRef<HTMLInputElement>(null);
+  const genderRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const addressRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const refs = [
+      { ref: lastNameRef, value: formData.lastName },
+      { ref: middleNameRef, value: formData.middleName },
+      { ref: firstNameRef, value: formData.firstName },
+      { ref: genderRef, value: formData.gender },
+      { ref: phoneRef, value: formData.phone },
+      { ref: emailRef, value: formData.email },
+      { ref: addressRef, value: formData.address },
+    ];
+    const firstWithValue = refs.find((r) => r.value);
+    if (firstWithValue?.ref.current) {
+      firstWithValue.ref.current.focus();
+    }
+  }, [
+    formData.lastName,
+    formData.middleName,
+    formData.firstName,
+    formData.gender,
+    formData.phone,
+    formData.email,
+    formData.address,
+  ]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files && e.target.files[0];
     onFileUpload(f ?? null);
@@ -28,6 +60,7 @@ export function Step2({ formData, handleInputChange, onFileUpload }: Props) {
         <div>
           <Label>Last Name</Label>
           <Input
+            ref={lastNameRef}
             name="lastName"
             value={formData.lastName}
             onChange={handleInputChange}
@@ -38,6 +71,7 @@ export function Step2({ formData, handleInputChange, onFileUpload }: Props) {
         <div>
           <Label>Middle Name</Label>
           <Input
+            ref={middleNameRef}
             name="middleName"
             value={formData.middleName}
             onChange={handleInputChange}
@@ -48,6 +82,7 @@ export function Step2({ formData, handleInputChange, onFileUpload }: Props) {
         <div>
           <Label>First Name</Label>
           <Input
+            ref={firstNameRef}
             name="firstName"
             value={formData.firstName}
             onChange={handleInputChange}
@@ -58,6 +93,7 @@ export function Step2({ formData, handleInputChange, onFileUpload }: Props) {
         <div>
           <Label>Gender</Label>
           <Input
+            ref={genderRef}
             name="gender"
             value={formData.gender}
             onChange={handleInputChange}
@@ -68,6 +104,7 @@ export function Step2({ formData, handleInputChange, onFileUpload }: Props) {
         <div className="col-span-2">
           <Label>Phone Number</Label>
           <Input
+            ref={phoneRef}
             name="phone"
             value={formData.phone}
             onChange={handleInputChange}
@@ -78,6 +115,7 @@ export function Step2({ formData, handleInputChange, onFileUpload }: Props) {
         <div className="col-span-2">
           <Label>Email Address</Label>
           <Input
+            ref={emailRef}
             name="email"
             value={formData.email}
             onChange={handleInputChange}
@@ -88,6 +126,7 @@ export function Step2({ formData, handleInputChange, onFileUpload }: Props) {
         <div className="col-span-2">
           <Label>Address</Label>
           <Input
+            ref={addressRef}
             name="address"
             value={formData.address}
             onChange={handleInputChange}

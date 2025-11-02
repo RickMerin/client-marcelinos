@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   HousePlus,
   BookUser,
@@ -6,9 +6,8 @@ import {
   ReceiptText,
   PartyPopper,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, easeInOut } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Stepper } from "./Stepper";
@@ -18,6 +17,7 @@ import { Step3 } from "./Steps/Step3";
 import { Step4 } from "./Steps/Step4";
 import { Step5 } from "./Steps/Step5";
 import { formatDate } from "@/lib/formatDate";
+import { saveToLocalStorage, getFromLocalStorage } from "@/lib/localStorage";
 
 const STEPS = [
   { id: 1, icon: <HousePlus /> },
@@ -31,7 +31,7 @@ export interface FormData {
   check_in: string;
   check_out: string;
   days: number;
-  rooms: any[]; // allow multiple if you change UI later
+  rooms: any[];
   firstName: string;
   middleName: string;
   lastName: string;
@@ -47,10 +47,31 @@ export interface FormData {
   newsletter: boolean;
   notifications: boolean;
   paymentMethod: string;
-  idFile?: string | null; // base64 preview or file name
+  idFile?: string | null;
 }
 
-import { easeInOut } from "framer-motion";
+const defaultFormData: FormData = {
+  check_in: "",
+  check_out: "",
+  days: 1,
+  rooms: [],
+  firstName: "",
+  middleName: "",
+  lastName: "",
+  gender: "",
+  phone: "",
+  email: "",
+  address: "",
+  street: "",
+  city: "",
+  state: "",
+  zipCode: "",
+  category: "",
+  newsletter: false,
+  notifications: false,
+  paymentMethod: "",
+  idFile: null,
+};
 
 const stepMotion = {
   initial: { opacity: 0, x: 40 },
@@ -60,35 +81,36 @@ const stepMotion = {
 };
 
 export function MultiStepForm() {
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
-  const reservationDate = JSON.parse(
-    localStorage.getItem("reservationDate") || "{}"
-  );
+  // Load initial form data
+  const reservationDate = getFromLocalStorage("reservationDate");
+  const storedFormData = getFromLocalStorage("reservationDetails");
 
-  const [formData, setFormData] = useState<FormData>({
-    check_in: formatDate(reservationDate?.check_in) || "",
-    check_out: formatDate(reservationDate?.check_out) || "",
-    days: reservationDate?.days || 1,
-    rooms: [],
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    gender: "",
-    phone: "",
-    email: "",
-    address: "",
-    street: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    category: "",
-    newsletter: false,
-    notifications: false,
-    paymentMethod: "",
-    idFile: null,
-  });
+  const initialFormData: FormData = {
+    ...defaultFormData,
+    ...(storedFormData || {}),
+    check_in:
+      formatDate(reservationDate?.check_in) || storedFormData?.check_in || "",
+    check_out:
+      formatDate(reservationDate?.check_out) || storedFormData?.check_out || "",
+    days: reservationDate?.days || storedFormData?.days || 1,
+  };
+
+  const [formData, setFormData] = useState<FormData>(initialFormData);
+
+  // ✅ Keep localStorage synced with formData
+  useEffect(() => {
+    saveToLocalStorage("reservationDetails", formData);
+  }, [formData]);
+
+  // ✅ Autoload from localStorage when mounted (in case user refreshes)
+  useEffect(() => {
+    const saved = getFromLocalStorage("reservationDetails");
+    if (saved) setFormData((prev) => ({ ...prev, ...saved }));
+  }, []);
 
   const handleNext = () => {
     if (currentStep < STEPS.length && isStepComplete(currentStep)) {
@@ -97,14 +119,11 @@ export function MultiStepForm() {
     }
   };
 
-  const navigate = useNavigate();
-
   const handlePrevious = () => {
     if (currentStep === 1) {
       navigate("/");
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    if (currentStep > 1) {
+    } else {
       setCurrentStep((s) => s - 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -115,41 +134,21 @@ export function MultiStepForm() {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const target = e.target as HTMLInputElement;
-    const { name, type } = target;
-    let value: any = target.value;
-
-    if (type === "checkbox") value = (target as HTMLInputElement).checked;
-
+    const { name, type, value, checked } = e.target as HTMLInputElement;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  // Helper used by Step1 to set `room_id` (select or deselect multiple rooms)
-  const setSelectedRooms = (rooms: any[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      rooms: rooms,
-    }));
-  };
+  const setSelectedRooms = (rooms: any[]) =>
+    setFormData((prev) => ({ ...prev, rooms }));
 
-  // Helper used by Step4 to set payment method
-  const setPaymentMethod = (method: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      paymentMethod: method,
-    }));
-  };
+  const setPaymentMethod = (method: string) =>
+    setFormData((prev) => ({ ...prev, paymentMethod: method }));
 
-  // File upload handler for ID image
   const handleFileUpload = async (file?: File | null) => {
-    if (!file) {
-      setFormData((p) => ({ ...p, idFile: null }));
-      return;
-    }
-    // preview as data URL (small files only)
+    if (!file) return setFormData((p) => ({ ...p, idFile: null }));
     const dataUrl = await new Promise<string>((res, rej) => {
       const reader = new FileReader();
       reader.onload = () => res(String(reader.result));
@@ -165,44 +164,38 @@ export function MultiStepForm() {
         return formData.rooms.length > 0;
       case 2:
         return (
-          formData.lastName.trim().length > 0 &&
-          formData.firstName.trim().length > 0 &&
+          formData.firstName.trim() &&
+          formData.lastName.trim() &&
           /\S+@\S+\.\S+/.test(formData.email) &&
           formData.phone.trim().length > 6
         );
       case 3:
         return (
-          formData.street.trim().length > 0 &&
-          formData.city.trim().length > 0 &&
-          formData.state.trim().length > 0 &&
-          formData.zipCode.trim().length > 0
+          formData.street.trim() &&
+          formData.city.trim() &&
+          formData.state.trim() &&
+          formData.zipCode.trim()
         );
-      case 4:
-        return true;
       default:
-        return false;
+        return true;
     }
   };
 
   const handleSubmit = async () => {
     if (!isStepComplete(2) || !isStepComplete(3)) {
-      // safety check
       alert("Please complete required fields.");
       return;
     }
-
     setSubmitting(true);
     try {
-      // example: send to /api/bookings - adapt to your backend
       const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       if (!res.ok) throw new Error("Submission failed");
-      // on success, optionally navigate to confirmation page
       alert("Booking submitted — check your email for confirmation.");
-      // reset or redirect
+      localStorage.removeItem("reservationDetails");
     } catch (err) {
       console.error(err);
       alert("Error submitting booking.");
@@ -268,16 +261,15 @@ export function MultiStepForm() {
           </AnimatePresence>
         </div>
 
-        {currentStep !== 3 && currentStep !== 4 && currentStep !== 5 && (
+        {currentStep < 5 && (
           <div className="flex items-center justify-between gap-4">
             <Button
               variant="ghost"
               onClick={handlePrevious}
               className="px-6 py-2">
-              ← Back
+              {currentStep === 3 ? " ← Edit Personal Info" : " ← Back"}
             </Button>
-
-            {currentStep === STEPS.length ? (
+            {currentStep === 4 ? (
               <Button
                 onClick={handleSubmit}
                 disabled={submitting}
