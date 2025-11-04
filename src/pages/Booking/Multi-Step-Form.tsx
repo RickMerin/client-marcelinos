@@ -18,6 +18,7 @@ import { Step4 } from "./Steps/Step4";
 import { Step5 } from "./Steps/Step5";
 import { formatDate } from "@/lib/formatDate";
 import { saveToLocalStorage, getFromLocalStorage } from "@/lib/localStorage";
+import { calculateTotalPrice, calculateGrandTotalPrice } from "@/lib/calculate";
 
 const STEPS = [
   { id: 1, icon: <HousePlus /> },
@@ -28,6 +29,7 @@ const STEPS = [
 ];
 
 export interface FormData {
+  current_step: number;
   check_in: string;
   check_out: string;
   days: number;
@@ -48,9 +50,12 @@ export interface FormData {
   notifications: boolean;
   paymentMethod: string;
   idFile?: string | null;
+  totalPrice: number;
+  grandTotalPrice: number;
 }
 
 const defaultFormData: FormData = {
+  current_step: 1,
   check_in: "",
   check_out: "",
   days: 1,
@@ -71,6 +76,8 @@ const defaultFormData: FormData = {
   notifications: false,
   paymentMethod: "",
   idFile: null,
+  totalPrice: 0,
+  grandTotalPrice: 0,
 };
 
 const stepMotion = {
@@ -81,8 +88,7 @@ const stepMotion = {
 };
 
 export function MultiStepForm() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [submitting, setSubmitting] = useState(false);
+  // const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   // Load initial form data
@@ -113,18 +119,21 @@ export function MultiStepForm() {
   }, []);
 
   const handleNext = () => {
-    if (currentStep < STEPS.length && isStepComplete(currentStep)) {
-      setCurrentStep((s) => s + 1);
+    if (
+      formData.current_step < STEPS.length &&
+      isStepComplete(formData.current_step)
+    ) {
+      setFormData((prev) => ({ ...prev, current_step: prev.current_step + 1 }));
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handlePrevious = () => {
-    if (currentStep === 1) {
+    if (formData.current_step === 1) {
       navigate("/");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      setCurrentStep((s) => s - 1);
+      setFormData((prev) => ({ ...prev, current_step: prev.current_step - 1 }));
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
@@ -142,7 +151,19 @@ export function MultiStepForm() {
   };
 
   const setSelectedRooms = (rooms: any[]) =>
-    setFormData((prev) => ({ ...prev, rooms }));
+    setFormData((prev) => {
+      const totalPrice = calculateTotalPrice(rooms);
+      const grandTotalPrice = calculateGrandTotalPrice(rooms, prev.days);
+      return { ...prev, rooms, totalPrice, grandTotalPrice };
+    });
+
+  // 👇 keep grandTotalPrice in sync when days changes
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      grandTotalPrice: calculateGrandTotalPrice(prev.rooms, prev.days),
+    }));
+  }, [formData.days]);
 
   const setPaymentMethod = (method: string) =>
     setFormData((prev) => ({ ...prev, paymentMethod: method }));
@@ -170,48 +191,43 @@ export function MultiStepForm() {
           formData.phone.trim().length > 6
         );
       case 3:
-        return (
-          formData.street.trim() &&
-          formData.city.trim() &&
-          formData.state.trim() &&
-          formData.zipCode.trim()
-        );
+        return true;
       default:
         return true;
     }
   };
 
-  const handleSubmit = async () => {
-    if (!isStepComplete(2) || !isStepComplete(3)) {
-      alert("Please complete required fields.");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error("Submission failed");
-      alert("Booking submitted — check your email for confirmation.");
-      localStorage.removeItem("reservationDetails");
-    } catch (err) {
-      console.error(err);
-      alert("Error submitting booking.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  // const handleSubmit = async () => {
+  //   if (!isStepComplete(2) || !isStepComplete(3)) {
+  //     alert("Please complete required fields.");
+  //     return;
+  //   }
+  //   setSubmitting(true);
+  //   try {
+  //     const res = await fetch("/api/bookings", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(formData),
+  //     });
+  //     if (!res.ok) throw new Error("Submission failed");
+  //     alert("Booking submitted — check your email for confirmation.");
+  //     localStorage.removeItem("reservationDetails");
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Error submitting booking.");
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
 
   return (
     <div className="w-full max-w-6xl mx-auto">
       <Card className="p-8 shadow-none border-none">
-        <Stepper steps={STEPS} currentStep={currentStep} />
+        <Stepper steps={STEPS} currentStep={formData.current_step} />
 
         <div className="mt-8 mb-8 min-h-[350px]">
           <AnimatePresence mode="wait" initial={false}>
-            {currentStep === 1 && (
+            {formData.current_step === 1 && (
               <motion.div key="step1" {...stepMotion}>
                 <Step1
                   formData={formData}
@@ -220,7 +236,7 @@ export function MultiStepForm() {
                 />
               </motion.div>
             )}
-            {currentStep === 2 && (
+            {formData.current_step === 2 && (
               <motion.div key="step2" {...stepMotion}>
                 <Step2
                   formData={formData}
@@ -229,7 +245,7 @@ export function MultiStepForm() {
                 />
               </motion.div>
             )}
-            {currentStep === 3 && (
+            {formData.current_step === 3 && (
               <motion.div key="step3" {...stepMotion}>
                 <Step3
                   formData={formData}
@@ -239,21 +255,30 @@ export function MultiStepForm() {
                     bed_type: "Double Bed",
                     price: 999,
                   }}
-                  onEdit={() => setCurrentStep(2)}
-                  onProceed={() => setCurrentStep(4)}
+                  onEdit={() =>
+                    setFormData((prev) => ({ ...prev, current_step: 2 }))
+                  }
+                  onProceed={() =>
+                    setFormData((prev) => ({ ...prev, current_step: 4 }))
+                  }
                 />
               </motion.div>
             )}
-            {currentStep === 4 && (
+            {formData.current_step === 4 && (
               <motion.div key="step4" {...stepMotion}>
                 <Step4
+                  paymentMethod={formData.paymentMethod}
                   setPaymentMethod={setPaymentMethod}
-                  onBack={() => setCurrentStep(3)}
-                  onProceed={() => setCurrentStep(5)}
+                  onBack={() =>
+                    setFormData((prev) => ({ ...prev, current_step: 3 }))
+                  }
+                  onProceed={() =>
+                    setFormData((prev) => ({ ...prev, current_step: 5 }))
+                  }
                 />
               </motion.div>
             )}
-            {currentStep === 5 && (
+            {formData.current_step === 5 && (
               <motion.div key="step5" {...stepMotion}>
                 <Step5 formData={formData} />
               </motion.div>
@@ -261,29 +286,22 @@ export function MultiStepForm() {
           </AnimatePresence>
         </div>
 
-        {currentStep < 5 && (
+        {formData.current_step < 5 && formData.current_step !== 4 && (
           <div className="flex items-center justify-between gap-4">
             <Button
               variant="ghost"
               onClick={handlePrevious}
               className="px-6 py-2">
-              {currentStep === 3 ? " ← Edit Personal Info" : " ← Back"}
+              {formData.current_step === 3
+                ? " ← Edit Personal Info"
+                : " ← Back"}
             </Button>
-            {currentStep === 4 ? (
-              <Button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="px-6 py-3 bg-amber-400 hover:bg-amber-500 text-black">
-                {submitting ? "Submitting..." : "Proceed to Payment"}
-              </Button>
-            ) : (
-              <Button
-                onClick={handleNext}
-                disabled={!isStepComplete(currentStep)}
-                className="px-6 py-3 bg-amber-400 hover:bg-amber-500 text-black">
-                Continue
-              </Button>
-            )}
+            <Button
+              onClick={handleNext}
+              disabled={!isStepComplete(formData.current_step)}
+              className="px-6 py-3 bg-amber-400 hover:bg-amber-500 text-black">
+              Continue
+            </Button>
           </div>
         )}
       </Card>

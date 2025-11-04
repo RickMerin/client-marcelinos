@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { pricingFormat } from "@/lib/pricingFormat";
 import { pluralize } from "@/lib/plural";
 
@@ -14,7 +13,7 @@ interface Props {
   };
 }
 
-export function Step3({ formData, onEdit, onProceed, selectedRoom }: Props) {
+export function Step3({ formData }: Props) {
   const {
     check_in,
     check_out,
@@ -26,12 +25,11 @@ export function Step3({ formData, onEdit, onProceed, selectedRoom }: Props) {
     email,
     address,
     days,
-    rooms,
+    totalPrice,
+    grandTotalPrice,
   } = formData;
 
-  console.log(rooms);
-  const price = selectedRoom?.price || 0;
-  const total = days * price;
+  console.log(formData);
 
   return (
     <div className="space-y-8">
@@ -110,24 +108,41 @@ export function Step3({ formData, onEdit, onProceed, selectedRoom }: Props) {
           </div>
 
           {/* Total Billing */}
-          <div className="border rounded-md shadow-sm">
-            <div className="bg-green-600 text-white px-4 py-2 font-semibold rounded-t-md">
+          <div className="border rounded-md shadow-sm overflow-hidden">
+            <div className="bg-green-600 text-white px-4 py-2 font-semibold">
               Total Billing
             </div>
-            <div className="p-4 text-sm text-gray-800 grid grid-cols-4 gap-2">
-              <p className="col-span-1">
-                <strong>Price</strong>
-                <br />₱{price.toLocaleString()}
-              </p>
-              <p className="col-span-1">
-                <strong>Days</strong>
-                <br />
-                {days}
-              </p>
-              <p className="col-span-1">
-                <strong>Total</strong>
-                <br />₱{total.toLocaleString()}
-              </p>
+            <div className="p-4 text-sm text-gray-800 grid grid-cols-3 gap-2 text-center">
+              <div>
+                <p className="font-semibold text-gray-600">Day(s)</p>
+                <p className="text-lg font-medium">{days}</p>
+              </div>
+
+              <div>
+                <p className="font-semibold text-gray-600">Total Price</p>
+                <p className="text-lg font-medium">
+                  ₱{totalPrice.toLocaleString()}
+                </p>
+              </div>
+
+              <div>
+                <p className="font-semibold text-gray-600">Grand Total</p>
+                <p className="text-lg font-bold text-green-700">
+                  ₱{grandTotalPrice.toLocaleString()}
+                </p>
+              </div>
+            </div>
+
+            {/* Computation line */}
+            <div className="border-t px-4 py-3 bg-gray-50 text-center text-sm text-gray-700">
+              Computation:&nbsp;
+              <span className="font-semibold">
+                ₱{totalPrice.toLocaleString()} × {days} day(s)
+              </span>
+              &nbsp;=&nbsp;
+              <span className="font-bold text-green-700">
+                ₱{grandTotalPrice.toLocaleString()}
+              </span>
             </div>
           </div>
         </div>

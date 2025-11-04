@@ -1,27 +1,31 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import cashless from "@/assets/img/cashless-payment-svgrepo-com.svg";
 import cash from "@/assets/img/cash.webp";
 import { PAYMENT_METHODS } from "@/enum/constants";
 
 interface Step4Props {
+  paymentMethod?: string;
   setPaymentMethod: (method: string) => void;
   onBack: () => void;
   onProceed: () => void;
 }
 
-export function Step4({ setPaymentMethod, onBack, onProceed }: Step4Props) {
-  const [selected, setSelected] = useState<string>("");
-
+export function Step4({
+  paymentMethod,
+  setPaymentMethod,
+  onBack,
+  onProceed,
+}: Step4Props) {
   const handleSelect = (method: string) => {
-    setSelected(method);
-    setPaymentMethod(method);
+    const newValue = paymentMethod === method ? "" : method; // toggle on/off
+
+    setPaymentMethod(newValue); // this updates formData.paymentMethod accordingly
   };
 
   const handleProceed = () => {
-    if (!selected) {
+    if (!paymentMethod) {
       alert("Please select a payment method before proceeding.");
       return;
     }
@@ -44,15 +48,20 @@ export function Step4({ setPaymentMethod, onBack, onProceed }: Step4Props) {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Pay in Cash Box */}
-        <div
-          onClick={() => handleSelect(PAYMENT_METHODS.CASH)}
-          className={`cursor-pointer border rounded-md p-4 flex items-start gap-3 shadow-sm transition
+        {/* Pay in Cash Box (acts like a checkbox) */}
+        <label
+          className={`cursor-pointer border rounded-md p-4 flex items-start gap-3 shadow-sm transition relative
             ${
-              selected === PAYMENT_METHODS.CASH
-                ? "bg-amber-100 border-amber-400"
+              paymentMethod === PAYMENT_METHODS.CASH
+                ? "bg-green-100 border-green-400 ring-2 ring-green-400"
                 : "bg-gray-50 hover:bg-gray-100"
             }`}>
+          <input
+            type="checkbox"
+            checked={paymentMethod === PAYMENT_METHODS.CASH}
+            onChange={() => handleSelect(PAYMENT_METHODS.CASH)}
+            className="absolute top-3 right-3 w-5 h-5 accent-amber-500 cursor-pointer"
+          />
           <img src={cash} alt="Cash" className="w-13 h-13" />
           <div>
             <h4 className="font-semibold text-gray-800">Pay in Cash</h4>
@@ -61,13 +70,17 @@ export function Step4({ setPaymentMethod, onBack, onProceed }: Step4Props) {
               present your booking confirmation at the front desk.
             </p>
           </div>
-        </div>
+        </label>
 
         {/* Pay Online (Disabled) */}
-        <div
+        <label
           className="cursor-not-allowed border rounded-md p-4 bg-gray-100 flex items-start gap-3 shadow-sm opacity-60 relative"
-          aria-disabled="true"
-          tabIndex={-1}>
+          aria-disabled="true">
+          <input
+            type="checkbox"
+            disabled
+            className="absolute top-3 right-3 w-5 h-5 accent-gray-400"
+          />
           <img src={cashless} alt="Cashless" className="w-15 h-15 grayscale" />
           <div>
             <h4 className="font-semibold text-gray-800 flex items-center gap-2">
@@ -82,7 +95,7 @@ export function Step4({ setPaymentMethod, onBack, onProceed }: Step4Props) {
               transaction.
             </p>
           </div>
-        </div>
+        </label>
       </div>
 
       {/* Buttons */}
@@ -94,9 +107,9 @@ export function Step4({ setPaymentMethod, onBack, onProceed }: Step4Props) {
         </button>
         <Button
           onClick={handleProceed}
-          disabled={!selected}
+          disabled={!paymentMethod}
           className={`px-6 py-3 rounded-md ${
-            selected
+            paymentMethod
               ? "bg-amber-400 hover:bg-amber-500 text-black"
               : "bg-gray-300 text-gray-600 cursor-not-allowed"
           }`}>
