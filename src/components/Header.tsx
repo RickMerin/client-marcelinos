@@ -25,17 +25,23 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto flex h-20 items-center justify-between px-4 md:px-8">
+      <div className="max-w-7xl mx-auto flex h-18 items-center justify-between px-4 md:px-8">
         {/* --- Logo --- */}
         <a href="/" className="flex items-center">
           <img
             src="/logo.webp"
             alt="Marcelino’s Logo"
-            className="w-10 h-10 object-contain"
+            className="w-19 h-18 object-contain"
           />
-          <span className="text-2xl font-extrabold text-black">
-            Marcelino’s
-          </span>
+        <div className="flex flex-col gap-0 leading-tight w-[200px]">
+          <div className="text-[20px] text-green-900 tracking-widest font-extrabold font-serif text-black">
+            MARCELINO'S
+          </div>
+
+          <div className="w-full flex flex-row justify-between tracking-widest text-medium font-medium">
+            <span>RESORT AND HOTEL </span>
+          </div>
+        </div>
         </a>
 
         {/* --- Desktop Navigation --- */}
