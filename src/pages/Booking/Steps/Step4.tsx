@@ -62,7 +62,7 @@ export function Step4({
             onChange={() => handleSelect(PAYMENT_METHODS.CASH)}
             className="absolute top-3 right-3 w-5 h-5 accent-amber-500 cursor-pointer"
           />
-          <img src={cash} alt="Cash" className="w-13 h-13" />
+          <img src={cash} alt="Cash" loading="lazy" className="w-13 h-13" />
           <div>
             <h4 className="font-semibold text-gray-800">Pay in Cash</h4>
             <p className="text-sm text-gray-600">
@@ -81,11 +81,11 @@ export function Step4({
             disabled
             className="absolute top-3 right-3 w-5 h-5 accent-gray-400"
           />
-          <img src={cashless} alt="Cashless" className="w-15 h-15 grayscale" />
+          <img src={cashless} alt="Cashless" loading="lazy" className="w-15 h-15 grayscale" />
           <div>
             <h4 className="font-semibold text-gray-800 flex items-center gap-2">
               Pay Online
-              <span className="ml-2 text-xs bg-gray-300 text-gray-700 px-2 py-0.5 rounded">
+              <span className="ml-2 text-xs bg-yellow-300/80 text-gray-800 px-2 py-0.5 rounded">
                 Coming Soon
               </span>
             </h4>

@@ -10,27 +10,28 @@ import { ShoppingCart, Star } from "lucide-react";
 import EventVenueSkeleton from "@/components/skeleton/EventVenueSkeleton";
 import { pricingFormat } from "@/lib/pricingFormat";
 
-function EventVenues() {
-  const dummy_img_url =
-    "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2338";
+import venue1img from "@/assets/img/venue1.webp";
+import venue2img from "@/assets/img/venue2.webp";
+import venue3img from "@/assets/img/venue3.webp";
 
+function EventVenues() {
   const venues = [
     {
-      image: dummy_img_url,
+      image: venue1img,
       price: 900,
       title: "Exclusive Room",
       description:
         "Stay in comfort and style with our exclusive room. Perfect for relaxation and convenience.",
     },
     {
-      image: dummy_img_url,
+      image: venue2img,
       price: 900,
       title: "Garden Pavilion",
       description:
         "Host your dream outdoor event surrounded by lush gardens and elegant ambiance.",
     },
     {
-      image: dummy_img_url,
+      image: venue3img,
       price: 900,
       title: "Beachfront Venue",
       description:
@@ -62,7 +63,10 @@ function EventVenues() {
               <CardHeader className="relative w-full p-0 overflow-hidden">
                 <img
                   src={venue.image}
+                  width={450}
+                  height={250}
                   alt={venue.title}
+                  loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 

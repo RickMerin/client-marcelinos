@@ -35,6 +35,7 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
         <img
           src={room.image}
           alt={room.type + " " + room.room_number}
+          loading="lazy"
           className="w-full h-40 object-cover rounded-xl"
         />
         <p className="text-sm text-muted-foreground">

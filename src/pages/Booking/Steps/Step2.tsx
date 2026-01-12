@@ -141,6 +141,7 @@ export function Step2({ formData, handleInputChange, onFileUpload }: Props) {
               <img
                 src={formData.idFile}
                 alt="ID preview"
+                loading="lazy"
                 className="mx-auto max-h-40 object-contain"
               />
             ) : (
