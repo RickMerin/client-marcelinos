@@ -144,6 +144,7 @@ function ClientReviews() {
                       <img
                         src={review.img}
                         alt={review.name}
+                        loading="lazy"
                         className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
                       />
                       <div>
