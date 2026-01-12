@@ -85,7 +85,7 @@ export function Step4({
           <div>
             <h4 className="font-semibold text-gray-800 flex items-center gap-2">
               Pay Online
-              <span className="ml-2 text-xs bg-gray-300 text-gray-700 px-2 py-0.5 rounded">
+              <span className="ml-2 text-xs bg-yellow-300/80 text-gray-800 px-2 py-0.5 rounded">
                 Coming Soon
               </span>
             </h4>

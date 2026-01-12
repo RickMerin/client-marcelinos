@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { WritingText } from "@/components/ui/shadcn-io/writing-text";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import image1 from "@/assets/img/banner-1.webp";
 
@@ -56,8 +55,7 @@ export function BannerCarousel() {
                   <img
                     src={image1}
                     alt="Banner 1"
-                    loading="lazy"
-                    className="w-full min-h-[600px] h-full object-cover object-center"
+                    className="w-full h-[88vh] object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-black/60 z-10" />
 
@@ -82,7 +80,7 @@ export function BannerCarousel() {
                       </motion.div>
 
                       {/* Main WritingText animation */}
-                      <motion.div
+                        <motion.div
                         variants={fadeUp}
                         transition={{ duration: 0.8, delay: 0.2 }}
                         className="flex justify-center items-center w-full px-2">
@@ -90,43 +88,39 @@ export function BannerCarousel() {
                           text="MAKE YOUR STAY COMFORTABLE"
                           inView={true}
                           style={{
-                            fontSize: "clamp(2rem, 6vw, 3.5rem)",
-                            lineHeight: "1.2",
-                            fontWeight: "bold",
-                            color: "white",
-                            textAlign: "center",
-                            textTransform: "uppercase",
-                            width: "100%",
-                            display: "flex",
-                            gap: "0.7rem",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            flexWrap: "wrap",
-                            wordBreak: "break-word",
+                          fontSize: "clamp(2rem, 6vw, 3rem)",
+                          lineHeight: "1.2",
+                          fontWeight: "bold",
+                          color: "white",
+                          textAlign: "center",
+                          textTransform: "uppercase",
+                          width: "100%",
+                          display: "flex",
+                          gap: "0.7rem",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          flexWrap: "wrap",
+                          wordBreak: "break-word",
                           }}
                           transition={{
-                            type: "spring",
-                            bounce: 0,
-                            duration: 2,
-                            delay: 0.3,
+                          type: "spring",
+                          bounce: 0,
+                          duration: 2,
+                          delay: 0.3,
                           }}
                         />
-                      </motion.div>
+                        </motion.div>
 
-                      {/* Buttons animation */}
-                      <motion.div
+                        {/* Description animation */}
+                        <motion.div
                         variants={fadeUp}
                         transition={{ duration: 0.7, delay: 0.4 }}
-                        className="flex flex-col w-1/2 md:flex-row items-center justify-center gap-4 md:gap-8">
-                        <Button className="w-full md:w-auto py-4 md:py-5 font-bold uppercase border-2 border-transparent text-sm">
-                          OUR ROOMS
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="w-full md:w-auto py-4 md:py-5 font-bold uppercase border-2 text-white text-sm">
-                          BOOK ROOM
-                        </Button>
-                      </motion.div>
+                        className="flex justify-center items-center w-3/4 md:w-1/2">
+                      <i className="text-white text-center text-sm md:text-base font-cursive font-light tracking-wide leading-relaxed">
+                        Experience refined comfort in thoughtfully designed rooms, complemented by quality amenities and warm hospitality.
+                      </i>
+
+                        </motion.div>
                     </motion.section>
                   )}
                 </CardContent>

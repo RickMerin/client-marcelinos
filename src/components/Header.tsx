@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -24,17 +25,23 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto flex h-20 items-center justify-between px-4 md:px-8">
+      <div className="max-w-7xl mx-auto flex h-18 items-center justify-between px-4 md:px-8">
         {/* --- Logo --- */}
         <a href="/" className="flex items-center">
           <img
             src="/logo.webp"
             alt="Marcelino’s Logo"
-            className="w-10 h-10 object-contain"
+            className="w-19 h-18 object-contain"
           />
-          <span className="text-2xl font-extrabold text-black">
-            Marcelino’s
-          </span>
+        <div className="flex flex-col gap-0 leading-tight w-[200px]">
+          <div className="text-[20px] text-green-900 tracking-widest font-extrabold font-serif text-black">
+            MARCELINO'S
+          </div>
+
+          <div className="w-full flex flex-row justify-between tracking-widest text-medium font-medium">
+            <span>RESORT AND HOTEL </span>
+          </div>
+        </div>
         </a>
 
         {/* --- Desktop Navigation --- */}
@@ -70,15 +77,28 @@ export default function Header() {
               <Menu className="h-6 w-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="top" className="bg-white">
-            <nav className="flex flex-wrap justify-content-center items-center gap-5 md:mt-10 p-5">
+          <SheetContent
+            side="top"
+            aria-describedby="mobile-menu-title"
+            className="bg-white">
+            {/* Add DialogTitle for accessibility */}
+
+            <DialogTitle className="text-center text-2xl font-extrabold p-4 border-b">
+              Marcelino’s
+            </DialogTitle>
+            <div className="sr-only" id="mobile-menu-title">
+              Mobile Navigation Menu
+            </div>
+            <nav
+              aria-labelledby="mobile-menu-title"
+              className="flex flex-col justify-center items-center gap-3 md:mt-10 p-5">
               {navLinks.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
                   className="text-lg font-medium text-black hover:text-yellow-600">
-                  {item.label}
+                  <span>{item.label}</span>
                 </a>
               ))}
               <Button className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-lg">
