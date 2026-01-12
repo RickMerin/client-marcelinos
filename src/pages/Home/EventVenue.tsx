@@ -14,10 +14,7 @@ import venue1img from "@/assets/img/venue1.webp";
 import venue2img from "@/assets/img/venue2.webp";
 import venue3img from "@/assets/img/venue3.webp";
 
-
 function EventVenues() {
-  
-
   const venues = [
     {
       image: venue1img,
@@ -69,12 +66,8 @@ function EventVenues() {
                   width={450}
                   height={250}
                   alt={venue.title}
-<<<<<<< HEAD
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-=======
                   loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
->>>>>>> 0c07854 (feat: add lazy loading to images and optimize banner image loading priority)
                 />
 
                 <span className="absolute top-3 left-3 bg-yellow-400 text-white text-sm font-semibold px-3 py-1 rounded-full">
