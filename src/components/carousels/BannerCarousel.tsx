@@ -56,6 +56,7 @@ export function BannerCarousel() {
                   <img
                     src={image1}
                     alt="Banner 1"
+                    loading="lazy"
                     className="w-full min-h-[600px] h-full object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-black/60 z-10" />
