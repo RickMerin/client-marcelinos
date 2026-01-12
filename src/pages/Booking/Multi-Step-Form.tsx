@@ -19,6 +19,8 @@ import { Step5 } from "./Steps/Step5";
 import { formatDate } from "@/lib/formatDate";
 import { saveToLocalStorage, getFromLocalStorage } from "@/lib/localStorage";
 import { calculateTotalPrice, calculateGrandTotalPrice } from "@/lib/calculate";
+import { useApiMutation } from "@/lib/hooks/useApiMutation";
+import { queryClient } from "@/lib/queryClient";
 
 const STEPS = [
   { id: 1, icon: <HousePlus /> },
@@ -197,28 +199,26 @@ export function MultiStepForm() {
     }
   };
 
-  // const handleSubmit = async () => {
-  //   if (!isStepComplete(2) || !isStepComplete(3)) {
-  //     alert("Please complete required fields.");
-  //     return;
-  //   }
-  //   setSubmitting(true);
-  //   try {
-  //     const res = await fetch("/api/bookings", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(formData),
-  //     });
-  //     if (!res.ok) throw new Error("Submission failed");
-  //     alert("Booking submitted — check your email for confirmation.");
-  //     localStorage.removeItem("reservationDetails");
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert("Error submitting booking.");
-  //   } finally {
-  //     setSubmitting(false);
-  //   }
-  // };
+  const createBooking = useApiMutation("post", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    },
+  });
+
+  const handleSubmit = async () => {
+    if (!isStepComplete(2) || !isStepComplete(3)) {
+      alert("Please complete required fields.");
+      return;
+    }
+
+    console.log(formData);
+    setFormData((prev) => ({ ...prev, current_step: 3 }));
+
+    createBooking.mutate({
+      url: "/bookings",
+      body: { name: "Rick", email: "rick@example.com" },
+    });
+  };
 
   return (
     <div className="w-full max-w-6xl mx-auto">
@@ -272,9 +272,7 @@ export function MultiStepForm() {
                   onBack={() =>
                     setFormData((prev) => ({ ...prev, current_step: 3 }))
                   }
-                  onProceed={() =>
-                    setFormData((prev) => ({ ...prev, current_step: 5 }))
-                  }
+                  onProceed={handleSubmit}
                 />
               </motion.div>
             )}

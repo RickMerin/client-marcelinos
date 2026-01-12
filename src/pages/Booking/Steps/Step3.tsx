@@ -29,8 +29,6 @@ export function Step3({ formData }: Props) {
     grandTotalPrice,
   } = formData;
 
-  console.log(formData);
-
   return (
     <div className="space-y-8">
       <h2 className="text-3xl font-bold text-center mb-6">
