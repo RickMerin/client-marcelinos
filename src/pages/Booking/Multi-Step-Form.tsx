@@ -16,11 +16,19 @@ import { Step2 } from "./Steps/Step2";
 import { Step3 } from "./Steps/Step3";
 import { Step4 } from "./Steps/Step4";
 import { Step5 } from "./Steps/Step5";
-import { formatDate } from "@/lib/formatDate";
-import { saveToLocalStorage, getFromLocalStorage } from "@/lib/localStorage";
-import { calculateTotalPrice, calculateGrandTotalPrice } from "@/lib/calculate";
-import { useApiMutation } from "@/lib/hooks/useApiMutation";
-import { queryClient } from "@/lib/queryClient";
+import { formatDate } from "@/lib/formatters/formatDate";
+import { personalDetailsSchema } from "@/lib/validators/personalDetails.schema";
+import {
+  saveToLocalStorage,
+  getFromLocalStorage,
+} from "@/lib/storage/localStorage";
+
+import {
+  calculateTotalPrice,
+  calculateGrandTotalPrice,
+} from "@/lib/math/calculate";
+import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
+import { queryClient } from "@/lib/api/queryClient";
 
 const STEPS = [
   { id: 1, icon: <HousePlus /> },
@@ -109,6 +117,17 @@ export function MultiStepForm() {
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
 
+  const personalDetails = {
+    firstName: formData.firstName,
+    middleName: formData.middleName,
+    lastName: formData.lastName,
+    gender: formData.gender,
+    phone: formData.phone,
+    email: formData.email,
+    address: formData.address,
+    idFile: formData.idFile ?? null,
+  };
+
   // ✅ Keep localStorage synced with formData
   useEffect(() => {
     saveToLocalStorage("reservationDetails", formData);
@@ -186,14 +205,11 @@ export function MultiStepForm() {
       case 1:
         return formData.rooms.length > 0;
       case 2:
-        return (
-          formData.firstName.trim() &&
-          formData.lastName.trim() &&
-          /\S+@\S+\.\S+/.test(formData.email) &&
-          formData.phone.trim().length > 6
-        );
+        return personalDetailsSchema.safeParse(personalDetails).success;
       case 3:
         return true;
+      case 4:
+        return formData.paymentMethod !== "";
       default:
         return true;
     }
@@ -210,9 +226,7 @@ export function MultiStepForm() {
       alert("Please complete required fields.");
       return;
     }
-
-    console.log(formData);
-    setFormData((prev) => ({ ...prev, current_step: 3 }));
+    setFormData((prev) => ({ ...prev, current_step: 5 }));
 
     createBooking.mutate({
       url: "/bookings",
@@ -239,12 +253,20 @@ export function MultiStepForm() {
             {formData.current_step === 2 && (
               <motion.div key="step2" {...stepMotion}>
                 <Step2
-                  formData={formData}
-                  handleInputChange={handleInputChange}
+                  formData={personalDetails}
+                  onUpdate={(data) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      ...data,
+                      middleName:
+                        data.middleName == null ? "" : data.middleName,
+                    }))
+                  }
                   onFileUpload={handleFileUpload}
                 />
               </motion.div>
             )}
+
             {formData.current_step === 3 && (
               <motion.div key="step3" {...stepMotion}>
                 <Step3

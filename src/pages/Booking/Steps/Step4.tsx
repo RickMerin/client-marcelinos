@@ -81,7 +81,12 @@ export function Step4({
             disabled
             className="absolute top-3 right-3 w-5 h-5 accent-gray-400"
           />
-          <img src={cashless} alt="Cashless" loading="lazy" className="w-15 h-15 grayscale" />
+          <img
+            src={cashless}
+            alt="Cashless"
+            loading="lazy"
+            className="w-15 h-15 grayscale"
+          />
           <div>
             <h4 className="font-semibold text-gray-800 flex items-center gap-2">
               Pay Online

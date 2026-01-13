@@ -1,5 +1,5 @@
-import { pricingFormat } from "@/lib/pricingFormat";
-import { pluralize } from "@/lib/plural";
+import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { pluralize } from "@/lib/formatters/plural";
 
 interface Props {
   formData: any;

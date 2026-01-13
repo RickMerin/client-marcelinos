@@ -1,161 +1,201 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
-import { Label } from "@/components/ui/label";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
+import {
+  personalDetailsSchema,
+  type PersonalDetailsFormValues,
+} from "@/lib/validators/personalDetails.schema";
+
+import {
+  saveToLocalStorage,
+  getFromLocalStorage,
+} from "@/lib/storage/localStorage";
+
 interface Props {
-  formData: any;
-  handleInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => void;
+  formData: PersonalDetailsFormValues;
+  onUpdate: (data: PersonalDetailsFormValues) => void;
   onFileUpload: (file?: File | null) => Promise<void>;
 }
 
-export function Step2({ formData, handleInputChange, onFileUpload }: Props) {
-  const lastNameRef = useRef<HTMLInputElement>(null);
-  const middleNameRef = useRef<HTMLInputElement>(null);
-  const firstNameRef = useRef<HTMLInputElement>(null);
-  const genderRef = useRef<HTMLInputElement>(null);
-  const phoneRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const addressRef = useRef<HTMLInputElement>(null);
+const STORAGE_KEY = "reservationDetails.personal";
 
+export function Step2({ formData, onUpdate, onFileUpload }: Props) {
+  const saved = getFromLocalStorage(STORAGE_KEY);
+
+  const form = useForm<PersonalDetailsFormValues>({
+    resolver: zodResolver(personalDetailsSchema),
+    defaultValues: saved ?? formData,
+    mode: "onChange",
+  });
+
+  /* ---------- sync VALID data upward + persist ---------- */
   useEffect(() => {
-    const refs = [
-      { ref: lastNameRef, value: formData.lastName },
-      { ref: middleNameRef, value: formData.middleName },
-      { ref: firstNameRef, value: formData.firstName },
-      { ref: genderRef, value: formData.gender },
-      { ref: phoneRef, value: formData.phone },
-      { ref: emailRef, value: formData.email },
-      { ref: addressRef, value: formData.address },
-    ];
-    const firstWithValue = refs.find((r) => r.value);
-    if (firstWithValue?.ref.current) {
-      firstWithValue.ref.current.focus();
-    }
-  }, [
-    formData.lastName,
-    formData.middleName,
-    formData.firstName,
-    formData.gender,
-    formData.phone,
-    formData.email,
-    formData.address,
-  ]);
+    const sub = form.watch((values) => {
+      if (form.formState.isValid) {
+        // Ensure all required fields are present and not undefined
+        try {
+          const parsed = personalDetailsSchema.parse(values);
+          onUpdate(parsed);
+          saveToLocalStorage(STORAGE_KEY, parsed);
+        } catch (e) {
+          // ignore parse errors here, formState.isValid should prevent this
+        }
+      }
+    });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files && e.target.files[0];
-    onFileUpload(f ?? null);
-  };
+    return () => sub.unsubscribe();
+  }, [form, onUpdate]);
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-center mb-4">
-        Personal Information
-      </h2>
+    <Form {...form}>
+      <form className="space-y-6">
+        <h2 className="text-3xl font-bold text-center">Personal Information</h2>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label>Last Name</Label>
-          <Input
-            ref={lastNameRef}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
             name="lastName"
-            value={formData.lastName}
-            onChange={handleInputChange}
-            placeholder="Enter Last Name"
-          />
-        </div>
-
-        <div>
-          <Label>Middle Name</Label>
-          <Input
-            ref={middleNameRef}
-            name="middleName"
-            value={formData.middleName}
-            onChange={handleInputChange}
-            placeholder="Enter Middle Name"
-          />
-        </div>
-
-        <div>
-          <Label>First Name</Label>
-          <Input
-            ref={firstNameRef}
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleInputChange}
-            placeholder="Enter First Name"
-          />
-        </div>
-
-        <div>
-          <Label>Gender</Label>
-          <Input
-            ref={genderRef}
-            name="gender"
-            value={formData.gender}
-            onChange={handleInputChange}
-            placeholder="Gender"
-          />
-        </div>
-
-        <div className="col-span-2">
-          <Label>Phone Number</Label>
-          <Input
-            ref={phoneRef}
-            name="phone"
-            value={formData.phone}
-            onChange={handleInputChange}
-            placeholder="Enter Phone Number"
-          />
-        </div>
-
-        <div className="col-span-2">
-          <Label>Email Address</Label>
-          <Input
-            ref={emailRef}
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            placeholder="Enter Email"
-          />
-        </div>
-
-        <div className="col-span-2">
-          <Label>Address</Label>
-          <Input
-            ref={addressRef}
-            name="address"
-            value={formData.address}
-            onChange={handleInputChange}
-            placeholder="Enter address"
-          />
-        </div>
-
-        <div className="col-span-2">
-          <Label>1 Valid ID</Label>
-          <div className="border border-dashed p-6 rounded-md text-center">
-            {formData.idFile ? (
-              <img
-                src={formData.idFile}
-                alt="ID preview"
-                loading="lazy"
-                className="mx-auto max-h-40 object-contain"
-              />
-            ) : (
-              <div className="mb-2">Upload Image</div>
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Last Name <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} value={field.value ?? ""} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="mx-auto"
-            />
+          />
+
+          <FormField
+            control={form.control}
+            name="middleName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Middle Name{" "}
+                  <small className="text-gray-400">(optional)</small>
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} value={field.value ?? ""} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  First Name <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} value={field.value ?? ""} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Gender <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <select
+                    {...field}
+                    className="h-10 w-full rounded-md border px-3">
+                    <option value="">Select gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>
+                  Phone Number <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} value={field.value ?? ""} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>
+                  Email Address <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} value={field.value ?? ""} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>
+                  Address <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} value={field.value ?? ""} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* file upload intentionally outside RHF */}
+          <div className="col-span-2">
+            <FormLabel>Valid ID</FormLabel>
+            <div className="border border-dashed p-6 rounded-md text-center">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => onFileUpload(e.target.files?.[0] ?? null)}
+              />
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </form>
+    </Form>
   );
 }

@@ -1,5 +1,5 @@
 import image from "@/assets/img/room3.jpg";
-import { pricingFormat } from "@/lib/pricingFormat";
+import { pricingFormat } from "@/lib/formatters/pricingFormat";
 
 interface CardItemProps {
   id: number;
@@ -15,7 +15,12 @@ function CardItem(props: CardItemProps) {
   const { room_number, type, capacity, price, description } = props;
   return (
     <div className="max-w-sm mx-auto bg-white rounded-2xl shadow-md overflow-hidden border">
-      <img src={image} alt={room_number} loading="lazy" className="w-full h-60 object-cover" />
+      <img
+        src={image}
+        alt={room_number}
+        loading="lazy"
+        className="w-full h-60 object-cover"
+      />
       <div className="p-4">
         <h2 className="text-xl font-semibold mb-2">{type}</h2>
         <p className="text-gray-600 text-sm mb-1">{capacity} sqm</p>

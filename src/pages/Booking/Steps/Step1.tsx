@@ -1,5 +1,5 @@
 import React from "react";
-import { useApiQuery } from "@/lib/hooks/useApiQuery";
+import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { RoomCard } from "../RoomCard";
 
 interface Props {
