@@ -6,19 +6,23 @@
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import { API } from "../apiClient";
 
-type Method = "post" | "put" | "patch" | "delete";
+type HttpMethod = "post" | "put" | "patch" | "delete";
 
 interface MutationArgs {
   url: string;
   body?: unknown;
 }
 
+type ApiMethod = (url: string, body?: unknown) => Promise<unknown>;
+
 export function useApiMutation<T>(
-  method: Method,
+  method: HttpMethod,
   options?: UseMutationOptions<T, Error, MutationArgs>
 ) {
+  const apiMethod = API[method] as ApiMethod;
+
   return useMutation<T, Error, MutationArgs>({
-    mutationFn: ({ url, body }) => (API as any)[method](url, body),
+    mutationFn: ({ url, body }) => apiMethod(url, body) as Promise<T>,
     ...options,
   });
 }
