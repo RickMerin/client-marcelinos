@@ -38,28 +38,35 @@ const STEPS = [
   { id: 5, icon: <PartyPopper className="h-5 w-5 md:h-8 md:w-8" /> },
 ];
 
+export type Gender = "Male" | "Female";
+
 export interface FormData {
   current_step: number;
   check_in: string;
   check_out: string;
   days: number;
   rooms: any[];
+
   firstName: string;
-  middleName: string;
+  middleName: string | null;
   lastName: string;
-  gender: string;
+  gender: Gender;
   phone: string;
   email: string;
   address: string;
+
   street: string;
   city: string;
   state: string;
   zipCode: string;
+
   category: string;
   newsletter: boolean;
   notifications: boolean;
   paymentMethod: string;
+
   idFile?: string | null;
+
   totalPrice: number;
   grandTotalPrice: number;
 }
@@ -70,21 +77,25 @@ const defaultFormData: FormData = {
   check_out: "",
   days: 1,
   rooms: [],
+
   firstName: "",
-  middleName: "",
+  middleName: null,
   lastName: "",
-  gender: "",
+  gender: "Male", // 👈 REQUIRED
   phone: "",
   email: "",
   address: "",
+
   street: "",
   city: "",
   state: "",
   zipCode: "",
+
   category: "",
   newsletter: false,
   notifications: false,
   paymentMethod: "",
+
   idFile: null,
   totalPrice: 0,
   grandTotalPrice: 0,
@@ -258,8 +269,6 @@ export function MultiStepForm() {
                     setFormData((prev) => ({
                       ...prev,
                       ...data,
-                      middleName:
-                        data.middleName == null ? "" : data.middleName,
                     }))
                   }
                   onFileUpload={handleFileUpload}
