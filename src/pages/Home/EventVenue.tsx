@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { ShoppingCart, Star } from "lucide-react";
 import EventVenueSkeleton from "@/components/skeleton/EventVenueSkeleton";
-import { pricingFormat } from "@/lib/pricingFormat";
+import { pricingFormat } from "@/lib/formatters/pricingFormat";
 
 import venue1img from "@/assets/img/venue1.webp";
 import venue2img from "@/assets/img/venue2.webp";

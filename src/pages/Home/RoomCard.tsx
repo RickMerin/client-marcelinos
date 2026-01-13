@@ -3,7 +3,7 @@ import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
-import { useApiQuery } from "@/lib/hooks/useApiQuery";
+import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import CardItem from "@/components/cards/CardItem";
 import CarouselSkeleton from "@/components/skeleton/RoomCarouselSkeleton";
 
