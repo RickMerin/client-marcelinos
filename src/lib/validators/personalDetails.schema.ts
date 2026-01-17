@@ -16,8 +16,10 @@ export const personalDetailsSchema = z.object({
   lastName: z.string().min(1, "Last name is required").transform(toTitleCase),
 
   gender: z
-    .enum(["Male", "Female"])
-    .refine((v) => v !== undefined, "Gender is required"),
+    .string()
+    .refine((v) => v === "Male" || v === "Female", {
+      message: "Please select a gender",
+    }),
 
   phone: z
     .string()
