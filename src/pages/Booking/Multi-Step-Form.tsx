@@ -40,7 +40,15 @@ const STEPS = [
 
 export type Gender = "Male" | "Female";
 
+interface GuestResponse {
+  message: string;
+  data: {
+    id: number;
+  };
+}
+
 export interface FormData {
+  reference_id?: string | null;
   current_step: number;
   check_in: string;
   check_out: string;
@@ -109,12 +117,17 @@ const stepMotion = {
 };
 
 export function MultiStepForm() {
+
   // const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   // Load initial form data
   const reservationDate = getFromLocalStorage("reservationDate");
   const storedFormData = getFromLocalStorage("reservationDetails");
+
+  if (reservationDate?.days === 0) {
+    navigate("/");
+  }
 
   const initialFormData: FormData = {
     ...defaultFormData,
@@ -159,6 +172,10 @@ export function MultiStepForm() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
+    const generateReferenceId = () => {
+    const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `${rand}`;
+  };
 
   const handlePrevious = () => {
     if (formData.current_step === 1) {
@@ -188,9 +205,15 @@ export function MultiStepForm() {
       const grandTotalPrice = calculateGrandTotalPrice(rooms, prev.days);
       return { ...prev, rooms, totalPrice, grandTotalPrice };
     });
+  useEffect(() => {
+    if (!reservationDate?.check_in) {
+      navigate("/");
+    }
+  }, [reservationDate, navigate]);
 
   // 👇 keep grandTotalPrice in sync when days changes
   useEffect(() => {
+    
     setFormData((prev) => ({
       ...prev,
       grandTotalPrice: calculateGrandTotalPrice(prev.rooms, prev.days),
@@ -226,24 +249,94 @@ export function MultiStepForm() {
     }
   };
 
+const createGuest = useApiMutation<GuestResponse>("post");
+
+const buildGuestPayload = () => {
+  const isIntl = false; 
+
+  return {
+    first_name: formData.firstName || "N/A",
+    middle_name: formData.middleName || null,
+    last_name: formData.lastName || "N/A",
+    email: formData.email,
+    contact_num: formData.phone || "0000000000",
+    gender: formData.gender || "Male",
+    id_type: "PhilID",
+    id_number: "TEMP-ID",
+    is_international: isIntl,
+    province: isIntl ? null : formData.state || "Unknown",
+    municipality: isIntl ? null : formData.city || "Unknown",
+    barangay: isIntl ? null : formData.address || "Unknown",
+
+    // International fields
+    city: isIntl ? formData.city : null,
+    state_region: isIntl ? formData.state : null,
+  };
+};
+
+
+
+
   const createBooking = useApiMutation("post", {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
     },
   });
 
+    
   const handleSubmit = async () => {
-    if (!isStepComplete(2) || !isStepComplete(3)) {
+    if (!isStepComplete(2) || !isStepComplete(4)) {
       alert("Please complete required fields.");
       return;
     }
-    setFormData((prev) => ({ ...prev, current_step: 5 }));
 
-    createBooking.mutate({
-      url: "/bookings",
-      body: { name: "Rick", email: "rick@example.com" },
+    
+    let refId = formData.reference_id;
+    if (!refId) {
+      refId = generateReferenceId();
+      setFormData((prev) => ({ ...prev, reference_id: refId }));
+    }
+
+  try {
+    
+    // 1️⃣ Create Guest
+    const guestResponse = await createGuest.mutateAsync({
+      url: "/guests",
+      body: buildGuestPayload(),
     });
-  };
+
+
+
+    // 2️⃣ Create Booking using guest_id
+const guestId = guestResponse.data.id;
+    console.log("Creating booking payload", {
+      guest_id: guestId,
+      room_id: formData.rooms[0]?.id,
+      check_in: formData.check_in,
+      check_out: formData.check_out,
+    });
+    console.log("Guest API response:", guestResponse.data.id);
+
+await createBooking.mutateAsync({
+  url: "/bookings",
+  body: {
+    reference_id: refId,
+    guest_id: guestId,
+    room_id: formData.rooms[0].id,
+    check_in: formData.check_in,
+    check_out: formData.check_out,
+  },
+});
+
+
+    // 3️⃣ Move to success step
+    setFormData((prev) => ({ ...prev, current_step: 5 }));
+  } catch (error) {
+    console.error(error);
+    alert("Failed to complete booking.");
+  }
+};
+
 
   return (
     <div className="w-full max-w-6xl mx-auto">

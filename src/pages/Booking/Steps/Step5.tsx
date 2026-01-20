@@ -42,10 +42,15 @@ export function Step5({ formData }: Props) {
         </div>
 
         <div className="border-t border-dashed border-gray-400 my-4" />
-
+          
         {/* Booking Info */}
         <div className="text-sm text-gray-800 space-y-1 mb-4">
+          <div>
+            Reference No: <strong>{formData.reference_id}</strong>
+          </div>
           <div className="flex justify-between">
+            <p className="text-sm text-muted-foreground mt-2">
+            </p>
             <span>Check-in:</span>
             <span className="font-semibold">{formData.check_in || "—"}</span>
           </div>
