@@ -48,7 +48,7 @@ interface GuestResponse {
 }
 
 export interface FormData {
-  reference_id?: string | null;
+  reference_id?: string;
   current_step: number;
   check_in: string;
   check_out: string;
