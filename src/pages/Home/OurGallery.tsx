@@ -7,10 +7,10 @@ import "swiper/css/autoplay";
 
 const ImageCarousel: React.FC = () => {
   const images: string[] = [
-    "/CarouselImages/slide1.webp",
-    "/CarouselImages/slide2.webp",
-    "/CarouselImages/slide3.webp",
-    "/CarouselImages/slide4.webp",
+    "/src/assets/img/slide1.webp",
+    "/src/assets/img/slide2.webp",
+    "/src/assets/img/slide3.webp",
+    "/src/assets/img/slide4.webp",
   ];
 
   return (
