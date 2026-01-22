@@ -1,16 +1,21 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
+import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import "swiper/css/autoplay";
-import slide1 from "@/assets/img/slide1.webp";
-import slide2 from "@/assets/img/slide2.webp";
-import slide3 from "@/assets/img/slide3.webp";
-import slide4 from "@/assets/img/slide4.webp";
 
 const ImageCarousel: React.FC = () => {
-  const images: string[] = [slide1, slide2, slide3, slide4];
+  const images = [
+    "https://i.pinimg.com/736x/e8/31/d2/e831d24c1d60271b9da91249fffdba14.jpg",
+    "https://i.pinimg.com/736x/70/11/dc/7011dcbe4d17d782eb0979ba9e087815.jpg",
+    "https://i.pinimg.com/736x/e0/c8/26/e0c826f17ab711e5e05af94adb220cea.jpg",
+    "https://i.pinimg.com/736x/6b/b7/2e/6bb72e3e7dc30fdf7ad1e68251fd88ad.jpg",
+    "https://i.pinimg.com/736x/ad/6d/37/ad6d378103197c3bd9b12f91e14ea8a0.jpg",
+    "https://i.pinimg.com/736x/be/94/4d/be944d48e93d753ac3b6bf942520176a.jpg",
+    "https://i.pinimg.com/736x/ad/af/0c/adaf0cdf6b82351c763e5ad1aa9ee6b4.jpg",
+    "https://i.pinimg.com/736x/20/b2/20/20b2205ae2c69c5b79bf688d738cbba8.jpg",
+    "https://i.pinimg.com/736x/5b/75/56/5b7556037cea55f336003027db3e27e3.jpg",
+  ];
 
   return (
     <section
@@ -26,9 +31,6 @@ const ImageCarousel: React.FC = () => {
           fontWeight: 800,
           marginBottom: "40px",
           letterSpacing: "1px",
-          transition: "opacity 0.8s ease, transform 0.8s ease",
-          opacity: 1,
-          transform: "translateY(0)",
         }}>
         <span className="green header">OUR</span>{" "}
         <span className="yellow header">GALLERY</span>
@@ -38,19 +40,13 @@ const ImageCarousel: React.FC = () => {
         spaceBetween={20}
         slidesPerView={3}
         pagination={{ clickable: true }}
-        grabCursor={true}
-        loop={true}
-        speed={1000} // Smooth transition between slides
-        autoplay={{
-          delay: 3000, // Slides every 3 seconds
-          disableOnInteraction: false,
-        }}
+        loop={false}
         breakpoints={{
           320: { slidesPerView: 1 },
           640: { slidesPerView: 2 },
           1024: { slidesPerView: 3 },
         }}
-        modules={[Pagination, Autoplay]}
+        modules={[Pagination]}
         style={{
           width: "90%",
           maxWidth: "1200px",
@@ -66,17 +62,6 @@ const ImageCarousel: React.FC = () => {
                 overflow: "hidden",
                 borderRadius: "15px",
                 boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-                transition: "transform 0.5s ease, box-shadow 0.5s ease",
-              }}
-              onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                e.currentTarget.style.transform = "scale(1.05)";
-                e.currentTarget.style.boxShadow =
-                  "0 8px 20px rgba(0, 0, 0, 0.3)";
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow =
-                  "0 4px 10px rgba(0, 0, 0, 0.2)";
               }}>
               <img
                 src={src}
@@ -86,7 +71,7 @@ const ImageCarousel: React.FC = () => {
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
-                  transition: "transform 1s ease-in-out",
+                  display: "block",
                 }}
               />
             </div>

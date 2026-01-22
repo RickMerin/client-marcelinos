@@ -33,15 +33,15 @@ export default function Header() {
             alt="Marcelino’s Logo"
             className="w-19 h-18 object-contain"
           />
-        <div className="flex flex-col gap-0 leading-tight w-[200px]">
-          <div className="text-[20px] text-green-900 tracking-widest font-extrabold font-serif text-black">
-            MARCELINO'S
-          </div>
+          <div className="flex flex-col gap-0 leading-tight w-50">
+            <div className="text-[20px] text-green-900 tracking-widest font-extrabold font-serif">
+              MARCELINO'S
+            </div>
 
-          <div className="w-full flex flex-row justify-between tracking-widest text-medium font-medium">
-            <span>RESORT AND HOTEL </span>
+            <div className="w-full flex flex-row justify-between tracking-widest text-medium font-medium">
+              <span>RESORT AND HOTEL </span>
+            </div>
           </div>
-        </div>
         </a>
 
         {/* --- Desktop Navigation --- */}
@@ -53,7 +53,7 @@ export default function Header() {
                   <NavigationMenuLink asChild>
                     <a
                       href={item.href}
-                      className="text-base font-medium text-black hover:text-yellow-600 transition-colors">
+                      className="text-base font-medium text-black hover:text-yellow-600 transition-colors duration-200">
                       {item.label}
                     </a>
                   </NavigationMenuLink>
@@ -62,7 +62,7 @@ export default function Header() {
             </NavigationMenuList>
           </NavigationMenu>
 
-          <Button className="bg-[var(--default-color)] hover:bg-yellow-500 text-white font-semibold rounded-md">
+          <Button className="bg-(--default-color) hover:bg-yellow-500 text-white font-semibold rounded-md">
             Book Now
           </Button>
         </nav>
