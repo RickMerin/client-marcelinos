@@ -14,7 +14,7 @@ interface CardItemProps {
 function CardItem(props: CardItemProps) {
   const { room_number, type, capacity, price, description } = props;
   return (
-    <div className="max-w-sm mx-auto bg-white rounded-2xl shadow-md overflow-hidden border">
+    <div className="max-w-sm mx-auto bg-white rounded-2xl shadow-md overflow-hidden border transition-transform hover:scale-105 duration-300">
       <img
         src={image}
         alt={room_number}
@@ -26,7 +26,7 @@ function CardItem(props: CardItemProps) {
         <p className="text-gray-600 text-sm mb-1">{capacity} sqm</p>
         <p className="text-gray-600 text-sm mb-1">{price} people</p>
         <p className="text-gray-600 text-sm mb-2">{description}</p>
-        <button className="w-full bg-yellow-400 text-white font-semibold py-2 rounded-md hover:bg-yellow-500 transition">
+        <button className="w-full bg-yellow-400 text-white font-semibold py-2 rounded-md hover:bg-yellow-500 transition-colors duration-200">
           Book now for {pricingFormat(price)}
         </button>
       </div>

@@ -107,7 +107,7 @@ const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
             placeholder="Share your experience..."
             value={review}
             onChange={(e) => setReview(e.target.value)}
-            className="w-full border rounded-lg p-3 min-h-[120px] outline-none focus:ring-2 focus:ring-green-400"
+            className="w-full border rounded-lg p-3 min-h-30 outline-none focus:ring-2 focus:ring-green-400"
           />
 
           {/* 🔘 Buttons */}
