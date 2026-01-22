@@ -66,7 +66,7 @@ function EventVenues() {
                   width={450}
                   height={250}
                   alt={venue.title}
-                  loading="lazy"
+                  // loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 

@@ -59,14 +59,18 @@ function ClientReviews() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 🔹 handle submit event (connect to backend later)
-  const handleReviewSubmit = (data: { stars: number; review_text: string }) => {
-    console.log("Submitted review:", data);
+  const handleReviewSubmit = (_data: {
+    stars: number;
+    review_text: string;
+  }) => {
     // Example:
     // await fetch("/api/reviews", { method: "POST", body: JSON.stringify(data) });
   };
 
   return (
-    <section id="reviews" className="bg-[#faf7f2] py-16 flex flex-col items-center relative overflow-hidden">
+    <section
+      id="reviews"
+      className="bg-[#faf7f2] py-16 flex flex-col items-center relative overflow-hidden">
       <h1 className="text-3xl font-bold text-center mb-12">
         <span className="green header">CLIENT</span>{" "}
         <span className="yellow header">REVIEWS</span>
@@ -129,8 +133,8 @@ function ClientReviews() {
                     isActive
                       ? "scale-100 opacity-100 z-30"
                       : isPrev || isNext
-                      ? "scale-90 opacity-80 z-20"
-                      : "scale-75 opacity-40 z-10"
+                        ? "scale-90 opacity-80 z-20"
+                        : "scale-75 opacity-40 z-10"
                   }`}
                   style={{
                     transformOrigin: "center center",
@@ -139,12 +143,12 @@ function ClientReviews() {
                   }}>
                   <Card
                     className="bg-white gap-0 item-stretch rounded-2xl p-3 sm:p-8 text-left flex flex-col justify-between
-                               w-[90vw] sm:w-[400px] md:w-[450px] h-auto sm:h-[270px] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+                               w-[90vw] sm:w-100sm:h-67.5 md:w-112.5 h-auto transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <img
                         src={review.img}
                         alt={review.name}
-                        loading="lazy"
+                        // loading="lazy"
                         className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
                       />
                       <div>
