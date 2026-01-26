@@ -25,7 +25,7 @@ export function Step5({ formData }: Props) {
       if (element) {
         const dataUrl = await domtoimage.toPng(element);
         const link = document.createElement("a");
-        link.download = `marcelinos-hotel-resort-receipt-${formData.reference_id || "-"}.png`;
+        link.download = `marcelinos-hotel-resort-receipt-${formData.reference_number || "-"}.png`;
         link.href = dataUrl;
         document.body.appendChild(link);
         link.click();
@@ -70,7 +70,7 @@ export function Step5({ formData }: Props) {
           <div className="flex justify-between">
             <span>Reference No:</span>
             <span className="font-semibold">
-              {formData.reference_id || "—"}
+              {formData.reference_number || "—"}
             </span>
           </div>
           <div className="flex justify-between">
@@ -176,7 +176,7 @@ export function Step5({ formData }: Props) {
         <div className="text-center">
           <div className="p-2 flex justify-center">
             <QRCode
-              value={`${window.location.origin}/booking-receipt/${formData.reference_id || ""}`}
+              value={`${window.location.origin}/booking-receipt/${formData.reference_number || ""}`}
               size={80}
               style={{ height: "auto", maxWidth: "60%", width: "100%" }}
             />

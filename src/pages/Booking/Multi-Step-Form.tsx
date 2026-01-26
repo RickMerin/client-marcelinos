@@ -48,7 +48,7 @@ interface BookingResponse {
 }
 
 export interface FormData {
-  reference_id?: string;
+  reference_number?: string;
   current_step: number;
   check_in: string;
   check_out: string;
@@ -239,10 +239,10 @@ export function MultiStepForm() {
       case 2:
         return personalDetailsSchema.safeParse(personalDetails).success;
       case 3:
-        let refId = formData.reference_id;
+        let refId = formData.reference_number;
         if (!refId) {
           refId = generateReferenceId();
-          setFormData((prev) => ({ ...prev, reference_id: refId }));
+          setFormData((prev) => ({ ...prev, reference_number: refId }));
         }
         return true;
       case 4:
@@ -259,14 +259,14 @@ export function MultiStepForm() {
 
     return {
       // Booking details
-      reference_id: formData.reference_id,
+      reference_number: formData.reference_number,
       check_in: formData.check_in,
       check_out: formData.check_out,
       days: formData.days,
       rooms: formData.rooms.map((room) => room.id),
       total_price: formData.totalPrice,
       grand_total_price: formData.grandTotalPrice,
-      payment_method: formData.paymentMethod,
+
 
       // Guest details
       first_name: formData.firstName || "N/A",
@@ -275,9 +275,6 @@ export function MultiStepForm() {
       email: formData.email,
       contact_num: formData.phone || "0000000000",
       gender: formData.gender || "Male",
-      id_type: "PhilID",
-      id_number: "TEMP-ID",
-      id_file: formData.idFile,
       is_international: isIntl,
       province: isIntl ? null : formData.state || "Unknown",
       municipality: isIntl ? null : formData.city || "Unknown",
@@ -295,7 +292,6 @@ export function MultiStepForm() {
 
       // International fields
       city: isIntl ? formData.city : null,
-      state_region: isIntl ? formData.state : null,
     };
   };
 
