@@ -140,23 +140,14 @@ function ClientReviews() {
                     filter: isActive ? "blur(0px)" : "blur(3px)",
                   }}>
                   <Card
-<<<<<<< HEAD
-<<<<<<< HEAD
+
                     className="bg-white gap-0 item-stretch rounded-2xl p-3 sm:p-8 text-left flex flex-col justify-between
                                w-[90vw] sm:w-100sm:h-67.5 md:w-112.5 h-auto transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
-=======
-                    className="bg-white gap-0 item-stretch rounded-2xl p-10 sm:p-8 text-left flex flex-col justify-between
-                               w-[90vw] sm:w-[400px] md:w-[350px] h-auto sm:h-[270px] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
->>>>>>> 8ebcc28 (feat: Modify Hero Form)
-=======
-                    className="bg-white gap-0 item-stretch rounded-2xl p-10 sm:p-8 text-left flex flex-col justify-between
-                               w-[90vw] sm:w-[400px] md:w-[350px] h-auto sm:h-[270px] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
->>>>>>> 8ebcc28 (feat: Modify Hero Form)
+
                     <div className="flex items-center gap-2 sm:gap-3">
                       <img
                         src={review.img}
                         alt={review.name}
-                        // loading="lazy"
                         className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
                       />
                       <div>
