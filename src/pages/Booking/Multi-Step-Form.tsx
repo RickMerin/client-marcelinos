@@ -40,7 +40,7 @@ const STEPS = [
 
 export type Gender = "Male" | "Female";
 
-interface GuestResponse {
+interface BookingResponse {
   message: string;
   data: {
     id: number;
@@ -239,6 +239,11 @@ export function MultiStepForm() {
       case 2:
         return personalDetailsSchema.safeParse(personalDetails).success;
       case 3:
+        let refId = formData.reference_id;
+        if (!refId) {
+          refId = generateReferenceId();
+          setFormData((prev) => ({ ...prev, reference_id: refId }));
+        }
         return true;
       case 4:
         return formData.paymentMethod !== "";
@@ -247,12 +252,23 @@ export function MultiStepForm() {
     }
   };
 
-  const createGuest = useApiMutation<GuestResponse>("post");
+  const createBooking = useApiMutation<BookingResponse>("post");
 
-  const buildGuestPayload = () => {
+  const buildBookingPayload = () => {
     const isIntl = false;
 
     return {
+      // Booking details
+      reference_id: formData.reference_id,
+      check_in: formData.check_in,
+      check_out: formData.check_out,
+      days: formData.days,
+      rooms: formData.rooms.map((room) => room.id),
+      total_price: formData.totalPrice,
+      grand_total_price: formData.grandTotalPrice,
+      payment_method: formData.paymentMethod,
+
+      // Guest details
       first_name: formData.firstName || "N/A",
       middle_name: formData.middleName || null,
       last_name: formData.lastName || "N/A",
@@ -261,10 +277,21 @@ export function MultiStepForm() {
       gender: formData.gender || "Male",
       id_type: "PhilID",
       id_number: "TEMP-ID",
+      id_file: formData.idFile,
       is_international: isIntl,
       province: isIntl ? null : formData.state || "Unknown",
       municipality: isIntl ? null : formData.city || "Unknown",
       barangay: isIntl ? null : formData.address || "Unknown",
+
+      // Address details
+      street: formData.street,
+      address: formData.address,
+      zip_code: formData.zipCode,
+
+      // Preferences
+      category: formData.category,
+      newsletter: formData.newsletter,
+      notifications: formData.notifications,
 
       // International fields
       city: isIntl ? formData.city : null,
@@ -272,43 +299,17 @@ export function MultiStepForm() {
     };
   };
 
-  const createBooking = useApiMutation("post", {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bookings"] });
-    },
-  });
-
   const handleSubmit = async () => {
     if (!isStepComplete(2) || !isStepComplete(4)) {
       alert("Please complete required fields.");
       return;
     }
 
-    let refId = formData.reference_id;
-    if (!refId) {
-      refId = generateReferenceId();
-      setFormData((prev) => ({ ...prev, reference_id: refId }));
-    }
-
     try {
       // 1️⃣ Create Guest
-      const guestResponse = await createGuest.mutateAsync({
-        url: "/guests",
-        body: buildGuestPayload(),
-      });
-
-      // 2️⃣ Create Booking using guest_id
-      const guestId = guestResponse.data.id;
-
       await createBooking.mutateAsync({
-        url: "/bookings",
-        body: {
-          reference_id: refId,
-          guest_id: guestId,
-          room_id: formData.rooms[0].id,
-          check_in: formData.check_in,
-          check_out: formData.check_out,
-        },
+        url: "/bookings/store",
+        body: buildBookingPayload(),
       });
 
       // 3️⃣ Move to success step
