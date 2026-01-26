@@ -91,7 +91,7 @@ export function Step4({
             <h4 className="font-semibold text-gray-800 flex items-center gap-2">
               Pay Online
               <span className="ml-2 text-xs bg-yellow-300/80 text-gray-800 px-2 py-0.5 rounded">
-                Coming Soon
+                Soon
               </span>
             </h4>
             <p className="text-sm text-gray-600">

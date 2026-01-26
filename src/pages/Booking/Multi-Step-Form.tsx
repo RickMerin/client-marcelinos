@@ -73,8 +73,6 @@ export interface FormData {
   notifications: boolean;
   paymentMethod: string;
 
-  idFile?: string | null;
-
   totalPrice: number;
   grandTotalPrice: number;
 }
@@ -104,7 +102,6 @@ const defaultFormData: FormData = {
   notifications: false,
   paymentMethod: "",
 
-  idFile: null,
   totalPrice: 0,
   grandTotalPrice: 0,
 };
@@ -148,7 +145,6 @@ export function MultiStepForm() {
     phone: formData.phone,
     email: formData.email,
     address: formData.address,
-    idFile: formData.idFile ?? null,
   };
 
   // ✅ Keep localStorage synced with formData
@@ -221,16 +217,6 @@ export function MultiStepForm() {
   const setPaymentMethod = (method: string) =>
     setFormData((prev) => ({ ...prev, paymentMethod: method }));
 
-  const handleFileUpload = async (file?: File | null) => {
-    if (!file) return setFormData((p) => ({ ...p, idFile: null }));
-    const dataUrl = await new Promise<string>((res, rej) => {
-      const reader = new FileReader();
-      reader.onload = () => res(String(reader.result));
-      reader.onerror = rej;
-      reader.readAsDataURL(file);
-    });
-    setFormData((p) => ({ ...p, idFile: dataUrl }));
-  };
 
   const isStepComplete = (step: number) => {
     switch (step) {
@@ -345,7 +331,6 @@ export function MultiStepForm() {
                       ...data,
                     }))
                   }
-                  onFileUpload={handleFileUpload}
                 />
               </motion.div>
             )}

@@ -17,6 +17,7 @@ export default function Header() {
     { label: "Home", href: "#home" },
     { label: "About", href: "#about" },
     { label: "Rooms", href: "#rooms" },
+    { label: "Venues", href: "#venues" },
     { label: "Services", href: "#services" },
     { label: "Gallery", href: "#gallery" },
     { label: "Review", href: "#reviews" },
@@ -62,7 +63,11 @@ export default function Header() {
             </NavigationMenuList>
           </NavigationMenu>
 
+<<<<<<< HEAD
           <Button className="bg-(--default-color) hover:bg-yellow-500 text-white font-semibold rounded-md">
+=======
+          <Button id="book-now" className="bg-[var(--default-color)] hover:bg-yellow-500 text-white font-semibold rounded-md">
+>>>>>>> 8ebcc28 (feat: Modify Hero Form)
             Book Now
           </Button>
         </nav>
@@ -72,9 +77,8 @@ export default function Header() {
           <SheetTrigger asChild>
             <Button
               variant="ghost"
-              size="icon"
-              className="md:hidden text-black hover:bg-transparent">
-              <Menu className="h-6 w-6" />
+              className="md:hidden hover:bg-transparent">
+              <Menu className="size-9" />
             </Button>
           </SheetTrigger>
           <SheetContent
@@ -84,14 +88,17 @@ export default function Header() {
             {/* Add DialogTitle for accessibility */}
 
             <DialogTitle className="text-center text-2xl font-extrabold p-4 border-b">
-              Marcelino’s
+              MARCELINO'S RESORT 
+              <div>
+                AND HOTEL
+              </div>
             </DialogTitle>
             <div className="sr-only" id="mobile-menu-title">
               Mobile Navigation Menu
             </div>
             <nav
               aria-labelledby="mobile-menu-title"
-              className="flex flex-col justify-center items-center gap-3 md:mt-10 p-5">
+              className="flex flex-col justify-center items-center  md:mt-10 p-5">
               {navLinks.map((item) => (
                 <a
                   key={item.href}

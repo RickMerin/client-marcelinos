@@ -56,8 +56,12 @@ export function BannerCarousel() {
                     src={image1}
                     alt="Banner 1"
                     loading="eager"
+<<<<<<< HEAD
                     fetchPriority="high"
                     className="w-full h-[88vh] object-cover object-center"
+=======
+                    className="w-full h-[90vh] object-cover object-center"
+>>>>>>> 8ebcc28 (feat: Modify Hero Form)
                   />
                   <div className="absolute inset-0 bg-black/60 z-10" />
 
