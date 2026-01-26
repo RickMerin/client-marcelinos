@@ -141,8 +141,13 @@ function ClientReviews() {
                   }}>
                   <Card
 <<<<<<< HEAD
+<<<<<<< HEAD
                     className="bg-white gap-0 item-stretch rounded-2xl p-3 sm:p-8 text-left flex flex-col justify-between
                                w-[90vw] sm:w-100sm:h-67.5 md:w-112.5 h-auto transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+=======
+                    className="bg-white gap-0 item-stretch rounded-2xl p-10 sm:p-8 text-left flex flex-col justify-between
+                               w-[90vw] sm:w-[400px] md:w-[350px] h-auto sm:h-[270px] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+>>>>>>> 8ebcc28 (feat: Modify Hero Form)
 =======
                     className="bg-white gap-0 item-stretch rounded-2xl p-10 sm:p-8 text-left flex flex-col justify-between
                                w-[90vw] sm:w-[400px] md:w-[350px] h-auto sm:h-[270px] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">

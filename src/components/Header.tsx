@@ -64,7 +64,11 @@ export default function Header() {
           </NavigationMenu>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
           <Button className="bg-(--default-color) hover:bg-yellow-500 text-white font-semibold rounded-md">
+=======
+          <Button id="book-now" className="bg-[var(--default-color)] hover:bg-yellow-500 text-white font-semibold rounded-md">
+>>>>>>> 8ebcc28 (feat: Modify Hero Form)
 =======
           <Button id="book-now" className="bg-[var(--default-color)] hover:bg-yellow-500 text-white font-semibold rounded-md">
 >>>>>>> 8ebcc28 (feat: Modify Hero Form)
