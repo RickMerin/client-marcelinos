@@ -26,35 +26,35 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto flex h-18 items-center justify-between px-4 md:px-8">
-        {/* --- Logo --- */}
+      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 md:px-8">
+        {/* Logo */}
         <a href="/" className="flex items-center">
           <img
             src="/logo.webp"
             alt="Marcelino’s Logo"
-            className="w-19 h-18 object-contain"
+            className="h-18 w-19 object-contain"
           />
-          <div className="flex flex-col gap-0 leading-tight w-50">
-            <div className="text-[20px] text-green-900 tracking-widest font-extrabold font-serif">
+          <div className="ml-2 leading-tight">
+            <div className="text-[20px] font-extrabold tracking-widest text-green-900 font-serif">
               MARCELINO'S
             </div>
-
-            <div className="w-full flex flex-row justify-between tracking-widest text-medium font-medium">
-              <span>RESORT AND HOTEL </span>
+            <div className="text-sm tracking-widest font-medium">
+              RESORT AND HOTEL
             </div>
           </div>
         </a>
 
-        {/* --- Desktop Navigation --- */}
-        <nav className="hidden md:flex items-center gap-8">
+        {/* Desktop Navigation */}
+        <nav className="hidden items-center gap-8 md:flex">
           <NavigationMenu>
-            <NavigationMenuList className="flex items-center gap-4">
+            <NavigationMenuList className="flex gap-4">
               {navLinks.map((item) => (
                 <NavigationMenuItem key={item.href}>
                   <NavigationMenuLink asChild>
                     <a
                       href={item.href}
-                      className="text-base font-medium text-black hover:text-yellow-600 transition-colors duration-200">
+                      className="text-base font-medium text-black transition-colors hover:text-yellow-600"
+                    >
                       {item.label}
                     </a>
                   </NavigationMenuLink>
@@ -63,56 +63,49 @@ export default function Header() {
             </NavigationMenuList>
           </NavigationMenu>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-          <Button className="bg-(--default-color) hover:bg-yellow-500 text-white font-semibold rounded-md">
-=======
-          <Button id="book-now" className="bg-[var(--default-color)] hover:bg-yellow-500 text-white font-semibold rounded-md">
->>>>>>> 8ebcc28 (feat: Modify Hero Form)
-=======
-          <Button id="book-now" className="bg-[var(--default-color)] hover:bg-yellow-500 text-white font-semibold rounded-md">
->>>>>>> 8ebcc28 (feat: Modify Hero Form)
+          <Button
+            id="book-now"
+            className="bg-[var(--default-color)] text-white font-semibold hover:bg-yellow-500"
+          >
             Book Now
           </Button>
         </nav>
 
-        {/* --- Mobile Menu --- */}
+        {/* Mobile Menu */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              className="md:hidden hover:bg-transparent">
+            <Button variant="ghost" className="md:hidden hover:bg-transparent">
               <Menu className="size-9" />
             </Button>
           </SheetTrigger>
+
           <SheetContent
             side="top"
             aria-describedby="mobile-menu-title"
-            className="bg-white">
-            {/* Add DialogTitle for accessibility */}
-
-            <DialogTitle className="text-center text-2xl font-extrabold p-4 border-b">
-              MARCELINO'S RESORT 
-              <div>
-                AND HOTEL
-              </div>
+            className="bg-white"
+          >
+            <DialogTitle className="border-b p-4 text-center text-2xl font-extrabold">
+              MARCELINO'S
+              <div>RESORT AND HOTEL</div>
             </DialogTitle>
-            <div className="sr-only" id="mobile-menu-title">
+
+            <div id="mobile-menu-title" className="sr-only">
               Mobile Navigation Menu
             </div>
-            <nav
-              aria-labelledby="mobile-menu-title"
-              className="flex flex-col justify-center items-center  md:mt-10 p-5">
+
+            <nav className="flex flex-col items-center gap-6 p-6">
               {navLinks.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="text-lg font-medium text-black hover:text-yellow-600">
-                  <span>{item.label}</span>
+                  className="text-lg font-medium text-black hover:text-yellow-600"
+                >
+                  {item.label}
                 </a>
               ))}
-              <Button className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-lg">
+
+              <Button className="rounded-lg bg-yellow-400 font-semibold text-white hover:bg-yellow-500">
                 Book Now
               </Button>
             </nav>
