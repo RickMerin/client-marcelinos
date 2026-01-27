@@ -42,20 +42,21 @@ export function BannerCarousel() {
       opts={{ align: "start", loop: true }}
       plugins={[plugin.current]}
       setApi={setApi}>
-      <CarouselContent className="ml-0 gap-0 [&>*]:pl-0 [&>*]:mr-0">
+      <CarouselContent className="ml-0 gap-0 *:pl-0 *:mr-0">
         {Array.from({ length: 5 }).map((_, index) => {
           const isActive = index === activeIndex;
 
           return (
             <CarouselItem
               key={index}
-              className="basis-full flex-shrink-0 flex-grow-0 pl-0 mr-0">
+              className="basis-full shrink-0 grow-0 pl-0 mr-0">
               <Card className="w-full px-0 py-0 cursor-grab rounded-none border-0">
                 <CardContent className="relative p-0 overflow-hidden">
                   <img
                     src={image1}
                     alt="Banner 1"
                     loading="eager"
+                    fetchPriority="high"
                     className="w-full h-[88vh] object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-black/60 z-10" />

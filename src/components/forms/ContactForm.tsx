@@ -18,8 +18,8 @@ export default function ContactForm() {
   ];
 
   // Handle form submission
-  const handleSubmit = (values: z.infer<typeof contactSchema>) => {
-    console.log("Form submitted:", values);
+  const handleSubmit = () => {
+    // Form submission logic
   };
 
   return (

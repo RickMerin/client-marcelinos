@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Swiper as SwiperType } from "swiper";
-import { Navigation, Pagination } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 import WriteReviewModal from "./Modals/WriteReviewModal";
 
 import client1 from "../../assets/img/room3.jpg";
@@ -11,7 +11,7 @@ import logo from "../../assets/img/marcelinos-logo.svg";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import "swiper/css/pagination";
+// import "swiper/css/pagination";
 
 const reviews = [
   {
@@ -43,12 +43,13 @@ const reviews = [
     img: client1,
   },
   {
-    name: "Sophia L.",
-    date: "August 15, 2025",
-    text: "The attention to detail was impressive. From the décor to the hospitality, everything was perfect!",
-    stars: 4,
+    name: "Michael R.",
+    date: "July 20, 2025",
+    text: "A beautiful venue with a warm ambiance — our wedding reception turned out exactly as we dreamed.",
+    stars: 5,
     img: client1,
   },
+
 ];
 
 function ClientReviews() {
@@ -59,14 +60,18 @@ function ClientReviews() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 🔹 handle submit event (connect to backend later)
-  const handleReviewSubmit = (data: { stars: number; review_text: string }) => {
-    console.log("Submitted review:", data);
+  const handleReviewSubmit = (_data: {
+    stars: number;
+    review_text: string;
+  }) => {
     // Example:
     // await fetch("/api/reviews", { method: "POST", body: JSON.stringify(data) });
   };
 
   return (
-    <section id="reviews" className="bg-[#faf7f2] py-16 flex flex-col items-center relative overflow-hidden">
+    <section
+      id="reviews"
+      className="bg-[#faf7f2] py-16 flex flex-col items-center relative overflow-hidden">
       <h1 className="text-3xl font-bold text-center mb-12">
         <span className="green header">CLIENT</span>{" "}
         <span className="yellow header">REVIEWS</span>
@@ -87,25 +92,22 @@ function ClientReviews() {
         </button>
 
         <Swiper
-          modules={[Navigation, Pagination]}
+          modules={[Navigation]}
+          
           onSwiper={(swiper) => {
+              console.log("Swiper mounted: ClientReviews");
             swiperRef.current = swiper;
           }}
           onBeforeInit={(swiper) => {
-            // Attach navigation before Swiper initializes
             // @ts-ignore
             swiper.params.navigation.prevEl = prevRef.current;
             // @ts-ignore
             swiper.params.navigation.nextEl = nextRef.current;
           }}
           centeredSlides={true}
-          loop={true}
           grabCursor={true}
           observer={true}
           observeParents={true}
-          pagination={{
-            clickable: true,
-          }}
           breakpoints={{
             0: {
               slidesPerView: 1,
@@ -129,8 +131,8 @@ function ClientReviews() {
                     isActive
                       ? "scale-100 opacity-100 z-30"
                       : isPrev || isNext
-                      ? "scale-90 opacity-80 z-20"
-                      : "scale-75 opacity-40 z-10"
+                        ? "scale-90 opacity-80 z-20"
+                        : "scale-75 opacity-40 z-10"
                   }`}
                   style={{
                     transformOrigin: "center center",
@@ -138,13 +140,14 @@ function ClientReviews() {
                     filter: isActive ? "blur(0px)" : "blur(3px)",
                   }}>
                   <Card
+
                     className="bg-white gap-0 item-stretch rounded-2xl p-3 sm:p-8 text-left flex flex-col justify-between
-                               w-[90vw] sm:w-[400px] md:w-[450px] h-auto sm:h-[270px] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+                               w-[90vw] sm:w-100sm:h-67.5 md:w-112.5 h-auto transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+
                     <div className="flex items-center gap-2 sm:gap-3">
                       <img
                         src={review.img}
                         alt={review.name}
-                        loading="lazy"
                         className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
                       />
                       <div>

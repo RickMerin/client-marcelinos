@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { House, ReceiptText } from "lucide-react";
-
+import { Download, House, ReceiptText } from "lucide-react";
+import domtoimage from "dom-to-image";
+import QRCode from "react-qr-code";
 interface Props {
   formData: any;
 }
@@ -14,9 +15,26 @@ export function Step5({ formData }: Props) {
       ? Math.ceil(
           (new Date(formData.check_out).getTime() -
             new Date(formData.check_in).getTime()) /
-            (1000 * 60 * 60 * 24)
+            (1000 * 60 * 60 * 24),
         )
       : 0;
+
+  const downloadReceipt = async () => {
+    try {
+      const element = document.getElementById("receipt");
+      if (element) {
+        const dataUrl = await domtoimage.toPng(element);
+        const link = document.createElement("a");
+        link.download = `marcelinos-hotel-resort-receipt-${formData.reference_number || "-"}.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      // Error downloading receipt
+    }
+  };
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
@@ -25,17 +43,21 @@ export function Step5({ formData }: Props) {
 
   return (
     <motion.div
-      className="flex justify-center py-10"
+      className="flex flex-col items-center justify-center min-h-screen bg-gray-50 py-10"
       initial="hidden"
       animate="visible"
       variants={fadeInUp}>
-      <div className="bg-neutral-50 border border-gray-300 rounded-lg shadow-md p-8 w-full max-w-2xl font-mono">
+      <div
+        id="receipt"
+        className="bg-neutral-50 border border-gray-300 rounded-lg shadow-md p-8 w-full max-w-2xl font-mono">
         {/* Header */}
+
         <div className="text-center mb-6">
           <ReceiptText className="w-10 h-10 mx-auto text-gray-700" />
           <h2 className="text-xl font-bold text-gray-900 mt-2 uppercase tracking-wider">
             Booking Receipt
           </h2>
+
           <p className="text-sm text-gray-600">
             Thank you for booking with us!
           </p>
@@ -45,6 +67,12 @@ export function Step5({ formData }: Props) {
 
         {/* Booking Info */}
         <div className="text-sm text-gray-800 space-y-1 mb-4">
+          <div className="flex justify-between">
+            <span>Reference No:</span>
+            <span className="font-semibold">
+              {formData.reference_number || "—"}
+            </span>
+          </div>
           <div className="flex justify-between">
             <span>Check-in:</span>
             <span className="font-semibold">{formData.check_in || "—"}</span>
@@ -126,17 +154,55 @@ export function Step5({ formData }: Props) {
 
         <div className="border-t border-dashed border-gray-400 my-4" />
 
-        {/* Footer */}
-        <div className="text-center text-xs text-gray-500 space-y-1">
-          <p>Payment Method: {formData.paymentMethod || "—"}</p>
-          <p>Issued on {new Date().toLocaleDateString()}</p>
+        {/* Footer / Logo */}
+        <div className="flex flex-col items-center">
+          <img
+            src="/brand-logo-png.png"
+            alt="Marcelino’s Logo"
+            className="w-15 h-15 object-contain"
+          />
+
+          <div className="flex flex-col items-center gap-0 leading-tight">
+            <div className="text-[20px] text-green-900 tracking-widest font-extrabold font-serif">
+              MARCELINO'S
+            </div>
+            <div className="text-sm tracking-widest font-medium">
+              RESORT AND HOTEL
+            </div>
+          </div>
         </div>
 
+        {/* QR Code */}
+        <div className="text-center">
+          <div className="p-2 flex justify-center">
+            <QRCode
+              value={`${window.location.origin}/booking-receipt/${formData.reference_number || ""}`}
+              size={80}
+              style={{ height: "auto", maxWidth: "60%", width: "100%" }}
+            />
+          </div>
+          <p className="text-xs text-gray-500 mb-2">Scan for digital receipt</p>
+          <div className="text-center text-xs text-gray-500 space-y-1">
+            <p>Payment Method: {formData.paymentMethod || "—"}</p>
+            <p>Issued on {new Date().toLocaleDateString()}</p>
+          </div>
+        </div>
+      </div>
+      <div>
         {/* Action */}
-        <div className="flex justify-center mt-6">
+        <div className="flex flex-col md:flex-row justify-center gap-3 mt-6">
           <button
-            onClick={() => navigate("/")}
-            className="bg-yellow-400 hover:bg-yellow-500 text-black px-5 py-2 rounded-md font-semibold text-sm shadow-sm transition flex items-center gap-2">
+            onClick={downloadReceipt}
+            className="bg-green-600 cursor-pointer hover:bg-green-700 text-white px-5 py-2 rounded-md font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto">
+            <Download className="w-4 h-4" />
+            Download Receipt
+          </button>
+          <button
+            onClick={() => {
+              localStorage.clear();
+              navigate("/");
+            }}
+            className="bg-yellow-500 cursor-pointer hover:bg-yellow-600 text-white px-5 py-2 rounded-md font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto">
             <House className="w-4 h-4" />
             Book Another Room
           </button>

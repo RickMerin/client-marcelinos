@@ -42,7 +42,7 @@ function EventVenues() {
   const isLoading = false;
 
   return (
-    <section id="event-and-venues" className="w-full py-16 bg-gray-50">
+    <section id="venues" className="w-full py-16 bg-gray-50">
       {/* 🟢 Section Title */}
       <h2 className="text-3xl font-bold text-center mb-12">
         <span className="text-green-800">EVENT </span>
@@ -66,7 +66,7 @@ function EventVenues() {
                   width={450}
                   height={250}
                   alt={venue.title}
-                  loading="lazy"
+                  // loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 

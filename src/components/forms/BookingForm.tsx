@@ -47,12 +47,14 @@ export default function BookingForm() {
   };
 
   return (
+    <div>
+
     <FormWrapper
       schema={bookingSchema}
       fields={fields}
       onSubmit={handleSubmit}
       submitLabel="Book Now"
-      className="space-y-6 px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:gap-4 items-center justify-center"
+      className="space-y-6 relative z-10  px-10 py-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:gap-4 items-center justify-center"
       onChangeFields={(values) => {
         if (values.days && values.check_in) {
           const checkInDate = new Date(values.check_in);
@@ -64,5 +66,6 @@ export default function BookingForm() {
         return {};
       }}
     />
+    </div>
   );
 }
