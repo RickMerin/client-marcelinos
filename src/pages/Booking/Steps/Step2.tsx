@@ -27,12 +27,11 @@ import {
 interface Props {
   formData: PersonalDetailsFormValues;
   onUpdate: (data: PersonalDetailsFormValues) => void;
-  onFileUpload: (file?: File | null) => Promise<void>;
 }
 
 const STORAGE_KEY = "reservationDetails.personal";
 
-export function Step2({ formData, onUpdate, onFileUpload }: Props) {
+export function Step2({ formData, onUpdate, }: Props) {
   const saved = getFromLocalStorage(STORAGE_KEY);
 
   const form = useForm<PersonalDetailsFormValues>({
@@ -183,17 +182,6 @@ export function Step2({ formData, onUpdate, onFileUpload }: Props) {
             )}
           />
 
-          {/* file upload intentionally outside RHF */}
-          <div className="col-span-2">
-            <FormLabel>Valid ID</FormLabel>
-            <div className="border border-dashed p-6 rounded-md text-center">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => onFileUpload(e.target.files?.[0] ?? null)}
-              />
-            </div>
-          </div>
         </div>
       </form>
     </Form>
