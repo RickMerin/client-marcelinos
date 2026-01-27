@@ -165,7 +165,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                               <Button
                                 variant="outline"
                                 className={cn(
-                                  "justify-start text-left font-normal h-12",
+                                  " font-normal h-12",
                                   !inputField.value && "text-muted-foreground",
                                   field.className
                                 )}>
@@ -249,7 +249,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
         ))}
         <Button
           type="submit"
-          className="w-full text-black text-lg py-6 font-bold">
+          className="w-full text-white text-lg py-6 yellow-bg cursor-pointer font-bold">
           {submitLabel}
         </Button>
       </form>

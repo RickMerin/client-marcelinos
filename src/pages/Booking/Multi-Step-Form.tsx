@@ -40,7 +40,7 @@ const STEPS = [
 
 export type Gender = "Male" | "Female";
 
-interface GuestResponse {
+interface BookingResponse {
   message: string;
   data: {
     id: number;
@@ -48,7 +48,7 @@ interface GuestResponse {
 }
 
 export interface FormData {
-  reference_id?: string;
+  reference_number?: string;
   current_step: number;
   check_in: string;
   check_out: string;
@@ -72,8 +72,6 @@ export interface FormData {
   newsletter: boolean;
   notifications: boolean;
   paymentMethod: string;
-
-  idFile?: string | null;
 
   totalPrice: number;
   grandTotalPrice: number;
@@ -104,7 +102,6 @@ const defaultFormData: FormData = {
   notifications: false,
   paymentMethod: "",
 
-  idFile: null,
   totalPrice: 0,
   grandTotalPrice: 0,
 };
@@ -148,7 +145,6 @@ export function MultiStepForm() {
     phone: formData.phone,
     email: formData.email,
     address: formData.address,
-    idFile: formData.idFile ?? null,
   };
 
   // ✅ Keep localStorage synced with formData
@@ -221,16 +217,6 @@ export function MultiStepForm() {
   const setPaymentMethod = (method: string) =>
     setFormData((prev) => ({ ...prev, paymentMethod: method }));
 
-  const handleFileUpload = async (file?: File | null) => {
-    if (!file) return setFormData((p) => ({ ...p, idFile: null }));
-    const dataUrl = await new Promise<string>((res, rej) => {
-      const reader = new FileReader();
-      reader.onload = () => res(String(reader.result));
-      reader.onerror = rej;
-      reader.readAsDataURL(file);
-    });
-    setFormData((p) => ({ ...p, idFile: dataUrl }));
-  };
 
   const isStepComplete = (step: number) => {
     switch (step) {
@@ -239,6 +225,11 @@ export function MultiStepForm() {
       case 2:
         return personalDetailsSchema.safeParse(personalDetails).success;
       case 3:
+        let refId = formData.reference_number;
+        if (!refId) {
+          refId = generateReferenceId();
+          setFormData((prev) => ({ ...prev, reference_number: refId }));
+        }
         return true;
       case 4:
         return formData.paymentMethod !== "";
@@ -247,36 +238,48 @@ export function MultiStepForm() {
     }
   };
 
-  const createGuest = useApiMutation<GuestResponse>("post");
+  const createBooking = useApiMutation<BookingResponse>("post");
 
-  const buildGuestPayload = () => {
+  const buildBookingPayload = () => {
     const isIntl = false;
 
     return {
+      // Booking details
+      reference_number: formData.reference_number,
+      check_in: formData.check_in,
+      check_out: formData.check_out,
+      days: formData.days,
+      rooms: formData.rooms.map((room) => room.id),
+      total_price: formData.totalPrice,
+      grand_total_price: formData.grandTotalPrice,
+
+
+      // Guest details
       first_name: formData.firstName || "N/A",
       middle_name: formData.middleName || null,
       last_name: formData.lastName || "N/A",
       email: formData.email,
       contact_num: formData.phone || "0000000000",
       gender: formData.gender || "Male",
-      id_type: "PhilID",
-      id_number: "TEMP-ID",
       is_international: isIntl,
       province: isIntl ? null : formData.state || "Unknown",
       municipality: isIntl ? null : formData.city || "Unknown",
       barangay: isIntl ? null : formData.address || "Unknown",
 
+      // Address details
+      street: formData.street,
+      address: formData.address,
+      zip_code: formData.zipCode,
+
+      // Preferences
+      category: formData.category,
+      newsletter: formData.newsletter,
+      notifications: formData.notifications,
+
       // International fields
       city: isIntl ? formData.city : null,
-      state_region: isIntl ? formData.state : null,
     };
   };
-
-  const createBooking = useApiMutation("post", {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bookings"] });
-    },
-  });
 
   const handleSubmit = async () => {
     if (!isStepComplete(2) || !isStepComplete(4)) {
@@ -284,31 +287,11 @@ export function MultiStepForm() {
       return;
     }
 
-    let refId = formData.reference_id;
-    if (!refId) {
-      refId = generateReferenceId();
-      setFormData((prev) => ({ ...prev, reference_id: refId }));
-    }
-
     try {
       // 1️⃣ Create Guest
-      const guestResponse = await createGuest.mutateAsync({
-        url: "/guests",
-        body: buildGuestPayload(),
-      });
-
-      // 2️⃣ Create Booking using guest_id
-      const guestId = guestResponse.data.id;
-
       await createBooking.mutateAsync({
-        url: "/bookings",
-        body: {
-          reference_id: refId,
-          guest_id: guestId,
-          room_id: formData.rooms[0].id,
-          check_in: formData.check_in,
-          check_out: formData.check_out,
-        },
+        url: "/bookings/store",
+        body: buildBookingPayload(),
       });
 
       // 3️⃣ Move to success step
@@ -344,7 +327,6 @@ export function MultiStepForm() {
                       ...data,
                     }))
                   }
-                  onFileUpload={handleFileUpload}
                 />
               </motion.div>
             )}
