@@ -93,14 +93,31 @@ export function Step5(props: Props) {
   const venuesFromForm = Array.isArray(form?.venues) ? form.venues : [];
   const venues = isFromApi ? venuesFromApi : venuesFromForm;
 
-  const subtotal =
-    isFromApi && receipt
-      ? parseFloat(receipt.subtotal)
-      : (form?.totalPrice ?? 0);
   const grandTotal =
     isFromApi && receipt
       ? parseFloat(receipt.grand_total)
       : (form?.grandTotalPrice ?? 0);
+
+  const roomsTotal = rooms.reduce(
+    (sum: number, r: { price?: number | string }) =>
+      sum +
+      (typeof r.price === "number"
+        ? r.price
+        : parseFloat(String(r.price || 0))),
+    0,
+  );
+  const venuesTotal = venues.reduce(
+    (sum: number, v: { price?: number | string }) =>
+      sum +
+      (typeof v.price === "number"
+        ? v.price
+        : parseFloat(String(v.price || 0))),
+    0,
+  );
+  const perNightTotal = roomsTotal + venuesTotal;
+  const calculatedGrandTotal = nights > 0 ? perNightTotal * nights : grandTotal;
+  const displayGrandTotal =
+    isFromApi && receipt ? grandTotal : calculatedGrandTotal;
 
   const downloadReceipt = async () => {
     try {
@@ -259,9 +276,7 @@ export function Step5(props: Props) {
               </h3>
               <div className="space-y-3">
                 {venues.map((venue: any, idx: number) => (
-                  <div
-                    key={idx}
-                    className="border-b border-gray-200 pb-2 text-gray-700">
+                  <div key={idx} className="pb-2 text-gray-700">
                     <div className="flex justify-between font-semibold">
                       <span>{venue.name ?? "Venue"}</span>
                       <span>
@@ -282,25 +297,65 @@ export function Step5(props: Props) {
                 ))}
               </div>
             </div>
-            <div className="border-t border-dashed border-gray-400 my-4" />
           </>
         )}
 
         <div className="border-t border-dashed border-gray-400 my-4" />
 
-        {/* Totals */}
+        {/* Calculation (full transparency) */}
         <div className="text-sm">
-          <div className="flex justify-between">
-            <span>Subtotal:</span>
-            <span>
-              ₱{subtotal.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
-            </span>
+          <h3 className="font-bold text-gray-700 mb-2 uppercase tracking-wide">
+            Calculation
+          </h3>
+          <div className="space-y-1.5 text-gray-700 bg-gray-100/80 rounded-md p-3">
+            <div className="flex justify-between">
+              <span>Rooms (per night):</span>
+              <span>
+                ₱
+                {roomsTotal.toLocaleString("en-PH", {
+                  minimumFractionDigits: 2,
+                })}
+              </span>
+            </div>
+            {venues.length > 0 && (
+              <div className="flex justify-between">
+                <span>Venues (per night):</span>
+                <span>
+                  ₱
+                  {venuesTotal.toLocaleString("en-PH", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            )}
+            <div className="flex justify-between font-medium pt-1 border-t border-gray-300">
+              <span>Per night total:</span>
+              <span>
+                ₱
+                {perNightTotal.toLocaleString("en-PH", {
+                  minimumFractionDigits: 2,
+                })}
+              </span>
+            </div>
+            <div className="flex justify-between text-gray-600">
+              <span>
+                × {nights} night{nights !== 1 ? "s" : ""}
+              </span>
+              <span>
+                = ₱
+                {displayGrandTotal.toLocaleString("en-PH", {
+                  minimumFractionDigits: 2,
+                })}
+              </span>
+            </div>
           </div>
-          <div className="flex justify-between font-bold text-gray-900 text-base mt-2">
+          <div className="flex justify-between font-bold text-gray-900 text-base mt-3">
             <span>Grand Total:</span>
             <span>
               ₱
-              {grandTotal.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
+              {displayGrandTotal.toLocaleString("en-PH", {
+                minimumFractionDigits: 2,
+              })}
             </span>
           </div>
         </div>
