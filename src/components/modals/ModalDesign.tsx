@@ -1,5 +1,5 @@
-interface ModalDesignProps {
-  onAccept: () => void; // This function will come from Modal.tsx
+export interface ModalDesignProps {
+  onAccept: () => void;
 }
 
 export default function ModalDesign({ onAccept }: ModalDesignProps) {
@@ -16,7 +16,8 @@ export default function ModalDesign({ onAccept }: ModalDesignProps) {
         <p>Thank you for visiting Marcelino's!</p>
         <p>
           Please be informed that we currently do not have a swimming pool or
-          restaurant, as our resort is new and still improving to serve you better.
+          restaurant, as our resort is new and still improving to serve you
+          better.
         </p>
       </div>
 
@@ -48,8 +49,7 @@ export default function ModalDesign({ onAccept }: ModalDesignProps) {
       {/* ACCEPT BUTTON */}
       <button
         className="rounded bg-yellow-600 px-6 py-2 text-white hover:bg-yellow-800 transition"
-        onClick={onAccept} // <-- calls the function from Modal.tsx
-      >
+        onClick={onAccept}>
         Accept
       </button>
     </>
