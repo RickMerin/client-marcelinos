@@ -11,5 +11,9 @@ export const routes = [
   { path: "*", component: NotFound },
   { path: "/privacy-policy", component: PrivacyPolicy },
   { path: "/create-booking", component: Booking },
-  // { path: "/booking-receipt/:reference_number", component: Booking, current_step: 5 }
+  {
+    path: "/booking-receipt/:reference_number",
+    component: Booking,
+    current_step: 5,
+  },
 ];

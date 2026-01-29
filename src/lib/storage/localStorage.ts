@@ -17,3 +17,13 @@ export const getFromLocalStorage = (key: string) => {
   const item = localStorage.getItem(key);
   return item ? JSON.parse(item) : null;
 };
+
+/** Keys used for booking flow */
+const BOOKING_KEYS = ["reservationDate", "reservationDetails"] as const;
+
+/**
+ * Clears booking-related data from localStorage (e.g. after successful booking).
+ */
+export const clearBookingStorage = () => {
+  BOOKING_KEYS.forEach((key) => localStorage.removeItem(key));
+};

@@ -64,8 +64,15 @@ export function MultiStepForm() {
       return;
     }
 
-    await submitBooking(formData, () => {
-      goToStep(5);
+    await submitBooking(formData, (response) => {
+      const referenceNumber =
+        response?.bookings?.[0]?.reference_number ?? formData.reference_number;
+      if (referenceNumber) {
+        navigate(`/booking-receipt/${referenceNumber}`);
+        // Storage is cleared when receipt page mounts so we don't trigger useBookingForm's redirect to "/"
+      } else {
+        goToStep(5);
+      }
     });
   };
 

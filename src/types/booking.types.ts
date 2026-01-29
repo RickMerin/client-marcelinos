@@ -2,9 +2,29 @@ export type Gender = "Male" | "Female";
 
 export interface BookingResponse {
   message: string;
-  data: {
-    id: number;
+  guest?: unknown;
+  bookings: Array<{ reference_number: string; [key: string]: unknown }>;
+  total_price?: number;
+}
+
+/** API response shape for GET /booking-receipt/:reference */
+export interface BookingReceipt {
+  reference_number: string;
+  created_at: string;
+  booking_status: string;
+  check_in: string;
+  check_out: string;
+  issued_on: string;
+  nights: number;
+  guest_name: string;
+  room: {
+    number: number | null;
+    type: string;
+    capacity: number;
+    price: string;
   };
+  subtotal: string;
+  grand_total: string;
 }
 
 export interface FormData {

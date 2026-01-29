@@ -12,22 +12,22 @@ export const useBookingSubmission = () => {
   /**
    * Submits the booking to the API
    * @param formData - The form data to submit
-   * @param onSuccess - Callback function called on successful submission
+   * @param onSuccess - Callback with API response (e.g. to redirect to receipt)
    * @param onError - Callback function called on error
    */
   const submitBooking = async (
     formData: FormData,
-    onSuccess?: () => void,
-    onError?: (error: unknown) => void
+    onSuccess?: (response: BookingResponse) => void,
+    onError?: (error: unknown) => void,
   ) => {
     try {
-      await createBooking.mutateAsync({
+      const response = (await createBooking.mutateAsync({
         url: "/bookings/store",
         body: buildBookingPayload(formData),
-      });
+      })) as BookingResponse;
 
       if (onSuccess) {
-        onSuccess();
+        onSuccess(response);
       }
     } catch (error) {
       if (onError) {
@@ -42,4 +42,4 @@ export const useBookingSubmission = () => {
     submitBooking,
     isSubmitting: createBooking.isPending,
   };
-};
+};;
