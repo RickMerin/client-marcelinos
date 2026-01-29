@@ -24,6 +24,7 @@ export function MultiStepForm() {
     formData,
     handleInputChange,
     setSelectedRooms,
+    setSelectedVenues,
     setPaymentMethod,
     updateFormData,
     goToStep,
@@ -66,10 +67,11 @@ export function MultiStepForm() {
 
     await submitBooking(formData, (response) => {
       const referenceNumber =
-        response?.bookings?.[0]?.reference_number ?? formData.reference_number;
+        response?.booking?.reference_number ??
+        response?.bookings?.[0]?.reference_number ??
+        formData.reference_number;
       if (referenceNumber) {
         navigate(`/booking-receipt/${referenceNumber}`);
-        // Storage is cleared when receipt page mounts so we don't trigger useBookingForm's redirect to "/"
       } else {
         goToStep(5);
       }
@@ -87,8 +89,8 @@ export function MultiStepForm() {
               <motion.div key="step1" {...stepMotion}>
                 <Step1
                   formData={formData}
-                  handleInputChange={handleInputChange}
                   setSelectedRooms={setSelectedRooms}
+                  setSelectedVenues={setSelectedVenues}
                 />
               </motion.div>
             )}

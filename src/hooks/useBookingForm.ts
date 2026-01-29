@@ -54,13 +54,17 @@ export const useBookingForm = () => {
     }
   }, [reservationDate, navigate]);
 
-  // Keep grandTotalPrice in sync when days changes
+  // Keep grandTotalPrice in sync when days or rooms/venues change
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
-      grandTotalPrice: calculateGrandTotalPrice(prev.rooms, prev.days),
+      grandTotalPrice: calculateGrandTotalPrice(
+        prev.rooms,
+        prev.days,
+        prev.venues ?? [],
+      ),
     }));
-  }, [formData.days]);
+  }, [formData.days, formData.rooms, formData.venues]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -76,9 +80,26 @@ export const useBookingForm = () => {
 
   const setSelectedRooms = (rooms: any[]) =>
     setFormData((prev) => {
-      const totalPrice = calculateTotalPrice(rooms);
-      const grandTotalPrice = calculateGrandTotalPrice(rooms, prev.days);
+      const totalPrice =
+        calculateTotalPrice(rooms) + calculateTotalPrice(prev.venues ?? []);
+      const grandTotalPrice = calculateGrandTotalPrice(
+        rooms,
+        prev.days,
+        prev.venues ?? [],
+      );
       return { ...prev, rooms, totalPrice, grandTotalPrice };
+    });
+
+  const setSelectedVenues = (venues: any[]) =>
+    setFormData((prev) => {
+      const totalPrice =
+        calculateTotalPrice(prev.rooms) + calculateTotalPrice(venues);
+      const grandTotalPrice = calculateGrandTotalPrice(
+        prev.rooms,
+        prev.days,
+        venues,
+      );
+      return { ...prev, venues, totalPrice, grandTotalPrice };
     });
 
   const setPaymentMethod = (method: string) =>
@@ -101,10 +122,11 @@ export const useBookingForm = () => {
     setFormData,
     handleInputChange,
     setSelectedRooms,
+    setSelectedVenues,
     setPaymentMethod,
     updateFormData,
     goToStep,
     nextStep,
     previousStep,
   };
-};
+};;

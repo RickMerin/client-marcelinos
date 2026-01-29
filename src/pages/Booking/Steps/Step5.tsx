@@ -63,18 +63,35 @@ export function Step5(props: Props) {
 
   const roomsFromApi =
     receipt != null
-      ? [
-          {
-            room_number: receipt.room.number,
-            type: receipt.room.type,
-            capacity: receipt.room.capacity,
-            price: parseFloat(receipt.room.price),
+      ? Array.isArray(receipt.rooms) && receipt.rooms.length > 0
+        ? receipt.rooms.map((r: any) => ({
+            room_number: r.number ?? null,
+            type: r.type ?? r.name ?? "",
+            capacity: r.capacity ?? 0,
+            price:
+              typeof r.price === "number"
+                ? r.price
+                : parseFloat(String(r.price || 0)),
             status: "",
-          },
-        ]
+          }))
+        : receipt.room
+          ? [
+              {
+                room_number: receipt.room.number,
+                type: receipt.room.type,
+                capacity: receipt.room.capacity,
+                price: parseFloat(receipt.room.price),
+                status: "",
+              },
+            ]
+          : []
       : [];
   const roomsFromForm = Array.isArray(form?.rooms) ? form.rooms : [];
   const rooms = isFromApi ? roomsFromApi : roomsFromForm;
+
+  const venuesFromApi = receipt?.venues ?? [];
+  const venuesFromForm = Array.isArray(form?.venues) ? form.venues : [];
+  const venues = isFromApi ? venuesFromApi : venuesFromForm;
 
   const subtotal =
     isFromApi && receipt
@@ -208,7 +225,7 @@ export function Step5(props: Props) {
                     <span>
                       {room.room_number != null
                         ? `Room ${room.room_number} (${room.type})`
-                        : `${room.type}`}
+                        : (room.name ?? room.type ?? "Room")}
                     </span>
                     <span>
                       ₱
@@ -232,6 +249,42 @@ export function Step5(props: Props) {
             <p className="text-gray-600 italic">No rooms selected</p>
           )}
         </div>
+
+        {/* Venues Section */}
+        {venues.length > 0 && (
+          <>
+            <div className="text-sm">
+              <h3 className="font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                Venue Details
+              </h3>
+              <div className="space-y-3">
+                {venues.map((venue: any, idx: number) => (
+                  <div
+                    key={idx}
+                    className="border-b border-gray-200 pb-2 text-gray-700">
+                    <div className="flex justify-between font-semibold">
+                      <span>{venue.name ?? "Venue"}</span>
+                      <span>
+                        ₱
+                        {typeof venue.price === "number"
+                          ? venue.price.toLocaleString("en-PH", {
+                              minimumFractionDigits: 2,
+                            })
+                          : Number(venue.price || 0).toLocaleString("en-PH", {
+                              minimumFractionDigits: 2,
+                            })}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Capacity: {venue.capacity ?? "—"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-dashed border-gray-400 my-4" />
+          </>
+        )}
 
         <div className="border-t border-dashed border-gray-400 my-4" />
 

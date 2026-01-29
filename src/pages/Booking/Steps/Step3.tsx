@@ -62,48 +62,86 @@ export function Step3({ formData }: Props) {
             </div>
           </div>
 
-          {/* Selected Room */}
+          {/* Selected Rooms */}
           <div className="border rounded-md shadow-sm">
             <div className="bg-green-600 text-white px-4 py-2 font-semibold rounded-t-md">
-              Selected Room
+              Selected Rooms
             </div>
-            {formData.rooms.map(
-              (
-                room: {
-                  type: string;
-                  floor: string;
-                  bed_type: string;
-                  price: number;
-                },
-                index: number
-              ) => (
-                <div
-                  key={index}
-                  className="p-4 text-sm text-gray-800 grid grid-cols-4 gap-2">
-                  <p>
-                    <strong>Name</strong>
-                    <br />
-                    {room.type || "—"}
-                  </p>
-                  <p>
-                    <strong>Price</strong>
-                    <br />
-                    {pricingFormat(room.price) || "—"}
-                  </p>
-                  <p>
-                    <strong>Floor</strong>
-                    <br />
-                    {room.floor || "—"}
-                  </p>
-                  <p>
-                    <strong>Bed Type</strong>
-                    <br />
-                    {room.bed_type || "—"}
-                  </p>
-                </div>
+            {(formData.rooms ?? []).length === 0 ? (
+              <div className="p-4 text-sm text-gray-500">No rooms selected</div>
+            ) : (
+              (formData.rooms ?? []).map(
+                (
+                  room: {
+                    name?: string;
+                    type?: string;
+                    capacity?: number;
+                    price?: number;
+                  },
+                  index: number,
+                ) => (
+                  <div
+                    key={index}
+                    className="p-4 text-sm text-gray-800 grid grid-cols-2 sm:grid-cols-4 gap-2 border-t first:border-t-0">
+                    <p>
+                      <strong>Name / Type</strong>
+                      <br />
+                      {room.name || room.type || "—"}
+                    </p>
+                    <p>
+                      <strong>Price</strong>
+                      <br />
+                      {pricingFormat(room.price ?? 0) || "—"}
+                    </p>
+                    {room.capacity != null && (
+                      <p>
+                        <strong>Capacity</strong>
+                        <br />
+                        {room.capacity}
+                      </p>
+                    )}
+                  </div>
+                ),
               )
             )}
           </div>
+
+          {/* Selected Venues */}
+          {(formData.venues ?? []).length > 0 && (
+            <div className="border rounded-md shadow-sm">
+              <div className="bg-amber-600 text-white px-4 py-2 font-semibold rounded-t-md">
+                Selected Venues
+              </div>
+              {(formData.venues ?? []).map(
+                (
+                  venue: { name?: string; capacity?: number; price?: number },
+                  index: number,
+                ) => (
+                  <div
+                    key={index}
+                    className="p-4 text-sm text-gray-800 grid grid-cols-2 sm:grid-cols-4 gap-2 border-t first:border-t-0">
+                    <p>
+                      <strong>Name</strong>
+                      <br />
+                      {venue.name || "—"}
+                    </p>
+                    <p>
+                      <strong>Price</strong>
+                      <br />
+                      {pricingFormat(venue.price ?? 0) || "—"}
+                    </p>
+                    {venue.capacity != null && (
+                      <p>
+                        <strong>Capacity</strong>
+                        <br />
+                        {venue.capacity}
+                      </p>
+                    )}
+                  </div>
+                ),
+              )}
+            </div>
+          )}
 
           {/* Total Billing */}
           <div className="border rounded-md shadow-sm overflow-hidden">

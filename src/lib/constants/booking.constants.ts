@@ -7,6 +7,7 @@ export const defaultFormData: FormData = {
   check_out: "",
   days: 1,
   rooms: [],
+  venues: [],
 
   firstName: "",
   middleName: null,

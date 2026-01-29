@@ -22,7 +22,7 @@ export const useBookingSubmission = () => {
   ) => {
     try {
       const response = (await createBooking.mutateAsync({
-        url: "/bookings/store",
+        url: "/bookings",
         body: buildBookingPayload(formData),
       })) as BookingResponse;
 

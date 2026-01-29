@@ -3,7 +3,9 @@ export type Gender = "Male" | "Female";
 export interface BookingResponse {
   message: string;
   guest?: unknown;
-  bookings: Array<{ reference_number: string; [key: string]: unknown }>;
+  booking?: { reference_number: string; [key: string]: unknown };
+  /** @deprecated use booking instead */
+  bookings?: Array<{ reference_number: string; [key: string]: unknown }>;
   total_price?: number;
 }
 
@@ -17,7 +19,17 @@ export interface BookingReceipt {
   issued_on: string;
   nights: number;
   guest_name: string;
-  room: {
+  /** Multiple rooms (API now returns array) */
+  rooms?: Array<{
+    name: string;
+    type: string;
+    capacity: number;
+    price: number | string;
+  }>;
+  /** Multiple venues */
+  venues?: Array<{ name: string; capacity: number; price: number | string }>;
+  /** @deprecated use rooms instead */
+  room?: {
     number: number | null;
     type: string;
     capacity: number;
@@ -34,6 +46,7 @@ export interface FormData {
   check_out: string;
   days: number;
   rooms: any[];
+  venues: any[];
 
   firstName: string;
   middleName: string | null;
@@ -73,8 +86,9 @@ export interface BookingPayload {
   check_out: string;
   days: number;
   rooms: number[];
+  venues?: number[];
   total_price: number;
-  grand_total_price: number;
+  grand_total_price?: number;
   first_name: string;
   middle_name: string | null;
   last_name: string;
@@ -82,6 +96,7 @@ export interface BookingPayload {
   contact_num: string;
   gender: Gender;
   is_international: boolean;
+  country?: string | null;
   province: string | null;
   municipality: string | null;
   barangay: string | null;
