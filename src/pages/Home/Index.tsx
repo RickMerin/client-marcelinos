@@ -8,10 +8,14 @@ import RoomCard from "@/pages/Home/RoomCard";
 import FAQ from "./ContactForm";
 import LocationMap from "@/pages/Home/LocationMap";
 import Services from "./Services";
+import Modal from "@/components/modals/Modal";
+
+
 
 function Home() {
   return (
     <>
+    <Modal />
       <section className="relative w-full">
         <BannerCarousel />
         <div className="spacer h-30 md:h-0"></div>
@@ -34,6 +38,7 @@ function Home() {
       <LocationMap />
     </>
   );
+  
 }
 
 export default Home;
