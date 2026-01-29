@@ -1,25 +1,23 @@
 import { z } from "zod";
 
 /* ---------------- helpers ---------------- */
-const toTitleCase = (value: string) =>
-  value.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+const toUpperCase = (value: string) => value.trim().toUpperCase();
 
 /* ---------------- schema ---------------- */
 export const personalDetailsSchema = z.object({
-  firstName: z.string().min(1, "First name is required").transform(toTitleCase),
+  firstName: z.string().min(1, "First name is required").transform(toUpperCase),
 
   middleName: z
-    .string()
-    .nullable()
-    .transform((v) => (v ? `${v.charAt(0).toUpperCase()}.` : null)),
+    .union([z.string(), z.null()])
+    .transform((v) =>
+      v && typeof v === "string" && v.trim() ? v.trim().toUpperCase() : null,
+    ),
 
-  lastName: z.string().min(1, "Last name is required").transform(toTitleCase),
+  lastName: z.string().min(1, "Last name is required").transform(toUpperCase),
 
-  gender: z
-    .string()
-    .refine((v) => v === "Male" || v === "Female", {
-      message: "Please select a gender",
-    }),
+  gender: z.enum(["Male", "Female"], {
+    message: "Please select a gender",
+  }),
 
   phone: z
     .string()
@@ -27,7 +25,7 @@ export const personalDetailsSchema = z.object({
 
   email: z.string().email("Invalid email address"),
 
-  address: z.string().min(1, "Address is required").transform(toTitleCase),
+  address: z.string().min(1, "Address is required").transform(toUpperCase),
 
   idFile: z.string().nullable().optional(),
 });
