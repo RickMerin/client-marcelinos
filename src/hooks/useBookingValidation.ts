@@ -1,4 +1,4 @@
-import { FormData, PersonalDetails } from "@/types/booking.types";
+import { FormData } from "@/types/booking.types";
 import { personalDetailsSchema } from "@/lib/validators/personalDetails.schema";
 import { generateReferenceId } from "@/lib/utils/booking.utils";
 
@@ -7,9 +7,9 @@ import { generateReferenceId } from "@/lib/utils/booking.utils";
  */
 export const useBookingValidation = (
   formData: FormData,
-  updateFormData: (updates: Partial<FormData>) => void
+  updateFormData: (updates: Partial<FormData>) => void,
 ) => {
-  const personalDetails: PersonalDetails = {
+  const personalDetails = {
     firstName: formData.firstName,
     middleName: formData.middleName,
     lastName: formData.lastName,

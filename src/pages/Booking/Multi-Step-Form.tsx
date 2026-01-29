@@ -90,6 +90,7 @@ export function MultiStepForm() {
                 <Step2
                   formData={personalDetails}
                   onUpdate={(data) => updateFormData(data)}
+                  onValuesChange={updateFormData}
                 />
               </motion.div>
             )}

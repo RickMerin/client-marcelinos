@@ -18,7 +18,7 @@ export interface FormData {
   firstName: string;
   middleName: string | null;
   lastName: string;
-  gender: Gender;
+  gender: Gender | "";
   phone: string;
   email: string;
   address: string;

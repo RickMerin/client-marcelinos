@@ -11,7 +11,7 @@ export const defaultFormData: FormData = {
   firstName: "",
   middleName: null,
   lastName: "",
-  gender: "Male",
+  gender: "",
   phone: "",
   email: "",
   address: "",
