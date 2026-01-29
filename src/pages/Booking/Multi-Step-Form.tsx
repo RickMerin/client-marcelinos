@@ -38,7 +38,7 @@ const STEPS = [
   { id: 5, icon: <PartyPopper className="h-5 w-5 md:h-8 md:w-8" /> },
 ];
 
-export type Gender = "Male" | "Female";
+export type Gender = string;
 
 interface BookingResponse {
   message: string;
@@ -58,7 +58,7 @@ export interface FormData {
   firstName: string;
   middleName: string | null;
   lastName: string;
-  gender: Gender;
+  gender: string;
   phone: string;
   email: string;
   address: string;
@@ -87,7 +87,7 @@ const defaultFormData: FormData = {
   firstName: "",
   middleName: null,
   lastName: "",
-  gender: "Male", // 👈 REQUIRED
+  gender: "", 
   phone: "",
   email: "",
   address: "",
