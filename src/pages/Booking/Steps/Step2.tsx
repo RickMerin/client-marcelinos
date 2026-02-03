@@ -23,28 +23,54 @@ import {
   saveToLocalStorage,
   getFromLocalStorage,
 } from "@/lib/storage/localStorage";
+import { FormData } from "@/types/booking.types";
+
+/** FormData for step 2: same as PersonalDetailsFormValues but gender can be "" when not selected */
+type Step2FormData = Omit<PersonalDetailsFormValues, "gender"> & {
+  gender: PersonalDetailsFormValues["gender"] | "";
+};
 
 interface Props {
-  formData: PersonalDetailsFormValues;
+  formData: Step2FormData;
   onUpdate: (data: PersonalDetailsFormValues) => void;
+  onValuesChange?: (updates: Partial<FormData>) => void;
 }
 
 const STORAGE_KEY = "reservationDetails.personal";
 
-export function Step2({ formData, onUpdate, }: Props) {
+export function Step2({ formData, onUpdate, onValuesChange }: Props) {
   const saved = getFromLocalStorage(STORAGE_KEY);
 
   const form = useForm<PersonalDetailsFormValues>({
     resolver: zodResolver(personalDetailsSchema),
-    defaultValues: saved ?? formData,
+    defaultValues: {
+      ...(saved ?? formData),
+      gender:
+        (saved ?? formData).gender === "Male" ||
+        (saved ?? formData).gender === "Female"
+          ? (saved ?? formData).gender
+          : undefined,
+      middleName: (saved ?? formData).middleName ?? null,
+    },
     mode: "onChange",
   });
 
-  /* ---------- sync VALID data upward + persist ---------- */
+  /* ---------- sync current values to parent (so Continue stays disabled when gender empty) ---------- */
   useEffect(() => {
     const sub = form.watch((values) => {
+      onValuesChange?.({
+        firstName: values.firstName,
+        middleName: values.middleName ?? null,
+        lastName: values.lastName,
+        gender:
+          values.gender === "Male" || values.gender === "Female"
+            ? values.gender
+            : "",
+        phone: values.phone,
+        email: values.email,
+        address: values.address,
+      });
       if (form.formState.isValid) {
-        // Ensure all required fields are present and not undefined
         try {
           const parsed = personalDetailsSchema.parse(values);
           onUpdate(parsed);
@@ -56,7 +82,7 @@ export function Step2({ formData, onUpdate, }: Props) {
     });
 
     return () => sub.unsubscribe();
-  }, [form, onUpdate]);
+  }, [form, onUpdate, onValuesChange]);
 
   return (
     <Form {...form}>
@@ -64,7 +90,7 @@ export function Step2({ formData, onUpdate, }: Props) {
         <h2 className="text-3xl font-bold text-center">Personal Information</h2>
 
         <div className="grid grid-cols-2 gap-4">
-          <FormField
+          <FormField<PersonalDetailsFormValues, "lastName">
             control={form.control}
             name="lastName"
             render={({ field }) => (
@@ -80,7 +106,7 @@ export function Step2({ formData, onUpdate, }: Props) {
             )}
           />
 
-          <FormField
+          <FormField<PersonalDetailsFormValues, "middleName">
             control={form.control}
             name="middleName"
             render={({ field }) => (
@@ -96,7 +122,7 @@ export function Step2({ formData, onUpdate, }: Props) {
             )}
           />
 
-          <FormField
+          <FormField<PersonalDetailsFormValues, "firstName">
             control={form.control}
             name="firstName"
             render={({ field }) => (
@@ -112,7 +138,7 @@ export function Step2({ formData, onUpdate, }: Props) {
             )}
           />
 
-          <FormField
+          <FormField<PersonalDetailsFormValues, "gender">
             control={form.control}
             name="gender"
             render={({ field }) => (
@@ -123,6 +149,10 @@ export function Step2({ formData, onUpdate, }: Props) {
                 <FormControl>
                   <select
                     {...field}
+                    value={field.value ?? ""}
+                    onChange={(e) =>
+                      field.onChange(e.target.value || undefined)
+                    }
                     className="h-10 w-full rounded-md border px-3">
                     <option value="">Select gender</option>
                     <option value="Male">Male</option>
@@ -134,7 +164,7 @@ export function Step2({ formData, onUpdate, }: Props) {
             )}
           />
 
-          <FormField
+          <FormField<PersonalDetailsFormValues, "phone">
             control={form.control}
             name="phone"
             render={({ field }) => (
@@ -150,7 +180,7 @@ export function Step2({ formData, onUpdate, }: Props) {
             )}
           />
 
-          <FormField
+          <FormField<PersonalDetailsFormValues, "email">
             control={form.control}
             name="email"
             render={({ field }) => (
@@ -166,7 +196,7 @@ export function Step2({ formData, onUpdate, }: Props) {
             )}
           />
 
-          <FormField
+          <FormField<PersonalDetailsFormValues, "address">
             control={form.control}
             name="address"
             render={({ field }) => (
@@ -181,7 +211,6 @@ export function Step2({ formData, onUpdate, }: Props) {
               </FormItem>
             )}
           />
-
         </div>
       </form>
     </Form>
