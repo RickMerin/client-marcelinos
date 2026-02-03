@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
-import { BookingReceipt } from "@/types/booking.types";
+import { BookingReceipt, BookingReferenceResponse } from "@/types/booking.types";
 import { Step5 } from "./Steps/Step5";
 import { Stepper } from "./Stepper";
 import { Card } from "@/components/ui/card";
@@ -24,7 +24,13 @@ export function BookingReceiptPage({ referenceNumber }: BookingReceiptPageProps)
     `/booking-receipt/${referenceNumber}`,
     { retry: 1 }
   );
+  const { data: bookingReferenceData } = useApiQuery<BookingReferenceResponse>(
+    ["booking-reference", referenceNumber],
+    `/bookings/reference/${referenceNumber}`,
+    { retry: 1 }
+  );
   const receipt: BookingReceipt | undefined = data;
+  const qrCodeUrl = bookingReferenceData?.qr_code_url ?? null;
 
   if (isLoading) {
     return (
@@ -51,7 +57,7 @@ export function BookingReceiptPage({ referenceNumber }: BookingReceiptPageProps)
         <Card className="p-8 shadow-none border-none">
           <Stepper steps={STEPS} currentStep={RECEIPT_STEP} />
           <div className="mt-4 mb-8 min-h-87.5">
-            <Step5 receiptData={receipt} />
+            <Step5 receiptData={receipt} qrCodeUrl={qrCodeUrl} />
           </div>
         </Card>
       </div>
