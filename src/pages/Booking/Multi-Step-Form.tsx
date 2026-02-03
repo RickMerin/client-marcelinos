@@ -22,7 +22,6 @@ export function MultiStepForm() {
   const navigate = useNavigate();
   const {
     formData,
-    handleInputChange,
     setSelectedRooms,
     setSelectedVenues,
     setPaymentMethod,
