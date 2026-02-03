@@ -1,6 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import Modal from "@/components/modals/Modal";
+import PaymentConfirmContent from "@/components/modals/PolicyDisclaimer";
+
 import cashless from "@/assets/img/cashless-payment-svgrepo-com.svg";
 import cash from "@/assets/img/cash.webp";
 import { PAYMENT_METHODS } from "@/enum/constants";
@@ -18,10 +22,11 @@ export function Step4({
   onBack,
   onProceed,
 }: Step4Props) {
-  const handleSelect = (method: string) => {
-    const newValue = paymentMethod === method ? "" : method; // toggle on/off
+  const [isProceedModalOpen, setIsProceedModalOpen] = useState(false);
 
-    setPaymentMethod(newValue); // this updates formData.paymentMethod accordingly
+  const handleSelect = (method: string) => {
+    const newValue = paymentMethod === method ? "" : method;
+    setPaymentMethod(newValue);
   };
 
   const handleProceed = () => {
@@ -29,13 +34,21 @@ export function Step4({
       alert("Please select a payment method before proceeding.");
       return;
     }
-    onProceed();
+
+    // Open confirmation modal instead of proceeding immediately
+    setIsProceedModalOpen(true);
+  };
+
+  const handleConfirmProceed = () => {
+    setIsProceedModalOpen(false);
+    onProceed(); // FINAL proceed to next step
   };
 
   return (
     <div className="space-y-8">
       <h2 className="text-3xl font-bold text-center">Payment</h2>
 
+      {/* Awareness */}
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold">Online Payment Awareness</h3>
         <p className="text-gray-600 max-w-2xl mx-auto text-sm">
@@ -47,15 +60,17 @@ export function Step4({
         </p>
       </div>
 
+      {/* Payment Methods */}
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Pay in Cash Box (acts like a checkbox) */}
+        {/* Pay in Cash */}
         <label
           className={`cursor-pointer border rounded-md p-4 flex items-start gap-3 shadow-sm transition relative
             ${
               paymentMethod === PAYMENT_METHODS.CASH
                 ? "bg-green-100 border-green-400 ring-2 ring-green-400"
                 : "bg-gray-50 hover:bg-gray-100"
-            }`}>
+            }`}
+        >
           <input
             type="checkbox"
             checked={paymentMethod === PAYMENT_METHODS.CASH}
@@ -72,10 +87,11 @@ export function Step4({
           </div>
         </label>
 
-        {/* Pay Online (Disabled) */}
+        {/* Pay Online (Soon) */}
         <label
           className="cursor-not-allowed border rounded-md p-4 bg-gray-100 flex items-start gap-3 shadow-sm opacity-60 relative"
-          aria-disabled="true">
+          aria-disabled="true"
+        >
           <input
             type="checkbox"
             disabled
@@ -103,13 +119,15 @@ export function Step4({
         </label>
       </div>
 
-      {/* Buttons */}
+      {/* Navigation Buttons */}
       <div className="flex justify-between items-center mt-8">
         <button
           onClick={onBack}
-          className="text-sm underline text-gray-600 hover:text-gray-800">
+          className="text-sm underline text-gray-600 hover:text-gray-800"
+        >
           ← Back
         </button>
+
         <Button
           onClick={handleProceed}
           disabled={!paymentMethod}
@@ -117,10 +135,25 @@ export function Step4({
             paymentMethod
               ? "bg-amber-400 hover:bg-amber-500 text-black"
               : "bg-gray-300 text-gray-600 cursor-not-allowed"
-          }`}>
+          }`}
+        >
           Proceed to Payment
         </Button>
       </div>
+
+      {/* Proceed Confirmation Modal */}
+      <Modal
+  open={isProceedModalOpen}
+  onClose={() => setIsProceedModalOpen(false)}
+  showCloseButton={true}
+>
+  <PaymentConfirmContent
+    paymentMethod={paymentMethod}
+    onCancel={() => setIsProceedModalOpen(false)}
+    onConfirm={handleConfirmProceed}
+  />
+
+      </Modal>
     </div>
   );
 }
