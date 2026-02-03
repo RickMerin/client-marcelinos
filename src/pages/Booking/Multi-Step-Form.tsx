@@ -13,7 +13,6 @@ import { useBookingForm } from "@/hooks/useBookingForm";
 import { useBookingValidation } from "@/hooks/useBookingValidation";
 import { useBookingSubmission } from "@/hooks/useBookingSubmission";
 import { NavigationButtons } from "./components/NavigationButtons";
-import {dislaimer} from "./Steps/disclaimer";
 
 /**
  * Multi-step booking form component
