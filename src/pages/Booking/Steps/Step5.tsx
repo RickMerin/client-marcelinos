@@ -32,6 +32,15 @@ export function Step5(props: Props) {
   const referenceNumber = isFromApi
     ? receipt?.reference_number
     : form?.reference_number;
+  const env = import.meta.env.VITE_ENV;
+  const apiUrlDev = import.meta.env.VITE_API_URL_DEV;
+  const apiUrlProd = import.meta.env.VITE_API_URL_PROD;
+  const backendBaseUrl =
+    (env === "production" ? apiUrlProd : apiUrlDev) ||
+    "https://Marcelinos-Backend.test/api";
+  const receiptUrl = `${backendBaseUrl.replace(/\/$/, "")}/booking-receipt/${
+    referenceNumber || ""
+  }`;
   const createdAt = isFromApi
     ? receipt?.created_at
     : new Date().toLocaleDateString();
@@ -383,7 +392,7 @@ export function Step5(props: Props) {
         <div className="text-center">
           <div className="p-2 flex justify-center">
             <QRCode
-              value={`${window.location.origin}/booking-receipt/${referenceNumber || ""}`}
+              value={receiptUrl}
               size={80}
               style={{ height: "auto", maxWidth: "60%", width: "100%" }}
             />
