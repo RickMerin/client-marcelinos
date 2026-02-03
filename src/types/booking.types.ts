@@ -9,6 +9,12 @@ export interface BookingResponse {
   total_price?: number;
 }
 
+/** API response shape for GET /bookings/reference/:reference */
+export interface BookingReferenceResponse {
+  booking?: { reference_number: string; [key: string]: unknown };
+  qr_code_url?: string | null;
+}
+
 /** API response shape for GET /booking-receipt/:reference */
 export interface BookingReceipt {
   reference_number: string;
