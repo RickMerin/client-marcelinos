@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Download, House, ReceiptText } from "lucide-react";
 import domtoimage from "dom-to-image";
-import QRCode from "react-qr-code";
 import { BookingReceipt } from "@/types/booking.types";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
 
@@ -402,20 +401,12 @@ export function Step5(props: Props) {
         {/* QR Code */}
         <div className="text-center">
           <div className="p-2 flex justify-center">
-            {qrCodeUrl ? (
-              <img
-                src={qrCodeUrl}
-                alt="Booking QR Code"
-                className="w-20 h-20 object-contain"
-                loading="lazy"
-              />
-            ) : (
-              <QRCode
-                value={receiptUrl}
-                size={80}
-                style={{ height: "auto", maxWidth: "60%", width: "100%" }}
-              />
-            )}
+            <img
+              src={qrCodeUrl ?? undefined}
+              alt="Booking QR Code"
+              className="w-20 h-20 object-contain"
+              loading="lazy"
+            />
           </div>
           <p className="text-xs text-gray-500 mb-2">Scan for digital receipt</p>
           <div className="text-center text-xs text-gray-500 space-y-1">
