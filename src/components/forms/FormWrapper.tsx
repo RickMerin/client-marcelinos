@@ -21,8 +21,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarDays, Minus, Plus } from "lucide-react";
-import { th } from "date-fns/locale";
-
+import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 type Field = {
   name: string;
   label?: string;
@@ -131,6 +130,23 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
     }
   }, [days, checkIn]);
 
+  type BlockedDatesResponse = {
+    blocked_dates: string[];
+  };
+
+  const { data } = useApiQuery<BlockedDatesResponse>(
+    ["blocked-dates"],
+    "/blocked-dates"
+  );
+
+  const blockedDates = React.useMemo(() => {
+    return (
+      data?.blocked_dates?.map(
+        d => new Date(d + "T00:00:00")
+      ) ?? []
+    );
+  }, [data]);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className={className}>
@@ -233,10 +249,10 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                   inputField.onChange(date);
                                   setOpen(false);
                                 }}
-                                disabled={(date) =>
-                                  date <
-                                  new Date(new Date().setHours(0, 0, 0, 0))
-                                }
+                                 disabled={[
+                                    { before: new Date(new Date().setHours(0, 0, 0, 0)) },
+                                    ...blockedDates,
+                                  ]}
                               />
                             </PopoverContent>
                           </Popover>
