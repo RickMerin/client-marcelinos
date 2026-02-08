@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarDays, Minus, Plus } from "lucide-react";
-
+import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 type Field = {
   name: string;
   label?: string;
@@ -68,6 +68,42 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
     fields.map((f) => [f.name, f.value ?? (f.type === "counter" ? 1 : "")])
   ) as z.output<T>;
 
+  const hasScrolledRef = React.useRef(false);
+
+  React.useEffect(() => {
+    const openCalendar = () => {
+      setOpen(true);
+
+      const bookingEl = document.getElementById("booking-section");
+      const heroTop = window.scrollY < 100;
+
+      if (hasScrolledRef.current && !heroTop) {
+        window.scrollTo({
+          behavior: "smooth",
+          top: 200,
+        });
+        hasScrolledRef.current = false;
+        return;
+      }
+
+      if (!heroTop && bookingEl) {
+        bookingEl.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+        hasScrolledRef.current = true;
+      }
+    };
+
+    window.addEventListener("open-checkin", openCalendar);
+
+    return () => {
+      window.removeEventListener("open-checkin", openCalendar);
+    };
+  }, []);
+
+
+
   const form = useForm<z.output<T>>({
     resolver: zodResolver(schema) as any,
     defaultValues,
@@ -93,6 +129,23 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
       });
     }
   }, [days, checkIn]);
+
+  type BlockedDatesResponse = {
+    blocked_dates: string[];
+  };
+
+  const { data } = useApiQuery<BlockedDatesResponse>(
+    ["blocked-dates"],
+    "/blocked-dates"
+  );
+
+  const blockedDates = React.useMemo(() => {
+    return (
+      data?.blocked_dates?.map(
+        d => new Date(d + "T00:00:00")
+      ) ?? []
+    );
+  }, [data]);
 
   return (
     <Form {...form}>
@@ -196,10 +249,10 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                   inputField.onChange(date);
                                   setOpen(false);
                                 }}
-                                disabled={(date) =>
-                                  date <
-                                  new Date(new Date().setHours(0, 0, 0, 0))
-                                }
+                                 disabled={[
+                                    { before: new Date(new Date().setHours(0, 0, 0, 0)) },
+                                    ...blockedDates,
+                                  ]}
                               />
                             </PopoverContent>
                           </Popover>
