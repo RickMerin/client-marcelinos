@@ -25,7 +25,13 @@ function Home() {
             style={{
               backgroundImage: "url('green-leaves-extended.png')",
             }}></div>
-          <BookingForm />
+          <div
+          id="booking-section"
+            className="absolute pb-3 pt-5 text-white inset-x-2 transform bg-green-900 -translate-y-1/2 mx-auto max-w-5xl rounded-xl"
+          >
+            <BookingForm />
+          </div>
+
         </div>
         <div className="spacer h-50 md:h-25"></div>
       </section>

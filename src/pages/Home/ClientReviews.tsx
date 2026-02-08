@@ -95,7 +95,6 @@ function ClientReviews() {
           modules={[Navigation]}
           
           onSwiper={(swiper) => {
-              console.log("Swiper mounted: ClientReviews");
             swiperRef.current = swiper;
           }}
           onBeforeInit={(swiper) => {

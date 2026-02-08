@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarDays, Minus, Plus } from "lucide-react";
+import { th } from "date-fns/locale";
 
 type Field = {
   name: string;
@@ -67,6 +68,42 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
   const defaultValues = Object.fromEntries(
     fields.map((f) => [f.name, f.value ?? (f.type === "counter" ? 1 : "")])
   ) as z.output<T>;
+
+  const hasScrolledRef = React.useRef(false);
+
+  React.useEffect(() => {
+    const openCalendar = () => {
+      setOpen(true);
+
+      const bookingEl = document.getElementById("booking-section");
+      const heroTop = window.scrollY < 100;
+
+      if (hasScrolledRef.current && !heroTop) {
+        window.scrollTo({
+          behavior: "smooth",
+          top: 200,
+        });
+        hasScrolledRef.current = false;
+        return;
+      }
+
+      if (!heroTop && bookingEl) {
+        bookingEl.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+        hasScrolledRef.current = true;
+      }
+    };
+
+    window.addEventListener("open-checkin", openCalendar);
+
+    return () => {
+      window.removeEventListener("open-checkin", openCalendar);
+    };
+  }, []);
+
+
 
   const form = useForm<z.output<T>>({
     resolver: zodResolver(schema) as any,

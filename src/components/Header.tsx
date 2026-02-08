@@ -24,6 +24,12 @@ export default function Header() {
     { label: "Faq", href: "#faq" },
   ];
 
+  const bookNowHandler = () => {
+    setOpen(false);
+    const event = new Event("open-checkin");
+    window.dispatchEvent(event);
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 md:px-8">
@@ -64,8 +70,8 @@ export default function Header() {
           </NavigationMenu>
 
           <Button
-            id="book-now"
             className="bg-[var(--default-color)] text-white font-semibold hover:bg-yellow-500"
+            onClick={bookNowHandler}
           >
             Book Now
           </Button>
@@ -83,6 +89,7 @@ export default function Header() {
             side="top"
             aria-describedby="mobile-menu-title"
             className="bg-white"
+            onCloseAutoFocus={(e) => e.preventDefault()}
           >
             <DialogTitle className="border-b p-4 text-center text-2xl font-extrabold">
               MARCELINO'S
@@ -105,7 +112,10 @@ export default function Header() {
                 </a>
               ))}
 
-              <Button className="rounded-lg bg-yellow-400 font-semibold text-white hover:bg-yellow-500">
+              <Button
+                className="bg-[var(--default-color)] text-white font-semibold hover:bg-yellow-500"
+                onClick={bookNowHandler}
+              >
                 Book Now
               </Button>
             </nav>
