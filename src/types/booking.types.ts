@@ -9,6 +9,16 @@ export interface BookingResponse {
   total_price?: number;
 }
 
+/** API 422 response when date range conflicts with existing booking */
+export interface BookingConflictResponse {
+  message: string;
+  error?: "date_range_conflict";
+  conflicts?: {
+    rooms?: Array<{ id: number; name: string }>;
+    venues?: Array<{ id: number; name: string }>;
+  };
+}
+
 /** API response shape for GET /bookings/reference/:reference */
 export interface BookingReferenceResponse {
   booking?: { reference_number: string; [key: string]: unknown };
