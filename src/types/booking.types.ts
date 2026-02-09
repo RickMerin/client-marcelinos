@@ -23,6 +23,8 @@ export interface BookingConflictResponse {
 export interface BookingReferenceResponse {
   booking?: { reference_number: string; [key: string]: unknown };
   qr_code_url?: string | null;
+  /** True when a testimonial/site review has already been submitted for this booking. */
+  has_testimonial?: boolean;
 }
 
 /** API response shape for GET /booking-receipt/:reference */
