@@ -5,7 +5,7 @@ import { Step5 } from "./Steps/Step5";
 import { Stepper } from "./Stepper";
 import { Card } from "@/components/ui/card";
 import { STEPS } from "./constants/steps.config";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/loader";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
 
 interface BookingReceiptPageProps {
@@ -33,11 +33,7 @@ export function BookingReceiptPage({ referenceNumber }: BookingReceiptPageProps)
   const qrCodeUrl = bookingReferenceData?.qr_code_url ?? null;
 
   if (isLoading) {
-    return (
-      <main className="min-h-screen flex items-center justify-center p-4">
-        <Spinner />
-      </main>
-    );
+    return <PageLoader message="Loading receipt…" />;
   }
 
   if (isError || !receipt) {

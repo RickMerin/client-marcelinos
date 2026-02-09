@@ -36,7 +36,7 @@ export function MultiStepForm() {
     updateFormData
   );
 
-  const { submitBooking } = useBookingSubmission();
+  const { submitBooking, isSubmitting } = useBookingSubmission();
 
   const handleNext = () => {
     if (
@@ -125,6 +125,7 @@ export function MultiStepForm() {
                   setPaymentMethod={setPaymentMethod}
                   onBack={() => goToStep(3)}
                   onProceed={handleSubmit}
+                  isSubmitting={isSubmitting}
                 />
               </motion.div>
             )}

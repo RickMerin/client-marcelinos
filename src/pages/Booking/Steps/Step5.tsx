@@ -254,9 +254,7 @@ export function Step5(props: Props) {
           {rooms.length > 0 ? (
             <div className="space-y-3">
               {rooms.map((room: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="border-b border-gray-200 pb-2 text-gray-700">
+                <div key={idx} className="text-gray-700">
                   <div className="flex justify-between font-semibold">
                     <span>
                       {room.room_number != null
@@ -404,7 +402,7 @@ export function Step5(props: Props) {
             <img
               src={qrCodeUrl ?? undefined}
               alt="Booking QR Code"
-              className="w-20 h-20 object-contain"
+              className="object-contain"
               loading="lazy"
             />
           </div>

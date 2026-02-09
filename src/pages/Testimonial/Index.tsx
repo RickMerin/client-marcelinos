@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { API } from "@/lib/api/apiClient";
 import type { BookingReferenceResponse } from "@/types/booking.types";
+import { InlineLoader, ButtonLoader } from "@/components/ui/loader";
 
 const MySwal = withReactContent(Swal);
 
@@ -117,10 +118,7 @@ export default function TestimonialPage() {
   if (loading) {
     return (
       <section className="bg-[#faf7f2] min-h-[60vh] flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="inline-block w-10 h-10 border-4 border-[#1f5d1e] border-t-transparent rounded-full animate-spin" />
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
+        <InlineLoader message="Loading..." className="min-h-[40vh]" />
       </section>
     );
   }
@@ -261,9 +259,9 @@ export default function TestimonialPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-5 py-2.5 rounded-lg text-white font-semibold green-bg hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed transition"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-white font-semibold green-bg hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed transition min-w-[140px]"
               >
-                {submitting ? "Submitting..." : "Submit review"}
+                {submitting ? <ButtonLoader /> : "Submit review"}
               </button>
             </div>
           </form>
