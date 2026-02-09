@@ -19,7 +19,11 @@ export const getFromLocalStorage = (key: string) => {
 };
 
 /** Keys used for booking flow */
-const BOOKING_KEYS = ["reservationDate", "reservationDetails"] as const;
+const BOOKING_KEYS = [
+  "reservationDate",
+  "reservationDetails",
+  "reservationDetails.personal",
+] as const;
 
 /**
  * Clears booking-related data from localStorage (e.g. after successful booking).

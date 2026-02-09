@@ -14,6 +14,7 @@ interface Step4Props {
   setPaymentMethod: (method: string) => void;
   onBack: () => void;
   onProceed: () => void;
+  isSubmitting?: boolean;
 }
 
 export function Step4({
@@ -21,6 +22,7 @@ export function Step4({
   setPaymentMethod,
   onBack,
   onProceed,
+  isSubmitting = false,
 }: Step4Props) {
   const [isProceedModalOpen, setIsProceedModalOpen] = useState(false);
 
@@ -40,8 +42,8 @@ export function Step4({
   };
 
   const handleConfirmProceed = () => {
-    setIsProceedModalOpen(false);
-    onProceed(); // FINAL proceed to next step
+    // Keep modal open so the button loader is visible during submit
+    onProceed(); // FINAL proceed – on success we navigate away; on error modal stays, user can Cancel
   };
 
   return (
@@ -141,18 +143,18 @@ export function Step4({
         </Button>
       </div>
 
-      {/* Proceed Confirmation Modal */}
+      {/* Proceed Confirmation Modal – stay open during submit so loader is visible */}
       <Modal
-  open={isProceedModalOpen}
-  onClose={() => setIsProceedModalOpen(false)}
-  showCloseButton={true}
->
-  <PaymentConfirmContent
-    paymentMethod={paymentMethod}
-    onCancel={() => setIsProceedModalOpen(false)}
-    onConfirm={handleConfirmProceed}
-  />
-
+        open={isProceedModalOpen}
+        onClose={isSubmitting ? () => {} : () => setIsProceedModalOpen(false)}
+        showCloseButton={!isSubmitting}
+      >
+        <PaymentConfirmContent
+          paymentMethod={paymentMethod}
+          onCancel={() => !isSubmitting && setIsProceedModalOpen(false)}
+          onConfirm={handleConfirmProceed}
+          isSubmitting={isSubmitting}
+        />
       </Modal>
     </div>
   );

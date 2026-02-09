@@ -1,23 +1,8 @@
-import { LoaderIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
-  return (
-    <LoaderIcon
-      role="status"
-      aria-label="Loading"
-      className={cn("size-8 animate-spin", className)}
-      {...props}
-    />
-  );
-}
-
-export function SpinnerCustom() {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-white/80">
-      <Spinner />
-    </div>
-  );
-}
-
-export { SpinnerCustom as Spinner };
+/**
+ * Spinner exports – backward compatible.
+ * For full-page loading (Suspense, receipt, etc.) use PageLoader from loader.tsx.
+ * For inline/button/overlay use InlineLoader, ButtonLoader, OverlayLoader from loader.tsx.
+ */
+export { PageLoader as Spinner } from "./loader";
+export { PageLoader, InlineLoader, ButtonLoader, OverlayLoader, SpinnerDot } from "./loader";
+export type { LoaderSize } from "./loader";

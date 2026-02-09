@@ -1,7 +1,23 @@
-import { BookingResponse } from "@/types/booking.types";
+import { BookingResponse, BookingConflictResponse } from "@/types/booking.types";
 import { FormData } from "@/types/booking.types";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import { buildBookingPayload } from "@/lib/utils/booking.utils";
+
+type ErrorWithResponse = Error & { response?: { data?: BookingConflictResponse } };
+
+function formatConflictMessage(error: ErrorWithResponse): string {
+  const msg = error.message;
+  const data = error.response?.data;
+  if (!data?.conflicts) return msg;
+  const parts: string[] = [msg];
+  if (data.conflicts.rooms?.length) {
+    parts.push(`Rooms: ${data.conflicts.rooms.map((r) => r.name).join(", ")}`);
+  }
+  if (data.conflicts.venues?.length) {
+    parts.push(`Venues: ${data.conflicts.venues.map((v) => v.name).join(", ")}`);
+  }
+  return parts.join("\n");
+}
 
 /**
  * Custom hook for handling booking submission
@@ -33,7 +49,11 @@ export const useBookingSubmission = () => {
       if (onError) {
         onError(error);
       } else {
-        alert("Failed to complete booking.");
+        const message =
+          error instanceof Error
+            ? formatConflictMessage(error as ErrorWithResponse)
+            : "Failed to complete booking.";
+        alert(message);
       }
     }
   };
@@ -42,4 +62,4 @@ export const useBookingSubmission = () => {
     submitBooking,
     isSubmitting: createBooking.isPending,
   };
-};;
+};

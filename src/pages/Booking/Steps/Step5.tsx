@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Download, House, ReceiptText } from "lucide-react";
 import domtoimage from "dom-to-image";
-import QRCode from "react-qr-code";
 import { BookingReceipt } from "@/types/booking.types";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
 
@@ -13,6 +12,7 @@ interface Step5FormDataProps {
 
 interface Step5ReceiptDataProps {
   receiptData: BookingReceipt;
+  qrCodeUrl?: string | null;
   formData?: never;
 }
 
@@ -28,10 +28,16 @@ export function Step5(props: Props) {
   const isFromApi = isReceiptData(props);
   const receipt: BookingReceipt | undefined = props.receiptData;
   const form = props.formData;
+  const qrCodeUrl = isFromApi ? props.qrCodeUrl ?? null : null;
 
   const referenceNumber = isFromApi
     ? receipt?.reference_number
     : form?.reference_number;
+
+
+
+
+    
   const env = import.meta.env.VITE_ENV;
   const apiUrlDev = import.meta.env.VITE_API_URL_DEV;
   const apiUrlProd = import.meta.env.VITE_API_URL_PROD;
@@ -41,6 +47,10 @@ export function Step5(props: Props) {
   const receiptUrl = `${backendBaseUrl.replace(/\/$/, "")}/booking-receipt/${
     referenceNumber || ""
   }`;
+
+
+
+
   const createdAt = isFromApi
     ? receipt?.created_at
     : new Date().toLocaleDateString();
@@ -244,9 +254,7 @@ export function Step5(props: Props) {
           {rooms.length > 0 ? (
             <div className="space-y-3">
               {rooms.map((room: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="border-b border-gray-200 pb-2 text-gray-700">
+                <div key={idx} className="text-gray-700">
                   <div className="flex justify-between font-semibold">
                     <span>
                       {room.room_number != null
@@ -391,10 +399,11 @@ export function Step5(props: Props) {
         {/* QR Code */}
         <div className="text-center">
           <div className="p-2 flex justify-center">
-            <QRCode
-              value={receiptUrl}
-              size={80}
-              style={{ height: "auto", maxWidth: "60%", width: "100%" }}
+            <img
+              src={qrCodeUrl ?? undefined}
+              alt="Booking QR Code"
+              className="object-contain"
+              loading="lazy"
             />
           </div>
           <p className="text-xs text-gray-500 mb-2">Scan for digital receipt</p>

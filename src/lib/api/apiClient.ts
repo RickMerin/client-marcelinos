@@ -29,7 +29,7 @@ const apiClient: AxiosInstance = axios.create({
 //   return config;
 // });
 
-// Response Interceptor: Error normalization
+// Response Interceptor: Error normalization (preserve response for conflict details etc.)
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error) => {
@@ -37,7 +37,9 @@ apiClient.interceptors.response.use(
       error.response?.data?.message ||
       error.message ||
       "Unknown API error occurred";
-    return Promise.reject(new Error(message));
+    const err = new Error(message) as Error & { response?: typeof error.response };
+    err.response = error.response;
+    return Promise.reject(err);
   }
 );
 

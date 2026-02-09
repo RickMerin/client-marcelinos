@@ -1,18 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ButtonLoader } from "@/components/ui/loader";
 // import { PAYMENT_METHODS } from "@/enum/constants";
 
 interface PaymentPolicyConfirmContentProps {
   paymentMethod?: string;
   onCancel: () => void;
   onConfirm: () => void;
+  isSubmitting?: boolean;
 }
 
 export default function PaymentPolicyConfirmContent({
   // paymentMethod,
   onCancel,
   onConfirm,
+  isSubmitting = false,
 }: PaymentPolicyConfirmContentProps) {
   const [secondsLeft, setSecondsLeft] = useState(5);
 
@@ -26,7 +29,7 @@ export default function PaymentPolicyConfirmContent({
     return () => clearTimeout(timer);
   }, [secondsLeft]);
 
-  const isDisabled = secondsLeft > 0;
+  const isDisabled = secondsLeft > 0 || isSubmitting;
 
   return (
     <div className="text-white space-y-2">
@@ -100,15 +103,19 @@ export default function PaymentPolicyConfirmContent({
         <button
           onClick={onConfirm}
           disabled={isDisabled}
-          className={`px-4 py-2 rounded-md transition ${
+          className={`inline-flex items-center justify-center gap-2 min-w-[140px] px-4 py-2 rounded-md transition ${
             isDisabled
               ? "bg-gray-400 text-gray-700 cursor-not-allowed"
               : "bg-amber-400 text-black hover:bg-amber-500"
           }`}
         >
-          {isDisabled
-            ? `I Agree (${secondsLeft})`
-            : "I Agree & Proceed"}
+          {isSubmitting ? (
+            <ButtonLoader className="border-amber-800/40 border-t-amber-900" />
+          ) : isDisabled ? (
+            `I Agree (${secondsLeft})`
+          ) : (
+            "I Agree & Proceed"
+          )}
         </button>
 
         <button
