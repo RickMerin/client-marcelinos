@@ -35,22 +35,6 @@ export function Step5(props: Props) {
     : form?.reference_number;
 
 
-
-
-    
-  const env = import.meta.env.VITE_ENV;
-  const apiUrlDev = import.meta.env.VITE_API_URL_DEV;
-  const apiUrlProd = import.meta.env.VITE_API_URL_PROD;
-  const backendBaseUrl =
-    (env === "production" ? apiUrlProd : apiUrlDev) ||
-    "https://Marcelinos-Backend.test/api";
-  const receiptUrl = `${backendBaseUrl.replace(/\/$/, "")}/booking-receipt/${
-    referenceNumber || ""
-  }`;
-
-
-
-
   const createdAt = isFromApi
     ? receipt?.created_at
     : new Date().toLocaleDateString();
