@@ -21,6 +21,20 @@
   background-color: #f6c02b;
 }
 
+/* Loaders – brand-colored, used by components/ui/loader.tsx */
+.loader-brand {
+  --loader-track: color-mix(in oklch, var(--default-color) 30%, transparent);
+  --loader-active: var(--default-color);
+}
+.loader-brand-green {
+  --loader-track: color-mix(in oklch, #1f5d1e 30%, transparent);
+  --loader-active: #1f5d1e;
+}
+.loader-brand-primary {
+  --loader-track: color-mix(in oklch, var(--primary-color) 30%, transparent);
+  --loader-active: var(--primary-color);
+}
+
 .green {
   color: #1f5d1e;
 }

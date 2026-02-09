@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Swal from "sweetalert2"; // For alert modals (success, error, warning messages)
 import FAQ from "./FAQ"; // Importing the FAQ component to display beside the contact form
+import { ButtonLoader } from "@/components/ui/loader";
 
 /**
  * ContactForm Component
@@ -19,6 +20,7 @@ function ContactForm() {
     subject: "",
     message: "",
   });
+  const [submitting, setSubmitting] = useState(false);
 
   /**
    * handleChange
@@ -71,7 +73,7 @@ function ContactForm() {
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault(); // Prevent the default form submission behavior (page reload)
-
+    setSubmitting(true);
     try {
       // Send a POST request to the backend API with the user's message data
       const response: Response = await fetch(
@@ -124,6 +126,8 @@ function ContactForm() {
         confirmButtonColor: "#f59e0b",
       };
       Swal.fire(warningAlert);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -195,8 +199,9 @@ function ContactForm() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="yellow-bg text-white font-semibold py-3 rounded-lg hover:bg-yellow-600 transition">
-            Send Message
+            disabled={submitting}
+            className="inline-flex items-center justify-center gap-2 yellow-bg text-white font-semibold py-3 rounded-lg hover:bg-yellow-600 transition disabled:opacity-70 disabled:cursor-not-allowed min-h-[44px]">
+            {submitting ? <ButtonLoader /> : "Send Message"}
           </button>
         </form>
       </div>
