@@ -19,7 +19,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+// import { Calendar } from "@/components/ui/calendar";
+import { CalendarWithDisabledReasons as Calendar } from "@/components/calendar/CalendarWithDisabledReasons"
+
 import { CalendarDays, Minus, Plus } from "lucide-react";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 type Field = {
@@ -131,20 +133,28 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
   }, [days, checkIn]);
 
   type BlockedDatesResponse = {
-    blocked_dates: string[];
+    blocked_dates: Array<{
+      date: string;
+      reason?: string | null;
+    }>;
   };
 
   const { data } = useApiQuery<BlockedDatesResponse>(
     ["blocked-dates"],
     "/blocked-dates"
   );
-
   const blockedDates = React.useMemo(() => {
     return (
-      data?.blocked_dates?.map(
-        d => new Date(d + "T00:00:00")
-      ) ?? []
+      data?.blocked_dates?.map((d) => new Date(d.date + "T00:00:00")) ?? []
     );
+  }, [data]);
+
+  const blockedReasons = React.useMemo(() => {
+    const map: Record<string, string> = {};
+    data?.blocked_dates?.forEach((d) => {
+      map[d.date] = d.reason ?? "Unavailable";
+    });
+    return map;
   }, [data]);
 
   return (
@@ -253,6 +263,8 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                     { before: new Date(new Date().setHours(0, 0, 0, 0)) },
                                     ...blockedDates,
                                   ]}
+                                blockedReasons={blockedReasons}
+
                               />
                             </PopoverContent>
                           </Popover>
