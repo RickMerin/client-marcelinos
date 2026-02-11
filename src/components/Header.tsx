@@ -13,6 +13,7 @@ import { DialogTitle } from "@radix-ui/react-dialog";
 export default function Header() {
   const [open, setOpen] = useState(false);
 
+  // Navigation links with hash to scroll to section on landing page
   const navLinks = [
     { label: "Home", href: "#home" },
     { label: "About", href: "#about" },
@@ -24,10 +25,17 @@ export default function Header() {
     { label: "Faq", href: "#faq" },
   ];
 
+  // Book Now button handler
   const bookNowHandler = () => {
     setOpen(false);
     const event = new Event("open-checkin");
     window.dispatchEvent(event);
+  };
+
+  // Nav link click: redirect to landing page with hash
+  const handleNavClick = (hash: string) => {
+    setOpen(false);
+    window.location.href = `/${hash}`; 
   };
 
   return (
@@ -55,22 +63,23 @@ export default function Header() {
           <NavigationMenu>
             <NavigationMenuList className="flex gap-4">
               {navLinks.map((item) => (
-                <NavigationMenuItem key={item.href}>
+                <NavigationMenuItem key={item.label}>
                   <NavigationMenuLink asChild>
-                    <a
-                      href={item.href}
+                    <button
+                      onClick={() => handleNavClick(item.href)}
                       className="text-base font-medium text-black transition-colors hover:text-yellow-600"
                     >
                       {item.label}
-                    </a>
+                    </button>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               ))}
             </NavigationMenuList>
           </NavigationMenu>
 
+          {/* Book Now */}
           <Button
-            className="bg-[var(--default-color)] text-white font-semibold hover:bg-yellow-500"
+            className="bg-(--default-color) text-white font-semibold hover:bg-yellow-500"
             onClick={bookNowHandler}
           >
             Book Now
@@ -92,23 +101,22 @@ export default function Header() {
             onCloseAutoFocus={(e) => e.preventDefault()}
           >
             <DialogTitle className="border-b p-4 text-center text-2xl font-extrabold">
-            <div className="mx-auto flex items-center justify-between px-4 md:px-8">
-              {/* Logo */}
-              <a href="/" className="flex items-center">
-                <img
-                  src="/logo.webp"
-                  alt="Marcelino’s Logo"
-                  className="h-18 w-19 object-contain"
-                />
-                <div className="ml-2 leading-tight">
-                  <div className="text-[20px] font-extrabold tracking-widest text-green-900 font-serif">
-                    MARCELINO'S
+              <div className="mx-auto flex items-center justify-between px-4 md:px-8">
+                <a href="/" className="flex items-center">
+                  <img
+                    src="/logo.webp"
+                    alt="Marcelino’s Logo"
+                    className="h-18 w-19 object-contain"
+                  />
+                  <div className="ml-2 leading-tight">
+                    <div className="text-[20px] font-extrabold tracking-widest text-green-900 font-serif">
+                      MARCELINO'S
+                    </div>
+                    <div className="text-sm tracking-widest font-light">
+                      RESORT AND HOTEL
+                    </div>
                   </div>
-                  <div className="text-sm tracking-widest font-light">
-                    RESORT AND HOTEL
-                  </div>
-                </div>
-              </a>
+                </a>
               </div>
             </DialogTitle>
 
@@ -118,18 +126,18 @@ export default function Header() {
 
             <nav className="flex flex-col items-center gap-6 p-6">
               {navLinks.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
+                <button
+                  key={item.label}
+                  onClick={() => handleNavClick(item.href)}
                   className="text-lg font-medium text-black hover:text-yellow-600"
                 >
                   {item.label}
-                </a>
+                </button>
               ))}
 
+              {/* Book Now */}
               <Button
-                className="bg-[var(--default-color)] text-white font-semibold hover:bg-yellow-500"
+                className="bg-(--default-color) text-white font-semibold hover:bg-yellow-500"
                 onClick={bookNowHandler}
               >
                 Book Now
