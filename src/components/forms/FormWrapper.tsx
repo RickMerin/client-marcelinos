@@ -258,9 +258,10 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                   inputField.onChange(date);
                                   setOpen(false);
                                 }}
-                                 disabled={[
-                                    { before: new Date(new Date().setHours(0, 0, 0, 0)) },
-                                  ]}
+                                disabled={[
+                                  { before: new Date(new Date().setHours(0, 0, 0, 0)) },
+                                  ...blockedDates,
+                                ]}
                                 blockedReasons={blockedReasons}
 
                               />
