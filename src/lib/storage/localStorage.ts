@@ -27,7 +27,12 @@ const BOOKING_KEYS = [
 
 /**
  * Clears booking-related data from localStorage (e.g. after successful booking).
+ * Exclude "reservationDetails.personal"
  */
 export const clearBookingStorage = () => {
-  BOOKING_KEYS.forEach((key) => localStorage.removeItem(key));
+  BOOKING_KEYS.forEach((key) => {
+    if (key !== "reservationDetails.personal") {
+      localStorage.removeItem(key);
+    }
+  });
 };

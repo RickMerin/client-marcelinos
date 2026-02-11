@@ -4,6 +4,10 @@ import { Download, House, ReceiptText } from "lucide-react";
 import domtoimage from "dom-to-image";
 import { BookingReceipt } from "@/types/booking.types";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
+import { XCircle } from "lucide-react";
+import { useApiMutation } from "@/lib/api/mutations/useApiMutation"  
+
+
 
 interface Step5FormDataProps {
   formData: any;
@@ -91,6 +95,8 @@ export function Step5(props: Props) {
       : [];
   const roomsFromForm = Array.isArray(form?.rooms) ? form.rooms : [];
   const rooms = isFromApi ? roomsFromApi : roomsFromForm;
+  const cancelBooking = useApiMutation<void>("patch");
+
 
   const venuesFromApi = receipt?.venues ?? [];
   const venuesFromForm = Array.isArray(form?.venues) ? form.venues : [];
@@ -168,15 +174,47 @@ export function Step5(props: Props) {
     }
   };
 
+  const handleCancelBooking = () => {
+    if (!referenceNumber) return;
+
+    const confirmed = window.confirm(
+      "Are you sure you want to cancel this booking?",
+    );
+
+    if (!confirmed) return;
+
+    cancelBooking.mutate(
+      {
+        url: `/bookings/${referenceNumber}/cancel`,
+      },
+      {
+        onSuccess: () => {
+          clearBookingStorage();
+          alert("Booking has been cancelled.");
+          navigate("/");
+        },
+        onError: (error) => {
+          alert(error.message || "Failed to cancel booking.");
+        },
+      },
+    );
+  };
+
+
+
+
+
   return (
     <motion.div
       className="flex flex-col items-center justify-center min-h-screen pb-10"
       initial="hidden"
       animate="visible"
-      variants={fadeInUp}>
+      variants={fadeInUp}
+    >
       <div
         id="receipt"
-        className="bg-neutral-50 border border-gray-300 rounded-lg shadow-md p-8 w-full max-w-2xl font-mono">
+        className="bg-neutral-50 border border-gray-300 rounded-lg shadow-md p-8 w-full max-w-2xl font-mono"
+      >
         {/* Header */}
         <div className="text-center mb-6">
           <ReceiptText className="w-10 h-10 mx-auto text-gray-700" />
@@ -205,7 +243,8 @@ export function Step5(props: Props) {
           <div className="flex justify-between">
             <span> Booking Status:</span>
             <span
-              className={`font-semibold ${getBookingStatusColor(bookingStatus)} px-2 py-1 rounded-md`}>
+              className={`font-semibold ${getBookingStatusColor(bookingStatus)} px-2 py-1 rounded-md`}
+            >
               {bookingStatus || "—"}
             </span>
           </div>
@@ -402,15 +441,28 @@ export function Step5(props: Props) {
         <div className="flex flex-col md:flex-row justify-center gap-3 mt-6">
           <button
             onClick={downloadReceipt}
-            className="bg-green-600 cursor-pointer hover:bg-green-700 text-white px-5 py-2 rounded-md font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto">
+            className="bg-green-600 cursor-pointer hover:bg-green-700 text-white px-5 py-2 rounded-md font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto"
+          >
             <Download className="w-4 h-4" />
             Download Receipt
           </button>
           <button
             onClick={handleBookAnother}
-            className="bg-yellow-500 cursor-pointer hover:bg-yellow-600 text-white px-5 py-2 rounded-md font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto">
+            className="bg-yellow-500 cursor-pointer hover:bg-yellow-600 text-white px-5 py-2 rounded-md font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto"
+          >
             <House className="w-4 h-4" />
             Book Another Room
+          </button>
+          <button
+            onClick={handleCancelBooking}
+            disabled={cancelBooking.isPending}
+            className={`${
+              cancelBooking.isPending
+                ? "bg-red-300 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700"
+            } text-white px-5 py-2 rounded-md font-semibold text-sm transition`}
+          >
+            {cancelBooking.isPending ? "Cancelling..." : "Cancel Booking"}
           </button>
         </div>
       </div>
