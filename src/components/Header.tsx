@@ -81,7 +81,7 @@ export default function Header() {
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" className="md:hidden hover:bg-transparent">
-              <Menu className="size-9" />
+              <Menu className="size-7" />
             </Button>
           </SheetTrigger>
 
@@ -92,8 +92,24 @@ export default function Header() {
             onCloseAutoFocus={(e) => e.preventDefault()}
           >
             <DialogTitle className="border-b p-4 text-center text-2xl font-extrabold">
-              MARCELINO'S
-              <div>RESORT AND HOTEL</div>
+            <div className="mx-auto flex items-center justify-between px-4 md:px-8">
+              {/* Logo */}
+              <a href="/" className="flex items-center">
+                <img
+                  src="/logo.webp"
+                  alt="Marcelino’s Logo"
+                  className="h-18 w-19 object-contain"
+                />
+                <div className="ml-2 leading-tight">
+                  <div className="text-[20px] font-extrabold tracking-widest text-green-900 font-serif">
+                    MARCELINO'S
+                  </div>
+                  <div className="text-sm tracking-widest font-light">
+                    RESORT AND HOTEL
+                  </div>
+                </div>
+              </a>
+              </div>
             </DialogTitle>
 
             <div id="mobile-menu-title" className="sr-only">
