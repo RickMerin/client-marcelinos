@@ -2,7 +2,7 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import FAQ from "./FAQ";
 import { ButtonLoader } from "@/components/ui/loader";
-import { API } from "@/lib/api/apiClient";
+import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import { endpoints } from "@/lib/api/endpoints";
 
 /**
@@ -21,7 +21,35 @@ function ContactForm() {
     subject: "",
     message: "",
   });
-  const [submitting, setSubmitting] = useState(false);
+
+  const contactMutation = useApiMutation("post", {
+    onSuccess: () => {
+      const successAlert: SweetAlertConfig = {
+        title: "Message Sent!",
+        text: "Thank you for contacting us. We'll get back to you soon.",
+        icon: "success",
+        confirmButtonColor: "#facc15",
+      };
+      Swal.fire(successAlert);
+
+      setFormData({
+        full_name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      });
+    },
+    onError: () => {
+      const errorAlert: SweetAlertConfig = {
+        title: "Oops!",
+        text: "Something went wrong. Please try again later.",
+        icon: "error",
+        confirmButtonColor: "#ef4444",
+      };
+      Swal.fire(errorAlert);
+    },
+  });
 
   /**
    * handleChange
@@ -60,36 +88,7 @@ function ContactForm() {
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault(); // Prevent the default form submission behavior (page reload)
-    setSubmitting(true);
-    try {
-      await API.post<{ message?: string }>(endpoints.contact, formData);
-
-      const successAlert: SweetAlertConfig = {
-        title: "Message Sent!",
-        text: "Thank you for contacting us. We'll get back to you soon.",
-        icon: "success",
-        confirmButtonColor: "#facc15",
-      };
-      Swal.fire(successAlert);
-
-      setFormData({
-        full_name: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: "",
-      });
-    } catch {
-      const errorAlert: SweetAlertConfig = {
-        title: "Oops!",
-        text: "Something went wrong. Please try again later.",
-        icon: "error",
-        confirmButtonColor: "#ef4444",
-      };
-      Swal.fire(errorAlert);
-    } finally {
-      setSubmitting(false);
-    }
+    contactMutation.mutate({ url: endpoints.contact, body: formData });
   };
 
   return (
@@ -160,9 +159,9 @@ function ContactForm() {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={submitting}
+            disabled={contactMutation.isPending}
             className="inline-flex items-center justify-center gap-2 yellow-bg text-white font-semibold py-3 rounded-lg hover:bg-yellow-600 transition disabled:opacity-70 disabled:cursor-not-allowed min-h-[44px]">
-            {submitting ? <ButtonLoader /> : "Send Message"}
+            {contactMutation.isPending ? <ButtonLoader /> : "Send Message"}
           </button>
         </form>
       </div>
