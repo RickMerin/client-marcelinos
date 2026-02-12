@@ -73,6 +73,30 @@ const ImageCarousel: React.FC = () => {
     );
   }
 
+  if (images.length === 0) {
+    return (
+      <section
+        id="gallery"
+        style={{
+          padding: "60px 0",
+          backgroundColor: "#fff",
+          textAlign: "center",
+        }}>
+        <h2
+          style={{
+            fontSize: "2.5rem",
+            fontWeight: 800,
+            marginBottom: "40px",
+            letterSpacing: "1px",
+          }}>
+          <span className="green header">OUR</span>{" "}
+          <span className="yellow header">GALLERY</span>
+        </h2>
+        <p className="text-center text-gray-500">No gallery available.</p>
+      </section>
+    );
+  }
+
   return (
     <section
       id="gallery"

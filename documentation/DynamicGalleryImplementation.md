@@ -55,7 +55,7 @@ Replaced static images with dynamic API fetching:
 - **Imports**: Added `useApiQuery`, `endpoints`, and `queryKeys`.
 - **Types**: Defined `GalleryItem` and `ApiResponse` interfaces.
 - **Query**: Used `useApiQuery` to fetch data with proper loading/error handling.
-- **Rendering**: Mapped API response to image sources, with fallback states.
+- **Rendering**: Mapped API response to image sources, with fallback states for loading, error, and empty data.
 
 Key code changes:
 ```typescript
@@ -84,6 +84,10 @@ const ImageCarousel: React.FC = () => {
   // Loading and error states
   if (isLoading) return <p>Loading gallery...</p>;
   if (error) return <p>Failed to load gallery.</p>;
+
+  if (images.length === 0) {
+    return <p className="text-center text-gray-500">No gallery images available.</p>;
+  }
 
   // Render images from API
   return (
