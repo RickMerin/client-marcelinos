@@ -12,14 +12,68 @@ export const generateReferenceId = (): string => {
 const toId = (item: { id?: number } | number): number =>
   typeof item === "number" ? item : Number((item as { id: number }).id) || 0;
 
+type ParsedLocalPHAddress = {
+  barangay: string;
+  municipality: string;
+  province: string;
+  region?: string;
+};
+
+type StoredPHAddress = {
+  addressType?: "local" | "international";
+  internationalAddress?: string;
+};
+
+const PH_ADDRESS_STORAGE_KEY = "reservationDetails.personal.phAddress";
+
+const safeReadLocalStorage = <T,>(key: string): T | null => {
+  try {
+    const ls = (globalThis as unknown as { localStorage?: Storage }).localStorage;
+    if (!ls) return null;
+    const raw = ls.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Parses the local PH address string produced by the UI:
+ * "<Barangay>, <Municipality>, <Province>, <Region>".
+ */
+const parseLocalPHAddress = (address: string): ParsedLocalPHAddress | null => {
+  const parts = (address || "")
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  if (parts.length < 3) return null;
+
+  const [barangay, municipality, province, ...rest] = parts;
+  const region = rest.length ? rest.join(", ") : undefined;
+
+  if (!barangay || !municipality || !province) return null;
+  return { barangay, municipality, province, region };
+};
+
 /**
  * Builds the booking payload for API submission (matches backend POST /bookings).
  * check_in/check_out must be in "M d, Y" format (e.g. Jan 20, 2026).
  */
 export const buildBookingPayload = (formData: FormData): BookingPayload => {
-  const isIntl = false;
+  const storedAddress = safeReadLocalStorage<StoredPHAddress>(
+    PH_ADDRESS_STORAGE_KEY,
+  );
+  const isIntl = storedAddress?.addressType === "international";
   const roomIds = (formData.rooms || []).map(toId).filter(Boolean);
   const venueIds = (formData.venues || []).map(toId).filter(Boolean);
+
+  const parsedLocal = !isIntl ? parseLocalPHAddress(formData.address) : null;
+  const province = isIntl ? null : formData.state || parsedLocal?.province || null;
+  const municipality =
+    isIntl ? null : formData.city || parsedLocal?.municipality || null;
+  const barangay =
+    isIntl ? null : parsedLocal?.barangay || formData.address || null;
 
   return {
     reference_number: formData.reference_number ?? undefined,
@@ -38,10 +92,10 @@ export const buildBookingPayload = (formData: FormData): BookingPayload => {
     contact_num: formData.phone || "0000000000",
     gender: formData.gender || "Male",
     is_international: isIntl,
-    country: isIntl ? formData.address : "Philippines",
-    province: isIntl ? null : formData.state || null,
-    municipality: isIntl ? null : formData.city || null,
-    barangay: isIntl ? null : formData.address || null,
+    country: isIntl ? formData.address || null : "Philippines",
+    province,
+    municipality,
+    barangay,
     street: formData.street || "",
     address: formData.address || "",
     zip_code: formData.zipCode || "",

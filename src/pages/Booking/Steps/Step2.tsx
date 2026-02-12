@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PHAddressSelector } from "@/components/forms/PHAddressSelector";
 
 import {
   personalDetailsSchema,
@@ -205,7 +206,20 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                   Address <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value ?? ""} />
+                  <div className="space-y-2">
+                    <PHAddressSelector
+                      value={field.value ?? ""}
+                      onChange={(next) => field.onChange(next || "")}
+                    />
+                    <input
+                      type="hidden"
+                      name={field.name}
+                      ref={field.ref}
+                      value={field.value ?? ""}
+                      onBlur={field.onBlur}
+                      readOnly
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
