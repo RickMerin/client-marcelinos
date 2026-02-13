@@ -1,4 +1,5 @@
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 interface CardItemProps {
   id: number;
@@ -50,14 +51,11 @@ function CardItem(props: CardItemProps) {
 
   return (
     <div className="max-w-sm mx-auto bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 transition-all hover:shadow-lg duration-300">
-      <div className="w-full h-60 bg-gray-100 overflow-hidden">
-        <img
-          src={mainImage ?? "/placeholder-room.jpg"}
-          alt={title}
-          loading="lazy"
-          className="w-full h-full object-cover"
-        />
-      </div>
+      <OptimizedImage
+        src={mainImage ?? "/placeholder-room.jpg"}
+        alt={title}
+        containerClassName="h-60"
+      />
       <div className="p-4">
         <h2 className="text-xl font-semibold mb-2 text-gray-900">{title}</h2>
         {capacity != null && (

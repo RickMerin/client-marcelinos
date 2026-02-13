@@ -27,7 +27,7 @@ export const useBookingValidation = (
   const isStepComplete = (step: number): boolean => {
     switch (step) {
       case 1:
-        return formData.rooms.length > 0;
+        return formData.rooms.length > 0 || formData.venues.length > 0;
       case 2:
         return personalDetailsSchema.safeParse(personalDetails).success;
       case 3:

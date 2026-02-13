@@ -1,6 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 interface RoomCardProps {
   id: number;
@@ -36,14 +37,12 @@ export const RoomCard: React.FC<RoomCardProps> = ({
       onClick={() => onSelectRoom(id)}>
       <div className="grid md:grid-cols-3 gap-6 items-start">
         <div className="col-span-1">
-          <div className="rounded-md overflow-hidden h-40 bg-gray-100">
-            <img
-              src={images[0] ?? "/placeholder-room.jpg"}
-              alt={title}
-              loading="lazy"
-              className="w-full h-full object-cover"
-            />
-          </div>
+          <OptimizedImage
+            src={images[0] ?? "/placeholder-room.jpg"}
+            alt={title}
+            containerClassName="h-40 rounded-md"
+            className="rounded-md"
+          />
           <div className="flex gap-2 mt-2">
             {images.slice(0, 4).map((img, i) => (
               <img
