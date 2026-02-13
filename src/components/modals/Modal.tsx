@@ -20,7 +20,7 @@ export default function Modal({
   onClose,
   children,
   showCloseButton = true,
-  contentClassName = "relative bg-green-800 text-center p-6 rounded-lg shadow-lg max-w-2xl w-full mx-2 overflow-hidden",
+contentClassName = "relative bg-green-800 text-center p-6 rounded-lg shadow-lg max-w-2xl w-full mx-4 overflow-hidden",
   backgroundImage = "/green-leaves-extended.png",
 }: ModalProps) {
   if (!open) return null;
@@ -28,6 +28,15 @@ export default function Modal({
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50">
       <div className={contentClassName}>
+         {showCloseButton && (
+            <button
+              type="button"
+              className="absolute top-2 right-2 text-white hover:text-gray-900 z-20"
+              onClick={onClose}
+              aria-label="Close modal">
+              <CircleX />
+            </button>
+          )}
         {backgroundImage && (
           <div
             className="absolute inset-0 bg-cover bg-center opacity-50"
@@ -37,16 +46,6 @@ export default function Modal({
 
         <div className="relative z-10">
           {children}
-
-          {showCloseButton && (
-            <button
-              type="button"
-              className="absolute top-2 right-2 text-white hover:text-gray-900 z-20"
-              onClick={onClose}
-              aria-label="Close modal">
-              <CircleX />
-            </button>
-          )}
         </div>
       </div>
     </div>

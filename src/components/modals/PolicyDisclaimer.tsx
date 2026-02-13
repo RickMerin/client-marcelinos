@@ -34,51 +34,51 @@ export default function PaymentPolicyConfirmContent({
   return (
     <div className="text-white space-y-2">
           {/* HEADER */}
-      <div className="text-2xl font-bold mb-4 md:mb-8 text-white">
+      <div className="text-lg font-bold mb-4 md:mb-8 text-white">
         <h3>Booking Policy</h3>
       
 
       {/* DESCRIPTION */}
-      <p className="text-xs text-white/80">
+      <p className="text-[11px]">
         Review the terms and condition to understand the booking guidelines and policies
       </p>
 </div>
 
        {/* INTRO */}
-      <div className="text-sm mb-2 md:mb-4 text-white">
+      <div className="text-xs mb-2 md:mb-4 text-white">
         <h2 className="font-bold">Check In:</h2>
-        <p className="text-xs">Check-in is at 12:00 PM. A valid ID must be presented upon check-in.</p>
+        <p className="text-[11px]">Check-in is at 12:00 PM. A valid ID must be presented upon check-in.</p>
       </div>
 
       {/* INTRO */}
-      <div className="text-sm mb-2 md:mb-4 text-white">
+      <div className="text-xs mb-2 md:mb-4 text-white">
         <h2 className="font-bold">Check Out:</h2>
-        <p className="text-xs">Check-out is at 9:00 PM. After check-out, guest must ensure that all personal belongings are secured. The resort shall not be held lieable for any last items.</p>
+        <p className="text-[11px]">Check-out is at 9:00 PM. After check-out, guest must ensure that all personal belongings are secured. The resort shall not be held lieable for any last items.</p>
       </div>
 
           {/* HEADER */}
-      <div className="text-2xl font-bold mb-4 md:mb-4 text-white">
+      <div className="text-lg font-bold mb-4 md:mb-4 text-white">
         <h3>Payment Policy</h3>
       </div>
       
        {/* INTRO */}
-      <div className="text-sm mb-2 md:mb-4 text-white">
-        <p className="text-xs">A 50% down payment and is non-refundable. For fully paid bookings, a 30% deduction will be applied in case of cancellation.</p>
+      <div className="text-xs mb-2 md:mb-4 text-white">
+        <p className="text-[11px]">A 50% down payment and is non-refundable. For fully paid bookings, a 30% deduction will be applied in case of cancellation.</p>
       </div>
 
       <h2 className="font-extrabold text-white/90 uppercase text-lg md:text-xl">
         STRICLY <span className="text-red-600 font-extrabold">NO SMOKING!</span> Inside the ROOM.
       </h2>
-        <p>PENALTY --- Php 5,000.00 </p>
+        <p className="text-xs">PENALTY --- Php 5,000.00 </p>
 
-      <div className="text-sm text-white/80 space-y-2">
-        <p className="text-xs">
+      <div className="text-[11px] text-white/80 space-y-2">
+        <p className="text-[11px]">
           If Lost or Broken the following items will be charged accordingly:
         </p>
-        <div className="text-sm text-white">
+        <div className="text-[11px] text-white">
   <h4 className="font-xs mb-2">Damage & Loss Charges:</h4>
 
-  <ul className="text-xs grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 list-disc pl-5 text-left">
+  <ul className="text-[11px] grid grid-cols-2 gap-x-6 gap-y-1 list-disc pl-5 text-left">
   <li>Television – Php 25,000.00</li>
   <li>Emergency Lights – Php 2,000.00</li>
   <li>Cups and Glass – Php 100.00 each</li>
@@ -88,6 +88,7 @@ export default function PaymentPolicyConfirmContent({
   <li>Remote – Php 500.00</li>
   <li>Towel – Php 500.00 each</li>
 </ul>
+
 </div>
       </div>
 
