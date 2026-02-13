@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { cn } from "@/lib/utils";
 
 export interface RoomData {
@@ -32,11 +33,11 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
       </CardHeader>
 
       <CardContent className="space-y-3">
-        <img
+        <OptimizedImage
           src={room.image}
-          alt={room.type + " " + room.room_number}
-          loading="lazy"
-          className="w-full h-40 object-cover rounded-xl"
+          alt={`${room.type} ${room.room_number}`}
+          containerClassName="h-40 rounded-xl"
+          className="rounded-xl"
         />
         <p className="text-sm text-muted-foreground">
           ₱{room.price.toLocaleString()}

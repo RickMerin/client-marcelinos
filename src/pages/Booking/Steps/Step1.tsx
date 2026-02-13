@@ -6,6 +6,7 @@ import { RoomCard } from "../RoomCard";
 import { cn } from "@/lib/utils";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 interface ApiListResponse<T> {
   success?: boolean;
@@ -270,14 +271,12 @@ export function Step1({
                   )}>
                   <div className="grid md:grid-cols-3 gap-4 items-start">
                     <div className="col-span-1">
-                      <div className="rounded-md overflow-hidden h-40 bg-gray-100">
-                        <img
-                          src={mainImage ?? "/placeholder-room.jpg"}
-                          alt={venue.name ?? "Venue"}
-                          loading="lazy"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                      <OptimizedImage
+                        src={mainImage ?? "/placeholder-room.jpg"}
+                        alt={venue.name ?? "Venue"}
+                        containerClassName="h-40 rounded-md"
+                        className="rounded-md"
+                      />
                       {images.length > 0 && (
                         <div className="flex gap-2 mt-2 flex-wrap">
                           {images.slice(0, 4).map((img, i) => (
