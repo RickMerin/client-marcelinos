@@ -74,6 +74,7 @@ export interface FormData {
   email: string;
   address: string;
 
+  region: string;
   street: string;
   city: string;
   state: string;
@@ -115,6 +116,7 @@ export interface BookingPayload {
   gender: Gender;
   is_international: boolean;
   country?: string | null;
+  region?: string | null;
   province: string | null;
   municipality: string | null;
   barangay: string | null;
