@@ -93,6 +93,7 @@ export const buildBookingPayload = (formData: FormData): BookingPayload => {
     gender: formData.gender || "Male",
     is_international: isIntl,
     country: isIntl ? formData.address || null : "Philippines",
+    region: isIntl ? formData.region || null : parsedLocal?.region || null,
     province,
     municipality,
     barangay,
