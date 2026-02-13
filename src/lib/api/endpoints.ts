@@ -17,6 +17,7 @@ export const endpoints = {
   contact: "/contact",
   testimonialByReference: (reference: string) =>
     `/bookings/reference/${reference}/review`,
+  galleries: "/galleries",
 } as const;
 
 /**
@@ -46,5 +47,8 @@ export const queryKeys = {
       ["bookings", "reference", reference] as const,
     receipt: (reference: string) =>
       ["booking-receipt", reference] as const,
+  },
+  galleries: {
+    all: ["galleries"] as const,
   },
 } as const;
