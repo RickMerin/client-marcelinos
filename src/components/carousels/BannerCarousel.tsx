@@ -56,7 +56,7 @@ export function BannerCarousel() {
                     src={image1}
                     alt="Banner 1"
                     loading="eager"
-                    fetchPriority="high"
+                    {...({ fetchpriority: 'high' } as any)}
                     className="w-full h-[88vh] object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-black/60 z-10" />
