@@ -3,7 +3,7 @@ import { BannerCarousel } from "@/components/carousels/BannerCarousel";
 import BookingForm from "@/components/forms/BookingForm";
 import About from "./About";
 import OurGallery from "@/pages/Home/OurGallery";
-import ClientReviews from "./ClientReviews";
+import ClientReviews from "@/../src/pages/Testimonial/ReviewSection"; 
 import EventVenues from "./EventVenue";
 import RoomCard from "@/pages/Home/RoomCard";
 import FAQ from "./ContactForm";
