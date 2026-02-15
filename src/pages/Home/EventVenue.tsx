@@ -1,5 +1,8 @@
 import { useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
+import { useRealtimeEvent } from "@/hooks/useRealtimeEvent";
+import { RealtimeChannels } from "@/lib/realtime/channels";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import EventVenueSkeleton from "@/components/skeleton/EventVenueSkeleton";
 
@@ -31,6 +34,7 @@ function venueMainImage(venue: VenueItem): string | null {
 }
 
 function EventVenues() {
+  const queryClient = useQueryClient();
   const {
     data: venuesResponse,
     isLoading,
@@ -39,6 +43,13 @@ function EventVenues() {
     ["venues", "home"],
     "/venues?is_all=1",
   );
+
+  useRealtimeEvent({
+    channel: RealtimeChannels.venues(),
+    event: "VenuesUpdated",
+    isPrivate: false,
+    onEvent: () => queryClient.invalidateQueries({ queryKey: ["venues"] }),
+  });
 
   const venueList = useMemo(
     () => extractList(venuesResponse),

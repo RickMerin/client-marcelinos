@@ -1,10 +1,13 @@
 import { useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
+import { useRealtimeEvent } from "@/hooks/useRealtimeEvent";
+import { RealtimeChannels } from "@/lib/realtime/channels";
 import CardItem from "@/components/cards/CardItem";
 import CarouselSkeleton from "@/components/skeleton/RoomCarouselSkeleton";
 
@@ -20,6 +23,7 @@ function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
 }
 
 function RoomCard() {
+  const queryClient = useQueryClient();
   const {
     data: roomsResponse,
     isLoading,
@@ -28,6 +32,13 @@ function RoomCard() {
     ["rooms", "home"],
     "/rooms?is_all=1",
   );
+
+  useRealtimeEvent({
+    channel: RealtimeChannels.rooms(),
+    event: "RoomsUpdated",
+    isPrivate: false,
+    onEvent: () => queryClient.invalidateQueries({ queryKey: ["rooms"] }),
+  });
 
   const roomList = useMemo(() => extractList(roomsResponse), [roomsResponse]);
 

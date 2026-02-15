@@ -1,7 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
+import { useRealtimeEvent } from "@/hooks/useRealtimeEvent";
+import { RealtimeChannels } from "@/lib/realtime/channels";
 import { RoomCard } from "../RoomCard";
 import { cn } from "@/lib/utils";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
@@ -120,6 +123,7 @@ export function Step1({
   setSelectedRooms,
   setSelectedVenues,
 }: Props) {
+  const queryClient = useQueryClient();
   const checkIn = formData.check_in || "";
   const checkOut = formData.check_out || "";
   const roomsUrl = useMemo(
@@ -130,6 +134,19 @@ export function Step1({
     () => buildAvailabilityUrl("/venues", checkIn, checkOut),
     [checkIn, checkOut],
   );
+
+  useRealtimeEvent({
+    channel: RealtimeChannels.rooms(),
+    event: "RoomsUpdated",
+    isPrivate: false,
+    onEvent: () => queryClient.invalidateQueries({ queryKey: ["rooms"] }),
+  });
+  useRealtimeEvent({
+    channel: RealtimeChannels.venues(),
+    event: "VenuesUpdated",
+    isPrivate: false,
+    onEvent: () => queryClient.invalidateQueries({ queryKey: ["venues"] }),
+  });
 
   const {
     data: roomsResponse,

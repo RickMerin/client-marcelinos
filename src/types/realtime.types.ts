@@ -19,10 +19,20 @@ export interface AdminDashboardNotificationPayload {
   at: string;
 }
 
+/** Generic payload for resource-updated events (blocked dates, rooms, venues, gallery, reviews). */
+export interface ResourceUpdatedPayload {
+  updated_at: string;
+}
+
 /** Map event names (broadcastAs) to payload types for type-safe listeners */
 export interface RealtimeEventMap {
   BookingStatusUpdated: BookingStatusUpdatedPayload;
   AdminDashboardNotification: AdminDashboardNotificationPayload;
+  BlockedDatesUpdated: ResourceUpdatedPayload;
+  RoomsUpdated: ResourceUpdatedPayload;
+  VenuesUpdated: ResourceUpdatedPayload;
+  GalleryUpdated: ResourceUpdatedPayload;
+  ReviewsUpdated: ResourceUpdatedPayload;
 }
 
 export type RealtimeEventName = keyof RealtimeEventMap;

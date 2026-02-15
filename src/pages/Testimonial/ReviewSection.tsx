@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -6,6 +7,9 @@ import { Swiper as SwiperType } from "swiper";
 import { Navigation } from "swiper/modules";
 import WriteReviewModal from "../Home/Modals/WriteReviewModal";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
+import { useRealtimeEvent } from "@/hooks/useRealtimeEvent";
+import { RealtimeChannels } from "@/lib/realtime/channels";
+import { queryKeys } from "@/lib/api/endpoints";
 
 import logo from "../../assets/img/marcelinos-logo.svg";
 
@@ -29,11 +33,19 @@ interface ReviewResponse {
 /* ---------------- COMPONENT ---------------- */
 
 function ClientReviews() {
+  const queryClient = useQueryClient();
   const prevRef = useRef<HTMLButtonElement | null>(null);
   const nextRef = useRef<HTMLButtonElement | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useRealtimeEvent({
+    channel: RealtimeChannels.reviews(),
+    event: "ReviewsUpdated",
+    isPrivate: false,
+    onEvent: () => queryClient.invalidateQueries({ queryKey: queryKeys.reviews.all }),
+  });
 
   /* ---------------- FETCH ---------------- */
 

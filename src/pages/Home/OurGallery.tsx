@@ -1,9 +1,12 @@
 import React from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
+import { useRealtimeEvent } from "@/hooks/useRealtimeEvent";
+import { RealtimeChannels } from "@/lib/realtime/channels";
 import { endpoints, queryKeys } from "@/lib/api/endpoints";
 
 interface GalleryItem {
@@ -17,11 +20,19 @@ interface ApiResponse {
 }
 
 const ImageCarousel: React.FC = () => {
+  const queryClient = useQueryClient();
   const {
     data: galleriesResponse,
     isLoading,
     error,
   } = useApiQuery<ApiResponse>([...queryKeys.galleries.all], endpoints.galleries);
+
+  useRealtimeEvent({
+    channel: RealtimeChannels.gallery(),
+    event: "GalleryUpdated",
+    isPrivate: false,
+    onEvent: () => queryClient.invalidateQueries({ queryKey: queryKeys.galleries.all }),
+  });
 
   const images = galleriesResponse?.data?.map((item) => item.image) || [];
 
