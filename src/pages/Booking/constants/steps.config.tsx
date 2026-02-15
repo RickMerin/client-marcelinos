@@ -1,9 +1,15 @@
-import { HousePlus, BookUser, CreditCard, ReceiptText, PartyPopper } from "lucide-react";
+import {
+  HousePlus,
+  User,
+  FileText,
+  CreditCard,
+  CheckCircle,
+} from "lucide-react";
 
 export const STEPS = [
-  { id: 1, icon: <HousePlus /> },
-  { id: 2, icon: <BookUser /> },
-  { id: 3, icon: <CreditCard /> },
-  { id: 4, icon: <ReceiptText /> },
-  { id: 5, icon: <PartyPopper className="h-5 w-5 md:h-8 md:w-8" /> },
+  { id: 1, label: "Room & Venue", icon: <HousePlus className="size-5 md:size-6" /> },
+  { id: 2, label: "Personal Info", icon: <User className="size-5 md:size-6" /> },
+  { id: 3, label: "Review Details", icon: <FileText className="size-5 md:size-6" /> },
+  { id: 4, label: "Choose Payment", icon: <CreditCard className="size-5 md:size-6" /> },
+  { id: 5, label: "Confirmation", icon: <CheckCircle className="size-5 md:size-6" /> },
 ];

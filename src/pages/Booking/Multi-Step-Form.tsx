@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
-import { Stepper } from "./Stepper";
+import { ProgressIndicator } from "./ProgressIndicator";
 import { Step1 } from "./Steps/Step1";
 import { Step2 } from "./Steps/Step2";
 import { Step3 } from "./Steps/Step3";
@@ -79,7 +78,10 @@ export function MultiStepForm() {
 
   return (
     <section className="container max-w-6xl mx-auto px-4 py-8">
-      <Stepper steps={STEPS} currentStep={formData.current_step} />
+      <ProgressIndicator
+        currentStep={formData.current_step}
+        totalSteps={STEPS.length}
+      />
 
       <div className="mt-8 mb-8 min-h-87.5">
         <AnimatePresence mode="wait" initial={false}>

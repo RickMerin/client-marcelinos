@@ -80,7 +80,7 @@ function formatShortDate(dateStr: string): string {
 function RoomCardSkeleton() {
   return (
     <div className="flex flex-col rounded-xl border border-gray-200/80 bg-white shadow-sm overflow-hidden">
-      <Skeleton className="aspect-4/3 w-full min-h-[200px]" />
+      <Skeleton className="w-full h-[250px]" />
       <div className="p-5 space-y-3">
         <Skeleton className="h-6 w-28" />
         <Skeleton className="h-4 w-full" />
@@ -105,7 +105,7 @@ function RoomCardSkeleton() {
 function VenueCardSkeleton() {
   return (
     <div className="flex flex-col rounded-xl border border-gray-200/80 bg-white shadow-sm overflow-hidden">
-      <Skeleton className="aspect-4/3 w-full min-h-[200px]" />
+      <Skeleton className="w-full h-[200px] md:h-[150px]" />
       <div className="p-5 space-y-3">
         <Skeleton className="h-6 w-36" />
         <Skeleton className="h-4 w-24" />
@@ -190,21 +190,17 @@ export function Step1({
           style={{ color: "var(--color-charcoal)" }}>
           Choose your stay
         </h2>
-        <p className="max-w-2xl" style={{ color: "var(--color-charcoal)" }}>
+        <p style={{ color: "var(--color-charcoal)" }}>
           {checkIn && checkOut
-            ? `Availability for ${checkIn} – ${checkOut}. Pick one or more rooms for your stay; add event spaces if you need a venue.`
+            ? `Availability for ${checkIn} – ${checkOut}. Pick one or more rooms for your stay, add event spaces if you need a venue.`
             : "Select your rooms below. Add check-in and check-out dates on the home page to see date-based availability."}
         </p>
-        <p
-          className="text-sm opacity-80"
-          style={{ color: "var(--color-charcoal)" }}>
-          <strong>Rooms</strong> = where you stay. <strong>Venues</strong> =
-          event spaces you can add to your booking.
-        </p>
+
+        <br />
 
         {/* Booking summary card */}
         <div
-          className="rounded-xl border bg-white p-5 shadow-sm md:p-6"
+          className="rounded-md border bg-white p-5 shadow-sm md:p-6"
           style={{ borderColor: "var(--color-sage-muted, #e5e7eb)" }}>
           <div className="grid grid-cols-3 gap-4 md:gap-8">
             <div>
@@ -219,6 +215,7 @@ export function Step1({
                 {roomCount}
               </p>
             </div>
+
             <div>
               <p
                 className="text-sm font-medium opacity-80"

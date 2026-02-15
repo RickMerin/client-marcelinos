@@ -65,11 +65,11 @@ export const RoomCard: React.FC<RoomCardProps> = ({
       aria-pressed={selected}
       aria-label={`${title}, ${pricingFormat(String(price))} per night. ${selected ? "Selected" : "Select"}`}
       className={cn(
-        "group relative flex flex-col rounded-xl bg-white text-left shadow-sm transition-all duration-200 overflow-hidden",
+        "group relative flex flex-col rounded-md text-left shadow-sm transition-all duration-200 overflow-hidden",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         selected
-          ? "border-2 border-(--color-sage) shadow-md focus-visible:ring-(--color-sage)"
-          : "border border-gray-200 hover:border-gray-300 hover:shadow-md focus-visible:ring-(--color-sage)",
+          ? "border-2 border-(--color-sage) bg-sage-muted/30 shadow-md ring-2 ring-sage/20 focus-visible:ring-(--color-sage)"
+          : "border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md focus-visible:ring-(--color-sage)",
       )}
       onClick={() => onSelectRoom(id)}
       onKeyDown={(e) => {

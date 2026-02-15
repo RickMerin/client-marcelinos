@@ -44,7 +44,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({
       aria-pressed={selected}
       aria-label={`${name}, ${pricingFormat(String(price))} per event. ${selected ? "Added" : "Add to booking"}`}
       className={cn(
-        "group relative flex flex-col rounded-xl border bg-white text-left shadow-sm transition-all duration-200 overflow-hidden",
+        "group relative flex flex-col rounded-md border bg-white text-left shadow-sm transition-all duration-200 overflow-hidden",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         selected
           ? "border-(--color-sage) bg-sage-muted/30 shadow-md ring-2 ring-sage/20 focus-visible:ring-(--color-sage)"
@@ -59,7 +59,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({
       }}>
       {/* Image on top */}
       <div
-        className="relative w-full min-h-[150px] bg-gray-100 overflow-hidden"
+        className="relative w-full h-[200px] md:h-[150px] bg-gray-100 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         style={{
           backgroundImage: `url(${mainImage})`,
@@ -81,7 +81,11 @@ export const VenueCard: React.FC<VenueCardProps> = ({
                 stroke="currentColor"
                 strokeWidth={2}
                 viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
             </button>
             <button
@@ -95,7 +99,11 @@ export const VenueCard: React.FC<VenueCardProps> = ({
                 stroke="currentColor"
                 strokeWidth={2}
                 viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </button>
             <div className="absolute bottom-2 left-2 right-2 flex gap-1.5 overflow-x-auto pb-1">
@@ -129,20 +137,44 @@ export const VenueCard: React.FC<VenueCardProps> = ({
       </div>
 
       {/* Content below image */}
-      <div className="flex flex-col flex-1 p-5">
+      <div className="relative flex flex-col flex-1 p-5">
+        {/* Selected: checkmark in top-right of content */}
+        {selected && (
+          <div
+            className="absolute top-4 right-5 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-md"
+            style={{ backgroundColor: "var(--color-sage)" }}
+            aria-hidden>
+            <svg
+              className="h-5 w-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={3}
+              viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+        )}
         <h3
           className="font-display text-lg font-bold capitalize tracking-tight"
           style={{ color: "var(--color-charcoal)" }}>
           {name}
         </h3>
         {showCapacity && (
-          <p className="mt-2 text-sm" style={{ color: "var(--color-charcoal)" }}>
+          <p
+            className="mt-2 text-sm"
+            style={{ color: "var(--color-charcoal)" }}>
             {capacity} {Number(capacity) === 1 ? "guest" : "guests"}
           </p>
         )}
         <div className="mt-auto pt-4 flex items-end justify-between gap-4">
           <div>
-            <p className="text-xs opacity-70" style={{ color: "var(--color-charcoal)" }}>
+            <p
+              className="text-xs opacity-70"
+              style={{ color: "var(--color-charcoal)" }}>
               From
             </p>
             <p

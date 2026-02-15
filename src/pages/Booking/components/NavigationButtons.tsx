@@ -25,7 +25,7 @@ export const NavigationButtons = ({
       <Button
         variant="ghost"
         onClick={onPrevious}
-        className="px-5 py-2.5 text-[var(--color-charcoal)] hover:bg-[var(--color-sage-muted)] font-medium">
+        className="px-5 py-2.5 text-(--color-charcoal) hover:bg-(--color-sage-muted) font-medium">
         {currentStep === 3 ? "← Edit Personal Info" : "← Back"}
       </Button>
       <Button
