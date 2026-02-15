@@ -33,6 +33,8 @@ export function BookingReceiptPage({ referenceNumber }: BookingReceiptPageProps)
     onEvent: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.bookings.receipt(referenceNumber) });
       queryClient.invalidateQueries({ queryKey: queryKeys.bookings.byReference(referenceNumber) });
+      queryClient.refetchQueries({ queryKey: queryKeys.bookings.receipt(referenceNumber) });
+      queryClient.refetchQueries({ queryKey: queryKeys.bookings.byReference(referenceNumber) });
     },
   });
 

@@ -2,7 +2,6 @@ import * as React from "react";
 import { useForm, SubmitHandler, Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   Form,
   FormField,
@@ -24,9 +23,6 @@ import { CalendarWithDisabledReasons as Calendar } from "@/components/calendar/C
 
 import { CalendarDays, Minus, Plus } from "lucide-react";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
-import { useRealtimeEvent } from "@/hooks/useRealtimeEvent";
-import { RealtimeChannels } from "@/lib/realtime/channels";
-import { queryKeys } from "@/lib/api/endpoints";
 type Field = {
   name: string;
   label?: string;
@@ -67,14 +63,6 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
   onChangeFields,
 }: FormWrapperProps<T>) {
   const [open, setOpen] = React.useState(false);
-  const queryClient = useQueryClient();
-
-  useRealtimeEvent({
-    channel: RealtimeChannels.blockedDates(),
-    event: "BlockedDatesUpdated",
-    isPrivate: false,
-    onEvent: () => queryClient.invalidateQueries({ queryKey: queryKeys.blockedDates.all }),
-  });
 
   // ✅ derive default values from fields
   const defaultValues = Object.fromEntries(
