@@ -51,4 +51,7 @@ export const queryKeys = {
   galleries: {
     all: ["galleries"] as const,
   },
+  reviews: {
+    all: ["reviews"] as const,
+  },
 } as const;

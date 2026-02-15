@@ -122,6 +122,7 @@ export function Step1({
 }: Props) {
   const checkIn = formData.check_in || "";
   const checkOut = formData.check_out || "";
+  // Same availability logic for rooms and venues: with dates → only available in range; no dates → all
   const roomsUrl = useMemo(
     () => buildAvailabilityUrl("/rooms", checkIn, checkOut),
     [checkIn, checkOut],
