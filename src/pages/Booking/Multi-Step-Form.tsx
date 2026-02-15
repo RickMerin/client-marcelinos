@@ -143,6 +143,7 @@ export function MultiStepForm() {
         onPrevious={handlePrevious}
         onNext={handleNext}
         isNextDisabled={!isStepComplete(formData.current_step)}
+        estimatedTotal={formData.grandTotalPrice ?? 0}
       />
     </section>
   );
