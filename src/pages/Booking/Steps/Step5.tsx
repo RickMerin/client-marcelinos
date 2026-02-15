@@ -4,6 +4,7 @@ import { Download, House, ReceiptText } from "lucide-react";
 import domtoimage from "dom-to-image";
 import { BookingReceipt } from "@/types/booking.types";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
+import { pricingFormat } from "@/lib/formatters/pricingFormat";
 
 interface Step5FormDataProps {
   formData: any;
@@ -20,6 +21,35 @@ type Props = Step5FormDataProps | Step5ReceiptDataProps;
 
 function isReceiptData(props: Props): props is Step5ReceiptDataProps {
   return "receiptData" in props && props.receiptData != null;
+}
+
+const receiptBorder = "#000000";
+
+function ReceiptDivider() {
+  return (
+    <div
+      className="border-t border-dashed my-4"
+      style={{ borderColor: receiptBorder }}
+    />
+  );
+}
+
+function ReceiptRow({
+  label,
+  value,
+  valueClassName = "font-semibold",
+}: {
+  label: string;
+  value: string | undefined;
+  valueClassName?: string;
+}) {
+  const display = value != null && value !== "" ? value : "—";
+  return (
+    <div className="flex justify-between items-baseline gap-4">
+      <span className="opacity-80 shrink-0">{label}</span>
+      <span className={valueClassName}>{display}</span>
+    </div>
+  );
 }
 
 export function Step5(props: Props) {
@@ -57,7 +87,10 @@ export function Step5(props: Props) {
   const guestName = isFromApi
     ? receipt?.guest_name
     : form
-      ? `${form.lastName || ""} ${form.firstName || ""}`.trim()
+      ? [form.lastName, form.firstName, form.middleName]
+          .filter(Boolean)
+          .join(", ")
+          .trim() || "—"
       : "—";
   const issuedOn = isFromApi
     ? (receipt?.issued_on ?? new Date().toLocaleDateString())
@@ -176,237 +209,253 @@ export function Step5(props: Props) {
       variants={fadeInUp}>
       <div
         id="receipt"
-        className="rounded-xl shadow-lg p-8 w-full max-w-2xl border"
+        role="document"
+        aria-label="Booking receipt"
+        className="rounded-xl shadow-lg p-6 sm:p-8 w-full max-w-2xl border border-b-emerald-100/50 print:shadow-none"
         style={{
           backgroundColor: "var(--color-cream)",
-          borderColor: "var(--color-sage-muted)",
+          borderColor: receiptBorder,
         }}>
-        <div className="text-center mb-6">
+        {/* Receipt header */}
+        <div className="text-center mb-5">
           <ReceiptText
-            className="w-10 h-10 mx-auto opacity-80"
+            className="w-9 h-9 sm:w-10 sm:h-10 mx-auto opacity-90"
             style={{ color: "var(--color-charcoal)" }}
+            aria-hidden
           />
           <h2
-            className="font-display text-xl font-bold mt-2 uppercase tracking-wider"
+            className="font-display text-lg sm:text-xl font-bold mt-2 uppercase tracking-widest"
             style={{ color: "var(--color-charcoal)" }}>
             Booking Receipt
           </h2>
           <p
-            className="text-sm opacity-80"
+            className="text-sm mt-1 opacity-80"
             style={{ color: "var(--color-charcoal)" }}>
             Thank you for booking with us!
           </p>
         </div>
 
-        <div className="border-t border-dashed border-gray-400 my-4" />
+        <ReceiptDivider />
 
-        {/* Booking Info */}
-        <div className="text-sm text-gray-800 space-y-1 mb-4">
-          <div className="flex justify-between">
-            <span>Reference No:</span>
-            <span className="font-semibold">{referenceNumber || "—"}</span>
+        {/* Reference & issued — receipt-style top block */}
+        <div
+          className="text-sm flex flex-wrap justify-between gap-x-4 gap-y-1 mb-4"
+          style={{ color: "var(--color-charcoal)" }}>
+          <div>
+            <span className="opacity-80">Reference No.</span>
+            <span className="ml-2 font-semibold">{referenceNumber || "—"}</span>
           </div>
-
-          <div className="flex justify-between">
-            <span> Created At:</span>
-            <span className="font-semibold">{createdAt || "—"}</span>
-          </div>
-
-          <div className="flex justify-between">
-            <span> Booking Status:</span>
-            <span
-              className={`font-semibold ${getBookingStatusColor(bookingStatus)} px-2 py-1 rounded-md`}>
-              {bookingStatus || "—"}
-            </span>
-          </div>
-
-          <div className="flex justify-between">
-            <span>Check-in:</span>
-            <span className="font-semibold">{checkIn || "—"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Check-out:</span>
-            <span className="font-semibold">{checkOut || "—"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Total Nights:</span>
-            <span className="font-semibold">{nights}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Guest Name:</span>
-            <span className="font-semibold">{guestName || "—"}</span>
+          <div>
+            <span className="opacity-80">Issued</span>
+            <span className="ml-2 font-semibold">{issuedOn || "—"}</span>
           </div>
         </div>
 
-        <div className="border-t border-dashed border-gray-400 my-4" />
+        {/* Booking details */}
+        <div
+          className="text-sm space-y-2 mb-4"
+          style={{ color: "var(--color-charcoal)" }}>
+          <ReceiptRow label="Created" value={createdAt} />
+          <ReceiptRow
+            label="Status"
+            value={bookingStatus}
+            valueClassName={
+              bookingStatus
+                ? `font-semibold ${getBookingStatusColor(bookingStatus)} px-2 py-0.5 rounded inline-block capitalize`
+                : undefined
+            }
+          />
+          <ReceiptRow label="Check-in" value={checkIn} />
+          <ReceiptRow label="Check-out" value={checkOut} />
+          <ReceiptRow label="Nights" value={String(nights)} />
+          <ReceiptRow label="Guest" value={guestName} />
+        </div>
 
-        {/* Rooms Section */}
-        <div className="text-sm">
-          <h3 className="font-bold text-gray-700 mb-2 uppercase tracking-wide">
-            Room Details
+        <ReceiptDivider />
+
+        {/* Line items — rooms */}
+        <div className="mb-4">
+          <h3
+            className="text-xs font-bold uppercase tracking-wider opacity-90 mb-3"
+            style={{ color: "var(--color-charcoal)" }}>
+            Room details
           </h3>
           {rooms.length > 0 ? (
-            <div className="space-y-3">
-              {rooms.map((room: any, idx: number) => (
-                <div key={idx} className="text-gray-700">
-                  <div className="flex justify-between font-semibold">
-                    <span>
-                      {room.room_number != null
-                        ? `Room ${room.room_number} (${room.type})`
-                        : (room.name ?? room.type ?? "Room")}
+            <ul
+              className="space-y-2.5 text-sm"
+              style={{ color: "var(--color-charcoal)" }}>
+              {rooms.map((room: any, idx: number) => {
+                const price =
+                  typeof room.price === "number"
+                    ? room.price
+                    : parseFloat(String(room.price || 0));
+                const name =
+                  room.room_number != null
+                    ? `Room ${room.room_number} (${room.type || "—"})`
+                    : (room.name ?? room.type ?? "Room");
+                return (
+                  <li key={idx} className="flex justify-between gap-4">
+                    <div>
+                      <span className="font-medium">{name}</span>
+                      <span className="block text-xs opacity-75">
+                        Capacity: {room.capacity ?? "—"}
+                        {room.status ? ` · ${room.status}` : ""}
+                      </span>
+                    </div>
+                    <span className="font-semibold tabular-nums shrink-0">
+                      {pricingFormat(price)}
                     </span>
-                    <span>
-                      ₱
-                      {typeof room.price === "number"
-                        ? room.price.toLocaleString("en-PH", {
-                            minimumFractionDigits: 2,
-                          })
-                        : Number(room.price).toLocaleString("en-PH", {
-                            minimumFractionDigits: 2,
-                          })}
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Capacity: {room.capacity}
-                    {room.status ? ` | ${room.status}` : ""}
-                  </div>
-                </div>
-              ))}
-            </div>
+                  </li>
+                );
+              })}
+            </ul>
           ) : (
-            <p className="text-gray-600 italic">No rooms selected</p>
+            <p
+              className="text-sm italic opacity-70"
+              style={{ color: "var(--color-charcoal)" }}>
+              No rooms selected
+            </p>
           )}
         </div>
 
-        {/* Venues Section */}
+        {/* Line items — venues */}
         {venues.length > 0 && (
           <>
-            <div className="text-sm">
-              <h3 className="font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                Venue Details
+            <div className="mb-4">
+              <h3
+                className="text-xs font-bold uppercase tracking-wider opacity-90 mb-3"
+                style={{ color: "var(--color-charcoal)" }}>
+                Venue details
               </h3>
-              <div className="space-y-3">
-                {venues.map((venue: any, idx: number) => (
-                  <div key={idx} className="pb-2 text-gray-700">
-                    <div className="flex justify-between font-semibold">
-                      <span>{venue.name ?? "Venue"}</span>
-                      <span>
-                        ₱
-                        {typeof venue.price === "number"
-                          ? venue.price.toLocaleString("en-PH", {
-                              minimumFractionDigits: 2,
-                            })
-                          : Number(venue.price || 0).toLocaleString("en-PH", {
-                              minimumFractionDigits: 2,
-                            })}
+              <ul
+                className="space-y-2.5 text-sm"
+                style={{ color: "var(--color-charcoal)" }}>
+                {venues.map((venue: any, idx: number) => {
+                  const price =
+                    typeof venue.price === "number"
+                      ? venue.price
+                      : parseFloat(String(venue.price || 0));
+                  return (
+                    <li key={idx} className="flex justify-between gap-4">
+                      <div>
+                        <span className="font-medium">
+                          {venue.name ?? "Venue"}
+                        </span>
+                        <span className="block text-xs opacity-75">
+                          Capacity: {venue.capacity ?? "—"}
+                        </span>
+                      </div>
+                      <span className="font-semibold tabular-nums shrink-0">
+                        {pricingFormat(price)}
                       </span>
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Capacity: {venue.capacity ?? "—"}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           </>
         )}
 
-        <div className="border-t border-dashed border-gray-400 my-4" />
+        <ReceiptDivider />
 
-        {/* Calculation (full transparency) */}
-        <div className="text-sm">
-          <h3 className="font-bold text-gray-700 mb-2 uppercase tracking-wide">
+        {/* Calculation — like a real receipt */}
+        <div className="text-sm" style={{ color: "var(--color-charcoal)" }}>
+          <h3
+            className="text-xs font-bold uppercase tracking-wider opacity-90 mb-3"
+            style={{ color: "var(--color-charcoal)" }}>
             Calculation
           </h3>
-          <div className="space-y-1.5 text-gray-700 bg-gray-100/80 rounded-md p-3">
+          <div
+            className="rounded-lg p-3 space-y-2"
+            style={{
+              backgroundColor: "var(--color-sage-muted, #e8efe4)",
+              borderColor: receiptBorder,
+            }}>
             <div className="flex justify-between">
-              <span>Rooms (per night):</span>
-              <span>
-                ₱
-                {roomsTotal.toLocaleString("en-PH", {
-                  minimumFractionDigits: 2,
-                })}
-              </span>
+              <span className="opacity-90">Rooms (per night)</span>
+              <span className="tabular-nums">{pricingFormat(roomsTotal)}</span>
             </div>
             {venues.length > 0 && (
               <div className="flex justify-between">
-                <span>Venues (per night):</span>
-                <span>
-                  ₱
-                  {venuesTotal.toLocaleString("en-PH", {
-                    minimumFractionDigits: 2,
-                  })}
+                <span className="opacity-90">Venues (per night)</span>
+                <span className="tabular-nums">
+                  {pricingFormat(venuesTotal)}
                 </span>
               </div>
             )}
-            <div className="flex justify-between font-medium pt-1 border-t border-gray-300">
-              <span>Per night total:</span>
-              <span>
-                ₱
-                {perNightTotal.toLocaleString("en-PH", {
-                  minimumFractionDigits: 2,
-                })}
+            <div className="flex justify-between font-medium pt-2 border-t border-black/10">
+              <span>Per night total</span>
+              <span className="tabular-nums">
+                {pricingFormat(perNightTotal)}
               </span>
             </div>
-            <div className="flex justify-between text-gray-600">
+            <div className="flex justify-between opacity-90">
               <span>
                 × {nights} night{nights !== 1 ? "s" : ""}
               </span>
-              <span>
-                = ₱
-                {displayGrandTotal.toLocaleString("en-PH", {
-                  minimumFractionDigits: 2,
-                })}
+              <span className="tabular-nums">
+                = {pricingFormat(displayGrandTotal)}
               </span>
             </div>
           </div>
-          <div className="flex justify-between font-bold text-gray-900 text-base mt-3">
-            <span>Grand Total:</span>
-            <span>
-              ₱
-              {displayGrandTotal.toLocaleString("en-PH", {
-                minimumFractionDigits: 2,
-              })}
+          <div
+            className="flex justify-between font-bold text-base mt-3 pt-2"
+            style={{ color: "var(--color-charcoal)" }}>
+            <span>Grand total</span>
+            <span
+              className="tabular-nums"
+              style={{ color: "var(--color-sage)" }}>
+              {pricingFormat(displayGrandTotal)}
             </span>
           </div>
         </div>
 
-        <div className="border-t border-dashed border-gray-400 my-4" />
+        <ReceiptDivider />
 
-        {/* Footer / Logo */}
-        <div className="flex flex-col items-center">
+        {/* Merchant / logo */}
+        <div className="flex flex-col items-center py-2">
           <img
             src="/brand-logo-png.png"
-            alt="Marcelino's Logo"
-            className="w-15 h-15 object-contain"
+            alt=""
+            className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
           />
-          <div className="flex flex-col items-center gap-0 leading-tight">
+          <div className="text-center mt-2">
             <div
-              className="font-display text-[20px] tracking-widest font-extrabold"
+              className="font-display text-lg tracking-widest font-bold"
               style={{ color: "var(--color-charcoal)" }}>
-              MARCELINO'S
+              MARCELINO&apos;S
             </div>
             <div
-              className="text-sm tracking-widest font-medium opacity-80"
+              className="text-xs tracking-widest font-medium opacity-80"
               style={{ color: "var(--color-charcoal)" }}>
               RESORT AND HOTEL
             </div>
           </div>
         </div>
 
-        {/* QR Code */}
-        <div className="text-center">
-          <div className="p-2 flex justify-center">
-            <img
-              src={qrCodeUrl ?? undefined}
-              alt="Booking QR Code"
-              className="object-contain"
-              loading="lazy"
-            />
-          </div>
-          <p className="text-xs text-gray-500 mb-2">Scan for digital receipt</p>
-          <div className="text-center text-xs text-gray-500 space-y-1">
-            {paymentMethod != null && <p>Payment Method: {paymentMethod}</p>}
+        {/* QR + footer — only show QR when URL exists */}
+        <div className="text-center pt-2">
+          {qrCodeUrl ? (
+            <div
+              className="inline-block p-2 bg-white rounded-lg border mb-2"
+              style={{ borderColor: "var(--color-sage-muted)" }}>
+              <img
+                src={qrCodeUrl}
+                alt="Scan for digital receipt"
+                className="max-h-52 max-w-52 object-contain"
+                loading="lazy"
+              />
+            </div>
+          ) : null}
+          <p
+            className="text-xs opacity-75 mb-1"
+            style={{ color: "var(--color-charcoal)" }}>
+            {qrCodeUrl ? "Scan for digital receipt" : null}
+          </p>
+          <div
+            className="text-xs opacity-75 space-y-0.5"
+            style={{ color: "var(--color-charcoal)" }}>
+            {paymentMethod ? <p>Payment: {paymentMethod}</p> : null}
             <p>Issued on {issuedOn}</p>
           </div>
         </div>
