@@ -88,7 +88,11 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
   return (
     <Form {...form}>
       <form className="space-y-6">
-        <h2 className="text-3xl font-bold text-center">Personal Information</h2>
+        <h2
+          className="font-display text-3xl font-bold text-center"
+          style={{ color: "var(--color-charcoal)" }}>
+          Personal Information
+        </h2>
 
         <div className="grid grid-cols-2 gap-4">
           <FormField<PersonalDetailsFormValues, "lastName">

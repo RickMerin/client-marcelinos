@@ -21,17 +21,18 @@ export const NavigationButtons = ({
   }
 
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex items-center justify-between gap-4 pt-2">
       <Button
         variant="ghost"
         onClick={onPrevious}
-        className="px-6 py-2">
-        {currentStep === 3 ? " ← Edit Personal Info" : " ← Back"}
+        className="px-5 py-2.5 text-[var(--color-charcoal)] hover:bg-[var(--color-sage-muted)] font-medium">
+        {currentStep === 3 ? "← Edit Personal Info" : "← Back"}
       </Button>
       <Button
         onClick={onNext}
         disabled={isNextDisabled}
-        className="px-6 py-3 bg-amber-400 hover:bg-amber-500 text-black">
+        className="px-8 py-3 font-semibold text-white transition-all shadow-sm hover:opacity-95 disabled:opacity-50"
+        style={{ backgroundColor: "var(--color-sage)" }}>
         Continue
       </Button>
     </div>

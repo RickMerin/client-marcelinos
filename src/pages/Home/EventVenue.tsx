@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
-import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import CardItem from "@/components/cards/CardItem";
 import EventVenueSkeleton from "@/components/skeleton/EventVenueSkeleton";
 
 interface ApiListResponse<T> {
@@ -22,12 +22,6 @@ function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
   if (Array.isArray(response)) return response;
   if (response?.data && Array.isArray(response.data)) return response.data;
   return [];
-}
-
-function venueMainImage(venue: VenueItem): string | null {
-  if (venue.featured_image) return venue.featured_image;
-  const gallery = Array.isArray(venue.gallery) ? venue.gallery : [];
-  return gallery[0] ?? null;
 }
 
 function EventVenues() {
@@ -61,44 +55,19 @@ function EventVenues() {
       ) : venueList.length === 0 ? (
         <p className="text-center text-gray-500">No venues available.</p>
       ) : (
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-6">
-          {venueList.map((venue) => {
-            const mainImage = venueMainImage(venue);
-            return (
-              <div
-                key={venue.id}
-                className="max-w-sm mx-auto bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 transition-all hover:shadow-lg duration-300">
-                <div className="w-full h-60 bg-gray-100 overflow-hidden">
-                  <img
-                    src={mainImage ?? "/placeholder-room.jpg"}
-                    alt={venue.name ?? "Venue"}
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
-                    {venue.name ?? "Venue"}
-                  </h3>
-                  {venue.description && (
-                    <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                      {venue.description}
-                    </p>
-                  )}
-                  {venue.capacity != null && (
-                    <p className="text-gray-600 text-sm mb-1">
-                      Capacity: {venue.capacity}
-                    </p>
-                  )}
-                  {venue.price != null && (
-                    <p className="text-green-800 font-semibold mt-2">
-                      {pricingFormat(String(venue.price))}
-                    </p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        <div className="mx-auto grid max-w-6xl grid-cols-1 px-6 sm:grid-cols-2 md:grid-cols-3">
+          {venueList.map((venue) => (
+            <CardItem
+              key={venue.id}
+              id={venue.id}
+              name={venue.name}
+              capacity={venue.capacity}
+              price={venue.price}
+              description={venue.description}
+              featured_image={venue.featured_image}
+              gallery={venue.gallery}
+            />
+          ))}
         </div>
       )}
     </section>

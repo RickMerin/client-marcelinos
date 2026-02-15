@@ -15,8 +15,8 @@ interface StepperProps {
 
 export function Stepper({ steps, currentStep }: StepperProps) {
   return (
-    <div className="flex justify-center w-full ms-5 md:ms-16">
-      <div className="flex items-center justify-center w-full max-w-4xl">
+    <div className="flex justify-center w-full">
+      <div className="flex items-center justify-center w-full max-w-4xl gap-0">
         {steps.map((step, index) => {
           const isCompleted = currentStep > step.id;
           const isActive = currentStep === step.id;
@@ -24,32 +24,34 @@ export function Stepper({ steps, currentStep }: StepperProps) {
 
           return (
             <div key={step.id} className="flex items-center flex-1">
-              {/* Step Icon */}
               <div className="flex flex-col items-center relative">
                 <div
                   className={cn(
-                    "w-8 md:w-12 h-8 md:h-12 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300",
+                    "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300",
                     isCompleted
-                      ? "bg-green-600 text-white"
+                      ? "bg-[var(--color-sage)] text-white shadow-sm"
                       : isActive
-                      ? "bg-green-500 text-primary-foreground ring-4 ring-primary/25"
-                      : "bg-gray-200 text-gray-500"
+                        ? "bg-[var(--color-sage)] text-white ring-4 ring-[var(--color-sage)]/20"
+                        : "bg-[var(--color-sage-muted)] text-[var(--color-charcoal)]/50",
                   )}>
                   {isCompleted ? (
-                    <Check className="w-3 md:w-5 h-3 md:h-5" />
+                    <Check
+                      className="w-4 md:w-5 h-4 md:h-5"
+                      strokeWidth={2.5}
+                    />
                   ) : (
                     step.icon
                   )}
                 </div>
               </div>
-
-              {/* Connector Line */}
               {!isLast && (
-                <div className="flex-1 h-1 mx-2 my-auto">
+                <div className="flex-1 h-0.5 mx-1 md:mx-2 min-w-[12px]">
                   <div
                     className={cn(
-                      "h-full rounded transition-all duration-300",
-                      isCompleted ? "bg-green-600" : "bg-gray-200"
+                      "h-full rounded-full transition-all duration-300",
+                      isCompleted
+                        ? "bg-[var(--color-sage)]"
+                        : "bg-[var(--color-sage-muted)]",
                     )}
                   />
                 </div>

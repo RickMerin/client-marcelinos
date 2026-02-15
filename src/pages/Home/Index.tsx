@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { BannerCarousel } from "@/components/carousels/BannerCarousel";
 import BookingForm from "@/components/forms/BookingForm";
+import { SectionReveal } from "@/components/SectionReveal";
 import About from "./About";
 import OurGallery from "@/pages/Home/OurGallery";
-import ClientReviews from "@/../src/pages/Testimonial/ReviewSection"; 
+import ClientReviews from "@/pages/Testimonial/ReviewSection";
 import EventVenues from "./EventVenue";
 import RoomCard from "@/pages/Home/RoomCard";
 import FAQ from "./ContactForm";
@@ -12,17 +13,13 @@ import Services from "./Services";
 import WelcomeModal from "@/components/modals/WelcomeModal";
 
 function Home() {
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hash = window.location.hash;
-      if (hash) {
-        const id = hash.replace("#", "");
-        const el = document.getElementById(id);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth" });
-        }
-      }
-    }
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash;
+    if (!hash) return;
+    const id = hash.slice(1);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   return (
@@ -54,37 +51,53 @@ function Home() {
         </div>
       </section>
 
-      {/* Content Sections */}
+      {/* Content Sections — Framer Motion runs only when section (or fragment) is in view, once, for scroll perf */}
       <section id="about" className="px-4 md:px-0">
-        <About />
+        <SectionReveal>
+          <About />
+        </SectionReveal>
       </section>
 
       <section id="rooms" className="px-4 md:px-0">
-        <RoomCard />
+        <SectionReveal>
+          <RoomCard />
+        </SectionReveal>
       </section>
 
       <section id="venues" className="px-4 md:px-0">
-        <EventVenues />
+        <SectionReveal>
+          <EventVenues />
+        </SectionReveal>
       </section>
 
       <section id="services" className="px-4 md:px-0">
-        <Services />
+        <SectionReveal>
+          <Services />
+        </SectionReveal>
       </section>
 
       <section id="gallery" className="px-4 md:px-0">
-        <OurGallery />
+        <SectionReveal>
+          <OurGallery />
+        </SectionReveal>
       </section>
 
       <section id="reviews" className="px-4 md:px-0">
-        <ClientReviews />
+        <SectionReveal>
+          <ClientReviews />
+        </SectionReveal>
       </section>
 
       <section id="faq" className="px-4 md:px-0">
-        <FAQ />
+        <SectionReveal>
+          <FAQ />
+        </SectionReveal>
       </section>
 
       <section id="location" className="px-4 md:px-0">
-        <LocationMap />
+        <SectionReveal>
+          <LocationMap />
+        </SectionReveal>
       </section>
     </>
   );

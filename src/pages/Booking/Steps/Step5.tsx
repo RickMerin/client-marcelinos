@@ -176,14 +176,24 @@ export function Step5(props: Props) {
       variants={fadeInUp}>
       <div
         id="receipt"
-        className="bg-neutral-50 border border-gray-300 rounded-lg shadow-md p-8 w-full max-w-2xl font-mono">
-        {/* Header */}
+        className="rounded-xl shadow-lg p-8 w-full max-w-2xl border"
+        style={{
+          backgroundColor: "var(--color-cream)",
+          borderColor: "var(--color-sage-muted)",
+        }}>
         <div className="text-center mb-6">
-          <ReceiptText className="w-10 h-10 mx-auto text-gray-700" />
-          <h2 className="text-xl font-bold text-gray-900 mt-2 uppercase tracking-wider">
+          <ReceiptText
+            className="w-10 h-10 mx-auto opacity-80"
+            style={{ color: "var(--color-charcoal)" }}
+          />
+          <h2
+            className="font-display text-xl font-bold mt-2 uppercase tracking-wider"
+            style={{ color: "var(--color-charcoal)" }}>
             Booking Receipt
           </h2>
-          <p className="text-sm text-gray-600">
+          <p
+            className="text-sm opacity-80"
+            style={{ color: "var(--color-charcoal)" }}>
             Thank you for booking with us!
           </p>
         </div>
@@ -371,10 +381,14 @@ export function Step5(props: Props) {
             className="w-15 h-15 object-contain"
           />
           <div className="flex flex-col items-center gap-0 leading-tight">
-            <div className="text-[20px] text-green-900 tracking-widest font-extrabold font-serif">
+            <div
+              className="font-display text-[20px] tracking-widest font-extrabold"
+              style={{ color: "var(--color-charcoal)" }}>
               MARCELINO'S
             </div>
-            <div className="text-sm tracking-widest font-medium">
+            <div
+              className="text-sm tracking-widest font-medium opacity-80"
+              style={{ color: "var(--color-charcoal)" }}>
               RESORT AND HOTEL
             </div>
           </div>
@@ -402,13 +416,18 @@ export function Step5(props: Props) {
         <div className="flex flex-col md:flex-row justify-center gap-3 mt-6">
           <button
             onClick={downloadReceipt}
-            className="bg-green-600 cursor-pointer hover:bg-green-700 text-white px-5 py-2 rounded-md font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto">
+            className="cursor-pointer text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto hover:opacity-95"
+            style={{ backgroundColor: "var(--color-sage)" }}>
             <Download className="w-4 h-4" />
             Download Receipt
           </button>
           <button
             onClick={handleBookAnother}
-            className="bg-yellow-500 cursor-pointer hover:bg-yellow-600 text-white px-5 py-2 rounded-md font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto">
+            className="cursor-pointer text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto border-2 hover:opacity-95"
+            style={{
+              backgroundColor: "var(--color-sage)",
+              borderColor: "var(--color-sage)",
+            }}>
             <House className="w-4 h-4" />
             Book Another Room
           </button>

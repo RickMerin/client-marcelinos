@@ -31,16 +31,20 @@ export function Step3({ formData }: Props) {
 
   return (
     <div className="space-y-8">
-      <h2 className="text-3xl font-bold text-center mb-6">
+      <h2
+        className="font-display text-3xl font-bold text-center mb-6"
+        style={{ color: "var(--color-charcoal)" }}>
         Review Booking Details
       </h2>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Left column */}
         <div className="space-y-4">
-          {/* Selected Date */}
-          <div className="border rounded-md shadow-sm">
-            <div className="bg-green-600 text-white px-4 py-2 font-semibold rounded-t-md">
+          <div
+            className="border rounded-md shadow-sm"
+            style={{ borderColor: "var(--color-sage-muted)" }}>
+            <div
+              className="text-white px-4 py-2 font-semibold rounded-t-md"
+              style={{ backgroundColor: "var(--color-sage)" }}>
               Selected Date
             </div>
             <div className="p-4 text-sm text-gray-800 grid grid-cols-3 gap-2">
@@ -62,9 +66,12 @@ export function Step3({ formData }: Props) {
             </div>
           </div>
 
-          {/* Selected Rooms */}
-          <div className="border rounded-md shadow-sm">
-            <div className="bg-green-600 text-white px-4 py-2 font-semibold rounded-t-md">
+          <div
+            className="border rounded-md shadow-sm"
+            style={{ borderColor: "var(--color-sage-muted)" }}>
+            <div
+              className="text-white px-4 py-2 font-semibold rounded-t-md"
+              style={{ backgroundColor: "var(--color-sage)" }}>
               Selected Rooms
             </div>
             {(formData.rooms ?? []).length === 0 ? (
@@ -109,7 +116,9 @@ export function Step3({ formData }: Props) {
           {/* Selected Venues */}
           {(formData.venues ?? []).length > 0 && (
             <div className="border rounded-md shadow-sm">
-              <div className="bg-amber-600 text-white px-4 py-2 font-semibold rounded-t-md">
+              <div
+                className="text-white px-4 py-2 font-semibold rounded-t-md"
+                style={{ backgroundColor: "var(--color-sage)" }}>
                 Selected Venues
               </div>
               {(formData.venues ?? []).map(
@@ -145,7 +154,9 @@ export function Step3({ formData }: Props) {
 
           {/* Total Billing */}
           <div className="border rounded-md shadow-sm overflow-hidden">
-            <div className="bg-green-600 text-white px-4 py-2 font-semibold">
+            <div
+              className="text-white px-4 py-2 font-semibold"
+              style={{ backgroundColor: "var(--color-sage)" }}>
               Total Billing
             </div>
             <div className="p-4 text-sm text-gray-800 grid grid-cols-3 gap-2 text-center">
@@ -163,7 +174,7 @@ export function Step3({ formData }: Props) {
 
               <div>
                 <p className="font-semibold text-gray-600">Grand Total</p>
-                <p className="text-lg font-bold text-green-700">
+                <p className="text-lg font-bold text-[var(--color-sage)]">
                   ₱{grandTotalPrice.toLocaleString()}
                 </p>
               </div>
@@ -176,7 +187,7 @@ export function Step3({ formData }: Props) {
                 ₱{totalPrice.toLocaleString()} × {days} day(s)
               </span>
               &nbsp;=&nbsp;
-              <span className="font-bold text-green-700">
+              <span className="font-bold text-[var(--color-sage)]">
                 ₱{grandTotalPrice.toLocaleString()}
               </span>
             </div>
@@ -185,7 +196,9 @@ export function Step3({ formData }: Props) {
 
         {/* Right column */}
         <div className="border rounded-md shadow-sm h-fit">
-          <div className="bg-green-600 text-white px-4 py-2 font-semibold rounded-t-md">
+          <div
+            className="text-white px-4 py-2 font-semibold rounded-t-md"
+            style={{ backgroundColor: "var(--color-sage)" }}>
             Personal Information
           </div>
           <div className="p-4 text-sm text-gray-800 space-y-1">

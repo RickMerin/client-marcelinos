@@ -9,10 +9,11 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-
+  const navigate = useNavigate();
   // Navigation links with hash to scroll to section on landing page
   const navLinks = [
     { label: "Home", href: "#home" },
@@ -35,14 +36,38 @@ export default function Header() {
   // Nav link click: redirect to landing page with hash
   const handleNavClick = (hash: string) => {
     setOpen(false);
-    window.location.href = `/${hash}`; 
+    if (window.location.pathname !== "/") {
+      // Go to home first, then scroll after navigation
+      navigate("/", { replace: false });
+      setTimeout(() => {
+        const id = hash.startsWith("#") ? hash.slice(1) : hash;
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        } else {
+          // Fallback if section not loaded yet
+          window.location.hash = hash;
+        }
+      }, 100);
+    } else {
+      // Same page: scroll immediately
+      const id = hash.startsWith("#") ? hash.slice(1) : hash;
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      } else {
+        window.location.hash = hash;
+      }
+    }
   };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 md:px-8">
         {/* Logo */}
-        <a href="/" className="flex items-center">
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center cursor-pointer">
           <img
             src="/logo.webp"
             alt="Marcelino’s Logo"
@@ -56,7 +81,7 @@ export default function Header() {
               RESORT AND HOTEL
             </div>
           </div>
-        </a>
+        </button>
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-8 md:flex">
@@ -67,8 +92,7 @@ export default function Header() {
                   <NavigationMenuLink asChild>
                     <button
                       onClick={() => handleNavClick(item.href)}
-                      className="text-base font-medium text-black transition-colors hover:text-yellow-600"
-                    >
+                      className="text-base font-medium text-black transition-colors hover:text-yellow-600">
                       {item.label}
                     </button>
                   </NavigationMenuLink>
@@ -80,8 +104,7 @@ export default function Header() {
           {/* Book Now */}
           <Button
             className="bg-(--default-color) text-white font-semibold hover:bg-yellow-500"
-            onClick={bookNowHandler}
-          >
+            onClick={bookNowHandler}>
             Book Now
           </Button>
         </nav>
@@ -98,8 +121,7 @@ export default function Header() {
             side="top"
             aria-describedby="mobile-menu-title"
             className="bg-white"
-            onCloseAutoFocus={(e) => e.preventDefault()}
-          >
+            onCloseAutoFocus={(e) => e.preventDefault()}>
             <DialogTitle className="border-b p-4 text-center text-2xl font-extrabold">
               <div className="mx-auto flex items-center justify-between px-4 md:px-8">
                 <a href="/" className="flex items-center">
@@ -129,8 +151,7 @@ export default function Header() {
                 <button
                   key={item.label}
                   onClick={() => handleNavClick(item.href)}
-                  className="text-lg font-medium text-black hover:text-yellow-600"
-                >
+                  className="text-lg font-medium text-black hover:text-yellow-600">
                   {item.label}
                 </button>
               ))}
@@ -138,8 +159,7 @@ export default function Header() {
               {/* Book Now */}
               <Button
                 className="bg-(--default-color) text-white font-semibold hover:bg-yellow-500"
-                onClick={bookNowHandler}
-              >
+                onClick={bookNowHandler}>
                 Book Now
               </Button>
             </nav>

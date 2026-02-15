@@ -26,7 +26,7 @@ function RoomCard() {
     error,
   } = useApiQuery<ApiListResponse<Record<string, unknown>>>(
     ["rooms", "home"],
-    "/rooms?is_all=1",
+    "/rooms?is_all=1", // !important: is_all=1 is used to get all rooms for the homepage
   );
 
   const roomList = useMemo(() => extractList(roomsResponse), [roomsResponse]);
