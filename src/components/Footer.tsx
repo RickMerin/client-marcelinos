@@ -1,7 +1,11 @@
 import { Facebook, Instagram, Twitter, ArrowRight } from "lucide-react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import ContactForm from "./forms/ContactForm";
 
 function Footer() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const first_link = [
     { name: "Home", href: "#home" },
     { name: "About", href: "#about" },
@@ -19,6 +23,26 @@ function Footer() {
     { name: "Careers", href: "/careers" },
     { name: "Sitemap", href: "/sitemap" },
   ];
+
+  const handleSectionClick = (e: React.MouseEvent, hash: string) => {
+    e.preventDefault();
+    const id = hash.startsWith("#") ? hash.slice(1) : hash;
+    const scrollToSection = () => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.location.hash = hash;
+      }
+    };
+    if (location.pathname !== "/") {
+      navigate("/", { replace: false });
+      setTimeout(scrollToSection, 350);
+    } else {
+      scrollToSection();
+    }
+  };
+
   return (
     <footer className="bg-black px-4 py-10 text-white space-y-4">
       <div className="container max-w-6xl mx-auto grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-8">
@@ -62,9 +86,13 @@ function Footer() {
             {first_link.map((link) => (
               <li key={link.name} className="flex items-center gap-2">
                 <ArrowRight size={16} className="yellow" />
-                <a href={link.href} className="hover:underline text-sm">
+                <button
+                  type="button"
+                  onClick={(e) => handleSectionClick(e, link.href)}
+                  className="hover:underline text-sm text-left bg-transparent border-none p-0 cursor-pointer text-white font-inherit"
+                >
                   {link.name}
-                </a>
+                </button>
               </li>
             ))}
           </ul>
@@ -78,9 +106,12 @@ function Footer() {
             {second_link.map((link) => (
               <li key={link.name} className="flex items-center gap-2">
                 <ArrowRight size={16} className="yellow" />
-                <a href={link.href} className="hover:underline text-sm">
+                <Link
+                  to={link.href}
+                  className="hover:underline text-sm text-white no-underline"
+                >
                   {link.name}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

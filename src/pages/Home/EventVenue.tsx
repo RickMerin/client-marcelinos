@@ -90,10 +90,7 @@ function EventVenues() {
   }, [isLoading, venueList.length]);
 
   return (
-    <section
-      ref={sectionRef}
-      id="venues"
-      className="w-full py-16 bg-gray-50">
+    <section ref={sectionRef} id="venues" className="w-full py-16 bg-gray-50">
       <h2 className="text-4xl font-bold text-center mb-10">
         <span className="text-green-900">EVENT </span>
         <span className="text-yellow-500">VENUES</span>
@@ -108,7 +105,7 @@ function EventVenues() {
       ) : venueList.length === 0 ? (
         <p className="text-center text-gray-500">No venues available.</p>
       ) : (
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 sm:grid-cols-2 md:grid-cols-3">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 sm:grid-cols-2 md:grid-cols-3">
           {venueList.map((venue) => (
             <div key={venue.id} className="venue-card-wrap">
               <CardItem
