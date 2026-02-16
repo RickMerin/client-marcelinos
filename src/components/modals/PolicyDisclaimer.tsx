@@ -53,7 +53,7 @@ export default function PaymentPolicyConfirmContent({
       {/* INTRO */}
       <div className="text-xs mb-2 md:mb-4 text-white">
         <h2 className="font-bold">Check Out:</h2>
-        <p className="text-[11px]">Check-out is at 9:00 PM. After check-out, guest must ensure that all personal belongings are secured. The resort shall not be held lieable for any last items.</p>
+        <p className="text-[11px]">Check-out is at 9:00 PM. After check-out, guest must ensure that all personal belongings are secured. The resort shall not be held liable for any lost items.</p>
       </div>
 
           {/* HEADER */}
