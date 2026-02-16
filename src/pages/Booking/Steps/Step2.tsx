@@ -85,146 +85,228 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
     return () => sub.unsubscribe();
   }, [form, onUpdate, onValuesChange]);
 
+  const labelClass =
+    "text-sm font-medium [&>.text-muted]:opacity-70";
+  const labelStyle = { color: "var(--color-charcoal)" } as const;
+  const requiredMark = (
+    <span className="text-red-500" aria-hidden>
+      *
+    </span>
+  );
+
   return (
     <Form {...form}>
-      <form className="space-y-6">
-        <h2 className="text-3xl font-bold text-center">Personal Information</h2>
+      <form className="space-y-8">
+        <div className="space-y-2">
+          <h2
+            className="font-display text-3xl font-bold tracking-tight"
+            style={{ color: "var(--color-charcoal)" }}>
+            Personal Information
+          </h2>
+          <p
+            className="text-sm opacity-80 max-w-2xl"
+            style={{ color: "var(--color-charcoal)" }}>
+            We&apos;ll use this to confirm your booking and get in touch. All
+            fields marked with * are required.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField<PersonalDetailsFormValues, "lastName">
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Last Name <span className="text-red-500">*</span>
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} value={field.value ?? ""} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div
+          className="rounded-md border bg-white p-5 shadow-sm md:p-6"
+          style={{ borderColor: "var(--color-sage-muted, #e5e7eb)" }}>
+          <div className="space-y-6">
+            {/* Name */}
+            <div>
+              <h3
+                className="font-display text-lg font-semibold mb-4"
+                style={{ color: "var(--color-charcoal)" }}>
+                Your name
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField<PersonalDetailsFormValues, "firstName">
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className={labelClass} style={labelStyle}>
+                        First Name {requiredMark}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          placeholder="Juan"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField<PersonalDetailsFormValues, "lastName">
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className={labelClass} style={labelStyle}>
+                        Last Name {requiredMark}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          placeholder="Dela Cruz"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField<PersonalDetailsFormValues, "middleName">
+                  control={form.control}
+                  name="middleName"
+                  render={({ field }) => (
+                    <FormItem className="sm:col-span-2">
+                      <FormLabel className={labelClass} style={labelStyle}>
+                        Middle Name{" "}
+                        <span className="text-muted-foreground font-normal">
+                          (optional)
+                        </span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          placeholder="Optional"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
-          <FormField<PersonalDetailsFormValues, "middleName">
-            control={form.control}
-            name="middleName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Middle Name{" "}
-                  <small className="text-gray-400">(optional)</small>
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} value={field.value ?? ""} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+            {/* Gender */}
+            <div>
+              <FormField<PersonalDetailsFormValues, "gender">
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem className="max-w-xs">
+                    <FormLabel className={labelClass} style={labelStyle}>
+                      Gender {requiredMark}
+                    </FormLabel>
+                    <FormControl>
+                      <select
+                        {...field}
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(e.target.value || undefined)
+                        }
+                        onBlur={field.onBlur}
+                        aria-invalid={!!form.formState.errors.gender}
+                        className="h-12 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&>option]:bg-background"
+                        style={{
+                          color: "var(--color-charcoal)",
+                        }}>
+                        <option value="">Select gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          <FormField<PersonalDetailsFormValues, "firstName">
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  First Name <span className="text-red-500">*</span>
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} value={field.value ?? ""} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Contact */}
+            <div>
+              <h3
+                className="font-display text-lg font-semibold mb-4"
+                style={{ color: "var(--color-charcoal)" }}>
+                Contact details
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField<PersonalDetailsFormValues, "phone">
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className={labelClass} style={labelStyle}>
+                        Phone Number {requiredMark}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          type="tel"
+                          placeholder="09XX XXX XXXX"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField<PersonalDetailsFormValues, "email">
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className={labelClass} style={labelStyle}>
+                        Email Address {requiredMark}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          type="email"
+                          placeholder="you@example.com"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
-          <FormField<PersonalDetailsFormValues, "gender">
-            control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Gender <span className="text-red-500">*</span>
-                </FormLabel>
-                <FormControl>
-                  <select
-                    {...field}
-                    value={field.value ?? ""}
-                    onChange={(e) =>
-                      field.onChange(e.target.value || undefined)
-                    }
-                    className="h-10 w-full rounded-md border px-3">
-                    <option value="">Select gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField<PersonalDetailsFormValues, "phone">
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>
-                  Phone Number <span className="text-red-500">*</span>
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} value={field.value ?? ""} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField<PersonalDetailsFormValues, "email">
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>
-                  Email Address <span className="text-red-500">*</span>
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} value={field.value ?? ""} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField<PersonalDetailsFormValues, "address">
-            control={form.control}
-            name="address"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>
-                  Address <span className="text-red-500">*</span>
-                </FormLabel>
-                <FormControl>
-                  <div className="space-y-2">
-                    <PHAddressSelector
-                      value={field.value ?? ""}
-                      onChange={(next) => field.onChange(next || "")}
-                    />
-                    <input
-                      type="hidden"
-                      name={field.name}
-                      ref={field.ref}
-                      value={field.value ?? ""}
-                      onBlur={field.onBlur}
-                      readOnly
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Address */}
+            <div>
+              <h3
+                className="font-display text-lg font-semibold mb-4"
+                style={{ color: "var(--color-charcoal)" }}>
+                Address
+              </h3>
+              <FormField<PersonalDetailsFormValues, "address">
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={labelClass} style={labelStyle}>
+                      Full address {requiredMark}
+                    </FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        <PHAddressSelector
+                          value={field.value ?? ""}
+                          onChange={(next) => field.onChange(next || "")}
+                        />
+                        <input
+                          type="hidden"
+                          name={field.name}
+                          ref={field.ref}
+                          value={field.value ?? ""}
+                          onBlur={field.onBlur}
+                          readOnly
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
         </div>
       </form>
     </Form>

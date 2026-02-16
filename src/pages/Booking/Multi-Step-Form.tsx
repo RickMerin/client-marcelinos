@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
-import { Stepper } from "./Stepper";
+import { ProgressIndicator } from "./ProgressIndicator";
 import { Step1 } from "./Steps/Step1";
 import { Step2 } from "./Steps/Step2";
 import { Step3 } from "./Steps/Step3";
@@ -78,72 +77,74 @@ export function MultiStepForm() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      <Card className="p-8 shadow-none border-none">
-        <Stepper steps={STEPS} currentStep={formData.current_step} />
+    <section className="container max-w-6xl mx-auto px-4 py-8">
+      <ProgressIndicator
+        currentStep={formData.current_step}
+        totalSteps={STEPS.length}
+      />
 
-        <div className="mt-8 mb-8 min-h-87.5">
-          <AnimatePresence mode="wait" initial={false}>
-            {formData.current_step === 1 && (
-              <motion.div key="step1" {...stepMotion}>
-                <Step1
-                  formData={formData}
-                  setSelectedRooms={setSelectedRooms}
-                  setSelectedVenues={setSelectedVenues}
-                />
-              </motion.div>
-            )}
-            {formData.current_step === 2 && (
-              <motion.div key="step2" {...stepMotion}>
-                <Step2
-                  formData={personalDetails}
-                  onUpdate={(data) => updateFormData(data)}
-                  onValuesChange={updateFormData}
-                />
-              </motion.div>
-            )}
+      <div className="mt-8 mb-8 min-h-87.5">
+        <AnimatePresence mode="wait" initial={false}>
+          {formData.current_step === 1 && (
+            <motion.div key="step1" {...stepMotion}>
+              <Step1
+                formData={formData}
+                setSelectedRooms={setSelectedRooms}
+                setSelectedVenues={setSelectedVenues}
+              />
+            </motion.div>
+          )}
+          {formData.current_step === 2 && (
+            <motion.div key="step2" {...stepMotion}>
+              <Step2
+                formData={personalDetails}
+                onUpdate={(data) => updateFormData(data)}
+                onValuesChange={updateFormData}
+              />
+            </motion.div>
+          )}
 
-            {formData.current_step === 3 && (
-              <motion.div key="step3" {...stepMotion}>
-                <Step3
-                  formData={formData}
-                  selectedRoom={{
-                    name: "Standard",
-                    floor: "Second Floor",
-                    bed_type: "Double Bed",
-                    price: 999,
-                  }}
-                  onEdit={() => goToStep(2)}
-                  onProceed={() => goToStep(4)}
-                />
-              </motion.div>
-            )}
-            {formData.current_step === 4 && (
-              <motion.div key="step4" {...stepMotion}>
-                <Step4
-                  paymentMethod={formData.paymentMethod}
-                  setPaymentMethod={setPaymentMethod}
-                  onBack={() => goToStep(3)}
-                  onProceed={handleSubmit}
-                  isSubmitting={isSubmitting}
-                />
-              </motion.div>
-            )}
-            {formData.current_step === 5 && (
-              <motion.div key="step5" {...stepMotion}>
-                <Step5 formData={formData} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+          {formData.current_step === 3 && (
+            <motion.div key="step3" {...stepMotion}>
+              <Step3
+                formData={formData}
+                selectedRoom={{
+                  name: "Standard",
+                  floor: "Second Floor",
+                  bed_type: "Double Bed",
+                  price: 999,
+                }}
+                onEdit={() => goToStep(2)}
+                onProceed={() => goToStep(4)}
+              />
+            </motion.div>
+          )}
+          {formData.current_step === 4 && (
+            <motion.div key="step4" {...stepMotion}>
+              <Step4
+                paymentMethod={formData.paymentMethod}
+                setPaymentMethod={setPaymentMethod}
+                onBack={() => goToStep(3)}
+                onProceed={handleSubmit}
+                isSubmitting={isSubmitting}
+              />
+            </motion.div>
+          )}
+          {formData.current_step === 5 && (
+            <motion.div key="step5" {...stepMotion}>
+              <Step5 formData={formData} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-        <NavigationButtons
-          currentStep={formData.current_step}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          isNextDisabled={!isStepComplete(formData.current_step)}
-        />
-      </Card>
-    </div>
+      <NavigationButtons
+        currentStep={formData.current_step}
+        onPrevious={handlePrevious}
+        onNext={handleNext}
+        isNextDisabled={!isStepComplete(formData.current_step)}
+        estimatedTotal={formData.grandTotalPrice ?? 0}
+      />
+    </section>
   );
 }

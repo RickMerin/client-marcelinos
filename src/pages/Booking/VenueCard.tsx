@@ -2,54 +2,31 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 
-interface RoomCardProps {
+interface VenueCardProps {
   id: number;
-  title: string;
-  type: string;
-  description: string;
+  name: string;
   images?: string[];
-  size: string;
   capacity: string;
-  includes: string;
   price: string | number;
   selected?: boolean;
-  onSelectRoom: (id: number) => void;
-  /** Optional list of amenity names for pill tags (e.g. ["WiFi", "AC", "Slippers"]) */
-  amenityPills?: string[];
+  onSelectVenue: (id: number) => void;
 }
 
-const EMPTY_FIELD = "—";
-
-export const RoomCard: React.FC<RoomCardProps> = ({
+export const VenueCard: React.FC<VenueCardProps> = ({
   id,
-  title,
-  type,
-  description,
+  name,
   images = [],
-  size: _size,
   capacity,
-  includes,
   price,
   selected = false,
-  onSelectRoom,
-  amenityPills,
+  onSelectVenue,
 }) => {
-  const showCapacity = capacity && capacity !== EMPTY_FIELD;
+  const showCapacity = capacity && capacity.trim() !== "" && capacity !== "—";
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const hasGallery = images.length > 1;
   const mainImage =
     images[activeImageIndex] ?? images[0] ?? "/placeholder-room.jpg";
-
-  const pills: string[] =
-    amenityPills && amenityPills.length > 0
-      ? amenityPills
-      : includes && includes !== EMPTY_FIELD
-        ? includes
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : [];
 
   const goPrev = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -61,28 +38,28 @@ export const RoomCard: React.FC<RoomCardProps> = ({
   };
 
   return (
-    <section
+    <article
       role="button"
       tabIndex={0}
       aria-pressed={selected}
-      aria-label={`${title}, ${pricingFormat(String(price))} per night. ${selected ? "Selected" : "Select"}`}
+      aria-label={`${name}, ${pricingFormat(String(price))} per event. ${selected ? "Added" : "Add to booking"}`}
       className={cn(
-        "group relative flex flex-col rounded-md text-left shadow-sm transition-all duration-200 overflow-hidden",
+        "group relative flex flex-col rounded-md border bg-white text-left shadow-sm transition-all duration-200 overflow-hidden",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         selected
-          ? "border-2 border-(--color-sage) bg-sage-muted/30 shadow-md ring-2 ring-sage/20 focus-visible:ring-(--color-sage)"
-          : "border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md focus-visible:ring-(--color-sage)",
+          ? "border-(--color-sage) bg-sage-muted/30 shadow-md ring-2 ring-sage/20 focus-visible:ring-(--color-sage)"
+          : "border-gray-200/80 hover:border-(--color-sage-light) hover:shadow-md focus-visible:ring-(--color-sage)",
       )}
-      onClick={() => onSelectRoom(id)}
+      onClick={() => onSelectVenue(id)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onSelectRoom(id);
+          onSelectVenue(id);
         }
       }}>
       {/* Image on top */}
       <div
-        className="relative w-full h-[250px] bg-gray-100 overflow-hidden"
+        className="relative w-full h-[200px] md:h-[150px] bg-gray-100 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         style={{
           backgroundImage: `url(${mainImage})`,
@@ -90,21 +67,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({
           backgroundPosition: "center",
         }}
         role="img"
-        aria-label={title}>
-        {/* Type Badge (e.g. "family") in the top-left over the image */}
-        <div className="absolute top-2 left-2 z-10">
-          <span
-            className="inline-block px-3 py-1 rounded-full text-xs font-semibold capitalize"
-            style={{
-              backgroundColor: "var(--color-cream, #f5f5f0)",
-              color: "var(--color-sage, #7ebb5e)",
-              border: "1.5px solid var(--color-sage, #7ebb5e)",
-              boxShadow: "0 1px 3px 0 rgba(60,60,60,.08)",
-              letterSpacing: "0.03em",
-            }}>
-            {type}
-          </span>
-        </div>
+        aria-label={name}>
         {hasGallery && (
           <>
             <button
@@ -175,7 +138,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({
 
       {/* Content below image */}
       <div className="relative flex flex-col flex-1 p-5">
-        {/* Selected: checkmark in top-right of white content, slightly overlapping image */}
+        {/* Selected: checkmark in top-right of content */}
         {selected && (
           <div
             className="absolute top-4 right-5 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-md"
@@ -196,95 +159,50 @@ export const RoomCard: React.FC<RoomCardProps> = ({
           </div>
         )}
         <h3
-          className="font-display text-xl font-bold capitalize tracking-tight"
+          className="font-display text-lg font-bold capitalize tracking-tight"
           style={{ color: "var(--color-charcoal)" }}>
-          {title}
+          {name}
         </h3>
-        {description && description !== EMPTY_FIELD && (
-          <p
-            className="mt-1 text-sm opacity-80"
-            style={{ color: "var(--color-charcoal)" }}>
-            {description}
-          </p>
-        )}
         {showCapacity && (
           <p
-            className={cn(
-              "mt-2 text-sm",
-              selected ? "font-medium" : "opacity-80",
-            )}
+            className="mt-2 text-sm"
             style={{ color: "var(--color-charcoal)" }}>
-            Capacity:{" "}
-            <span className="font-semibold">
-              {capacity} {Number(capacity) === 1 ? "guest" : "guests"}
-            </span>
+            {capacity} {Number(capacity) === 1 ? "guest" : "guests"}
           </p>
-        )}
-        {pills.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {pills.map((label, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium border-gray-200/80"
-                style={{
-                  backgroundColor: "var(--color-cream, #f5f5f0)",
-                  color: "var(--color-charcoal)",
-                }}>
-                {label}
-              </span>
-            ))}
-          </div>
         )}
         <div className="mt-auto pt-4 flex items-end justify-between gap-4">
           <div>
             <p
-              className={cn("text-xs", selected ? "opacity-90" : "opacity-70")}
+              className="text-xs opacity-70"
               style={{ color: "var(--color-charcoal)" }}>
               From
             </p>
             <p
-              className={cn(
-                "font-display text-lg font-bold",
-                selected ? "opacity-100" : "opacity-90",
-              )}
+              className="font-display text-lg font-bold"
               style={{ color: "var(--color-charcoal)" }}>
               {pricingFormat(String(price))}
-              <span
-                className={cn(
-                  "text-sm font-normal",
-                  selected ? "opacity-80" : "opacity-70",
-                )}>
-                {" "}
-                /night
-              </span>
+              <span className="text-sm font-normal opacity-70"> /event</span>
             </p>
           </div>
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onSelectRoom(id);
+              onSelectVenue(id);
             }}
             className={cn(
-              "shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold uppercase tracking-wide transition-all",
+              "shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--color-sage) focus-visible:ring-offset-2",
               selected
                 ? "bg-(--color-sage) text-white shadow-sm"
-                : "border border-gray-200/80 hover:bg-gray-100",
+                : "bg-(--color-cream) text-(--color-charcoal) hover:bg-gray-200/80 border border-gray-200/80",
             )}
-            style={
-              selected
-                ? { backgroundColor: "var(--color-sage)" }
-                : {
-                    backgroundColor: "var(--color-cream, #f5f5f0)",
-                    color: "var(--color-charcoal)",
-                  }
-            }
-            aria-label={selected ? "Selected" : "Select room"}>
-            {selected ? "Selected" : "Select"}
+            style={selected ? { borderColor: "(--color-sage)" } : undefined}
+            aria-label={selected ? "Added" : "Add venue"}>
+            {selected ? "Added" : "Add"}
           </button>
         </div>
       </div>
-    </section>
+    </article>
   );
 };

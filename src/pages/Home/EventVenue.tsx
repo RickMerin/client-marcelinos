@@ -1,7 +1,11 @@
-import { useMemo } from "react";
+import { useRef, useLayoutEffect, useMemo } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
-import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import CardItem from "@/components/cards/CardItem";
 import EventVenueSkeleton from "@/components/skeleton/EventVenueSkeleton";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface ApiListResponse<T> {
   success?: boolean;
@@ -24,13 +28,13 @@ function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
   return [];
 }
 
-function venueMainImage(venue: VenueItem): string | null {
-  if (venue.featured_image) return venue.featured_image;
-  const gallery = Array.isArray(venue.gallery) ? venue.gallery : [];
-  return gallery[0] ?? null;
-}
+const REVEAL_DURATION = 0.6;
+const STAGGER_DELAY = 0.12;
+const REVEAL_EASE = "power2.out";
 
 function EventVenues() {
+  const sectionRef = useRef<HTMLElement>(null);
+
   const {
     data: venuesResponse,
     isLoading,
@@ -45,8 +49,51 @@ function EventVenues() {
     [venuesResponse],
   );
 
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    if (!section || isLoading || venueList.length === 0) return;
+
+    const heading = section.querySelector("h2");
+    const cards = section.querySelectorAll(".venue-card-wrap");
+
+    const ctx = gsap.context(() => {
+      if (heading) {
+        gsap.from(heading, {
+          y: 28,
+          opacity: 0,
+          duration: REVEAL_DURATION,
+          ease: REVEAL_EASE,
+          scrollTrigger: {
+            trigger: section,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+        });
+      }
+      if (cards.length) {
+        gsap.from(cards, {
+          y: 40,
+          opacity: 0,
+          duration: REVEAL_DURATION - 0.05,
+          stagger: STAGGER_DELAY,
+          ease: REVEAL_EASE,
+          scrollTrigger: {
+            trigger: section,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+        });
+      }
+    }, section);
+
+    return () => ctx.revert();
+  }, [isLoading, venueList.length]);
+
   return (
-    <section id="venues" className="w-full py-16 bg-gray-50">
+    <section
+      ref={sectionRef}
+      id="venues"
+      className="w-full py-16 bg-gray-50">
       <h2 className="text-4xl font-bold text-center mb-10">
         <span className="text-green-900">EVENT </span>
         <span className="text-yellow-500">VENUES</span>
@@ -61,44 +108,20 @@ function EventVenues() {
       ) : venueList.length === 0 ? (
         <p className="text-center text-gray-500">No venues available.</p>
       ) : (
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-6">
-          {venueList.map((venue) => {
-            const mainImage = venueMainImage(venue);
-            return (
-              <div
-                key={venue.id}
-                className="max-w-sm mx-auto bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 transition-all hover:shadow-lg duration-300">
-                <div className="w-full h-60 bg-gray-100 overflow-hidden">
-                  <img
-                    src={mainImage ?? "/placeholder-room.jpg"}
-                    alt={venue.name ?? "Venue"}
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
-                    {venue.name ?? "Venue"}
-                  </h3>
-                  {venue.description && (
-                    <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                      {venue.description}
-                    </p>
-                  )}
-                  {venue.capacity != null && (
-                    <p className="text-gray-600 text-sm mb-1">
-                      Capacity: {venue.capacity}
-                    </p>
-                  )}
-                  {venue.price != null && (
-                    <p className="text-green-800 font-semibold mt-2">
-                      {pricingFormat(String(venue.price))}
-                    </p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 sm:grid-cols-2 md:grid-cols-3">
+          {venueList.map((venue) => (
+            <div key={venue.id} className="venue-card-wrap">
+              <CardItem
+                id={venue.id}
+                name={venue.name}
+                capacity={venue.capacity}
+                price={venue.price}
+                description={venue.description}
+                featured_image={venue.featured_image}
+                gallery={venue.gallery}
+              />
+            </div>
+          ))}
         </div>
       )}
     </section>
