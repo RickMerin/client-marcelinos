@@ -145,7 +145,7 @@ function RoomCard() {
 
   if (error) {
     return (
-      <section id="rooms" className="bg-gray-50 py-10">
+      <section className="bg-gray-50 py-10">
         <h2 className="text-4xl font-bold text-center mb-10">
           <span className="text-green-900">OUR</span>{" "}
           <span className="text-yellow-500">ROOMS</span>
@@ -156,7 +156,7 @@ function RoomCard() {
   }
 
   return (
-    <section id="rooms" className="bg-gray-50 py-10">
+    <section className="bg-gray-50 py-10">
       <h2 className="text-4xl font-bold text-center mb-10">
         <span className="text-green-900">OUR</span>{" "}
         <span className="text-yellow-500">ROOMS</span>

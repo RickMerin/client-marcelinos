@@ -37,13 +37,13 @@ function Home() {
                      -mt-10 md:-mt-24 
                      bg-green-800 rounded-xl 
                      px-4 py-6 md:px-8 md:py-8 
-                     shadow-lg"
-        >
+                     shadow-lg">
           {/* Background overlay */}
           <div
             className="absolute inset-0 bg-cover bg-center opacity-50 pointer-events-none rounded-xl"
-            style={{ backgroundImage: "url('green-leaves-extended.png')" }}
-          ></div>
+            style={{
+              backgroundImage: "url('green-leaves-extended.png')",
+            }}></div>
 
           <div className="relative z-10">
             <BookingForm />
