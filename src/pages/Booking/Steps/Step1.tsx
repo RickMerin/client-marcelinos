@@ -285,7 +285,8 @@ export function Step1({
               <RoomCard
                 key={room.id}
                 id={room.id}
-                title={room.type || room.name || "Room"}
+                title={room.name || "Room"}
+                type={room.type || "Standard"}
                 description={room.description || amenityNames(room.amenities)}
                 images={roomImages(room)}
                 size={room.size ?? "—"}
