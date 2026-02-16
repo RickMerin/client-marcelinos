@@ -56,6 +56,11 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
     mode: "onChange",
   });
 
+  /* ---------- scroll to top when Step2 is shown ---------- */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+
   /* ---------- sync current values to parent (so Continue stays disabled when gender empty) ---------- */
   useEffect(() => {
     const sub = form.watch((values) => {
