@@ -11,7 +11,9 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import { WritingText } from "@/components/ui/shadcn-io/writing-text";
 import { motion } from "framer-motion";
-import image1 from "@/assets/img/banner-1.webp";
+
+/** LCP image: same URL as preload in index.html so request is discoverable from initial document */
+const LCP_BANNER_SRC = "/img/banner-1.webp";
 
 export function BannerCarousel() {
   const [api, setApi] = useState<CarouselApi | null>(null);
@@ -53,10 +55,10 @@ export function BannerCarousel() {
               <Card className="w-full px-0 py-0 cursor-grab rounded-none border-0">
                 <CardContent className="relative p-0 overflow-hidden">
                   <img
-                    src={image1}
+                    src={LCP_BANNER_SRC}
                     alt="Banner 1"
                     loading="eager"
-                    {...({ fetchpriority: 'high' } as any)}
+                    fetchPriority="high"
                     className="w-full h-[88vh] object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-black/60 z-10" />
