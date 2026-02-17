@@ -6,6 +6,7 @@ import {
   getFromLocalStorage,
 } from "@/lib/storage/localStorage";
 
+const STORAGE_EXPIRATION_MS =  0; 
 const STORAGE_KEY = "marcelino_modal_accepted";
 
 function getAlreadyAccepted(): boolean {
@@ -17,7 +18,7 @@ export default function WelcomeModal() {
   const [open, setOpen] = useState(() => !getAlreadyAccepted());
 
   const handleAccept = () => {
-    saveToLocalStorage(STORAGE_KEY, "true");
+    saveToLocalStorage(STORAGE_KEY, "true", STORAGE_EXPIRATION_MS);
     setOpen(false);
   };
 

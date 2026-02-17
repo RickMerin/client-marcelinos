@@ -6,9 +6,9 @@ import { formatDate } from "@/lib/formatters/formatDate";
 import {
   saveToLocalStorage,
   getFromLocalStorage,
+  BOOKING_EXPIRATION,
 } from "@/lib/storage/localStorage";
 import { calculateTotalPrice, calculateGrandTotalPrice } from "@/lib/math/calculate";
-
 /**
  * Custom hook for managing booking form state and persistence
  */
@@ -38,7 +38,7 @@ export const useBookingForm = () => {
 
   // Keep localStorage synced with formData
   useEffect(() => {
-    saveToLocalStorage("reservationDetails", formData);
+    saveToLocalStorage("reservationDetails", formData, BOOKING_EXPIRATION);
   }, [formData]);
 
   // Autoload from localStorage when mounted (in case user refreshes)
@@ -49,11 +49,10 @@ export const useBookingForm = () => {
 
   // Redirect if no reservation date
   useEffect(() => {
-    if (!reservationDate?.check_in) {
+    if (!reservationDate || reservationDate.days === 0) {
       navigate("/");
     }
   }, [reservationDate, navigate]);
-
   // Keep grandTotalPrice in sync when days or rooms/venues change
   useEffect(() => {
     setFormData((prev) => ({

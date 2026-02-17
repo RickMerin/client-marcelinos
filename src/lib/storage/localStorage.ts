@@ -4,8 +4,25 @@
  * @param {any} value - The value to be stored in local storage.
  * @returns None
  */
-export const saveToLocalStorage = (key: string, value: any) => {
-  localStorage.setItem(key, JSON.stringify(value));
+
+// default and recommended expiration for booking-related data (e.g. reservation details) 
+// 30 minutes after last update
+
+export const BOOKING_EXPIRATION = 30 * 60 * 1000;
+
+export const saveToLocalStorage = (
+  key: string,
+  value: any,
+  expirationInMs?: number
+): void => {
+  const item = {
+    value,
+    expiry: expirationInMs
+      ? Date.now() + expirationInMs
+      : null,
+  };
+
+  localStorage.setItem(key, JSON.stringify(item));
 };
 
 /**
@@ -14,9 +31,42 @@ export const saveToLocalStorage = (key: string, value: any) => {
  * @returns The value associated with the key if found, otherwise null.
  */
 export const getFromLocalStorage = (key: string) => {
-  const item = localStorage.getItem(key);
-  return item ? JSON.parse(item) : null;
+
+  const itemStr = localStorage.getItem(key);
+
+  if (!itemStr) return null;
+
+  try {
+
+    const item = JSON.parse(itemStr);
+
+    if (!item.expiry) {
+
+      return item.value;
+
+    }
+
+    if (Date.now() > item.expiry) {
+
+      localStorage.removeItem(key);
+
+      return null;
+
+    }
+
+    return item.value;
+
+  } catch {
+
+    localStorage.removeItem(key);
+
+    return null;
+
+  }
+
 };
+
+
 
 /** Keys used for booking flow */
 const BOOKING_KEYS = [

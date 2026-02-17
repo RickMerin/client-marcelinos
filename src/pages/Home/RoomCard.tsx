@@ -145,7 +145,7 @@ function RoomCard() {
 
   if (error) {
     return (
-      <section id="rooms" className="bg-gray-50 py-10">
+      <section className="bg-gray-50 py-10">
         <h2 className="text-4xl font-bold text-center mb-10">
           <span className="text-green-900">OUR</span>{" "}
           <span className="text-yellow-500">ROOMS</span>
@@ -156,7 +156,7 @@ function RoomCard() {
   }
 
   return (
-    <section id="rooms" className="bg-gray-50 py-10">
+    <section className="bg-gray-50 py-10">
       <h2 className="text-4xl font-bold text-center mb-10">
         <span className="text-green-900">OUR</span>{" "}
         <span className="text-yellow-500">ROOMS</span>
@@ -171,7 +171,7 @@ function RoomCard() {
           className="relative w-[90%] max-w-[1200px] mx-auto pb-12"
           ref={containerRef}>
           {/* Fixed min-height reserves space so FLIP's absolute positioning doesn't collapse layout */}
-          <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 min-h-[420px]">
+          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-h-[420px]">
             {visibleRooms.map(
               (room: Record<string, unknown> & { _index?: number }) => (
                 <div
@@ -182,6 +182,7 @@ function RoomCard() {
                     id={room.id as number}
                     type={room.type as string}
                     name={room.name as string}
+                    description={room.description as string}
                     capacity={room.capacity as number}
                     price={room.price as number}
                     amenities={room.amenities as unknown[]}
