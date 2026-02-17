@@ -171,7 +171,7 @@ function RoomCard() {
           className="relative w-[90%] max-w-[1200px] mx-auto pb-12"
           ref={containerRef}>
           {/* Fixed min-height reserves space so FLIP's absolute positioning doesn't collapse layout */}
-          <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 min-h-[420px]">
+          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-h-[420px]">
             {visibleRooms.map(
               (room: Record<string, unknown> & { _index?: number }) => (
                 <div

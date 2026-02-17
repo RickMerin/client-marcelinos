@@ -75,10 +75,9 @@ function CardItem(props: CardItemProps) {
 
   return (
     <motion.div
-      className="group relative mx-auto max-w-sm overflow-hidden rounded-2xl border border-gray-100/90 bg-white shadow-lg shadow-gray-900/5 transition-shadow duration-300 hover:border-amber-200/60 hover:shadow-xl hover:shadow-green-900/10"
+      className="group relative w-full overflow-hidden rounded-2xl border border-gray-100/90 bg-white shadow-lg shadow-gray-900/5 transition-shadow duration-300 hover:border-amber-200/60 hover:shadow-xl hover:shadow-green-900/10"
       whileHover={{ y: -6 }}
-      transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-    >
+      transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}>
       {/* Accent bar */}
       <div className="absolute left-0 right-0 top-0 z-10 h-1 bg-linear-to-r from-green-800 via-[#F4C95D] to-amber-400" />
 
@@ -133,8 +132,7 @@ function CardItem(props: CardItemProps) {
                     {isLong && (
                       <button
                         onClick={() => setExpanded(true)}
-                        className="ml-1 font-medium text-[#0D542B] hover:text-[#F0B100] transition-colors duration-200"
-                      >
+                        className="ml-1 font-medium text-[#0D542B] hover:text-[#F0B100] transition-colors duration-200">
                         See more
                       </button>
                     )}
@@ -176,16 +174,11 @@ function CardItem(props: CardItemProps) {
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-            >
-              <h2 className="text-white text-xl font-semibold mb-4">
-                {title}
-              </h2>
+              transition={{ duration: 0.4, ease: "easeInOut" }}>
+              <h2 className="text-white text-xl font-semibold mb-4">{title}</h2>
 
               {capacity != null && (
-                <p className="text-white text-sm mb-3">
-                  Capacity: {capacity}
-                </p>
+                <p className="text-white text-sm mb-3">Capacity: {capacity}</p>
               )}
 
               {/* Professional Scroll Area */}
@@ -201,8 +194,7 @@ function CardItem(props: CardItemProps) {
 
               <button
                 onClick={() => setExpanded(false)}
-                className="mt-6 self-end text-sm font-medium text-[#F0B100] hover:underline"
-              >
+                className="mt-6 self-end text-sm font-medium text-[#F0B100] hover:underline">
                 Close
               </button>
             </motion.div>
