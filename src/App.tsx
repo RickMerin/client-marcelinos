@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { Spinner } from "./components/ui/spinner";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { useRealtimeGlobalSubscriber } from "@/hooks/useRealtimeGlobalSubscriber";
 
 // Layout component to wrap pages with consistent structure
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -19,6 +20,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
+  useRealtimeGlobalSubscriber();
+
   return (
     <ErrorBoundary>
       <Router>

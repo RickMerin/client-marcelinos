@@ -8,14 +8,14 @@ function About() {
   return (
     <div
       id="about"
-      className="text-center md:text-left p-10 grid md:grid-cols-[calc(100%-60%)_auto] grid-cols-1 gap-6">
+      className="text-center md:text-left py-10 grid md:grid-cols-[calc(100%-60%)_auto] grid-cols-1 gap-6">
       {/* Logo (left side on desktop, top on mobile) */}
       <div className="flex justify-center items-center w-full">
         <img
           src={logo}
           alt="Marcelino's Logo"
           loading="lazy"
-          className="w-3/4 sm:w-2/3 md:w-[70%] lg:w-[60%] h-auto"
+          className="w-1/2 md:w-[50%] lg:w-[50%] h-auto"
         />
       </div>
 
@@ -41,7 +41,7 @@ function About() {
           {/* Cards Section */}
           <div className="flex flex-wrap justify-center md:justify-start gap-5 mt-8 w-full">
             {/* Card 1 */}
-            <Card className="flex-1 min-w-55 max-w-75 text-center bg-neutral-200 text-neutral-900 shadow-md shadow-gray-500/40 rounded-2xl transition-transform hover:scale-105 hover:bg-green-800 hover:text-white">
+            <Card className="flex-1 min-w-60 max-w-75 text-center bg-neutral-200 text-neutral-900 shadow-md shadow-gray-500/40 rounded-2xl transition-transform hover:scale-105 hover:bg-green-800 hover:text-white">
               <CardHeader>
                 <div className="flex justify-center items-center mb-2">
                   <img
@@ -63,7 +63,7 @@ function About() {
             </Card>
 
             {/* Card 2 */}
-            <Card className="flex-1 min-w-55 max-w-75 text-center bg-neutral-200 text-neutral-900 shadow-md shadow-gray-500/40 rounded-2xl transition-transform hover:scale-105 hover:bg-green-800 hover:text-white">
+            <Card className="flex-1 min-w-60 max-w-75 text-center bg-neutral-200 text-neutral-900 shadow-md shadow-gray-500/40 rounded-2xl transition-transform hover:scale-105 hover:bg-green-800 hover:text-white">
               <CardHeader>
                 <div className="flex justify-center items-center mb-2">
                   <img
@@ -85,7 +85,7 @@ function About() {
             </Card>
 
             {/* Card 3 */}
-            <Card className="flex-1 min-w-55 max-w-75 text-center bg-neutral-200 text-neutral-900 shadow-md shadow-gray-500/40 rounded-2xl transition-transform hover:scale-105 hover:bg-green-800 hover:text-white">
+            <Card className="flex-1 min-w-60 max-w-75 text-center bg-neutral-200 text-neutral-900 shadow-md shadow-gray-500/40 rounded-2xl transition-transform hover:scale-105 hover:bg-green-800 hover:text-white">
               <CardHeader>
                 <div className="flex justify-center items-center mb-2">
                   <img

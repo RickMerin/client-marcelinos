@@ -19,7 +19,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-// import { Calendar } from "@/components/ui/calendar";
 import { CalendarWithDisabledReasons as Calendar } from "@/components/calendar/CalendarWithDisabledReasons"
 
 import { CalendarDays, Minus, Plus } from "lucide-react";
@@ -259,10 +258,10 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                   inputField.onChange(date);
                                   setOpen(false);
                                 }}
-                                 disabled={[
-                                    { before: new Date(new Date().setHours(0, 0, 0, 0)) },
-                                    ...blockedDates,
-                                  ]}
+                                disabled={[
+                                  { before: new Date(new Date().setHours(0, 0, 0, 0)) },
+                                  ...blockedDates,
+                                ]}
                                 blockedReasons={blockedReasons}
 
                               />

@@ -48,12 +48,21 @@ export function Step4({
 
   return (
     <div className="space-y-8">
-      <h2 className="text-3xl font-bold text-center">Payment</h2>
+      <h2
+        className="font-display text-3xl font-bold text-center"
+        style={{ color: "var(--color-charcoal)" }}>
+        Payment
+      </h2>
 
-      {/* Awareness */}
       <div className="text-center space-y-2">
-        <h3 className="text-lg font-semibold">Online Payment Awareness</h3>
-        <p className="text-gray-600 max-w-2xl mx-auto text-sm">
+        <h3
+          className="font-display text-lg font-semibold"
+          style={{ color: "var(--color-charcoal)" }}>
+          Online Payment Awareness
+        </h3>
+        <p
+          className="max-w-2xl mx-auto text-sm opacity-80"
+          style={{ color: "var(--color-charcoal)" }}>
           Guests are encouraged to pay online through secure methods such as
           GCash, PayMaya, PayPal, or bank transfer for a fast and convenient
           transaction. Please double-check all payment details before sending,
@@ -69,20 +78,26 @@ export function Step4({
           className={`cursor-pointer border rounded-md p-4 flex items-start gap-3 shadow-sm transition relative
             ${
               paymentMethod === PAYMENT_METHODS.CASH
-                ? "bg-green-100 border-green-400 ring-2 ring-green-400"
-                : "bg-gray-50 hover:bg-gray-100"
-            }`}
-        >
+                ? "ring-2 ring-[var(--color-sage)] bg-[var(--color-sage-muted)] border-[var(--color-sage)]"
+                : "bg-[var(--color-cream)] border-[var(--color-sage-muted)] hover:bg-[var(--color-cream-dark)]"
+            }`}>
           <input
             type="checkbox"
             checked={paymentMethod === PAYMENT_METHODS.CASH}
             onChange={() => handleSelect(PAYMENT_METHODS.CASH)}
-            className="absolute top-3 right-3 w-5 h-5 accent-amber-500 cursor-pointer"
+            className="absolute top-3 right-3 w-5 h-5 cursor-pointer"
+            style={{ accentColor: "var(--color-sage)" }}
           />
           <img src={cash} alt="Cash" loading="lazy" className="w-13 h-13" />
           <div>
-            <h4 className="font-semibold text-gray-800">Pay in Cash</h4>
-            <p className="text-sm text-gray-600">
+            <h4
+              className="font-semibold"
+              style={{ color: "var(--color-charcoal)" }}>
+              Pay in Cash
+            </h4>
+            <p
+              className="text-sm opacity-80"
+              style={{ color: "var(--color-charcoal)" }}>
               You can also pay directly at the resort upon check-in. Please
               present your booking confirmation at the front desk.
             </p>
@@ -92,8 +107,7 @@ export function Step4({
         {/* Pay Online (Soon) */}
         <label
           className="cursor-not-allowed border rounded-md p-4 bg-gray-100 flex items-start gap-3 shadow-sm opacity-60 relative"
-          aria-disabled="true"
-        >
+          aria-disabled="true">
           <input
             type="checkbox"
             disabled
@@ -106,13 +120,22 @@ export function Step4({
             className="w-15 h-15 grayscale"
           />
           <div>
-            <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+            <h4
+              className="font-semibold flex items-center gap-2"
+              style={{ color: "var(--color-charcoal)" }}>
               Pay Online
-              <span className="ml-2 text-xs bg-yellow-300/80 text-gray-800 px-2 py-0.5 rounded">
+              <span
+                className="ml-2 text-xs px-2 py-0.5 rounded opacity-80"
+                style={{
+                  backgroundColor: "var(--color-sage-muted)",
+                  color: "var(--color-charcoal)",
+                }}>
                 Soon
               </span>
             </h4>
-            <p className="text-sm text-gray-600">
+            <p
+              className="text-sm opacity-80"
+              style={{ color: "var(--color-charcoal)" }}>
               Guests are encouraged to pay online through secure methods such as
               GCash, PayMaya, PayPal, or bank transfer for a fast and convenient
               transaction.
@@ -125,8 +148,7 @@ export function Step4({
       <div className="flex justify-between items-center mt-8">
         <button
           onClick={onBack}
-          className="text-sm underline text-gray-600 hover:text-gray-800"
-        >
+          className="text-sm underline text-gray-600 hover:text-gray-800">
           ← Back
         </button>
 
@@ -137,8 +159,7 @@ export function Step4({
             paymentMethod
               ? "bg-amber-400 hover:bg-amber-500 text-black"
               : "bg-gray-300 text-gray-600 cursor-not-allowed"
-          }`}
-        >
+          }`}>
           Proceed to Payment
         </Button>
       </div>
@@ -147,8 +168,7 @@ export function Step4({
       <Modal
         open={isProceedModalOpen}
         onClose={isSubmitting ? () => {} : () => setIsProceedModalOpen(false)}
-        showCloseButton={!isSubmitting}
-      >
+        showCloseButton={!isSubmitting}>
         <PaymentConfirmContent
           paymentMethod={paymentMethod}
           onCancel={() => !isSubmitting && setIsProceedModalOpen(false)}

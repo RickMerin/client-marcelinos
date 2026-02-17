@@ -1,8 +1,10 @@
+import { useLayoutEffect } from "react";
 import { BannerCarousel } from "@/components/carousels/BannerCarousel";
 import BookingForm from "@/components/forms/BookingForm";
+import { SectionReveal } from "@/components/SectionReveal";
 import About from "./About";
 import OurGallery from "@/pages/Home/OurGallery";
-import ClientReviews from "./ClientReviews";
+import ClientReviews from "@/pages/Testimonial/ReviewSection";
 import EventVenues from "./EventVenue";
 import RoomCard from "@/pages/Home/RoomCard";
 import FAQ from "./ContactForm";
@@ -10,43 +12,95 @@ import LocationMap from "@/pages/Home/LocationMap";
 import Services from "./Services";
 import WelcomeModal from "@/components/modals/WelcomeModal";
 
-
-
 function Home() {
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash;
+    if (!hash) return;
+    const id = hash.slice(1);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
   return (
     <>
       <WelcomeModal />
+
+      {/* Hero Section */}
       <section className="relative w-full">
         <BannerCarousel />
-        <div className="spacer h-30 md:h-0"></div>
-        <div className="absolute pb-3 pt-5 text-white inset-x-2 transform bg-green-900 -translate-y-1/2 mx-auto max-w-5xl rounded-xl">
 
-          <div
+        {/* Booking Form Container */}
+        <div
           id="booking-section"
-            className="absolute pb-3 pt-5 text-white inset-x-2 transform bg-green-900 -translate-y-1/2 mx-auto max-w-5xl rounded-xl"
-          >
+          className="relative mx-4 md:mx-auto md:max-w-5xl text-white
+                     -mt-10 md:-mt-24 
+                     bg-green-800 rounded-xl 
+                     px-4 py-6 md:px-8 md:py-8 
+                     shadow-lg">
+          {/* Background overlay */}
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-50 pointer-events-none"
+            className="absolute inset-0 bg-cover bg-center opacity-50 pointer-events-none rounded-xl"
             style={{
               backgroundImage: "url('green-leaves-extended.png')",
             }}></div>
+
+          <div className="relative z-10">
             <BookingForm />
           </div>
-
         </div>
-        <div className="spacer h-50 md:h-25"></div>
       </section>
-      <About />
-      <RoomCard />
-      <EventVenues />
-      <Services />
-      <OurGallery />
-      <ClientReviews />
-      <FAQ />
-      <LocationMap />
+
+      {/* Content Sections — Framer Motion runs only when section (or fragment) is in view, once, for scroll perf */}
+      <section id="about" className="px-4 md:px-0">
+        <SectionReveal>
+          <About />
+        </SectionReveal>
+      </section>
+
+      <section id="rooms" className="px-4 md:px-0">
+        <SectionReveal>
+          <RoomCard />
+        </SectionReveal>
+      </section>
+
+      <section id="venues" className="px-4 md:px-0">
+        <SectionReveal>
+          <EventVenues />
+        </SectionReveal>
+      </section>
+
+      <section id="services" className="px-4 md:px-0">
+        <SectionReveal>
+          <Services />
+        </SectionReveal>
+      </section>
+
+      <section id="gallery" className="px-4 md:px-0">
+        <SectionReveal>
+          <OurGallery />
+        </SectionReveal>
+      </section>
+
+      <section id="reviews" className="px-4 md:px-0">
+        <SectionReveal>
+          <ClientReviews />
+        </SectionReveal>
+      </section>
+
+      <section id="faq" className="px-4 md:px-0">
+        <SectionReveal>
+          <FAQ />
+        </SectionReveal>
+      </section>
+
+      <section id="location" className="px-4 md:px-0">
+        <SectionReveal>
+          <LocationMap />
+        </SectionReveal>
+      </section>
     </>
   );
-  
 }
 
 export default Home;
