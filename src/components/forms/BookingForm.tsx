@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { FormWrapper } from "./FormWrapper";
 import { useNavigate } from "react-router-dom";
+import { BOOKING_EXPIRATION, saveToLocalStorage} from "@/lib/storage/localStorage";
 
 const bookingSchema = z.object({
   days: z.coerce.number().min(1, "Invalid number of days"),
@@ -41,10 +42,17 @@ export default function BookingForm() {
     },
   ];
 
-  const handleSubmit = (values: z.infer<typeof bookingSchema>) => {
-    localStorage.setItem("reservationDate", JSON.stringify(values));
-    navigate("/create-booking");
-  };
+const handleSubmit = (values: z.infer<typeof bookingSchema>) => {
+
+  saveToLocalStorage(
+    "reservationDate",
+    values,
+    BOOKING_EXPIRATION
+  );
+
+  navigate("/create-booking");
+
+};
 
   return (
     <div>
