@@ -71,5 +71,19 @@
 #reviews {
   scroll-margin-top: 75px;
 }
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+}
 
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
 
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.6);
+}

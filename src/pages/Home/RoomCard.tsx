@@ -182,6 +182,7 @@ function RoomCard() {
                     id={room.id as number}
                     type={room.type as string}
                     name={room.name as string}
+                    description={room.description as string}
                     capacity={room.capacity as number}
                     price={room.price as number}
                     amenities={room.amenities as unknown[]}

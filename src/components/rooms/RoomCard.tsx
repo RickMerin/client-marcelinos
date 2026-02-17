@@ -41,6 +41,10 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
         />
         <p className="text-sm text-muted-foreground">
           ₱{room.price.toLocaleString()}
+          
+        </p>
+                <p className="text-sm text-muted-foreground line-clamp-2">
+          {room.description}
         </p>
       </CardContent>
     </Card>
