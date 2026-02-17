@@ -4,7 +4,6 @@ import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { BookingReceipt, BookingReferenceResponse } from "@/types/booking.types";
 import { Step5 } from "./Steps/Step5";
 import { ProgressIndicator } from "./ProgressIndicator";
-import { STEPS } from "./constants/steps.config";
 import { PageLoader } from "@/components/ui/loader";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
 import { useRealtimeEvent } from "@/hooks/useRealtimeEvent";
@@ -72,7 +71,7 @@ export function BookingReceiptPage({ referenceNumber }: BookingReceiptPageProps)
       <div className="w-full max-w-6xl mx-auto">
         <ProgressIndicator
           currentStep={RECEIPT_STEP}
-          totalSteps={STEPS.length}
+          
         />
         <div className="mt-6 mb-8">
           <Step5 receiptData={receipt} qrCodeUrl={qrCodeUrl} />

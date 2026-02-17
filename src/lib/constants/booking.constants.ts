@@ -17,6 +17,8 @@ export const defaultFormData: FormData = {
   email: "",
   address: "",
 
+
+  region: "",
   street: "",
   city: "",
   state: "",
