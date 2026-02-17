@@ -6,12 +6,11 @@ import { STEPS } from "./constants/steps.config";
 
 interface ProgressIndicatorProps {
   currentStep: number;
-  totalSteps: number;
+  
 }
 
 export function ProgressIndicator({
   currentStep,
-  totalSteps,
 }: ProgressIndicatorProps) {
   const steps = STEPS;
 

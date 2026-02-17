@@ -80,7 +80,7 @@ export function MultiStepForm() {
     <section className="container max-w-6xl mx-auto px-4 py-8">
       <ProgressIndicator
         currentStep={formData.current_step}
-        totalSteps={STEPS.length}
+        
       />
 
       <div className="mt-8 mb-8 min-h-87.5">
