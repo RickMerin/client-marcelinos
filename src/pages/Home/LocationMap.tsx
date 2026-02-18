@@ -16,7 +16,7 @@ export default function InteractiveMap() {
   const position: [number, number] = [10.374, 124.749];
 
   return (
-    <div className="w-full h-125 overflow-hidden shadow-lg">
+    <div className="w-full h-[70vh] shadow-lg">
       <MapContainer
         center={position}
         zoom={15}
