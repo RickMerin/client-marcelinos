@@ -11,7 +11,7 @@ function FAQ() {
   const faqs = [
     {
       question: "What payment methods do you accept?",
-      answer: "We accept GCash, PayPal, and cash payments.",
+      answer: "Currently, we only accept cash payments. Online and digital payment options are not available at this time.",
     },
     {
       question: "What is your check-in and check-out time?",
