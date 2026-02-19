@@ -26,41 +26,48 @@ const ImageCarousel: React.FC = () => {
   const images = galleriesResponse?.data?.map((item) => item.image) || [];
 
   const galleryHeading = (
-    <h2 className="font-display text-3xl font-bold tracking-tight text-center mb-10">
-      <span className="green">OUR</span>{" "}
-      <span className="yellow">GALLERY</span>
+    <h2
+      id="gallery-heading"
+      className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
+      <span className="green">OUR</span> <span className="yellow">GALLERY</span>
     </h2>
   );
 
   if (isLoading) {
     return (
-      <section id="gallery" className="py-16 bg-white text-center">
+      <section className="w-full text-center" aria-labelledby="gallery-heading">
         {galleryHeading}
-        <p className="text-sm opacity-80">Loading gallery...</p>
+        <p className="text-sm text-(--color-charcoal) opacity-80">
+          Loading gallery...
+        </p>
       </section>
     );
   }
 
   if (error) {
     return (
-      <section id="gallery" className="py-16 bg-white text-center">
+      <section className="w-full text-center" aria-labelledby="gallery-heading">
         {galleryHeading}
-        <p className="text-sm text-red-500">Failed to load gallery.</p>
+        <p className="text-sm text-red-600 font-medium">
+          Failed to load gallery.
+        </p>
       </section>
     );
   }
 
   if (images.length === 0) {
     return (
-      <section id="gallery" className="py-16 bg-white text-center">
+      <section className="w-full text-center" aria-labelledby="gallery-heading">
         {galleryHeading}
-        <p className="text-sm text-center text-gray-500 opacity-80">No gallery available.</p>
+        <p className="text-sm text-center text-(--color-charcoal) opacity-80">
+          No gallery available.
+        </p>
       </section>
     );
   }
 
   return (
-    <section id="gallery" className="py-16 bg-white text-center">
+    <section className="w-full text-center" aria-labelledby="gallery-heading">
       {galleryHeading}
 
       <Swiper

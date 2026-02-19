@@ -52,50 +52,65 @@ function Home() {
         </div>
       </section>
 
-      {/* Content Sections — Framer Motion runs only when section (or fragment) is in view, once, for scroll perf */}
-      <section id="about" className="px-4 md:px-0">
+      {/* Content Sections — premium spacing, alternating backgrounds, scroll reveal */}
+      <section
+        id="about"
+        className="landing-section px-4 md:px-6 max-w-7xl mx-auto">
         <SectionReveal>
           <About />
         </SectionReveal>
       </section>
 
-      <section id="rooms" className="px-4 md:px-0">
+      <section
+        id="rooms"
+        className="landing-section landing-section-alt px-4 md:px-6">
         <SectionReveal>
           <RoomCard />
         </SectionReveal>
       </section>
 
-      <section id="venues" className="px-4 md:px-0">
+      <section id="venues" className="landing-section mx-auto bg-white">
         <SectionReveal>
           <EventVenues />
         </SectionReveal>
       </section>
 
-      <section id="services" className="px-4 md:px-0">
+      <section
+        id="services"
+        className="landing-section landing-section-alt px-4 md:px-6">
         <SectionReveal>
           <Services />
         </SectionReveal>
       </section>
 
-      <section id="gallery" className="px-4 md:px-0">
+      <section
+        id="gallery"
+        className="landing-section px-4 md:px-6 max-w-7xl mx-auto bg-white">
         <SectionReveal>
           <OurGallery />
         </SectionReveal>
       </section>
 
-      <section id="reviews" className="px-4 md:px-0">
+      <section
+        id="reviews"
+        className="landing-section landing-section-alt px-4 md:px-6">
         <SectionReveal>
           <ClientReviews />
         </SectionReveal>
       </section>
 
-      <section id="faq" className="px-4 md:px-0">
+      <section
+        id="faq"
+        className="landing-section px-4 md:px-6 max-w-7xl mx-auto bg-white">
         <SectionReveal>
           <FAQ />
         </SectionReveal>
       </section>
 
-      <section id="location" className="px-4 md:px-0">
+      <section
+        id="location"
+        className="landing-section landing-section-alt px-4 md:px-6 mx-auto"
+        aria-labelledby="location-heading">
         <SectionReveal>
           <LocationMap />
         </SectionReveal>

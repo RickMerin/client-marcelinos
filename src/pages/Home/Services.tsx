@@ -31,27 +31,30 @@ function Services() {
   ];
 
   return (
-    <section id="services" className="w-full py-16 bg-gray-50">
-      {/* Section Title - matches Booking typography */}
-      <h2 className="font-display text-3xl font-bold tracking-tight text-center mb-12">
+    <section
+      id="services"
+      className="w-full"
+      aria-labelledby="services-heading">
+      <h2
+        id="services-heading"
+        className="font-display text-3xl font-bold tracking-tight text-center mb-12 text-(--color-charcoal)">
         <span className="green">OUR </span>
         <span className="yellow">SERVICES</span>
       </h2>
 
-      {/* 🟢 Services Cards Container */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
         {services.map((service, index) => (
           <Card
             key={index}
-            className="group w-full h-56 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer bg-white hover:bg-green-800 flex flex-col items-center justify-center text-center">
+            className="landing-premium-card landing-card-interactive group w-full min-h-[220px] rounded-2xl text-center cursor-pointer flex flex-col items-center justify-center transition-all duration-300 hover:scale-[1.03] hover:bg-(--color-cream) hover:text-green-900 hover:border-amber-200/60 focus-within:ring-2 focus-within:ring-(--color-sage) focus-within:ring-offset-2">
             <CardContent className="flex flex-col items-center justify-center text-center p-6">
-              <div className="text-yellow-400 mb-3 group-hover:scale-110 transition-transform duration-300">
+              <div className="text-white/95 mb-3 group-hover:scale-110 transition-transform duration-300">
                 {service.icon}
               </div>
-              <h3 className="font-display text-lg font-semibold mb-1 text-green-800 group-hover:text-white">
+              <h3 className="font-display text-lg font-semibold mb-2 text-inherit">
                 {service.title}
               </h3>
-              <p className="text-sm opacity-80 text-gray-600 group-hover:text-gray-200 transition-colors duration-300">
+              <p className="text-sm leading-relaxed opacity-90 text-inherit">
                 {service.description}
               </p>
             </CardContent>

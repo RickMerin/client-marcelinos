@@ -145,19 +145,25 @@ function RoomCard() {
 
   if (error) {
     return (
-      <section className="bg-gray-50 py-10">
-        <h2 className="font-display text-3xl font-bold tracking-tight text-center mb-10">
+      <section className="w-full" aria-labelledby="rooms-heading">
+        <h2
+          id="rooms-heading"
+          className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
           <span className="text-green-900">OUR</span>{" "}
           <span className="text-yellow-500">ROOMS</span>
         </h2>
-        <p className="text-sm text-red-500 text-center">Error loading rooms</p>
+        <p className="text-sm text-red-600 text-center font-medium">
+          Error loading rooms.
+        </p>
       </section>
     );
   }
 
   return (
-    <section className="bg-gray-50 py-10">
-      <h2 className="font-display text-3xl font-bold tracking-tight text-center mb-10">
+    <section className="w-full" aria-labelledby="rooms-heading">
+      <h2
+        id="rooms-heading"
+        className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
         <span className="text-green-900">OUR</span>{" "}
         <span className="text-yellow-500">ROOMS</span>
       </h2>
@@ -165,7 +171,9 @@ function RoomCard() {
       {isLoading ? (
         <CarouselSkeleton />
       ) : roomList.length === 0 ? (
-        <p className="text-sm text-center text-gray-500 opacity-80">No rooms available.</p>
+        <p className="text-sm text-center text-(--color-charcoal) opacity-80">
+          No rooms available.
+        </p>
       ) : (
         <div
           className="relative w-[90%] max-w-[1200px] mx-auto pb-12"
@@ -199,14 +207,14 @@ function RoomCard() {
               <button
                 type="button"
                 onClick={() => go(-1)}
-                className="absolute left-0 lg:-left-16 top-1/2 -translate-y-1/2 -translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center text-green-900 hover:bg-gray-50 transition-colors"
+                className="absolute left-0 lg:-left-16 top-1/2 -translate-y-1/2 -translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-(--color-sage-muted) flex items-center justify-center text-green-800 hover:bg-sage-muted hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                 aria-label="Previous rooms">
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 type="button"
                 onClick={() => go(1)}
-                className="absolute right-0 lg:-right-16 top-1/2 -translate-y-1/2 translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center text-green-900 hover:bg-gray-50 transition-colors"
+                className="absolute right-0 lg:-right-16 top-1/2 -translate-y-1/2 translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-(--color-sage-muted) flex items-center justify-center text-green-800 hover:bg-sage-muted hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                 aria-label="Next rooms">
                 <ChevronRight className="w-5 h-5" />
               </button>

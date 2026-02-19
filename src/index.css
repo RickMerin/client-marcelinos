@@ -148,6 +148,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
+    line-height: 1.6;
   }
 }
 
@@ -210,7 +211,7 @@
 .about-premium-card {
   position: relative;
   overflow: hidden;
-  background: #1f5d1e; /* theme green */
+  background: #016730; /* theme green */
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow:
@@ -248,7 +249,99 @@
     0 0 0 1px rgba(125, 155, 105, 0.2);
 }
 
-.about-premium-card > * {
+.about-premium-card > *,
+.landing-premium-card > * {
   position: relative;
   z-index: 1;
+}
+
+/* Services (and any other section): same green bg + shine + hover as About cards */
+.landing-premium-card {
+  position: relative;
+  overflow: hidden;
+  background: #1f5d1e;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.15),
+    0 10px 20px -5px rgba(0, 0, 0, 0.12);
+}
+.landing-premium-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.2) 45%,
+    rgba(244, 201, 93, 0.35) 50%,
+    rgba(255, 255, 255, 0.2) 55%,
+    transparent 65%,
+    transparent 100%
+  );
+  transform: translateX(-100%) skewX(-12deg);
+  animation: about-card-shine 4s ease-in-out infinite;
+  pointer-events: none;
+}
+.landing-premium-card:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.08),
+    0 20px 40px -10px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(125, 155, 105, 0.2);
+}
+
+/* ========== Landing page: premium sections, readability, interactivity ========== */
+.landing-section {
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+}
+@media (min-width: 768px) {
+  .landing-section {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+.landing-section-alt {
+  background-color: var(--color-cream);
+}
+.landing-section-title {
+  font-family: var(--font-display);
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--color-charcoal);
+}
+/* Readability: body text on landing */
+.landing-section p,
+.landing-section li {
+  line-height: 1.65;
+  /* color: var(--color-charcoal); */
+}
+/* Focus visible for keyboard and a11y (theme green) */
+.landing-section button:focus-visible,
+.landing-section a:focus-visible,
+.landing-section input:focus-visible,
+.landing-section select:focus-visible,
+.landing-section textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(31, 93, 30, 0.4);
+}
+.landing-section button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(31, 93, 30, 0.5);
+}
+/* Interactive cards: hover lift and theme border */
+.landing-card-interactive {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.landing-card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(31, 93, 30, 0.15);
+}
+.landing-card-interactive:focus-within {
+  box-shadow: 0 0 0 2px var(--color-sage-muted);
 }
