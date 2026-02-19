@@ -49,10 +49,10 @@ function FAQ() {
       <div className="w-full">
         <h2
           id="faq-heading"
-          className="text-3xl font-bold mb-3 text-center md:text-center">
-          <span className="green header">FREQUENTLY</span>{" "}
-          <span className="yellow header">ASKED</span>{" "}
-          <span className="green header">QUESTIONS</span>
+          className="font-display text-3xl font-bold tracking-tight mb-3 text-center md:text-center">
+          <span className="green">FREQUENTLY</span>{" "}
+          <span className="yellow">ASKED</span>{" "}
+          <span className="green">QUESTIONS</span>
         </h2>
         <dl className="space-y-4">
           {faqs.map((faq, index) => (
@@ -67,7 +67,7 @@ function FAQ() {
                   onClick={() => handleToggle(index)}
                   aria-expanded={activeIndex === index}
                   aria-controls={`faq-answer-${index}`}
-                  className="w-full flex justify-between items-center p-4 text-left font-medium text-gray-800 hover:bg-gray-50"
+                  className="w-full flex justify-between items-center p-4 text-left text-sm font-medium text-gray-800 hover:bg-gray-50"
                   itemProp="name"
                   tabIndex={0}
                   type="button">
@@ -102,7 +102,7 @@ function FAQ() {
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                     className="overflow-hidden">
                     <div
-                      className="p-4 text-gray-600 border-t bg-gray-50"
+                      className="p-4 text-sm opacity-80 text-gray-600 border-t bg-gray-50"
                       itemProp="text">
                       {faq.answer}
                     </div>

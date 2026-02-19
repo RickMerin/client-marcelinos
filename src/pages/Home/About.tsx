@@ -22,40 +22,40 @@ function About() {
       {/*  Text and Cards (right side on desktop) */}
       <div className="flex flex-col items-center md:items-start justify-start">
         {/* Heading */}
-        <div className="flex gap-2 mb-2 text-3xl sm:text-4xl font-bold justify-center md:justify-start">
+        <h2 className="font-display text-3xl font-bold tracking-tight flex gap-2 mb-2 justify-center md:justify-start">
           <span className="green">ABOUT</span>
           <span className="yellow">US</span>
-        </div>
+        </h2>
 
         {/* Welcome Section */}
         <div className="text-center md:text-left">
-          <h2 className="text- font-semibold sm:text-lg mb-1">
+          <h3 className="font-display text-lg font-semibold mb-1">
             Welcome To Marcelino’s Resort!
-          </h2>
-          <p className="text-[15px] sm:text-[16px] text-neutral-800 leading-relaxed w-[85%] mx-auto md:mx-0">
+          </h3>
+          <p className="text-sm opacity-80 text-neutral-800 leading-relaxed w-[85%] mx-auto md:mx-0 max-w-2xl">
             Where elegance meets celebration. Perfect for weddings, parties, and
             life’s most cherished moments, our venue blends timeless beauty with
             unforgettable experiences.
           </p>
 
-          {/* Cards Section */}
-          <div className="flex flex-wrap justify-center md:justify-start gap-5 mt-8 w-full">
+          {/* Cards Section - grid, theme green default, complementary hover */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-8 w-full max-w-5xl">
             {/* Card 1 */}
-            <Card className="flex-1 min-w-50 max-w-70 text-center bg-neutral-200 text-neutral-900 shadow-md shadow-gray-500/40 rounded-2xl transition-transform hover:scale-105 hover:bg-green-800 hover:text-white">
+            <Card className="about-premium-card group text-center text-white rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:bg-(--color-cream) hover:text-green-900 hover:border-amber-200/60">
               <CardHeader>
                 <div className="flex justify-center items-center mb-2">
                   <img
                     src={diamond}
                     alt="diamond svg"
-                    className="w-10 h-auto"
+                    className="w-10 h-auto transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>
-                <CardTitle className="text-lg font-semibold">
+                <CardTitle className="font-display text-lg font-semibold text-inherit">
                   Timeless
                   <br />
                   Elegance
                 </CardTitle>
-                <p className="text-sm mt-2">
+                <p className="text-sm mt-2 opacity-90 text-inherit">
                   Marcelino’s Place offers a refined venue where every
                   celebration is crafted with sophistication and lasting beauty.
                 </p>
@@ -63,21 +63,21 @@ function About() {
             </Card>
 
             {/* Card 2 */}
-            <Card className="flex-1 min-w-60 max-w-75 text-center bg-neutral-200 text-neutral-900 shadow-md shadow-gray-500/40 rounded-2xl transition-transform hover:scale-105 hover:bg-green-800 hover:text-white">
+            <Card className="about-premium-card group text-center text-white rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:bg-(--color-cream) hover:text-green-900 hover:border-amber-200/60">
               <CardHeader>
                 <div className="flex justify-center items-center mb-2">
                   <img
                     src={wine}
                     alt="wine toast svg"
-                    className="w-10 h-auto"
+                    className="w-10 h-auto transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>
-                <CardTitle className="text-lg font-semibold">
+                <CardTitle className="font-display text-lg font-semibold text-inherit">
                   Elegant
                   <br />
                   Gatherings
                 </CardTitle>
-                <p className="text-sm mt-2">
+                <p className="text-sm mt-2 opacity-90 text-inherit">
                   A sophisticated venue designed for weddings, parties, and
                   life’s cherished occasions.
                 </p>
@@ -85,21 +85,21 @@ function About() {
             </Card>
 
             {/* Card 3 */}
-            <Card className="flex-1 min-w-60 max-w-75 text-center bg-neutral-200 text-neutral-900 shadow-md shadow-gray-500/40 rounded-2xl transition-transform hover:scale-105 hover:bg-green-800 hover:text-white">
+            <Card className="about-premium-card group text-center text-white rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:bg-(--color-cream) hover:text-green-900 hover:border-amber-200/60">
               <CardHeader>
                 <div className="flex justify-center items-center mb-2">
                   <img
                     src={handshake}
                     alt="handshake svg"
-                    className="w-10 h-auto"
+                    className="w-10 h-auto transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>
-                <CardTitle className="text-lg font-semibold">
+                <CardTitle className="font-display text-lg font-semibold text-inherit">
                   Refined
                   <br />
                   Hospitality
                 </CardTitle>
-                <p className="text-sm mt-2">
+                <p className="text-sm mt-2 opacity-90 text-inherit">
                   We blend elegance with heartfelt service for every
                   celebration.
                 </p>

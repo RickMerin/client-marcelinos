@@ -146,18 +146,18 @@ function RoomCard() {
   if (error) {
     return (
       <section className="bg-gray-50 py-10">
-        <h2 className="text-4xl font-bold text-center mb-10">
+        <h2 className="font-display text-3xl font-bold tracking-tight text-center mb-10">
           <span className="text-green-900">OUR</span>{" "}
           <span className="text-yellow-500">ROOMS</span>
         </h2>
-        <p className="text-red-500 text-center">Error loading rooms</p>
+        <p className="text-sm text-red-500 text-center">Error loading rooms</p>
       </section>
     );
   }
 
   return (
     <section className="bg-gray-50 py-10">
-      <h2 className="text-4xl font-bold text-center mb-10">
+      <h2 className="font-display text-3xl font-bold tracking-tight text-center mb-10">
         <span className="text-green-900">OUR</span>{" "}
         <span className="text-yellow-500">ROOMS</span>
       </h2>
@@ -165,7 +165,7 @@ function RoomCard() {
       {isLoading ? (
         <CarouselSkeleton />
       ) : roomList.length === 0 ? (
-        <p className="text-center text-gray-500">No rooms available.</p>
+        <p className="text-sm text-center text-gray-500 opacity-80">No rooms available.</p>
       ) : (
         <div
           className="relative w-[90%] max-w-[1200px] mx-auto pb-12"

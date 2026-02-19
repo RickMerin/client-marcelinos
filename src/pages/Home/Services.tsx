@@ -32,10 +32,10 @@ function Services() {
 
   return (
     <section id="services" className="w-full py-16 bg-gray-50">
-      {/* 🟢 Section Title */}
-      <h2 className="text-3xl font-bold text-center mb-12">
-        <span className="green header">OUR </span>
-        <span className="yellow header">SERVICES</span>
+      {/* Section Title - matches Booking typography */}
+      <h2 className="font-display text-3xl font-bold tracking-tight text-center mb-12">
+        <span className="green">OUR </span>
+        <span className="yellow">SERVICES</span>
       </h2>
 
       {/* 🟢 Services Cards Container */}
@@ -48,10 +48,10 @@ function Services() {
               <div className="text-yellow-400 mb-3 group-hover:scale-110 transition-transform duration-300">
                 {service.icon}
               </div>
-              <h3 className="text-base font-semibold mb-1 text-green-800 group-hover:text-white">
+              <h3 className="font-display text-lg font-semibold mb-1 text-green-800 group-hover:text-white">
                 {service.title}
               </h3>
-              <p className="text-sm text-gray-600 group-hover:text-gray-200 transition-colors duration-300">
+              <p className="text-sm opacity-80 text-gray-600 group-hover:text-gray-200 transition-colors duration-300">
                 {service.description}
               </p>
             </CardContent>
