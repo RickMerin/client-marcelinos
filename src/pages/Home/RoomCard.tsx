@@ -23,17 +23,17 @@ function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
 
 function useSlidesPerView() {
   const [slidesPerView, setSlidesPerView] = useState(() => {
-    if (typeof window === "undefined") return 4;
+    if (typeof window === "undefined") return 3;
     if (window.innerWidth < 640) return 1;
     if (window.innerWidth < 1024) return 2;
-    return 4;
+    return 3;
   });
 
   useLayoutEffect(() => {
     const update = () => {
       if (window.innerWidth < 640) setSlidesPerView(1);
       else if (window.innerWidth < 1024) setSlidesPerView(2);
-      else setSlidesPerView(4);
+      else setSlidesPerView(3);
     };
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
@@ -176,10 +176,10 @@ function RoomCard() {
         </p>
       ) : (
         <div
-          className="relative w-[90%] max-w-[1200px] mx-auto pb-12"
+          className="relative w-[90%] max-w-[1200px] mx-auto pb-12 min-h-[495px]"
           ref={containerRef}>
-          {/* Fixed min-height reserves space so FLIP's absolute positioning doesn't collapse layout */}
-          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-h-[420px]">
+          {/* Fixed track height prevents layout shift when FLIP uses absolute positioning */}
+          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-rows-[minmax(420px,1fr)] min-h-[420px]">
             {visibleRooms.map(
               (room: Record<string, unknown> & { _index?: number }) => (
                 <div
