@@ -51,9 +51,6 @@ function CardItem(props: CardItemProps) {
         .filter((x): x is string => Boolean(x))
     : [];
 
-  // Combine description and amenities for overlay panel
-  const subtitle =
-    description ?? (amenityList.length ? amenityList.join(", ") : "—");
 
   // Preview text for short card view
   const PREVIEW_WORD_LIMIT = 6;
