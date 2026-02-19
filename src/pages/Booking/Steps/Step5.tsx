@@ -9,7 +9,7 @@ import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import CancelBookingContent from "@/components/modals/CancelBookingContent";
 import Modal from "@/components/modals/Modal";
- // your existing Modal component
+// your existing Modal component
 
 interface Step5FormDataProps {
   formData: any;
@@ -103,16 +103,13 @@ export function Step5(props: Props) {
 
   const isCancelled = bookingStatus === "cancelled";
   const cancelBooking = useApiMutation<void>("patch", {
-    onSuccess: () => {
-      alert("Booking cancelled successfully!");
-    },
     onError: () => {
       alert("Failed to cancel booking.");
     },
   });
 
-const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const roomsFromApi =
     receipt != null
