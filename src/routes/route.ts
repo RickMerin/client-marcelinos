@@ -1,7 +1,7 @@
-// src/routes/route.ts
 import { lazy } from "react";
+import Home from "../pages/Home/Index";
 
-const Home = lazy(() => import("../pages/Home/Index"));
+// Home is eager-loaded so the landing page renders immediately; other routes stay lazy
 const NotFound = lazy(() => import("../pages/NotFound"));
 const PrivacyPolicy = lazy(() => import("../pages/PrivacyPolicy"));
 const Booking = lazy(() => import("../pages/Booking/Index"));
