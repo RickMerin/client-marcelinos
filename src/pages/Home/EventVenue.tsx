@@ -114,8 +114,18 @@ function EventVenues() {
           No venues available.
         </p>
       ) : (
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 sm:grid-cols-2 md:grid-cols-3">
-          {venueList.map((venue) => (
+        <div
+          className={`mx-auto grid gap-8 px-6
+            ${
+              venueList.length === 1
+                ? "max-w-md grid-cols-1"
+                : venueList.length === 2
+                ? "max-w-3xl grid-cols-1 sm:grid-cols-2"
+                : "max-w-7xl grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+            }
+          `}
+        >
+            {venueList.map((venue) => (
             <div key={venue.id} className="venue-card-wrap">
               <CardItem
                 id={venue.id}
