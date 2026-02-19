@@ -109,35 +109,22 @@ function CardItem(props: CardItemProps) {
               </li>
             )}
 
-            {(description || amenityList.length > 0) && (
-              <li className="text-gray-700 text-sm leading-relaxed">
-                {description && (
-                  <>
-                    {isLong ? (
-                      <>
-                        {previewText}
-                        <button
-                          onClick={() => setExpanded(true)}
-                          className="ml-1 font-medium text-[#0D542B] hover:text-[#F0B100] transition-colors duration-200"
-                        >
-                          See more
-                        </button>
-                      </>
-                    ) : (
-                      <span>{description}</span>
-                    )}
-                  </>
-                )}
+           {description && (
+            <div className="flex items-center gap-1 text-gray-700 text-sm leading-relaxed">
+              <span className="truncate">
+                {isLong ? previewText : description}
+              </span>
+              {isLong && (
+                <button
+                  onClick={() => setExpanded(true)}
+                  className="flex-shrink-0 font-medium text-[#0D542B] hover:text-[#F0B100] transition-colors duration-200"
+                >
+                  See more
+                </button>
+              )}
+            </div>
+          )}
 
-                {amenityList.length > 0 && (
-                  <div>
-                    <span className="font-medium text-green-800">Amenities:</span>{" "}
-                    {amenityList.slice(0, 3).join(", ")}
-                    {amenityList.length > 3 && " and more"}
-                  </div>
-                )}
-              </li>
-            )}
           </ul>
         )}
 
@@ -171,34 +158,48 @@ function CardItem(props: CardItemProps) {
               exit={{ y: "100%" }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
             >
-              <h2 className="font-display text-white text-xl font-semibold mb-4">{title}</h2>
+              <div className="flex">
+              <h2 className="flex-1 font-display text-white text-xl font-semibold mb-4">{title}</h2>
 
               {capacity != null && (
-                <p className="text-white text-sm mb-3">Capacity: {capacity}</p>
+                <p className="text-white text-sm">Capacity: {capacity}</p>
               )}
-
-              <div className="flex-1 overflow-y-auto text-white text-sm pr-2 custom-scroll">
-                {description}
-                {amenityList.length > 0 && (
-                  <div className="mt-2">
-                    <span className="font-medium text-white/80">Amenities:</span>{" "}
-                    {amenityList.join(", ")}
-                  </div>
-                )}
               </div>
 
-              {price != null && (
-                <div className="mt-4 text-[#F0B100] font-semibold">
+              <div className="flex-1 overflow-y-auto text-white text-sm pr-2 custom-scroll">
+                
+                {amenityList.length > 0 && (
+                  <div className="mb-4">
+                    <div className="font-medium">
+                      AMENITIES 
+                    </div>
+                    <div>
+                        {amenityList.join(", ")}
+                      </div>
+                  </div>
+                )}<div>
+                  <div className="font-medium">DESCRIPTION</div>
+                  <div className="mt-1">
+                    {description}
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="flex">
+                {price != null && (
+                <div className="yellow text-m flex-1 font-semibold">
                   {pricingFormat(String(price))}
                 </div>
               )}
 
               <button
                 onClick={() => setExpanded(false)}
-                className="mt-6 self-end text-sm font-medium text-[#F0B100] hover:underline"
+                className="self-end text-sm font-medium yellow hover:underline"
               >
                 Close
               </button>
+              </div>
             </motion.div>
           </>
         )}
