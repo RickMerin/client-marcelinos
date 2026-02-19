@@ -63,7 +63,10 @@ export function CalendarWithDisabledReasons({
             }
             dayProps.onClick?.(e)
           }}
-          className={cn(className, isBlocked && "opacity-15 cursor")}
+          className={cn(
+            className,
+            isBlocked && "bg-red-500 text-white opacity-80 cursor-not-allowed hover:bg-red-600 focus:bg-red-600"
+          )}
         />
 
         {isBlocked && reason && showTooltip && (
