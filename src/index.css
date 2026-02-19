@@ -304,8 +304,36 @@
     padding-bottom: 5rem;
   }
 }
+
 .landing-section-alt {
-  background-color: var(--color-cream);
+  position: relative;
+  background-color: #e9f8e4c3;
+  /* Overlay for resort feel */
+  z-index: 0;
+}
+
+/* Overlay: SVG waves and fine grain, background only, does not affect content */
+.landing-section-alt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  /* Layer 1: abstract SVG dapple pattern */
+  background:
+    url("data:image/svg+xml;utf8,<svg width='400' height='200' viewBox='0 0 400 200' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M0 60 Q100 100 200 60 T400 60 V200 H0 V60 Z' fill='%23ffd184' opacity='0.12'/><path d='M0 100 Q100 140 200 100 T400 100 V200 H0 V100 Z' fill='%239eb18d' opacity='0.10'/><path d='M0 140 Q100 180 200 140 T400 140 V200 H0 V140 Z' fill='%239ebe9d' opacity='0.13'/></svg>"),
+    /* Layer 2: subtle grain */
+    url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAX0lEQVR42u3QsREAIAwEwZw/lpkHJi5E3kM+CJ3M/kMtLAAAgxRDAEBQgAhRjBACFGMIAEUYwQAhRjBACFGMEAIUYwAAUKUVG+uVP3DqQaWc/9EBU9DP04FX/gP85y4AJOINSlV8nyRgAAAABJRU5ErkJggg==");
+  background-size: cover, 170px;
+  background-repeat: no-repeat, repeat;
+  background-position: center center, 0 0;
+  opacity: 0.82;
+  mix-blend-mode: lighten, soft-light;
+}
+
+.landing-section-alt > * {
+  position: relative;
+  z-index: 1;
 }
 .landing-section-title {
   font-family: var(--font-display);
