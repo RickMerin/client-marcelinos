@@ -45,8 +45,8 @@ export default function Header() {
     { label: "Venues", href: "#venues", sectionId: "venues" },
     { label: "Services", href: "#services", sectionId: "services" },
     { label: "Gallery", href: "#gallery", sectionId: "gallery" },
-    { label: "Review", href: "#reviews", sectionId: "reviews" },
-    { label: "Faq", href: "#faq", sectionId: "faq" },
+    { label: "Reviews", href: "#reviews", sectionId: "reviews" },
+    { label: "FAQ", href: "#faq", sectionId: "faq" },
   ];
 
   // GSAP: header entrance animation on mount
@@ -223,7 +223,7 @@ export default function Header() {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-50 w-full border-b bg-white/95 shadow-sm backdrop-blur-sm">
+      className="sticky top-0 z-[1200] w-full border-b bg-white/95 shadow-sm backdrop-blur-sm">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 md:px-8">
         <button
           ref={logoRef}
@@ -232,7 +232,7 @@ export default function Header() {
           <img
             src="/brand-logo-png.png"
             alt="Marcelino's Logo"
-            className="h-16 w-16 object-contain"
+            className="h-15 w-15 object-contain"
           />
           <div className="ml-2 leading-tight">
             <div className="text-[20px] font-extrabold tracking-widest text-green-900 font-serif">

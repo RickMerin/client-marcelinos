@@ -20,13 +20,13 @@ export default function Modal({
   onClose,
   children,
   showCloseButton = true,
-contentClassName = "relative bg-green-800 text-center p-6 rounded-lg shadow-lg max-w-2xl w-full mx-4 overflow-hidden",
+contentClassName = "relative bg-green-800 text-center px-4 py-5 rounded-lg shadow-lg max-w-2xl w-full mx-4 overflow-hidden",
   backgroundImage = "/green-leaves-extended.png",
 }: ModalProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-2000">
       <div className={contentClassName}>
          {showCloseButton && (
             <button

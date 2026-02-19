@@ -8,7 +8,7 @@ function About() {
   return (
     <div
       id="about"
-      className="text-center md:text-left py-10 grid md:grid-cols-[calc(100%-60%)_auto] grid-cols-1 gap-6">
+      className="text-center md:text-left p-10 grid md:grid-cols-[calc(100%-60%)_auto] grid-cols-1">
       {/* Logo (left side on desktop, top on mobile) */}
       <div className="flex justify-center items-center w-full">
         <img
@@ -22,17 +22,17 @@ function About() {
       {/*  Text and Cards (right side on desktop) */}
       <div className="flex flex-col items-center md:items-start justify-start">
         {/* Heading */}
-        <div className="flex gap-2 mb-5 text-3xl sm:text-4xl font-bold justify-center md:justify-start">
-          <span className="text-green-800">ABOUT</span>
-          <span className="text-yellow-500">US</span>
+        <div className="flex gap-2 mb-2 text-3xl sm:text-4xl font-bold justify-center md:justify-start">
+          <span className="green">ABOUT</span>
+          <span className="yellow">US</span>
         </div>
 
         {/* Welcome Section */}
         <div className="text-center md:text-left">
-          <h2 className="text-yellow-500 text-2xl sm:text-3xl mb-2">
-            Welcome To Marcelino’s
+          <h2 className="text- font-semibold sm:text-lg mb-1">
+            Welcome To Marcelino’s Resort!
           </h2>
-          <p className="text-[15px] sm:text-[16px] text-neutral-800 leading-relaxed max-w-75 mx-auto md:mx-0">
+          <p className="text-[15px] sm:text-[16px] text-neutral-800 leading-relaxed w-[85%] mx-auto md:mx-0">
             Where elegance meets celebration. Perfect for weddings, parties, and
             life’s most cherished moments, our venue blends timeless beauty with
             unforgettable experiences.
@@ -41,7 +41,7 @@ function About() {
           {/* Cards Section */}
           <div className="flex flex-wrap justify-center md:justify-start gap-5 mt-8 w-full">
             {/* Card 1 */}
-            <Card className="flex-1 min-w-60 max-w-75 text-center bg-neutral-200 text-neutral-900 shadow-md shadow-gray-500/40 rounded-2xl transition-transform hover:scale-105 hover:bg-green-800 hover:text-white">
+            <Card className="flex-1 min-w-50 max-w-70 text-center bg-neutral-200 text-neutral-900 shadow-md shadow-gray-500/40 rounded-2xl transition-transform hover:scale-105 hover:bg-green-800 hover:text-white">
               <CardHeader>
                 <div className="flex justify-center items-center mb-2">
                   <img
