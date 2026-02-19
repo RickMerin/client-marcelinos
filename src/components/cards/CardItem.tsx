@@ -94,12 +94,12 @@ function CardItem(props: CardItemProps) {
 
       {/* CONTENT */}
       <div className="relative p-5">
-        <h2 className="mb-2 text-xl font-semibold tracking-tight text-gray-900">
+        <h2 className="font-display mb-2 text-xl font-semibold tracking-tight text-gray-900">
           {title}
         </h2>
 
         {(capacity != null || description || amenityList.length > 0) && (
-          <ul className="mb-3 space-y-1 text-sm text-gray-600">
+          <ul className="mb-3 space-y-1 text-sm text-gray-600 opacity-90">
             {capacity != null && (
               <li className="flex items-center gap-2">
                 <span className="font-medium text-green-800">Capacity:</span>
@@ -171,7 +171,7 @@ function CardItem(props: CardItemProps) {
               exit={{ y: "100%" }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
             >
-              <h2 className="text-white text-xl font-semibold mb-4">{title}</h2>
+              <h2 className="font-display text-white text-xl font-semibold mb-4">{title}</h2>
 
               {capacity != null && (
                 <p className="text-white text-sm mb-3">Capacity: {capacity}</p>

@@ -63,10 +63,10 @@ function ClientReviews() {
       className="bg-[#faf7f2] py-16 flex flex-col items-center">
       {/* HEADER */}
 
-      <h1 className="text-3xl font-bold text-center mb-12">
-        <span className="green header">CLIENT</span>{" "}
-        <span className="yellow header">REVIEWS</span>
-      </h1>
+      <h2 className="font-display text-3xl font-bold tracking-tight text-center mb-12">
+        <span className="green">CLIENT</span>{" "}
+        <span className="yellow">REVIEWS</span>
+      </h2>
 
       {/* CONTAINER */}
 

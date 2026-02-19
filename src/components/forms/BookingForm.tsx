@@ -35,7 +35,7 @@ export default function BookingForm() {
       type: "date" as const,
       label: "Check-out Date",
       readOnly: true,
-      className: "bg-gray-300/50 cursor-not-allowed text-center",
+      className: "cursor-not-allowed text-center",
       value: reservationDate.check_out
         ? new Date(reservationDate.check_out)
         : "",

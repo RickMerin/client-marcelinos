@@ -91,19 +91,19 @@ function EventVenues() {
 
   return (
     <section ref={sectionRef} id="venues" className="w-full py-16 bg-gray-50">
-      <h2 className="text-4xl font-bold text-center mb-10">
+      <h2 className="font-display text-3xl font-bold tracking-tight text-center mb-10">
         <span className="text-green-900">EVENT </span>
         <span className="text-yellow-500">VENUES</span>
       </h2>
 
       {error && (
-        <p className="text-red-500 text-center mb-6">Error loading venues.</p>
+        <p className="text-sm text-red-500 text-center mb-6">Error loading venues.</p>
       )}
 
       {isLoading ? (
         <EventVenueSkeleton />
       ) : venueList.length === 0 ? (
-        <p className="text-center text-gray-500">No venues available.</p>
+        <p className="text-sm text-center text-gray-500 opacity-80">No venues available.</p>
       ) : (
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 sm:grid-cols-2 md:grid-cols-3">
           {venueList.map((venue) => (

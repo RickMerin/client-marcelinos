@@ -25,96 +25,43 @@ const ImageCarousel: React.FC = () => {
 
   const images = galleriesResponse?.data?.map((item) => item.image) || [];
 
+  const galleryHeading = (
+    <h2 className="font-display text-3xl font-bold tracking-tight text-center mb-10">
+      <span className="green">OUR</span>{" "}
+      <span className="yellow">GALLERY</span>
+    </h2>
+  );
+
   if (isLoading) {
     return (
-      <section
-        id="gallery"
-        style={{
-          padding: "60px 0",
-          backgroundColor: "#fff",
-          textAlign: "center",
-        }}>
-        <h2
-          style={{
-            fontSize: "2.5rem",
-            fontWeight: 800,
-            marginBottom: "40px",
-            letterSpacing: "1px",
-          }}>
-          <span className="green header">OUR</span>{" "}
-          <span className="yellow header">GALLERY</span>
-        </h2>
-        <p>Loading gallery...</p>
+      <section id="gallery" className="py-16 bg-white text-center">
+        {galleryHeading}
+        <p className="text-sm opacity-80">Loading gallery...</p>
       </section>
     );
   }
 
   if (error) {
     return (
-      <section
-        id="gallery"
-        style={{
-          padding: "60px 0",
-          backgroundColor: "#fff",
-          textAlign: "center",
-        }}>
-        <h2
-          style={{
-            fontSize: "2.5rem",
-            fontWeight: 800,
-            marginBottom: "40px",
-            letterSpacing: "1px",
-          }}>
-          <span className="green header">OUR</span>{" "}
-          <span className="yellow header">GALLERY</span>
-        </h2>
-        <p>Failed to load gallery.</p>
+      <section id="gallery" className="py-16 bg-white text-center">
+        {galleryHeading}
+        <p className="text-sm text-red-500">Failed to load gallery.</p>
       </section>
     );
   }
 
   if (images.length === 0) {
     return (
-      <section
-        id="gallery"
-        style={{
-          padding: "60px 0",
-          backgroundColor: "#fff",
-          textAlign: "center",
-        }}>
-        <h2
-          style={{
-            fontSize: "2.5rem",
-            fontWeight: 800,
-            marginBottom: "40px",
-            letterSpacing: "1px",
-          }}>
-          <span className="green header">OUR</span>{" "}
-          <span className="yellow header">GALLERY</span>
-        </h2>
-        <p className="text-center text-gray-500">No gallery available.</p>
+      <section id="gallery" className="py-16 bg-white text-center">
+        {galleryHeading}
+        <p className="text-sm text-center text-gray-500 opacity-80">No gallery available.</p>
       </section>
     );
   }
 
   return (
-    <section
-      id="gallery"
-      style={{
-        padding: "60px 0",
-        backgroundColor: "#fff",
-        textAlign: "center",
-      }}>
-      <h2
-        style={{
-          fontSize: "2.5rem",
-          fontWeight: 800,
-          marginBottom: "40px",
-          letterSpacing: "1px",
-        }}>
-        <span className="green header">OUR</span>{" "}
-        <span className="yellow header">GALLERY</span>
-      </h2>
+    <section id="gallery" className="py-16 bg-white text-center">
+      {galleryHeading}
 
       <Swiper
         spaceBetween={20}

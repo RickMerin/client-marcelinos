@@ -95,9 +95,9 @@ function ContactForm() {
     <div className="container mx-auto faq-container flex flex-col md:flex-row gap-8 py-12">
       {/* ========================== CONTACT FORM SECTION ========================== */}
       <div className="w-full md:w-1/2 bg-white shadow-lg rounded-2xl">
-        <h2 className="text-4xl flex justify-center gap-2 yellow font-bold text-center mb-6">
-            <p className="green">CONTACT</p>
-            <p className="yellow">US</p>
+        <h2 className="font-display text-3xl font-bold tracking-tight flex justify-center gap-2 text-center mb-6">
+            <span className="green">CONTACT</span>
+            <span className="yellow">US</span>
         </h2>
 
       <div className="p-6 pt-0">

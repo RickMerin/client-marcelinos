@@ -30,21 +30,22 @@ function Home() {
       <section className="relative w-full">
         <BannerCarousel />
 
-        {/* Booking Form Container */}
+        {/* Booking Form Container - green background + green leaves + premium typography */}
         <div
           id="booking-section"
-          className="relative mx-4 md:mx-auto md:max-w-5xl text-white
-                     -mt-10 md:-mt-24 
-                     bg-green-800 rounded-xl 
-                     px-4 py-6 md:px-8 md:py-8 
-                     shadow-lg">
-          {/* Background overlay */}
+          className="first-fold-booking relative mx-4 md:mx-auto md:max-w-5xl
+                     -mt-10 md:-mt-24
+                     rounded-2xl border border-green-700/50
+                     px-4 py-6 md:px-8 md:py-8
+                     shadow-xl shadow-black/20
+                     bg-green-800 text-white">
+          {/* Green leaves background overlay */}
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-50 pointer-events-none rounded-xl"
+            className="absolute inset-0 bg-cover bg-center opacity-50 pointer-events-none rounded-2xl"
             style={{
               backgroundImage: "url('green-leaves-extended.png')",
-            }}></div>
-
+            }}
+          />
           <div className="relative z-10">
             <BookingForm />
           </div>
