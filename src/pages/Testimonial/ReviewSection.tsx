@@ -115,8 +115,10 @@ function ClientReviews() {
               centeredSlides
               centeredSlidesBounds={true}
               grabCursor
-              loop={true}
+              // loop={true}
+              // loop={reviews.length > 2 }
               spaceBetween={25}
+              slideToClickedSlide={true}
               breakpoints={{
                 0: { slidesPerView: 1 },
                 768: { slidesPerView: 2 },
