@@ -8,6 +8,7 @@ import PaymentConfirmContent from "@/components/modals/PolicyDisclaimer";
 import cashless from "@/assets/img/cashless-payment-svgrepo-com.svg";
 import cash from "@/assets/img/cash.webp";
 import { PAYMENT_METHODS } from "@/enum/constants";
+import { toast } from "@/lib/logger/toast";
 
 interface Step4Props {
   paymentMethod?: string;
@@ -33,7 +34,7 @@ export function Step4({
 
   const handleProceed = () => {
     if (!paymentMethod) {
-      alert("Please select a payment method before proceeding.");
+      toast.error({ content: "Please select a payment method before proceeding." });
       return;
     }
 
@@ -43,6 +44,7 @@ export function Step4({
 
   const handleConfirmProceed = () => {
     // Keep modal open so the button loader is visible during submit
+    toast.success({ content: "Payment method locked in! Finalizing your booking." });
     onProceed(); // FINAL proceed – on success we navigate away; on error modal stays, user can Cancel
   };
 
