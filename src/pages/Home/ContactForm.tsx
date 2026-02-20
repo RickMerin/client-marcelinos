@@ -1,16 +1,16 @@
 import { useState } from "react";
-import Swal from "sweetalert2";
 import FAQ from "./FAQ";
 import { ButtonLoader } from "@/components/ui/loader";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import { endpoints } from "@/lib/api/endpoints";
+import { toast } from "@/lib/logger/toast";
 
 /**
  * ContactForm Component
  * ---------------------
  * This component provides a contact form where users can submit their inquiries.
  * The form data is sent to a backend API endpoint using a POST request.
- * SweetAlert2 is used to display success, error, and warning messages.
+ * Toast notifications surface success and error states.
  */
 function ContactForm() {
   // Initialize form state using useState hook
@@ -24,13 +24,9 @@ function ContactForm() {
 
   const contactMutation = useApiMutation("post", {
     onSuccess: () => {
-      const successAlert: SweetAlertConfig = {
-        title: "Message Sent!",
-        text: "Thank you for contacting us. We'll get back to you soon.",
-        icon: "success",
-        confirmButtonColor: "#facc15",
-      };
-      Swal.fire(successAlert);
+      toast.success({
+        content: "Message sent! We'll get back to you soon.",
+      });
 
       setFormData({
         full_name: "",
@@ -41,13 +37,9 @@ function ContactForm() {
       });
     },
     onError: () => {
-      const errorAlert: SweetAlertConfig = {
-        title: "Oops!",
-        text: "Something went wrong. Please try again later.",
-        icon: "error",
-        confirmButtonColor: "#ef4444",
-      };
-      Swal.fire(errorAlert);
+      toast.error({
+        content: "Oops, something went wrong. Please try again later.",
+      });
     },
   });
 
@@ -76,13 +68,6 @@ function ContactForm() {
       [name]: value, // Update only the specific field that changed
     }));
   };
-
-  interface SweetAlertConfig {
-    title: string;
-    text: string;
-    icon: "success" | "error" | "warning" | "info" | "question";
-    confirmButtonColor: string;
-  }
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>

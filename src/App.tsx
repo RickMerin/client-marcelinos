@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import { Spinner } from "./components/ui/spinner";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { useRealtimeGlobalSubscriber } from "@/hooks/useRealtimeGlobalSubscriber";
+import { ToastContainer } from "react-toastify";
 
 // Layout component to wrap pages with consistent structure
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -41,6 +42,7 @@ const App = () => {
           </Routes>
         </Suspense>
       </Router>
+      <ToastContainer newestOnTop pauseOnFocusLoss={false} />
     </ErrorBoundary>
   );
 };
