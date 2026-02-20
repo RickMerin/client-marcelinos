@@ -215,20 +215,6 @@ export function Step5(props: Props) {
     }
   };
 
-  const handleCancelBooking = async () => {
-    setIsSubmitting(true);
-    try {
-      await cancelBooking.mutateAsync({
-        url: `/bookings/${referenceNumber}/cancel`,
-      });
-      // Optional: refresh booking list or show success toast
-      setIsCancelModalOpen(false);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
   const handleCancel = () => {
     if (!referenceNumber) return;
     setIsCancelModalOpen(true); // open the modal instead of alert
