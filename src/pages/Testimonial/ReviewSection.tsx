@@ -1,16 +1,9 @@
-import { useRef } from "react";
 import { Card } from "@/components/ui/card";
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Swiper as SwiperType } from "swiper";
-import { Navigation } from "swiper/modules";
+import ReviewSectionSkeleton from "@/components/skeleton/ReviewSectionSkeleton";
 
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 
 import logo from "../../assets/img/marcelinos-logo.svg";
-
-import "swiper/css";
-import "swiper/css/navigation";
 
 /* ---------------- TYPES ---------------- */
 
@@ -29,10 +22,6 @@ interface ReviewResponse {
 /* ---------------- COMPONENT ---------------- */
 
 function ClientReviews() {
-  const prevRef = useRef<HTMLButtonElement | null>(null);
-  const nextRef = useRef<HTMLButtonElement | null>(null);
-  const swiperRef = useRef<SwiperType | null>(null);
-
   /* ---------------- FETCH ---------------- */
   const { data, isLoading, isError } = useApiQuery<ReviewResponse>(
     ["reviews"],
@@ -61,6 +50,9 @@ function ClientReviews() {
     <section
       className="w-full flex flex-col items-center"
       aria-labelledby="reviews-heading">
+      <p className="text-sm font-medium uppercase tracking-wider text-(--color-sage) mb-2">
+        Testimonials
+      </p>
       <h2
         id="reviews-heading"
         className="font-display text-3xl font-bold tracking-tight text-center mb-12 text-(--color-charcoal)">
@@ -68,30 +60,10 @@ function ClientReviews() {
         <span className="yellow">REVIEWS</span>
       </h2>
 
-      <div className="relative w-full max-w-6xl px-4 sm:px-8">
-        <button
-          ref={prevRef}
-          type="button"
-          aria-label="Previous review"
-          className="absolute left-0 sm:-left-10 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full shadow-md flex items-center justify-center bg-white border border-(--color-sage-muted) text-green-800 hover:bg-(--color-sage-muted) hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2">
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <button
-          ref={nextRef}
-          type="button"
-          aria-label="Next review"
-          className="absolute right-0 sm:-right-10 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full shadow-md flex items-center justify-center bg-white border border-(--color-sage-muted) text-green-800 hover:bg-(--color-sage-muted) hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2">
-          <ChevronRight className="w-5 h-5" />
-        </button>
-
+      <div className="w-full max-w-6xl px-4 sm:px-8">
         {/* STATES */}
 
-        {isLoading && (
-          <p className="text-center text-(--color-charcoal) opacity-80">
-            Loading reviews...
-          </p>
-        )}
+        {isLoading && <ReviewSectionSkeleton />}
 
         {isError && (
           <p className="text-center text-red-600 font-medium">
@@ -105,94 +77,58 @@ function ClientReviews() {
           </p>
         )}
 
-        {/* SWIPER */}
-
+        {/* Masonry-style grid: CSS columns, varying card heights */}
         {!isLoading && !isError && reviews.length > 0 && (
-          <div className="relative w-full max-w-6xl px-4 sm:px-8 overflow-visible">
-            <Swiper
-              modules={[Navigation]}
-              onSwiper={(swiper) => {
-                swiperRef.current = swiper;
-              }}
-              onBeforeInit={(swiper: any) => {
-                swiper.params.navigation.prevEl = prevRef.current;
-                swiper.params.navigation.nextEl = nextRef.current;
-              }}
-              centeredSlides
-              centeredSlidesBounds={true}
-              grabCursor
-              // loop={true}
-              // loop={reviews.length > 2 }
-              spaceBetween={25}
-              slideToClickedSlide={true}
-              breakpoints={{
-                0: { slidesPerView: 1 },
-                768: { slidesPerView: 2 },
-                1024: { slidesPerView: 3 },
-              }}>
-              {reviews.map((review, index) => (
-                <SwiperSlide key={index} className="flex justify-center">
-                  {({ isActive, isPrev, isNext }) => (
-                    <div
-                      className={`
-                      w-full flex justify-center transition-all duration-500
-                      ${
-                        isActive
-                          ? "scale-95 h-full blur-0"
-                          : isPrev || isNext
-                            ? "scale-88 h-[10%] blur-[2px]"
-                            : "scale-88 h-[10%] blur-[2px]"
-                      }
-                    `}>
-                      {/* CARD */}
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-6">
+            {reviews.map((review, index) => (
+              <Card
+                key={index}
+                className="break-inside-avoid mb-6 bg-white rounded-2xl p-6 shadow-md border border-(--color-sage-muted) flex flex-col">
+                {/* Quote */}
+                <blockquote className="text-(--color-charcoal) text-sm leading-relaxed mb-4 italic">
+                  &ldquo;{review.comment}&rdquo;
+                </blockquote>
 
-                      <Card className="bg-white rounded-2xl p-6 w-full max-w-[380px] shadow-md h-auto min-h-[240px]">
-                        <div className="space-y-5">
-                          {/* HEADER */}
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold">
-                              {(review.guest_name ?? "A").charAt(0)}
-                            </div>
+                {/* Rating stars */}
+                <div className="flex items-center mb-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <svg
+                      key={i}
+                      className={`h-4 w-4 mr-0.5 ${i < review.rating ? "text-yellow-400" : "text-gray-300"}`}
+                      fill={i < review.rating ? "currentColor" : "none"}
+                      viewBox="0 0 20 20"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      aria-hidden="true">
+                      <polygon points="10 15.27 16.18 18 14.54 11.97 19 7.24 12.81 6.63 10 1.5 7.19 6.63 1 7.24 5.46 11.97 3.82 18 10 15.27" />
+                    </svg>
+                  ))}
+                  <span className="ml-2 text-xs text-gray-500">
+                    {review.rating}/5
+                  </span>
+                </div>
 
-                            <div className="leading-tight">
-                              <h3 className="font-semibold text-m">
-                                {review.guest_name ?? "Anonymous Guest"}
-                              </h3>
-
-                              <p className="text-xs text-gray-500">
-                                {formatDate(review.date)}
-                              </p>
-                            </div>
-
-                            <img src={logo} className="w-10 ml-auto" />
-                          </div>
-
-                          {/* STARS */}
-                          <div className="flex gap-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={
-                                  i < review.rating
-                                    ? "fill-yellow-400 text-yellow-400 w-6 h-6"
-                                    : "text-gray-300 w-6 h-6"
-                                }
-                              />
-                            ))}
-                          </div>
-
-
-                          {/* COMMENT */}
-                          <p className="text-sm text-gray-600 leading-relaxed">
-                            {review.comment}
-                          </p>
-                        </div>
-                      </Card>
-                    </div>
-                  )}
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                {/* Author: avatar, name, date, logo */}
+                <div className="flex items-center gap-3 mt-auto pt-4 border-t border-sage-muted/60">
+                  <div className="w-10 h-10 rounded-full bg-(--color-sage-muted) flex items-center justify-center font-semibold text-(--color-charcoal) shrink-0 text-sm">
+                    {(review.guest_name ?? "A").charAt(0)}
+                  </div>
+                  <div className="min-w-0 flex-1 leading-tight">
+                    <p className="font-semibold text-(--color-charcoal) truncate">
+                      {review.guest_name ?? "Anonymous Guest"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatDate(review.date)}
+                    </p>
+                  </div>
+                  <img
+                    src={logo}
+                    alt=""
+                    className="w-9 h-9 shrink-0 opacity-80"
+                  />
+                </div>
+              </Card>
+            ))}
           </div>
         )}
       </div>
