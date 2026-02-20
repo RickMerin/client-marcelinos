@@ -148,13 +148,228 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
+    line-height: 1.6;
   }
 }
 
-/* Premium booking funnel: display font for headings */
+/* Display font (Playfair) for headings - site-wide and in booking funnel */
+.font-display {
+  font-family: var(--font-display);
+}
 .booking-funnel h1,
 .booking-funnel h2,
 .booking-funnel h3,
 .booking-funnel .font-display {
   font-family: var(--font-display);
+}
+
+/* Premium first fold: homepage hero booking card (green bg + leaves, white text) */
+.first-fold-booking label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: white;
+}
+.first-fold-booking button[type="submit"] {
+  background: var(--color-sage-light) !important;
+  color: white !important;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.first-fold-booking button[type="submit"]:hover {
+  background: var(--color-sage) !important;
+  color: white !important;
+}
+.first-fold-booking input,
+.first-fold-booking button[type="button"] {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+.first-fold-booking input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+.first-fold-booking input[readonly] {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* About Us: premium cards with gradient shine animation */
+@keyframes about-card-shine {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+    opacity: 0.5;
+  }
+}
+
+/* Theme green = #1f5d1e (from .green-bg); default card = green, white text */
+.about-premium-card {
+  position: relative;
+  overflow: hidden;
+  background: #016730; /* theme green */
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.15),
+    0 10px 20px -5px rgba(0, 0, 0, 0.12);
+}
+
+/* Shine streak visible on dark green */
+.about-premium-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.2) 45%,
+    rgba(244, 201, 93, 0.35) 50%,
+    rgba(255, 255, 255, 0.2) 55%,
+    transparent 65%,
+    transparent 100%
+  );
+  transform: translateX(-100%) skewX(-12deg);
+  animation: about-card-shine 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Hover: cream background + dark text (complementary) – bg/color set by Tailwind on card */
+.about-premium-card:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.08),
+    0 20px 40px -10px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(125, 155, 105, 0.2);
+}
+
+.about-premium-card > *,
+.landing-premium-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Services (and any other section): same green bg + shine + hover as About cards */
+.landing-premium-card {
+  position: relative;
+  overflow: hidden;
+  background: #1f5d1e;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.15),
+    0 10px 20px -5px rgba(0, 0, 0, 0.12);
+}
+.landing-premium-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.2) 45%,
+    rgba(244, 201, 93, 0.35) 50%,
+    rgba(255, 255, 255, 0.2) 55%,
+    transparent 65%,
+    transparent 100%
+  );
+  transform: translateX(-100%) skewX(-12deg);
+  animation: about-card-shine 4s ease-in-out infinite;
+  pointer-events: none;
+}
+.landing-premium-card:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.08),
+    0 20px 40px -10px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(125, 155, 105, 0.2);
+}
+
+/* ========== Landing page: premium sections, readability, interactivity ========== */
+.landing-section {
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+}
+@media (min-width: 768px) {
+  .landing-section {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
+.landing-section-alt {
+  position: relative;
+  background-color: #e9f8e4c3;
+  /* Overlay for resort feel */
+  z-index: 0;
+}
+
+/* Overlay: SVG waves and fine grain, background only, does not affect content */
+.landing-section-alt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  /* Layer 1: abstract SVG dapple pattern */
+  background:
+    url("data:image/svg+xml;utf8,<svg width='400' height='200' viewBox='0 0 400 200' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M0 60 Q100 100 200 60 T400 60 V200 H0 V60 Z' fill='%23ffd184' opacity='0.12'/><path d='M0 100 Q100 140 200 100 T400 100 V200 H0 V100 Z' fill='%239eb18d' opacity='0.10'/><path d='M0 140 Q100 180 200 140 T400 140 V200 H0 V140 Z' fill='%239ebe9d' opacity='0.13'/></svg>"),
+    /* Layer 2: subtle grain */
+    url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAX0lEQVR42u3QsREAIAwEwZw/lpkHJi5E3kM+CJ3M/kMtLAAAgxRDAEBQgAhRjBACFGMIAEUYwQAhRjBACFGMEAIUYwAAUKUVG+uVP3DqQaWc/9EBU9DP04FX/gP85y4AJOINSlV8nyRgAAAABJRU5ErkJggg==");
+  background-size: cover, 170px;
+  background-repeat: no-repeat, repeat;
+  background-position: center center, 0 0;
+  opacity: 0.82;
+  mix-blend-mode: lighten, soft-light;
+}
+
+.landing-section-alt > * {
+  position: relative;
+  z-index: 1;
+}
+.landing-section-title {
+  font-family: var(--font-display);
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--color-charcoal);
+}
+/* Readability: body text on landing */
+.landing-section p,
+.landing-section li {
+  line-height: 1.65;
+  /* color: var(--color-charcoal); */
+}
+/* Focus visible for keyboard and a11y (theme green) */
+.landing-section button:focus-visible,
+.landing-section a:focus-visible,
+.landing-section input:focus-visible,
+.landing-section select:focus-visible,
+.landing-section textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(31, 93, 30, 0.4);
+}
+.landing-section button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(31, 93, 30, 0.5);
+}
+/* Interactive cards: hover lift and theme border */
+.landing-card-interactive {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.landing-card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(31, 93, 30, 0.15);
+}
+.landing-card-interactive:focus-within {
+  box-shadow: 0 0 0 2px var(--color-sage-muted);
 }

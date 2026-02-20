@@ -30,71 +30,87 @@ function Home() {
       <section className="relative w-full">
         <BannerCarousel />
 
-        {/* Booking Form Container */}
+        {/* Booking Form Container - green background + green leaves + premium typography */}
         <div
           id="booking-section"
-          className="relative mx-4 md:mx-auto md:max-w-5xl text-white
-                     -mt-10 md:-mt-24 
-                     bg-green-800 rounded-xl 
-                     px-4 py-6 md:px-8 md:py-8 
-                     shadow-lg">
-          {/* Background overlay */}
+          className="first-fold-booking relative mx-4 md:mx-auto md:max-w-5xl
+                     -mt-10 md:-mt-24
+                     rounded-2xl border border-green-700/50
+                     px-4 py-6 md:px-8 md:py-8
+                     shadow-xl shadow-black/20
+                     bg-green-800 text-white">
+          {/* Green leaves background overlay */}
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-50 pointer-events-none rounded-xl"
+            className="absolute inset-0 bg-cover bg-center opacity-50 pointer-events-none rounded-2xl"
             style={{
               backgroundImage: "url('green-leaves-extended.png')",
-            }}></div>
-
+            }}
+          />
           <div className="relative z-10">
             <BookingForm />
           </div>
         </div>
       </section>
 
-      {/* Content Sections — Framer Motion runs only when section (or fragment) is in view, once, for scroll perf */}
-      <section id="about" className="px-4 md:px-0">
+      {/* Content Sections — premium spacing, alternating backgrounds, scroll reveal */}
+      <section
+        id="about"
+        className="landing-section px-4 md:px-6 max-w-7xl mx-auto">
         <SectionReveal>
           <About />
         </SectionReveal>
       </section>
 
-      <section id="rooms" className="px-4 md:px-0">
+      <section
+        id="rooms"
+        className="landing-section landing-section-alt px-4 md:px-6">
         <SectionReveal>
           <RoomCard />
         </SectionReveal>
       </section>
 
-      <section id="venues" className="px-4 md:px-0">
+      <section id="venues" className="landing-section mx-auto bg-white">
         <SectionReveal>
           <EventVenues />
         </SectionReveal>
       </section>
 
-      <section id="services" className="px-4 md:px-0">
+      <section
+        id="services"
+        className="landing-section landing-section-alt px-4 md:px-6">
         <SectionReveal>
           <Services />
         </SectionReveal>
       </section>
 
-      <section id="gallery" className="px-4 md:px-0">
+      <section
+        id="gallery"
+        className="landing-section px-4 md:px-6 max-w-7xl mx-auto bg-white">
         <SectionReveal>
           <OurGallery />
         </SectionReveal>
       </section>
 
-      <section id="reviews" className="px-4 md:px-0">
+      <section
+        id="reviews"
+        className="landing-section landing-section-alt px-4 md:px-6">
         <SectionReveal>
           <ClientReviews />
         </SectionReveal>
       </section>
 
-      <section id="faq" className="px-4 md:px-0">
+      <section
+        id="faq"
+        className="landing-section px-4 md:px-6 max-w-7xl mx-auto bg-white">
         <SectionReveal>
           <FAQ />
         </SectionReveal>
       </section>
 
-      <section id="location" className="px-4 md:px-0">
+      <section
+        id="location"
+        className="landing-section landing-section-alt px-4 md:px-6 mx-auto"
+        aria-labelledby="location-heading">
         <SectionReveal>
           <LocationMap />
         </SectionReveal>

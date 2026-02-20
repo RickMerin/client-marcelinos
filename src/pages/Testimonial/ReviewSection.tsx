@@ -59,44 +59,50 @@ function ClientReviews() {
 
   return (
     <section
-      id="reviews"
-      className="bg-[#faf7f2] py-16 flex flex-col items-center">
-      {/* HEADER */}
-
-      <h1 className="text-3xl font-bold text-center mb-12">
-        <span className="green header">CLIENT</span>{" "}
-        <span className="yellow header">REVIEWS</span>
-      </h1>
-
-      {/* CONTAINER */}
+      className="w-full flex flex-col items-center"
+      aria-labelledby="reviews-heading">
+      <h2
+        id="reviews-heading"
+        className="font-display text-3xl font-bold tracking-tight text-center mb-12 text-(--color-charcoal)">
+        <span className="green">CLIENT</span>{" "}
+        <span className="yellow">REVIEWS</span>
+      </h2>
 
       <div className="relative w-full max-w-6xl px-4 sm:px-8">
-        {/* NAV BUTTONS */}
-
         <button
           ref={prevRef}
-          className="absolute left-0 sm:-left-10 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-yellow-400 hover:text-white">
-          <ChevronLeft />
+          type="button"
+          aria-label="Previous review"
+          className="absolute left-0 sm:-left-10 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full shadow-md flex items-center justify-center bg-white border border-(--color-sage-muted) text-green-800 hover:bg-(--color-sage-muted) hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2">
+          <ChevronLeft className="w-5 h-5" />
         </button>
 
         <button
           ref={nextRef}
-          className="absolute right-0 sm:-right-10 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-yellow-400 hover:text-white">
-          <ChevronRight />
+          type="button"
+          aria-label="Next review"
+          className="absolute right-0 sm:-right-10 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full shadow-md flex items-center justify-center bg-white border border-(--color-sage-muted) text-green-800 hover:bg-(--color-sage-muted) hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2">
+          <ChevronRight className="w-5 h-5" />
         </button>
 
         {/* STATES */}
 
         {isLoading && (
-          <p className="text-center text-gray-500">Loading reviews...</p>
+          <p className="text-center text-(--color-charcoal) opacity-80">
+            Loading reviews...
+          </p>
         )}
 
         {isError && (
-          <p className="text-center text-red-500">Failed to load reviews.</p>
+          <p className="text-center text-red-600 font-medium">
+            Failed to load reviews.
+          </p>
         )}
 
         {!isLoading && !isError && reviews.length === 0 && (
-          <p className="text-center text-gray-500">No reviews yet.</p>
+          <p className="text-center text-(--color-charcoal) opacity-80">
+            No reviews yet.
+          </p>
         )}
 
         {/* SWIPER */}

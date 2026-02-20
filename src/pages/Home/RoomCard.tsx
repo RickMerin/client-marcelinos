@@ -23,17 +23,17 @@ function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
 
 function useSlidesPerView() {
   const [slidesPerView, setSlidesPerView] = useState(() => {
-    if (typeof window === "undefined") return 4;
+    if (typeof window === "undefined") return 3;
     if (window.innerWidth < 640) return 1;
     if (window.innerWidth < 1024) return 2;
-    return 4;
+    return 3;
   });
 
   useLayoutEffect(() => {
     const update = () => {
       if (window.innerWidth < 640) setSlidesPerView(1);
       else if (window.innerWidth < 1024) setSlidesPerView(2);
-      else setSlidesPerView(4);
+      else setSlidesPerView(3);
     };
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
@@ -145,19 +145,25 @@ function RoomCard() {
 
   if (error) {
     return (
-      <section className="bg-gray-50 py-10">
-        <h2 className="text-4xl font-bold text-center mb-10">
+      <section className="w-full" aria-labelledby="rooms-heading">
+        <h2
+          id="rooms-heading"
+          className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
           <span className="text-green-900">OUR</span>{" "}
           <span className="text-yellow-500">ROOMS</span>
         </h2>
-        <p className="text-red-500 text-center">Error loading rooms</p>
+        <p className="text-sm text-red-600 text-center font-medium">
+          Error loading rooms.
+        </p>
       </section>
     );
   }
 
   return (
-    <section className="bg-gray-50 py-10">
-      <h2 className="text-4xl font-bold text-center mb-10">
+    <section className="w-full" aria-labelledby="rooms-heading">
+      <h2
+        id="rooms-heading"
+        className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
         <span className="text-green-900">OUR</span>{" "}
         <span className="text-yellow-500">ROOMS</span>
       </h2>
@@ -165,13 +171,15 @@ function RoomCard() {
       {isLoading ? (
         <CarouselSkeleton />
       ) : roomList.length === 0 ? (
-        <p className="text-center text-gray-500">No rooms available.</p>
+        <p className="text-sm text-center text-(--color-charcoal) opacity-80">
+          No rooms available.
+        </p>
       ) : (
         <div
-          className="relative w-[90%] max-w-[1200px] mx-auto pb-12"
+          className="relative w-[90%] max-w-[1200px] mx-auto pb-12 min-h-[495px]"
           ref={containerRef}>
-          {/* Fixed min-height reserves space so FLIP's absolute positioning doesn't collapse layout */}
-          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-h-[420px]">
+          {/* Fixed track height prevents layout shift when FLIP uses absolute positioning */}
+          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-rows-[minmax(420px,1fr)] min-h-[420px]">
             {visibleRooms.map(
               (room: Record<string, unknown> & { _index?: number }) => (
                 <div
@@ -199,14 +207,14 @@ function RoomCard() {
               <button
                 type="button"
                 onClick={() => go(-1)}
-                className="absolute left-0 lg:-left-16 top-1/2 -translate-y-1/2 -translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center text-green-900 hover:bg-gray-50 transition-colors"
+                className="absolute left-0 lg:-left-16 top-1/2 -translate-y-1/2 -translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-(--color-sage-muted) flex items-center justify-center text-green-800 hover:bg-sage-muted hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                 aria-label="Previous rooms">
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 type="button"
                 onClick={() => go(1)}
-                className="absolute right-0 lg:-right-16 top-1/2 -translate-y-1/2 translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center text-green-900 hover:bg-gray-50 transition-colors"
+                className="absolute right-0 lg:-right-16 top-1/2 -translate-y-1/2 translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-(--color-sage-muted) flex items-center justify-center text-green-800 hover:bg-sage-muted hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                 aria-label="Next rooms">
                 <ChevronRight className="w-5 h-5" />
               </button>

@@ -90,23 +90,42 @@ function EventVenues() {
   }, [isLoading, venueList.length]);
 
   return (
-    <section ref={sectionRef} id="venues" className="w-full py-16 bg-gray-50">
-      <h2 className="text-4xl font-bold text-center mb-10">
+    <section
+      ref={sectionRef}
+      className="w-full"
+      aria-labelledby="venues-heading">
+      <h2
+        id="venues-heading"
+        className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
         <span className="text-green-900">EVENT </span>
         <span className="text-yellow-500">VENUES</span>
       </h2>
 
       {error && (
-        <p className="text-red-500 text-center mb-6">Error loading venues.</p>
+        <p className="text-sm text-red-600 text-center mb-6 font-medium">
+          Error loading venues.
+        </p>
       )}
 
       {isLoading ? (
         <EventVenueSkeleton />
       ) : venueList.length === 0 ? (
-        <p className="text-center text-gray-500">No venues available.</p>
+        <p className="text-sm text-center text-(--color-charcoal) opacity-80">
+          No venues available.
+        </p>
       ) : (
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 sm:grid-cols-2 md:grid-cols-3">
-          {venueList.map((venue) => (
+        <div
+          className={`mx-auto grid gap-8 px-6
+            ${
+              venueList.length === 1
+                ? "max-w-md grid-cols-1"
+                : venueList.length === 2
+                ? "max-w-3xl grid-cols-1 sm:grid-cols-2"
+                : "max-w-7xl grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+            }
+          `}
+        >
+            {venueList.map((venue) => (
             <div key={venue.id} className="venue-card-wrap">
               <CardItem
                 id={venue.id}

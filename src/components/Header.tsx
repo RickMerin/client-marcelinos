@@ -223,7 +223,7 @@ export default function Header() {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-[1200] w-full border-b bg-white/95 shadow-sm backdrop-blur-sm">
+      className="sticky top-0 z-1200 w-full border-b bg-white/95 shadow-sm backdrop-blur-sm">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 md:px-8">
         <button
           ref={logoRef}
@@ -272,7 +272,7 @@ export default function Header() {
           </NavigationMenu>
 
           <Button
-            className="bg-(--default-color) text-white font-semibold hover:bg-yellow-500 transition-transform active:scale-[0.98]"
+            className="text-white font-semibold bg-yellow-500 transition-transform active:scale-[0.98]"
             onClick={bookNowHandler}>
             Book Now
           </Button>
