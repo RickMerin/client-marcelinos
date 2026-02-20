@@ -181,10 +181,6 @@ function ClientReviews() {
                             ))}
                           </div>
 
-                          {/* TITLE */}
-                          {/* <h4 className="font-semibold text-sm leading-tight">
-                      {review.title}
-                    </h4> */}
 
                           {/* COMMENT */}
                           <p className="text-sm text-gray-600 leading-relaxed">
