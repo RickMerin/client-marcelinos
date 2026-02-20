@@ -20,7 +20,7 @@ export default function TestimonialPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const [rating, setRating] = useState(0);
-  const [title, setTitle] = useState("");
+  // Title state removed
   const [comment, setComment] = useState("");
   const [formError, setFormError] = useState("");
 
@@ -84,7 +84,7 @@ export default function TestimonialPage() {
     try {
       await API.post<{ message: string }>(
         `bookings/reference/${encodeURIComponent(reference)}/review`,
-        { rating, title: title.trim() || undefined, comment: comment.trim() }
+        { rating, comment: comment.trim() }
       );
 
       await MySwal.fire({
@@ -101,7 +101,6 @@ export default function TestimonialPage() {
       });
 
       setRating(0);
-      setTitle("");
       setComment("");
       setHasTestimonial(true);
     } catch (err: unknown) {
@@ -211,21 +210,7 @@ export default function TestimonialPage() {
               </div>
             </div>
 
-            {/* Title (optional) */}
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                Title (optional)
-              </label>
-              <input
-                id="title"
-                type="text"
-                placeholder="e.g. Wonderful stay!"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-[#1f5d1e] focus:border-transparent"
-                maxLength={255}
-              />
-            </div>
+            {/* Title field removed as requested */}
 
             {/* Comment */}
             <div>
