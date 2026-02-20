@@ -6,8 +6,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import gsap from "gsap";
 
@@ -33,7 +32,8 @@ export default function Header() {
   const desktopNavRef = useRef<HTMLDivElement>(null);
   const desktopLinksRef = useRef<HTMLButtonElement[]>([]);
   const mobileLinksRef = useRef<HTMLButtonElement[]>([]);
-  const mobileNavContainerRef = useRef<HTMLDivElement>(null);
+  const mobileDropdownRef = useRef<HTMLDivElement>(null);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
   /** While set, scroll-spy won't override activeSection (avoids glitch during nav click scroll) */
   const scrollingToRef = useRef<string | null>(null);
   const scrollTickRef = useRef<number>(0);
@@ -45,8 +45,8 @@ export default function Header() {
     { label: "Venues", href: "#venues", sectionId: "venues" },
     { label: "Services", href: "#services", sectionId: "services" },
     { label: "Gallery", href: "#gallery", sectionId: "gallery" },
-    { label: "Review", href: "#reviews", sectionId: "reviews" },
-    { label: "Faq", href: "#faq", sectionId: "faq" },
+    { label: "Reviews", href: "#reviews", sectionId: "reviews" },
+    { label: "FAQ", href: "#faq", sectionId: "faq" },
   ];
 
   // GSAP: header entrance animation on mount
@@ -155,27 +155,48 @@ export default function Header() {
     };
   }, [location.pathname]);
 
-  // GSAP: mobile menu stagger when opening
+  // GSAP: mobile dropdown expand/collapse + stagger (inline, no overlay)
   useEffect(() => {
-    if (!open) return;
+    const wrapper = mobileDropdownRef.current;
+    const panel = mobilePanelRef.current;
+    if (!wrapper || !panel) return;
 
-    const links = mobileLinksRef.current.filter(Boolean);
-    const container = mobileNavContainerRef.current;
-    if (!container || links.length === 0) return;
-
-    gsap.fromTo(
-      links,
-      { y: 16, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
+    if (open) {
+      gsap.set(wrapper, { overflow: "hidden" });
+      const height = panel.scrollHeight;
+      gsap.fromTo(
+        wrapper,
+        { maxHeight: 0 },
+        {
+          maxHeight: height,
+          duration: 0.45,
+          ease: "power3.out",
+          overwrite: true,
+        },
+      );
+      const links = mobileLinksRef.current.filter(Boolean);
+      gsap.fromTo(
+        links,
+        { y: 14, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.35,
+          stagger: 0.04,
+          delay: 0.1,
+          ease: "power2.out",
+          overwrite: true,
+        },
+      );
+    } else {
+      gsap.to(wrapper, {
+        maxHeight: 0,
         duration: 0.35,
-        stagger: 0.05,
-        delay: 0.15,
-        ease: "power2.out",
+        ease: "power2.in",
+        overflow: "hidden",
         overwrite: true,
-      },
-    );
+      });
+    }
   }, [open]);
 
   const bookNowHandler = () => {
@@ -212,7 +233,7 @@ export default function Header() {
     }
 
     scrollToSection();
-  };;
+  };
 
   const isActive = (sectionId: string) =>
     activeSection !== null && activeSection === sectionId;
@@ -223,7 +244,7 @@ export default function Header() {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-50 w-full border-b bg-white/95 shadow-sm backdrop-blur-sm">
+      className="sticky top-0 z-1200 w-full border-b bg-white/95 shadow-sm backdrop-blur-sm">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 md:px-8">
         <button
           ref={logoRef}
@@ -232,7 +253,7 @@ export default function Header() {
           <img
             src="/brand-logo-png.png"
             alt="Marcelino's Logo"
-            className="h-16 w-16 object-contain"
+            className="h-15 w-15 object-contain"
           />
           <div className="ml-2 leading-tight">
             <div className="text-[20px] font-extrabold tracking-widest text-green-900 font-serif">
@@ -272,84 +293,58 @@ export default function Header() {
           </NavigationMenu>
 
           <Button
-            className="bg-(--default-color) text-white font-semibold hover:bg-yellow-500 transition-transform active:scale-[0.98]"
+            className="text-white font-semibold bg-yellow-500 transition-transform active:scale-[0.98]"
             onClick={bookNowHandler}>
             Book Now
           </Button>
         </nav>
 
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              className="md:hidden hover:bg-transparent focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 rounded-md transition-transform active:scale-95"
-              aria-label="Open menu"
-              aria-expanded={open}>
-              <Menu className="size-7" />
-            </Button>
-          </SheetTrigger>
+        {/* Mobile: hamburger + inline dropdown (pushes content, no overlay) */}
+        <div className="flex md:hidden items-center">
+          <Button
+            variant="ghost"
+            className="hover:bg-transparent focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:border-0 rounded-md transition-transform active:scale-95"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((o) => !o)}>
+            {open ? <X className="size-7" /> : <Menu className="size-7" />}
+          </Button>
+        </div>
+      </div>
 
-          <SheetContent
-            side="top"
-            className="bg-white/98 backdrop-blur-sm border-b"
-            onCloseAutoFocus={(e) => e.preventDefault()}>
-            <SheetTitle className="border-b p-4 text-center text-2xl font-extrabold">
-              <div className="mx-auto flex items-center justify-between px-4 md:px-8">
-                <a
-                  href="/"
-                  className="flex items-center"
-                  onClick={() => setOpen(false)}>
-                  <img
-                    src="/brand-logo-png.png"
-                    alt="Marcelino's Logo"
-                    className="h-16 w-16 object-contain"
-                  />
-                  <div className="ml-2 leading-tight">
-                    <div className="text-[20px] font-extrabold tracking-widest text-green-900 font-serif">
-                      MARCELINO'S
-                    </div>
-                    <div className="text-sm tracking-widest font-light">
-                      RESORT AND HOTEL
-                    </div>
-                  </div>
-                </a>
-              </div>
-            </SheetTitle>
-
-            <SheetDescription className="sr-only">
-              Mobile Navigation Menu
-            </SheetDescription>
-
-            <nav
-              ref={mobileNavContainerRef}
-              className="flex flex-col items-stretch gap-1 p-6 max-h-[70vh] overflow-y-auto">
-              {navLinks.map((item, i) => (
-                <button
-                  key={item.label}
-                  ref={(el) => {
-                    if (el) mobileLinksRef.current[i] = el;
-                  }}
-                  onClick={() => handleNavClick(item.href)}
-                  className={`py-3 px-4 text-left text-lg font-medium rounded-lg border-l-4 border-transparent transition-colors hover:bg-green-50 hover:text-yellow-700 active:bg-green-100 touch-manipulation ${
-                    isActive(item.sectionId)
-                      ? "text-yellow-600 font-semibold bg-green-50/80 border-yellow-500"
-                      : "text-black"
-                  }`}
-                  aria-current={isActive(item.sectionId) ? "true" : undefined}>
-                  {item.label}
-                </button>
-              ))}
-
-              <div className="pt-4 mt-2 border-t">
-                <Button
-                  className="w-full bg-(--default-color) text-white font-semibold hover:bg-yellow-500 py-6 text-base rounded-lg transition-transform active:scale-[0.98]"
-                  onClick={bookNowHandler}>
-                  Book Now
-                </Button>
-              </div>
-            </nav>
-          </SheetContent>
-        </Sheet>
+      {/* Inline mobile nav: expands below header, no overlap */}
+      <div
+        ref={mobileDropdownRef}
+        className="md:hidden max-h-0 overflow-hidden border-t border-green-100/80 bg-white/98 shadow-sm"
+        aria-hidden={!open}
+        data-state={open ? "open" : "closed"}>
+        <div ref={mobilePanelRef} className="px-4 pb-4">
+          <nav className="flex flex-col items-stretch gap-0.5 pt-2 max-h-[70vh] overflow-y-auto">
+            {navLinks.map((item, i) => (
+              <button
+                key={item.label}
+                ref={(el) => {
+                  if (el) mobileLinksRef.current[i] = el;
+                }}
+                onClick={() => handleNavClick(item.href)}
+                className={`py-3 px-4 text-left text-lg font-medium rounded-lg border-l-4 border-transparent transition-colors hover:bg-green-50 hover:text-yellow-700 active:bg-green-100 touch-manipulation ${
+                  isActive(item.sectionId)
+                    ? "text-yellow-600 font-semibold bg-green-50/80 border-yellow-500"
+                    : "text-black"
+                }`}
+                aria-current={isActive(item.sectionId) ? "true" : undefined}>
+                {item.label}
+              </button>
+            ))}
+            <div className="pt-4 mt-2 border-t border-green-100">
+              <Button
+                className="w-full bg-yellow-500 text-white font-semibold hover:bg-yellow-600 py-6 text-base rounded-lg transition-transform active:scale-[0.98]"
+                onClick={bookNowHandler}>
+                Book Now
+              </Button>
+            </div>
+          </nav>
+        </div>
       </div>
     </header>
   );

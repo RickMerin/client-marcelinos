@@ -1,10 +1,15 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Download, House, ReceiptText } from "lucide-react";
 import domtoimage from "dom-to-image";
 import { BookingReceipt } from "@/types/booking.types";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
+import CancelBookingContent from "@/components/modals/CancelBookingContent";
+import Modal from "@/components/modals/Modal";
+// your existing Modal component
 
 interface Step5FormDataProps {
   formData: any;
@@ -58,12 +63,11 @@ export function Step5(props: Props) {
   const isFromApi = isReceiptData(props);
   const receipt: BookingReceipt | undefined = props.receiptData;
   const form = props.formData;
-  const qrCodeUrl = isFromApi ? props.qrCodeUrl ?? null : null;
+  const qrCodeUrl = isFromApi ? (props.qrCodeUrl ?? null) : null;
 
   const referenceNumber = isFromApi
     ? receipt?.reference_number
     : form?.reference_number;
-
 
   const createdAt = isFromApi
     ? receipt?.created_at
@@ -96,6 +100,16 @@ export function Step5(props: Props) {
     ? (receipt?.issued_on ?? new Date().toLocaleDateString())
     : new Date().toLocaleDateString();
   const paymentMethod = isFromApi ? undefined : form?.paymentMethod;
+
+  const isCancelled = bookingStatus === "cancelled";
+  const cancelBooking = useApiMutation<void>("patch", {
+    onError: () => {
+      alert("Failed to cancel booking.");
+    },
+  });
+
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const roomsFromApi =
     receipt != null
@@ -201,12 +215,18 @@ export function Step5(props: Props) {
     }
   };
 
+  const handleCancel = () => {
+    if (!referenceNumber) return;
+    setIsCancelModalOpen(true); // open the modal instead of alert
+  };
+
   return (
     <motion.div
       className="flex flex-col items-center justify-center min-h-screen pb-10"
       initial="hidden"
       animate="visible"
-      variants={fadeInUp}>
+      variants={fadeInUp}
+    >
       <div
         id="receipt"
         role="document"
@@ -215,7 +235,8 @@ export function Step5(props: Props) {
         style={{
           backgroundColor: "var(--color-cream)",
           borderColor: receiptBorder,
-        }}>
+        }}
+      >
         {/* Receipt header */}
         <div className="text-center mb-5">
           <ReceiptText
@@ -225,12 +246,14 @@ export function Step5(props: Props) {
           />
           <h2
             className="font-display text-lg sm:text-xl font-bold mt-2 uppercase tracking-widest"
-            style={{ color: "var(--color-charcoal)" }}>
+            style={{ color: "var(--color-charcoal)" }}
+          >
             Booking Receipt
           </h2>
           <p
             className="text-sm mt-1 opacity-80"
-            style={{ color: "var(--color-charcoal)" }}>
+            style={{ color: "var(--color-charcoal)" }}
+          >
             Thank you for booking with us!
           </p>
         </div>
@@ -240,7 +263,8 @@ export function Step5(props: Props) {
         {/* Reference & issued — receipt-style top block */}
         <div
           className="text-sm flex flex-wrap justify-between gap-x-4 gap-y-1 mb-4"
-          style={{ color: "var(--color-charcoal)" }}>
+          style={{ color: "var(--color-charcoal)" }}
+        >
           <div>
             <span className="opacity-80">Reference No.</span>
             <span className="ml-2 font-semibold">{referenceNumber || "—"}</span>
@@ -254,7 +278,8 @@ export function Step5(props: Props) {
         {/* Booking details */}
         <div
           className="text-sm space-y-2 mb-4"
-          style={{ color: "var(--color-charcoal)" }}>
+          style={{ color: "var(--color-charcoal)" }}
+        >
           <ReceiptRow label="Created" value={createdAt} />
           <ReceiptRow
             label="Status"
@@ -277,13 +302,15 @@ export function Step5(props: Props) {
         <div className="mb-4">
           <h3
             className="text-xs font-bold uppercase tracking-wider opacity-90 mb-3"
-            style={{ color: "var(--color-charcoal)" }}>
+            style={{ color: "var(--color-charcoal)" }}
+          >
             Room details
           </h3>
           {rooms.length > 0 ? (
             <ul
               className="space-y-2.5 text-sm"
-              style={{ color: "var(--color-charcoal)" }}>
+              style={{ color: "var(--color-charcoal)" }}
+            >
               {rooms.map((room: any, idx: number) => {
                 const price =
                   typeof room.price === "number"
@@ -312,7 +339,8 @@ export function Step5(props: Props) {
           ) : (
             <p
               className="text-sm italic opacity-70"
-              style={{ color: "var(--color-charcoal)" }}>
+              style={{ color: "var(--color-charcoal)" }}
+            >
               No rooms selected
             </p>
           )}
@@ -324,12 +352,14 @@ export function Step5(props: Props) {
             <div className="mb-4">
               <h3
                 className="text-xs font-bold uppercase tracking-wider opacity-90 mb-3"
-                style={{ color: "var(--color-charcoal)" }}>
+                style={{ color: "var(--color-charcoal)" }}
+              >
                 Venue details
               </h3>
               <ul
                 className="space-y-2.5 text-sm"
-                style={{ color: "var(--color-charcoal)" }}>
+                style={{ color: "var(--color-charcoal)" }}
+              >
                 {venues.map((venue: any, idx: number) => {
                   const price =
                     typeof venue.price === "number"
@@ -362,7 +392,8 @@ export function Step5(props: Props) {
         <div className="text-sm" style={{ color: "var(--color-charcoal)" }}>
           <h3
             className="text-xs font-bold uppercase tracking-wider opacity-90 mb-3"
-            style={{ color: "var(--color-charcoal)" }}>
+            style={{ color: "var(--color-charcoal)" }}
+          >
             Calculation
           </h3>
           <div
@@ -370,7 +401,8 @@ export function Step5(props: Props) {
             style={{
               backgroundColor: "var(--color-sage-muted, #e8efe4)",
               borderColor: receiptBorder,
-            }}>
+            }}
+          >
             <div className="flex justify-between">
               <span className="opacity-90">Rooms (per night)</span>
               <span className="tabular-nums">{pricingFormat(roomsTotal)}</span>
@@ -400,11 +432,13 @@ export function Step5(props: Props) {
           </div>
           <div
             className="flex justify-between font-bold text-base mt-3 pt-2"
-            style={{ color: "var(--color-charcoal)" }}>
+            style={{ color: "var(--color-charcoal)" }}
+          >
             <span>Grand total</span>
             <span
               className="tabular-nums"
-              style={{ color: "var(--color-sage)" }}>
+              style={{ color: "var(--color-sage)" }}
+            >
               {pricingFormat(displayGrandTotal)}
             </span>
           </div>
@@ -422,12 +456,14 @@ export function Step5(props: Props) {
           <div className="text-center mt-2">
             <div
               className="font-display text-lg tracking-widest font-bold"
-              style={{ color: "var(--color-charcoal)" }}>
+              style={{ color: "var(--color-charcoal)" }}
+            >
               MARCELINO&apos;S
             </div>
             <div
               className="text-xs tracking-widest font-medium opacity-80"
-              style={{ color: "var(--color-charcoal)" }}>
+              style={{ color: "var(--color-charcoal)" }}
+            >
               RESORT AND HOTEL
             </div>
           </div>
@@ -438,7 +474,8 @@ export function Step5(props: Props) {
           {qrCodeUrl ? (
             <div
               className="inline-block p-2 bg-white rounded-lg border mb-2"
-              style={{ borderColor: "var(--color-sage-muted)" }}>
+              style={{ borderColor: "var(--color-sage-muted)" }}
+            >
               <img
                 src={qrCodeUrl}
                 alt="Scan for digital receipt"
@@ -449,12 +486,14 @@ export function Step5(props: Props) {
           ) : null}
           <p
             className="text-xs opacity-75 mb-1"
-            style={{ color: "var(--color-charcoal)" }}>
+            style={{ color: "var(--color-charcoal)" }}
+          >
             {qrCodeUrl ? "Scan for digital receipt" : null}
           </p>
           <div
             className="text-xs opacity-75 space-y-0.5"
-            style={{ color: "var(--color-charcoal)" }}>
+            style={{ color: "var(--color-charcoal)" }}
+          >
             {paymentMethod ? <p>Payment: {paymentMethod}</p> : null}
             <p>Issued on {issuedOn}</p>
           </div>
@@ -466,7 +505,8 @@ export function Step5(props: Props) {
           <button
             onClick={downloadReceipt}
             className="cursor-pointer text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto hover:opacity-95"
-            style={{ backgroundColor: "var(--color-sage)" }}>
+            style={{ backgroundColor: "var(--color-sage)" }}
+          >
             <Download className="w-4 h-4" />
             Download Receipt
           </button>
@@ -476,12 +516,68 @@ export function Step5(props: Props) {
             style={{
               backgroundColor: "var(--color-sage)",
               borderColor: "var(--color-sage)",
-            }}>
+            }}
+          >
             <House className="w-4 h-4" />
             Book Another Room
           </button>
+          <button
+            onClick={handleCancel}
+            disabled={isCancelled || cancelBooking.isPending}
+            className={`text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto
+    ${
+      isCancelled || cancelBooking.isPending
+        ? "opacity-50 cursor-not-allowed"
+        : "hover:opacity-95"
+    }
+  `}
+            style={{ backgroundColor: "var(--color-sage)" }}
+          >
+            {cancelBooking.isPending ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                ></span>
+                Cancelling...
+              </>
+            ) : isCancelled ? (
+              "Booking Cancelled"
+            ) : (
+              "Cancel Booking"
+            )}
+          </button>
         </div>
       </div>
+      <Modal
+        open={isCancelModalOpen}
+        onClose={() => !isSubmitting && setIsCancelModalOpen(false)}
+        showCloseButton={!isSubmitting}
+      >
+        <CancelBookingContent
+          onCancel={() => !isSubmitting && setIsCancelModalOpen(false)}
+          onConfirm={async () => {
+            setIsSubmitting(true); // optional: show loader
+
+            try {
+              // Call your API to cancel the booking
+              await cancelBooking.mutateAsync({
+                url: `/bookings/${referenceNumber}/cancel`,
+              });
+
+              // Close the modal
+              setIsCancelModalOpen(false);
+
+              // Reload the page to update booking status
+              window.location.reload();
+            } catch (error) {
+              console.error(error);
+              setIsSubmitting(false);
+            }
+          }}
+          isSubmitting={isSubmitting}
+        />
+      </Modal>
     </motion.div>
   );
 }

@@ -11,7 +11,8 @@ export type PageSEOOptions = {
   keywords?: string;
 };
 
-const DEFAULT_OG_IMAGE = "https://marcelinos.com/og-image.jpg";
+const DEFAULT_OG_IMAGE =
+  "https://i.pinimg.com/736x/d0/12/ff/d012ff9db63632a5d2fda38c45e886fc.jpg";
 
 function getOrCreateMeta(
   document: Document,

@@ -31,53 +31,48 @@ function CardItem(props: CardItemProps) {
 
   const [expanded, setExpanded] = useState(false);
 
+  // Build images array
   const images =
     imagesProp ??
     [featured_image, ...(Array.isArray(gallery) ? gallery : [])].filter(
-      (url): url is string => Boolean(url),
+      (url): url is string => Boolean(url)
     );
 
   const mainImage = images[0];
   const title = name ?? "—";
   const typeTitle = type ?? null;
 
+  // Convert amenities to string array
   const amenityList: string[] = Array.isArray(amenities)
     ? amenities
         .map((a: unknown) =>
-          typeof a === "string" ? a : (a as { name?: string })?.name,
+          typeof a === "string" ? a : (a as { name?: string })?.name
         )
         .filter((x): x is string => Boolean(x))
     : [];
 
-  const subtitle =
-    description ?? (amenityList.length ? amenityList.join(", ") : "—");
 
-// preview
-
+  // Preview text for short card view
   const PREVIEW_WORD_LIMIT = 6;
-
   const { previewText, isLong } = useMemo(() => {
-    if (!subtitle || subtitle === "—") {
-      return { previewText: subtitle, isLong: false };
-    }
+    if (!description) return { previewText: "", isLong: false };
 
-    const words = subtitle.trim().split(/\s+/);
-
+    const words = description.trim().split(/\s+/);
     if (words.length <= PREVIEW_WORD_LIMIT) {
-      return { previewText: subtitle, isLong: false };
+      return { previewText: description, isLong: false };
     }
-
     return {
       previewText: words.slice(0, PREVIEW_WORD_LIMIT).join(" ") + "...",
       isLong: true,
     };
-  }, [subtitle]);
+  }, [description]);
 
   return (
     <motion.div
       className="group relative w-full overflow-hidden rounded-2xl border border-gray-100/90 bg-white shadow-lg shadow-gray-900/5 transition-shadow duration-300 hover:border-amber-200/60 hover:shadow-xl hover:shadow-green-900/10"
       whileHover={{ y: -6 }}
-      transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}>
+      transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
       {/* Accent bar */}
       <div className="absolute left-0 right-0 top-0 z-10 h-1 bg-linear-to-r from-green-800 via-[#F4C95D] to-amber-400" />
 
@@ -90,7 +85,6 @@ function CardItem(props: CardItemProps) {
           className="object-center transition-transform duration-500 group-hover:scale-105"
         />
         <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
-
         {typeTitle && (
           <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-xs font-medium text-green-800 shadow-sm backdrop-blur-sm">
             {typeTitle}
@@ -100,12 +94,12 @@ function CardItem(props: CardItemProps) {
 
       {/* CONTENT */}
       <div className="relative p-5">
-        <h2 className="mb-2 text-xl font-semibold tracking-tight text-gray-900">
+        <h2 className="font-display mb-2 text-xl font-semibold tracking-tight text-gray-900">
           {title}
         </h2>
 
-        {(capacity != null || subtitle !== "—") && (
-          <ul className="mb-3 space-y-1 text-sm text-gray-600">
+        {(capacity != null || description || amenityList.length > 0) && (
+          <ul className="mb-3 space-y-1 text-sm text-gray-600 opacity-90">
             {capacity != null && (
               <li className="flex items-center gap-2">
                 <span className="font-medium text-green-800">Capacity:</span>
@@ -115,31 +109,22 @@ function CardItem(props: CardItemProps) {
               </li>
             )}
 
-            {subtitle !== "—" && (
-              <li className="text-gray-700 text-sm leading-relaxed">
-                {amenityList.length > 0 ? (
-                  <>
-                    <span className="font-medium text-green-800">
-                      Amenities:
-                    </span>{" "}
-                    {amenityList.slice(0, 3).join(", ")}
-                    {amenityList.length > 3 && " and more"}
-                  </>
-                ) : (
-                  <>
-                    {previewText}
+           {description && (
+            <div className="flex items-center gap-1 text-gray-700 text-sm leading-relaxed">
+              <span className="truncate">
+                {isLong ? previewText : description}
+              </span>
+              {isLong && (
+                <button
+                  onClick={() => setExpanded(true)}
+                  className="flex-shrink-0 font-medium text-[#0D542B] hover:text-[#F0B100] transition-colors duration-200"
+                >
+                  See more
+                </button>
+              )}
+            </div>
+          )}
 
-                    {isLong && (
-                      <button
-                        onClick={() => setExpanded(true)}
-                        className="ml-1 font-medium text-[#0D542B] hover:text-[#F0B100] transition-colors duration-200">
-                        See more
-                      </button>
-                    )}
-                  </>
-                )}
-              </li>
-            )}
           </ul>
         )}
 
@@ -154,11 +139,9 @@ function CardItem(props: CardItemProps) {
       </div>
 
       {/* ================= OVERLAY ================= */}
-
       <AnimatePresence>
         {expanded && (
           <>
-            {/* Lighter Background Overlay */}
             <motion.div
               className="absolute inset-0 bg-black/30 z-20"
               initial={{ opacity: 0 }}
@@ -168,35 +151,55 @@ function CardItem(props: CardItemProps) {
               onClick={() => setExpanded(false)}
             />
 
-            {/* Slide Panel */}
             <motion.div
               className="absolute inset-0 z-30 bg-[#0D542B]/90 backdrop-blur-lg p-6 flex flex-col rounded-2xl"
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}>
-              <h2 className="text-white text-xl font-semibold mb-4">{title}</h2>
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+            >
+              <div className="flex">
+              <h2 className="flex-1 font-display text-white text-xl font-semibold mb-4">{title}</h2>
 
               {capacity != null && (
-                <p className="text-white text-sm mb-3">Capacity: {capacity}</p>
+                <p className="text-white text-sm">Capacity: {capacity}</p>
               )}
-
-              {/* Professional Scroll Area */}
-              <div className="flex-1 overflow-y-auto text-white text-sm pr-2 custom-scroll">
-                {subtitle}
               </div>
 
-              {price != null && (
-                <div className="mt-4 text-[#F0B100] font-semibold">
+              <div className="flex-1 overflow-y-auto text-white text-sm pr-2 custom-scroll">
+                
+                {amenityList.length > 0 && (
+                  <div className="mb-4">
+                    <div className="font-medium">
+                      AMENITIES 
+                    </div>
+                    <div>
+                        {amenityList.join(", ")}
+                      </div>
+                  </div>
+                )}<div>
+                  <div className="font-medium">DESCRIPTION</div>
+                  <div className="mt-1">
+                    {description}
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="flex">
+                {price != null && (
+                <div className="yellow text-m flex-1 font-semibold">
                   {pricingFormat(String(price))}
                 </div>
               )}
 
               <button
                 onClick={() => setExpanded(false)}
-                className="mt-6 self-end text-sm font-medium text-[#F0B100] hover:underline">
+                className="self-end text-sm font-medium yellow hover:underline"
+              >
                 Close
               </button>
+              </div>
             </motion.div>
           </>
         )}

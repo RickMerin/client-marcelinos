@@ -59,31 +59,44 @@ export function BannerCarousel() {
                     alt="Banner 1"
                     loading="eager"
                     fetchPriority="high"
-                    className="w-full h-[88vh] object-cover object-center"
+                    className="w-full h-[80vh] object-cover object-center"
                   />
-                  <div className="absolute inset-0 bg-black/60 z-10" />
+                  {/* Premium overlay: gradient for depth and readability */}
+                  <div
+                    className="absolute inset-0 z-10"
+                    style={{
+                      background:
+                        "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(44,44,44,0.65) 50%, rgba(0,0,0,0.7) 100%)",
+                    }}
+                  />
 
-                  {/* Animate all content inside */}
+                  {/* Animate all content inside - premium typography */}
                   {isActive && (
                     <motion.section
                       key={index}
-                      className="absolute inset-0 z-20 flex flex-col space-y-5 items-center justify-center select-none"
+                      className="absolute inset-0 z-20 flex flex-col space-y-5 items-center justify-center select-none px-4"
                       initial="initial"
                       animate="animate"
                       transition={{ staggerChildren: 0.2 }}>
-                      {/* Header text animation */}
+                      {/* Header text - display font, sage accent */}
                       <motion.div
                         variants={fadeUp}
                         transition={{ duration: 0.6, ease: "easeOut" }}
                         className="flex items-center justify-center">
-                        <div className="block w-10 h-1 bg-[#F4C95D] mr-5" />
-                        <h4 className="text-white text-md md:text-lg font-semibold uppercase">
+                        <div
+                          className="block w-12 h-0.5 mr-4 md:mr-5"
+                          style={{ backgroundColor: "var(--color-sage-light)" }}
+                        />
+                        <h4 className="font-display text-white text-sm md:text-base font-semibold uppercase tracking-[0.25em]">
                           Elegant Venue
                         </h4>
-                        <div className="block w-10 h-1 bg-[#F4C95D] ml-5" />
+                        <div
+                          className="block w-12 h-0.5 ml-4 md:ml-5"
+                          style={{ backgroundColor: "var(--color-sage-light)" }}
+                        />
                       </motion.div>
 
-                      {/* Main WritingText animation */}
+                      {/* Main headline - display font */}
                       <motion.div
                         variants={fadeUp}
                         transition={{ duration: 0.8, delay: 0.2 }}
@@ -92,9 +105,10 @@ export function BannerCarousel() {
                           text="MAKE YOUR STAY COMFORTABLE"
                           inView={true}
                           style={{
+                            fontFamily: "var(--font-display)",
                             fontSize: "clamp(2rem, 6vw, 3rem)",
                             lineHeight: "1.2",
-                            fontWeight: "bold",
+                            fontWeight: "700",
                             color: "white",
                             textAlign: "center",
                             textTransform: "uppercase",
@@ -105,6 +119,7 @@ export function BannerCarousel() {
                             alignItems: "center",
                             flexWrap: "wrap",
                             wordBreak: "break-word",
+                            letterSpacing: "0.02em",
                           }}
                           transition={{
                             type: "spring",
@@ -115,16 +130,16 @@ export function BannerCarousel() {
                         />
                       </motion.div>
 
-                      {/* Description animation */}
+                      {/* Tagline - refined body */}
                       <motion.div
                         variants={fadeUp}
                         transition={{ duration: 0.7, delay: 0.4 }}
-                        className="flex justify-center items-center w-3/4 md:w-1/2">
-                        <i className="text-white text-center text-sm md:text-base font-cursive font-light tracking-wide leading-relaxed">
+                        className="flex justify-center items-center w-full max-w-xl">
+                        <p className="font-display text-white/95 text-center text-sm md:text-base font-light tracking-wide leading-relaxed italic">
                           Experience refined comfort in thoughtfully designed
                           rooms, complemented by quality amenities and warm
                           hospitality.
-                        </i>
+                        </p>
                       </motion.div>
                     </motion.section>
                   )}

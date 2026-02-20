@@ -16,25 +16,32 @@ export default function InteractiveMap() {
   const position: [number, number] = [10.374, 124.749];
 
   return (
-    <div className="w-full h-125 overflow-hidden shadow-lg">
-      <MapContainer
-        center={position}
-        zoom={15}
-        scrollWheelZoom={false}
-        style={{ height: "100%", width: "100%" }}>
-        <TileLayer
-          attribution='© <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker position={position} icon={customIcon}>
-          <Popup>
-            {/* <img src={logo} alt="Marcelino's Logo" className="w-12 ml-auto object-contain"/>  */}
-            <b>Marcelino's Place</b>
-            <br />
-            9QG2+VQQ, Hilongos, Leyte
-          </Popup>
-        </Marker>
-      </MapContainer>
+    <div className="container mx-auto">
+      <h2
+        id="location-heading"
+        className="font-display text-3xl font-bold tracking-tight text-center mb-8 text-(--color-charcoal)">
+        <span className="green">FIND</span> <span className="yellow">US</span>
+      </h2>
+      <div className="w-full h-[70vh] rounded-2xl overflow-hidden border border-(--color-sage-muted) shadow-md">
+        <MapContainer
+          center={position}
+          zoom={15}
+          scrollWheelZoom={false}
+          style={{ height: "100%", width: "100%" }}>
+          <TileLayer
+            attribution='© <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <Marker position={position} icon={customIcon}>
+            <Popup>
+              {/* <img src={logo} alt="Marcelino's Logo" className="w-12 ml-auto object-contain"/>  */}
+              <b>Marcelino's Place</b>
+              <br />
+              9QG2+VQQ, Hilongos, Leyte
+            </Popup>
+          </Marker>
+        </MapContainer>
+      </div>
     </div>
   );
 }
