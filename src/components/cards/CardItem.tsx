@@ -51,9 +51,16 @@ function CardItem(props: CardItemProps) {
         .filter((x): x is string => Boolean(x))
     : [];
 
+    const colorMap: any = {
+      deluxe: "text-white bg-green-800",
+      standard: "text-white bg-green-600",
+      family: "text-white bg-yellow-500",
+    };
+
+    const typeColorClass = colorMap[typeTitle ?? ""] || " text-black";
 
   // Preview text for short card view
-  const PREVIEW_WORD_LIMIT = 6;
+  const PREVIEW_WORD_LIMIT = 10;
   const { previewText, isLong } = useMemo(() => {
     if (!description) return { previewText: "", isLong: false };
 
@@ -66,6 +73,7 @@ function CardItem(props: CardItemProps) {
       isLong: true,
     };
   }, [description]);
+  
 
   return (
     <motion.div
@@ -84,11 +92,14 @@ function CardItem(props: CardItemProps) {
           containerClassName="h-60 w-full"
           className="object-center transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
-        {typeTitle && (
-          <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-xs font-medium text-green-800 shadow-sm backdrop-blur-sm">
-            {typeTitle}
-          </span>
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
+
+      {typeTitle && (
+        <span className={`absolute left-3 top-3 rounded-[4px] px-2.5 py-1 text-xs font-medium shadow-sm backdrop-blur-sm ${typeColorClass}`}>
+          {typeTitle}
+        </span>
+
+
         )}
       </div>
 
@@ -117,7 +128,7 @@ function CardItem(props: CardItemProps) {
               {isLong && (
                 <button
                   onClick={() => setExpanded(true)}
-                  className="flex-shrink-0 font-medium text-[#0D542B] hover:text-[#F0B100] transition-colors duration-200"
+                  className="flex-shrink-0 font-medium green hover:underline transition-colors duration-200"
                 >
                   See more
                 </button>

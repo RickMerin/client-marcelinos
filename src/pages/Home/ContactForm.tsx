@@ -98,6 +98,7 @@ function ContactForm() {
   return (
     <div className="container mx-auto faq-container flex flex-col md:flex-row gap-10 md:gap-12 py-8">
       <div className="w-full md:w-1/2 bg-white shadow-lg rounded-2xl border border-(--color-sage-muted) overflow-hidden">
+
         <h2
           id="contact-heading"
           className="font-display text-3xl font-bold tracking-tight flex justify-center gap-2 text-center mb-6 pt-6 text-(--color-charcoal)"
@@ -202,11 +203,15 @@ function ContactForm() {
             >
               {contactMutation.isPending ? <ButtonLoader /> : "Send Message"}
             </button>
+
           </form>
+
         </div>
       </div>
 
+
       <FAQ />
+
     </div>
   );
 }
