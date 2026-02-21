@@ -373,3 +373,10 @@
 .landing-card-interactive:focus-within {
   box-shadow: 0 0 0 2px var(--color-sage-muted);
 }
+
+  #about.landing-section{
+  padding: 25px 10px 10px 10px;
+}
+  #location.landing-section{
+  padding: 20px 10px 10px 10px;
+}

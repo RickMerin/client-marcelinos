@@ -17,7 +17,7 @@ function FAQ() {
     },
     {
       question: "What is your check-in and check-out time?",
-      answer: "Check-in starts at 2:00 PM, and check-out is until 12:00 PM.",
+      answer: "Check-in starts at 12:00 PM, and check-out is until 10:00 AM.",
     },
     {
       question: "Is Wi-Fi available in all rooms?",
@@ -32,7 +32,7 @@ function FAQ() {
     {
       question: "Do you have facilities for events or meetings?",
       answer:
-        "Yes, we have function rooms and event spaces suitable for meetings, parties, and small gatherings. Contact our events team for more details.",
+        "Yes, we have a function and event spaces suitable for meetings, parties, and small gatherings. Contact our events team for more details.",
     },
   ];
 
