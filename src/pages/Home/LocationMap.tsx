@@ -4,7 +4,6 @@ import L from "leaflet";
 // import pinIcon from '../../assets/img/marcelinos-logo.svg';
 import pinIcon from "../../assets/img/25530.png";
 
-// Custom icon
 const customIcon = L.icon({
   iconUrl: pinIcon,
   iconSize: [40, 40],
@@ -34,7 +33,6 @@ export default function InteractiveMap() {
           />
           <Marker position={position} icon={customIcon}>
             <Popup>
-              {/* <img src={logo} alt="Marcelino's Logo" className="w-12 ml-auto object-contain"/>  */}
               <b>Marcelino's Place</b>
               <br />
               9QG2+VQQ, Hilongos, Leyte
