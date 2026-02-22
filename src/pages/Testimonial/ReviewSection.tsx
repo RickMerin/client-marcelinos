@@ -50,9 +50,6 @@ function ClientReviews() {
     <section
       className="w-full flex flex-col items-center"
       aria-labelledby="reviews-heading">
-      <p className="text-sm font-medium uppercase tracking-wider text-(--color-sage) mb-2">
-        Testimonials
-      </p>
       <h2
         id="reviews-heading"
         className="font-display text-3xl font-bold tracking-tight text-center mb-12 text-(--color-charcoal)">

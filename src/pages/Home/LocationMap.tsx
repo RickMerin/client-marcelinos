@@ -11,7 +11,6 @@ const customIcon = L.icon({
 });
 
 export default function InteractiveMap() {
-// const position: [number, number] = [10.377304062254911, 124.7519214365679];
 const position: [number, number] = [10.377273056095643, 124.75196536185709];
 
 
