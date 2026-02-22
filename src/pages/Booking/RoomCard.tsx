@@ -16,6 +16,8 @@ interface RoomCardProps {
   onSelectRoom: (id: number) => void;
   /** Optional list of amenity names for pill tags (e.g. ["WiFi", "AC", "Slippers"]) */
   amenityPills?: string[];
+  /** When false, room is not available for the selected dates; selection is disabled. When true or undefined, room is bookable. */
+  availability?: boolean | null;
 }
 
 const EMPTY_FIELD = "—";
@@ -33,8 +35,10 @@ export const RoomCard: React.FC<RoomCardProps> = ({
   selected = false,
   onSelectRoom,
   amenityPills,
+  availability = true,
 }) => {
   const showCapacity = capacity && capacity !== EMPTY_FIELD;
+  const isAvailable = availability !== false;
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const hasGallery = images.length > 1;
@@ -60,21 +64,35 @@ export const RoomCard: React.FC<RoomCardProps> = ({
     setActiveImageIndex((i) => (i + 1) % images.length);
   };
 
+  const handleSelect = () => {
+    if (!isAvailable) return;
+    onSelectRoom(id);
+  };
+
   return (
     <section
       role="button"
-      tabIndex={0}
+      tabIndex={isAvailable ? 0 : -1}
       aria-pressed={selected}
-      aria-label={`${title}, ${pricingFormat(String(price))} per night. ${selected ? "Selected" : "Select"}`}
+      aria-disabled={!isAvailable}
+      aria-label={
+        isAvailable
+          ? `${title}, ${pricingFormat(String(price))} per night. ${selected ? "Selected" : "Select"}`
+          : `${title}, ${pricingFormat(String(price))} per night. Not available for selected dates.`
+      }
       className={cn(
         "group relative flex flex-col rounded-md text-left shadow-sm transition-all duration-200 overflow-hidden",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-        selected
-          ? "border-2 border-(--color-sage) bg-sage-muted/30 shadow-md ring-2 ring-sage/20 focus-visible:ring-(--color-sage)"
-          : "border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md focus-visible:ring-(--color-sage)",
+        !isAvailable &&
+          "opacity-85 cursor-not-allowed border border-gray-200 bg-gray-50/80",
+        isAvailable &&
+          (selected
+            ? "border-2 border-(--color-sage) bg-sage-muted/30 shadow-md ring-2 ring-sage/20 focus-visible:ring-(--color-sage)"
+            : "border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md focus-visible:ring-(--color-sage)"),
       )}
-      onClick={() => onSelectRoom(id)}
+      onClick={handleSelect}
       onKeyDown={(e) => {
+        if (!isAvailable) return;
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onSelectRoom(id);
@@ -105,6 +123,28 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             {type}
           </span>
         </div>
+        {/* Not available for selected dates */}
+        {!isAvailable && (
+          <div
+            className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-[2px]"
+            onClick={(e) => e.stopPropagation()}
+            aria-hidden>
+            <div
+              className="mx-4 rounded-lg border border-red-200 bg-red-50/95 px-4 py-3 text-center shadow-lg"
+              style={{
+                color: "var(--color-charcoal)",
+                borderColor: "rgba(185, 28, 28, 0.4)",
+                backgroundColor: "rgba(254, 226, 226, 0.98)",
+              }}>
+              <p className="text-sm font-semibold text-red-800">
+                Not available for selected dates
+              </p>
+              <p className="mt-0.5 text-xs text-red-700">
+                Choose different dates or another room
+              </p>
+            </div>
+          </div>
+        )}
         {hasGallery && (
           <>
             <button
@@ -261,27 +301,40 @@ export const RoomCard: React.FC<RoomCardProps> = ({
           </div>
           <button
             type="button"
+            disabled={!isAvailable}
             onClick={(e) => {
               e.stopPropagation();
-              onSelectRoom(id);
+              if (isAvailable) onSelectRoom(id);
             }}
             className={cn(
               "shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold uppercase tracking-wide transition-all",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--color-sage) focus-visible:ring-offset-2",
-              selected
-                ? "bg-(--color-sage) text-white shadow-sm"
-                : "border border-gray-200/80 hover:bg-gray-100",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+              !isAvailable &&
+                "cursor-not-allowed border border-gray-200 bg-gray-200/80 text-gray-500 focus-visible:ring-gray-400",
+              isAvailable && "focus-visible:ring-(--color-sage)",
+              isAvailable &&
+                (selected
+                  ? "bg-(--color-sage) text-white shadow-sm"
+                  : "border border-gray-200/80 hover:bg-gray-100"),
             )}
             style={
-              selected
-                ? { backgroundColor: "var(--color-sage)" }
-                : {
-                    backgroundColor: "var(--color-cream, #f5f5f0)",
-                    color: "var(--color-charcoal)",
-                  }
+              !isAvailable
+                ? undefined
+                : selected
+                  ? { backgroundColor: "var(--color-sage)" }
+                  : {
+                      backgroundColor: "var(--color-cream, #f5f5f0)",
+                      color: "var(--color-charcoal)",
+                    }
             }
-            aria-label={selected ? "Selected" : "Select room"}>
-            {selected ? "Selected" : "Select"}
+            aria-label={
+              !isAvailable
+                ? "Not available for selected dates"
+                : selected
+                  ? "Selected"
+                  : "Select room"
+            }>
+            {!isAvailable ? "Unavailable" : selected ? "Selected" : "Select"}
           </button>
         </div>
       </div>

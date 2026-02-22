@@ -294,6 +294,7 @@ export function Step1({
                 includes={amenityNames(room.amenities)}
                 amenityPills={amenityPills(room.amenities)}
                 price={room.price ?? 0}
+                availability={room.available ?? false}
                 selected={formData.rooms.some(
                   (r: any) => (r?.id ?? r) === room.id,
                 )}
