@@ -351,6 +351,7 @@ export function Step1({
                 images={venueImages(venue)}
                 capacity={String(venue.capacity ?? "—")}
                 price={venue.price ?? 0}
+                availability={venue.available ?? false}
                 selected={formData.venues.some(
                   (v: any) => (v?.id ?? v) === venue.id,
                 )}

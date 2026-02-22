@@ -123,26 +123,30 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             {type}
           </span>
         </div>
-        {/* Not available for selected dates */}
+        {/* Not available for selected dates — text only, readable on any background */}
         {!isAvailable && (
           <div
-            className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-[2px]"
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-1.5 bg-black/30 backdrop-blur-[2px]"
             onClick={(e) => e.stopPropagation()}
             aria-hidden>
-            <div
-              className="mx-4 rounded-lg border border-red-200 bg-red-50/95 px-4 py-3 text-center shadow-lg"
+            <p
+              className="text-center font-semibold leading-snug"
               style={{
-                color: "var(--color-charcoal)",
-                borderColor: "rgba(185, 28, 28, 0.4)",
-                backgroundColor: "rgba(254, 226, 226, 0.98)",
+                color: "#fafaf9",
+                fontSize: "0.9375rem",
+                textShadow:
+                  "0 0 1px rgba(0,0,0,1), 0 1px 3px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.7)",
               }}>
-              <p className="text-sm font-semibold text-red-800">
-                Not available for selected dates
-              </p>
-              <p className="mt-0.5 text-xs text-red-700">
-                Choose different dates or another room
-              </p>
-            </div>
+              Not available for selected dates
+            </p>
+            <p
+              className="text-center text-xs leading-relaxed"
+              style={{
+                color: "#f5f5f4",
+                textShadow: "0 0 1px rgba(0,0,0,1), 0 1px 2px rgba(0,0,0,0.8)",
+              }}>
+              Choose different dates or another room
+            </p>
           </div>
         )}
         {hasGallery && (
@@ -310,7 +314,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({
               "shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold uppercase tracking-wide transition-all",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
               !isAvailable &&
-                "cursor-not-allowed border border-gray-200 bg-gray-200/80 text-gray-500 focus-visible:ring-gray-400",
+                "cursor-not-allowed border-0 bg-transparent text-gray-500 focus-visible:ring-gray-400",
               isAvailable && "focus-visible:ring-(--color-sage)",
               isAvailable &&
                 (selected
