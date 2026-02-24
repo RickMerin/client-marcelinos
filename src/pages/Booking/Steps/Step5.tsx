@@ -415,7 +415,7 @@ export function Step5(props: Props) {
         {/* Merchant / logo */}
         <div className="flex flex-col items-center py-2">
           <img
-            src="/brand-logo-png.png"
+            src="/brand-logo.webp"
             alt=""
             className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
           />

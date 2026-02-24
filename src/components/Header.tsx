@@ -230,7 +230,7 @@ export default function Header() {
           onClick={() => navigate("/")}
           className="flex items-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 rounded-md transition-transform active:scale-[0.98]">
           <img
-            src="/brand-logo-png.png"
+            src="/brand-logo.webp"
             alt="Marcelino's Logo"
             className="h-16 w-16 object-contain"
           />
