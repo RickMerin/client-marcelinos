@@ -114,7 +114,7 @@ export default function BubbleChat() {
             onClick={() => setOpen(false)}
             className="transition-transform duration-200 hover:scale-110"
           >
-            <X className="h-5 w-5 text-white" />
+            <X className="h-5 w-5 text-black/50" />
           </button>
         </div>
 
@@ -169,7 +169,7 @@ export default function BubbleChat() {
         </div>
 
         {/* FOOTER */}
-        <div className="py-2 text-center text-[10px] text-gray-400 shrink-0">
+        <div className="py-2 text-center bgtext-[10px] green shrink-0">
           Powered by Marcelino's Virtual Concierge
         </div>
       </div>
