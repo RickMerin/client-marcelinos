@@ -8,6 +8,7 @@ const Booking = lazy(() => import("../pages/Booking/Index"));
 const Testimonial = lazy(() => import("../pages/Testimonial/Index"));
 const Terms = lazy(() => import("../pages/Terms"));
 const RefundPolicy = lazy(() => import("../pages/RefundPolicy.tsx"));
+const SinglePage = lazy(() => import("../pages/SinglePage"));
 
 export const routes = [
   { path: "/", component: Home },
@@ -22,4 +23,8 @@ export const routes = [
     component: Booking,
     current_step: 5,
   },
+  { path: "/rooms", component: SinglePage },
+  { path: "/rooms/:roomId", component: SinglePage },
+  { path: "/venues", component: SinglePage },
+  { path: "/venues/:venueId", component: SinglePage },
 ];

@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import CardItem from "@/components/cards/CardItem";
 import EventVenueSkeleton from "@/components/skeleton/EventVenueSkeleton";
+import { useNavigate } from "react-router-dom";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -34,6 +35,7 @@ const REVEAL_EASE = "power2.out";
 
 function EventVenues() {
   const sectionRef = useRef<HTMLElement>(null);
+  const navigate = useNavigate();
 
   const {
     data: venuesResponse,
@@ -135,6 +137,11 @@ function EventVenues() {
                 description={venue.description}
                 featured_image={venue.featured_image}
                 gallery={venue.gallery}
+                onClick={() =>
+                  navigate(`/venues/${venue.id}`, {
+                    state: { venue },
+                  })
+                }
               />
             </div>
           ))}
