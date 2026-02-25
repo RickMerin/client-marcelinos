@@ -230,7 +230,7 @@ export function Step5(props: Props) {
       <div
         id="receipt"
         role="document"
-        aria-label="Booking receipt"
+        aria-label="Billing Statement"
         className="rounded-xl shadow-lg p-6 sm:p-8 w-full max-w-2xl border border-b-emerald-100/50 print:shadow-none"
         style={{
           backgroundColor: "var(--color-cream)",
@@ -248,7 +248,7 @@ export function Step5(props: Props) {
             className="font-display text-lg sm:text-xl font-bold mt-2 uppercase tracking-widest"
             style={{ color: "var(--color-charcoal)" }}
           >
-            Booking Receipt
+            Billing Statement
           </h2>
           <p
             className="text-sm mt-1 opacity-80"
@@ -478,7 +478,7 @@ export function Step5(props: Props) {
             >
               <img
                 src={qrCodeUrl}
-                alt="Scan for digital receipt"
+                alt="QR Code Image"
                 className="max-h-52 max-w-52 object-contain"
                 loading="lazy"
               />
