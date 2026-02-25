@@ -14,6 +14,7 @@ interface CardItemProps {
   featured_image?: string | null;
   gallery?: string[];
   images?: string[];
+  onClick?: () => void;
 }
 
 function CardItem(props: CardItemProps) {
@@ -27,6 +28,7 @@ function CardItem(props: CardItemProps) {
     featured_image,
     gallery = [],
     images: imagesProp,
+    onClick,
   } = props;
 
   const [expanded, setExpanded] = useState(false);
@@ -80,6 +82,16 @@ function CardItem(props: CardItemProps) {
       className="group relative w-full overflow-hidden rounded-2xl border border-gray-100/90 bg-white shadow-lg shadow-gray-900/5 transition-shadow duration-300 hover:border-amber-200/60 hover:shadow-xl hover:shadow-green-900/10"
       whileHover={{ y: -6 }}
       transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (!onClick) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick();
+        }
+      }}
     >
       {/* Accent bar */}
       <div className="absolute left-0 right-0 top-0 z-10 h-1 bg-linear-to-r from-green-800 via-[#F4C95D] to-amber-400" />
@@ -127,7 +139,10 @@ function CardItem(props: CardItemProps) {
               </span>
               {isLong && (
                 <button
-                  onClick={() => setExpanded(true)}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setExpanded(true);
+                  }}
                   className="flex-shrink-0 font-medium green hover:underline transition-colors duration-200"
                 >
                   See more
@@ -159,7 +174,10 @@ function CardItem(props: CardItemProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              onClick={() => setExpanded(false)}
+              onClick={(event) => {
+                event.stopPropagation();
+                setExpanded(false);
+              }}
             />
 
             <motion.div
@@ -168,6 +186,7 @@ function CardItem(props: CardItemProps) {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
+              onClick={(event) => event.stopPropagation()}
             >
               <div className="flex">
               <h2 className="flex-1 font-display text-white text-xl font-semibold mb-4">{title}</h2>
@@ -205,7 +224,10 @@ function CardItem(props: CardItemProps) {
               )}
 
               <button
-                onClick={() => setExpanded(false)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setExpanded(false);
+                }}
                 className="self-end text-sm font-medium yellow hover:underline"
               >
                 Close

@@ -7,6 +7,7 @@ import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import CardItem from "@/components/cards/CardItem";
 import CarouselSkeleton from "@/components/skeleton/RoomCarouselSkeleton";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 gsap.registerPlugin(Flip);
 
@@ -54,6 +55,7 @@ function RoomCard() {
   const directionRef = useRef(1);
   const isAnimatingRef = useRef(false);
   const slidesPerView = useSlidesPerView();
+  const navigate = useNavigate();
 
   const {
     data: roomsResponse,
@@ -196,6 +198,11 @@ function RoomCard() {
                     amenities={room.amenities as unknown[]}
                     featured_image={room.featured_image as string | null}
                     gallery={room.gallery as string[]}
+                    onClick={() =>
+                      navigate(`/rooms/${room.id}`, {
+                        state: { room },
+                      })
+                    }
                   />
                 </div>
               ),
