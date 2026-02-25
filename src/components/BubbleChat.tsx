@@ -169,7 +169,7 @@ export default function BubbleChat() {
         </div>
 
         {/* FOOTER */}
-        <div className="py-2 text-center bgtext-[10px] green shrink-0">
+        <div className="py-2 text-center text-[10px] green shrink-0">
           Powered by Marcelino's Virtual Concierge
         </div>
       </div>
