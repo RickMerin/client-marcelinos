@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Download, House, ReceiptText } from "lucide-react";
 import domtoimage from "dom-to-image";
@@ -64,6 +64,7 @@ export function Step5(props: Props) {
   const receipt: BookingReceipt | undefined = props.receiptData;
   const form = props.formData;
   const qrCodeUrl = isFromApi ? (props.qrCodeUrl ?? null) : null;
+  const [qrBase64, setQrBase64] = useState<string | undefined>();
 
   const referenceNumber = isFromApi
     ? receipt?.reference_number
@@ -219,6 +220,17 @@ export function Step5(props: Props) {
     if (!referenceNumber) return;
     setIsCancelModalOpen(true); // open the modal instead of alert
   };
+  useEffect(() => {
+  if (!qrCodeUrl) return;
+
+  fetch(qrCodeUrl)
+    .then(res => res.text())
+    .then(svgText => {
+      const base64 = `data:image/svg+xml;base64,${btoa(svgText)}`;
+      setQrBase64(base64);
+    })
+    .catch(err => console.error(err));
+}, [qrCodeUrl]);
 
   return (
     <motion.div
@@ -230,7 +242,7 @@ export function Step5(props: Props) {
       <div
         id="receipt"
         role="document"
-        aria-label="Booking receipt"
+        aria-label="Billing Statement"
         className="rounded-xl shadow-lg p-6 sm:p-8 w-full max-w-2xl border border-b-emerald-100/50 print:shadow-none"
         style={{
           backgroundColor: "var(--color-cream)",
@@ -248,7 +260,7 @@ export function Step5(props: Props) {
             className="font-display text-lg sm:text-xl font-bold mt-2 uppercase tracking-widest"
             style={{ color: "var(--color-charcoal)" }}
           >
-            Booking Receipt
+            Billing Statement
           </h2>
           <p
             className="text-sm mt-1 opacity-80"
@@ -455,14 +467,12 @@ export function Step5(props: Props) {
           />
           <div className="text-center mt-2">
             <div
-              className="font-display text-lg tracking-widest font-bold"
-              style={{ color: "var(--color-charcoal)" }}
+              className="font-display green text-lg tracking-widest font-bold"
             >
               MARCELINO&apos;S
             </div>
             <div
               className="text-xs tracking-widest font-medium opacity-80"
-              style={{ color: "var(--color-charcoal)" }}
             >
               RESORT AND HOTEL
             </div>
@@ -477,8 +487,8 @@ export function Step5(props: Props) {
               style={{ borderColor: "var(--color-sage-muted)" }}
             >
               <img
-                src={qrCodeUrl}
-                alt="Scan for digital receipt"
+                src={qrBase64}
+                alt="QR Code Image"
                 className="max-h-52 max-w-52 object-contain"
                 loading="lazy"
               />
