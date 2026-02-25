@@ -288,7 +288,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className={labelClass} style={labelStyle}>
-                      Full address {requiredMark}
+                      Full address / Country {requiredMark}
                     </FormLabel>
                     <FormControl>
                       <div className="space-y-2">

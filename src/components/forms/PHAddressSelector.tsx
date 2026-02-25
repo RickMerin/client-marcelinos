@@ -4,7 +4,8 @@ import {
   getFromLocalStorage,
   saveToLocalStorage,
 } from "@/lib/storage/localStorage";
-import { Input } from "@/components/ui/input";
+import { CountryDropdown } from "./CountryDropdown";  // custom dropdown component
+import { motion } from "framer-motion";
 
 type PSGCOption = {
   code: string;
@@ -255,10 +256,12 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-6">
-        <label className="inline-flex items-center gap-2">
+      <div className="inline-flex space-x-2">
+        {/* Local option with spring animation */}
+        <label className="cursor-pointer">
           <input
             type="radio"
+            className="sr-only"
             name={radioGroupName}
             value="local"
             checked={addressType === "local"}
@@ -269,12 +272,26 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
             }}
             disabled={disabled}
           />
-          <span className="text-sm sm:text-base">Local</span>
+          <motion.span
+            className="px-5 py-2 text-sm sm:text-base rounded-full"
+            animate={{
+              backgroundColor:
+                addressType === "local" ? "var(--color-primary)" : "transparent",
+              color:
+                addressType === "local" ? "var(--color-primary-foreground)" : "var(--color-foreground)",
+              scale: addressType === "local" ? 1.1 : 1,
+            }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          >
+            Local
+          </motion.span>
         </label>
 
-        <label className="inline-flex items-center gap-2">
+        {/* Foreign option with spring animation */}
+        <label className="cursor-pointer">
           <input
             type="radio"
+            className="sr-only"
             name={radioGroupName}
             value="international"
             checked={addressType === "international"}
@@ -284,19 +301,30 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
             }}
             disabled={disabled}
           />
-          <span className="text-sm sm:text-base">International</span>
+          <motion.span
+            className="px-5 py-2 text-sm sm:text-base rounded-full"
+            animate={{
+              backgroundColor:
+                addressType === "international" ? "var(--color-primary)" : "transparent",
+              color:
+                addressType === "international" ? "var(--color-primary-foreground)" : "var(--color-foreground)",
+              scale: addressType === "international" ? 1.1 : 1,
+            }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          >
+            Foreign
+          </motion.span>
         </label>
       </div>
 
       {addressType === "international" ? (
         <div className="flex flex-col space-y-1">
           <label className="text-sm font-medium">
-            Country / Full Address <span className="text-red-500">*</span>
+            Country <span className="text-red-500">*</span>
           </label>
-          <Input
+          <CountryDropdown
             value={internationalAddress}
-            onChange={(e) => setInternationalAddress(e.target.value)}
-            placeholder="Enter country or full address"
+            onChange={setInternationalAddress}
             disabled={disabled}
           />
         </div>
