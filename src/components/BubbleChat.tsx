@@ -1,0 +1,178 @@
+"use client";
+
+import { useState } from "react";
+import { MessageCircle, X, ChevronRight } from "lucide-react";
+
+type Message = {
+  from: "bot" | "user";
+  text: string;
+};
+
+const FAQS_INITIAL = [
+  {
+    question: "What payment methods do you accept?",
+    answer:
+      "Currently, we only accept cash payments. Online and digital payment options are not available at this time.",
+  },
+  {
+    question: "What is your check-in and check-out time?",
+    answer: "Check-in starts at 12:00 PM, and check-out is until 10:00 AM.",
+  },
+  {
+    question: "Is Wi-Fi available in all rooms?",
+    answer:
+      "Yes, complimentary high-speed Wi-Fi is available in all rooms and public areas.",
+  },
+  {
+    question: "Is there a cancellation fee?",
+    answer:
+      "Cancellations made within 24 hours of the check-in date may incur a fee. Please review your booking details for more information.",
+  },
+  {
+    question: "Do you have facilities for events or meetings?",
+    answer:
+      "Yes, we have function and event spaces suitable for meetings, parties, and small gatherings. Contact our events team for more details.",
+  },
+];
+
+export default function BubbleChat() {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      from: "bot",
+      text: "Welcome! I'm your virtual concierge, here to help you with any questions about your stay.\n\nTap any question below to get started.",
+    },
+  ]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [faqs, setFaqs] = useState(FAQS_INITIAL);
+
+  const handleFaqClick = (faq: typeof FAQS_INITIAL[number]) => {
+    setFaqs((prev) => prev.filter((f) => f.question !== faq.question));
+    setMessages((prev) => [...prev, { from: "user", text: faq.question }]);
+    setIsTyping(true);
+
+    setTimeout(() => {
+      setMessages((prev) => [...prev, { from: "bot", text: faq.answer }]);
+      setIsTyping(false);
+    }, 800);
+  };
+
+  return (
+    <>
+      {/* CHAT BUBBLE */}
+      <button
+        onClick={() => setOpen(true)}
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-green-700 text-white shadow-lg hover:bg-green-800 transition-transform duration-300 ${
+          open ? "scale-90 opacity-0 pointer-events-none" : "scale-100 opacity-100"
+        }`}
+      >
+        <MessageCircle className="transition-transform duration-300" />
+      </button>
+       <div
+            className="fixed inset-0 z-40"
+            onClick={() => setOpen(false)} // click outside closes chat
+            ></div>
+
+      {/* CHAT WINDOW */}
+      <div
+        className={`
+          fixed bottom-4 right-4 sm:right-6 sm:top-22.5 z-50
+          w-[90%] max-w-[320px] sm:w-85 sm:max-w-87.5
+          max-h-[70vh] sm:max-h-[calc(100vh-110px)]
+          rounded-2xl border shadow-2xl overflow-hidden flex flex-col
+          transform transition-all duration-500
+          ${open ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" : "opacity-0 translate-y-10 scale-95 pointer-events-none"}
+        `}
+        style={{
+          background: "linear-gradient(135deg, #a7f3d0 0%, #fef08a 100%)", // green to yellow
+        }}
+      >
+        {/* HEADER */}
+        <div className="flex items-center justify-between  bg-white opacity-70 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <div className="h-11 w-11 rounded-full text-white flex items-center justify-center font-bold">
+              
+             <div className="relative inline-block">
+            <img src="/brand-logo.webp" alt="Brand Logo" className="block" />
+            
+            {/* Status circle */}
+            <span
+                className="absolute bottom-0 right-0 w-4 h-4 bg-green-600 rounded-full border-2 border-white"
+            ></span>
+            </div>
+              
+            </div>
+            <div>
+              <p className="text-sm green font-semibold">Marcelino's Concierge</p>
+              
+                
+                <p className="text-xs green">
+                Ready to help</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setOpen(false)}
+            className="transition-transform duration-200 hover:scale-110"
+          >
+            <X className="h-5 w-5 text-white" />
+          </button>
+        </div>
+
+        {/* BODY */}
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 text-sm">
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              className={`max-w-[85%] transition-all duration-300 ${
+                msg.from === "user" ? "ml-auto text-right" : ""
+              }`}
+            >
+              {msg.from === "bot" && (
+                <p className="mb-1 text-[10px] uppercase tracking-wide text-green-700 font-semibold">
+                  Marcelino’s Concierge
+                </p>
+              )}
+              <div
+                className={`rounded-xl px-3 py-2 shadow-sm whitespace-pre-line transition-all duration-300 ${
+                  msg.from === "user"
+                    ? "bg-green-700 text-white"
+                    : "bg-green-50 border-l-4 border-green-600 text-gray-800"
+                }`}
+              >
+                {msg.text}
+              </div>
+            </div>
+          ))}
+
+          {/* Typing indicator */}
+          {isTyping && (
+            <div className="max-w-[60%] text-gray-800 rounded-lg px-3 py-2 flex items-center space-x-2 animate-pulse">
+              <div className="w-2 h-2 bg-green-700 rounded-full animate-bounce delay-0"></div>
+              <div className="w-2 h-2 bg-green-700 rounded-full animate-bounce delay-150"></div>
+              <div className="w-2 h-2 bg-green-700 rounded-full animate-bounce delay-300"></div>
+            </div>
+          )}
+
+          {/* FAQ Buttons */}
+          <div className="space-y-2 pt-2">
+            {faqs.map((faq, i) => (
+              <button
+                key={i}
+                onClick={() => handleFaqClick(faq)}
+                className="flex w-full items-center justify-between rounded-xl bg-white border px-3 py-3 text-left hover:bg-green-50 transition"
+              >
+                <span className="text-sm text-gray-700">{faq.question}</span>
+                <ChevronRight className="h-4 w-4 text-gray-400" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* FOOTER */}
+        <div className="py-2 text-center text-[10px] text-gray-400 shrink-0">
+          Powered by Marcelino's Virtual Concierge
+        </div>
+      </div>
+    </>
+  );
+}
