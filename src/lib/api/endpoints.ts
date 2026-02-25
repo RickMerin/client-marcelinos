@@ -1,6 +1,6 @@
 /**
  * Centralized API endpoints and TanStack Query key factory.
- * System design: single source of truth for URLs and cache keys so
+ * System design: single source of truth for URLs and query keys so
  * invalidation and refetch behavior stay consistent.
  */
 
