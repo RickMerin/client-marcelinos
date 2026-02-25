@@ -26,7 +26,7 @@ const position: [number, number] = [10.377273056095643, 124.75196536185709];
         <span className="yellow">US</span>
       </h2>
 
-      <div className="w-full h-[70vh] rounded-[4px] overflow-hidden border border-(--color-sage-muted) shadow-md">
+      <div className="w-full h-[70vh] rounded-lg overflow-hidden border border-(--color-sage-muted) shadow-md">
         <MapContainer
           center={position}
           zoom={15}
