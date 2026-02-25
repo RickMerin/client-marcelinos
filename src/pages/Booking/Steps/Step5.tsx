@@ -52,7 +52,7 @@ function ReceiptRow({
   return (
     <div className="flex justify-between items-baseline gap-4">
       <span className="opacity-80 shrink-0">{label}</span>
-      <span className={valueClassName}>{display}</span>
+      <span className={`${valueClassName} text-right`}>{display}</span>
     </div>
   );
 }
@@ -97,6 +97,11 @@ export function Step5(props: Props) {
           .join(", ")
           .trim() || "—"
       : "—";
+
+  const guestEmail = isFromApi ? receipt?.guest_email : form?.email;
+  const guestPhone = isFromApi ? receipt?.guest_contact : form?.phone;
+  console.log("Guest phone:", guestPhone);
+  const guestAddress = isFromApi ? receipt?.guest_address : form?.address;
   const issuedOn = isFromApi
     ? (receipt?.issued_on ?? new Date().toLocaleDateString())
     : new Date().toLocaleDateString();
@@ -117,7 +122,8 @@ export function Step5(props: Props) {
       ? Array.isArray(receipt.rooms) && receipt.rooms.length > 0
         ? receipt.rooms.map((r: any) => ({
             room_number: r.number ?? null,
-            type: r.type ?? r.name ?? "",
+            type: r.type ?? "",
+            name: r.name ?? "",
             capacity: r.capacity ?? 0,
             price:
               typeof r.price === "number"
@@ -306,6 +312,9 @@ export function Step5(props: Props) {
           <ReceiptRow label="Check-out" value={checkOut} />
           <ReceiptRow label="Nights" value={String(nights)} />
           <ReceiptRow label="Guest" value={guestName} />
+          <ReceiptRow label="Email" value={guestEmail} />
+          <ReceiptRow label="Phone-Number" value={guestPhone} />
+          <ReceiptRow label="Address" value={guestAddress} />
         </div>
 
         <ReceiptDivider />
@@ -328,17 +337,20 @@ export function Step5(props: Props) {
                   typeof room.price === "number"
                     ? room.price
                     : parseFloat(String(room.price || 0));
-                const name =
-                  room.room_number != null
-                    ? `Room ${room.room_number} (${room.type || "—"})`
-                    : (room.name ?? room.type ?? "Room");
+                    const title = room.name ?? "Undefined";
+                    const details = [
+                      room.description,
+                      room.type && room.type.charAt(0).toUpperCase() + room.type.slice(1),
+                      room.capacity && `Capacity: ${room.capacity}`
+                    ]
+                    .filter(Boolean)
+                    .join(" · ");
                 return (
                   <li key={idx} className="flex justify-between gap-4">
                     <div>
-                      <span className="font-medium">{name}</span>
+                      <span className="font-medium">{title}</span>
                       <span className="block text-xs opacity-75">
-                        Capacity: {room.capacity ?? "—"}
-                        {room.status ? ` · ${room.status}` : ""}
+                        {details}
                       </span>
                     </div>
                     <span className="font-semibold tabular-nums shrink-0">
