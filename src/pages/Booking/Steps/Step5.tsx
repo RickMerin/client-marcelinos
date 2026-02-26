@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Download, House, ReceiptText } from "lucide-react";
 import domtoimage from "dom-to-image";
@@ -64,7 +65,17 @@ export function Step5(props: Props) {
   const receipt: BookingReceipt | undefined = props.receiptData;
   const form = props.formData;
   const qrCodeUrl = isFromApi ? (props.qrCodeUrl ?? null) : null;
-  const [qrBase64, setQrBase64] = useState<string | undefined>();
+
+  const { data: qrBase64 } = useQuery({
+    queryKey: ["qr-code", qrCodeUrl ?? ""],
+    queryFn: async () => {
+      if (!qrCodeUrl) return undefined;
+      const res = await fetch(qrCodeUrl);
+      const svgText = await res.text();
+      return `data:image/svg+xml;base64,${btoa(svgText)}`;
+    },
+    enabled: !!qrCodeUrl,
+  });
 
   const referenceNumber = isFromApi
     ? receipt?.reference_number
@@ -226,18 +237,6 @@ export function Step5(props: Props) {
     if (!referenceNumber) return;
     setIsCancelModalOpen(true); // open the modal instead of alert
   };
-  useEffect(() => {
-  if (!qrCodeUrl) return;
-
-  fetch(qrCodeUrl)
-    .then(res => res.text())
-    .then(svgText => {
-      const base64 = `data:image/svg+xml;base64,${btoa(svgText)}`;
-      setQrBase64(base64);
-    })
-    .catch(err => console.error(err));
-}, [qrCodeUrl]);
-
   return (
     <motion.div
       className="flex flex-col items-center justify-center min-h-screen pb-10"

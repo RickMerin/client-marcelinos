@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import {
   getFromLocalStorage,
@@ -50,11 +51,6 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
   const [internationalAddress, setInternationalAddress] = useState<string>(
     stored?.internationalAddress ?? "",
   );
-
-  const [regions, setRegions] = useState<PSGCOption[]>([]);
-  const [provinces, setProvinces] = useState<PSGCOption[]>([]);
-  const [municipalities, setMunicipalities] = useState<PSGCOption[]>([]);
-  const [barangays, setBarangays] = useState<PSGCOption[]>([]);
 
   const [regionCode, setRegionCode] = useState<string>(stored?.regionCode ?? "");
   const [provinceCode, setProvinceCode] = useState<string>(
@@ -150,106 +146,53 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
     selectedBarangay?.name,
   ]);
 
+  const { data: regionsData } = useQuery({
+    queryKey: ["psgc", "regions"],
+    queryFn: async () => {
+      const res = await fetch("https://psgc.gitlab.io/api/regions/");
+      const data: PSGCOption[] = await res.json();
+      return sortByName(data);
+    },
+  });
 
-  
-  // Fetch regions once.
-  useEffect(() => {
-    let cancelled = false;
+  const { data: provincesData } = useQuery({
+    queryKey: ["psgc", "regions", regionCode, "provinces"],
+    queryFn: async () => {
+      const res = await fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/provinces`);
+      const data: PSGCOption[] = await res.json();
+      return sortByName(data);
+    },
+    enabled: !!regionCode,
+  });
 
-    fetch("https://psgc.gitlab.io/api/regions/")
-      .then((res) => res.json())
-      .then((data: PSGCOption[]) => {
-        if (cancelled) return;
-        setRegions(sortByName(data));
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setRegions([]);
-      });
+  const { data: municipalitiesData } = useQuery({
+    queryKey: ["psgc", "provinces", provinceCode, "cities-municipalities"],
+    queryFn: async () => {
+      const res = await fetch(
+        `https://psgc.gitlab.io/api/provinces/${provinceCode}/cities-municipalities`,
+      );
+      const data: PSGCOption[] = await res.json();
+      return sortByName(data);
+    },
+    enabled: !!provinceCode,
+  });
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { data: barangaysData } = useQuery({
+    queryKey: ["psgc", "cities-municipalities", municipalityCode, "barangays"],
+    queryFn: async () => {
+      const res = await fetch(
+        `https://psgc.gitlab.io/api/cities-municipalities/${municipalityCode}/barangays`,
+      );
+      const data: PSGCOption[] = await res.json();
+      return sortByName(data);
+    },
+    enabled: !!municipalityCode,
+  });
 
-  // Fetch provinces when region changes.
-  useEffect(() => {
-    if (!regionCode) {
-      setProvinces([]);
-      return;
-    }
-
-    let cancelled = false;
-
-    fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/provinces`)
-      .then((res) => res.json())
-      .then((data: PSGCOption[]) => {
-        if (cancelled) return;
-        setProvinces(sortByName(data));
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setProvinces([]);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [regionCode]);
-
-  // Fetch municipalities when province changes.
-  useEffect(() => {
-    if (!provinceCode) {
-      setMunicipalities([]);
-      return;
-    }
-
-    let cancelled = false;
-
-    fetch(
-      `https://psgc.gitlab.io/api/provinces/${provinceCode}/cities-municipalities`,
-    )
-      .then((res) => res.json())
-      .then((data: PSGCOption[]) => {
-        if (cancelled) return;
-        setMunicipalities(sortByName(data));
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setMunicipalities([]);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [provinceCode]);
-
-  // Fetch barangays when municipality changes.
-  useEffect(() => {
-    if (!municipalityCode) {
-      setBarangays([]);
-      return;
-    }
-
-    let cancelled = false;
-
-    fetch(
-      `https://psgc.gitlab.io/api/cities-municipalities/${municipalityCode}/barangays`,
-    )
-      .then((res) => res.json())
-      .then((data: PSGCOption[]) => {
-        if (cancelled) return;
-        setBarangays(sortByName(data));
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setBarangays([]);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [municipalityCode]);
+  const regions = regionsData ?? [];
+  const provinces = regionCode ? (provincesData ?? []) : [];
+  const municipalities = provinceCode ? (municipalitiesData ?? []) : [];
+  const barangays = municipalityCode ? (barangaysData ?? []) : [];
 
   const baseSelectClass =
     "h-10 w-full rounded-md border px-3 disabled:opacity-50";
