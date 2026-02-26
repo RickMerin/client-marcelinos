@@ -16,6 +16,12 @@ export default function BookingForm() {
     localStorage.getItem("reservationDate") || "{}"
   );
 
+  const addDays = (date: Date, numDays: number) => {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setDate(d.getDate() + numDays);
+    return d;
+  };
+
   const fields = [
     {
       name: "days",
@@ -62,13 +68,12 @@ const handleSubmit = (values: z.infer<typeof bookingSchema>) => {
       fields={fields}
       onSubmit={handleSubmit}
       submitLabel="Book Now"
+      isSubmitDisabled={(values) => !values.check_in}
       className="space-y-6 relative z-10  px-10 py-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:gap-4 items-center justify-center"
       onChangeFields={(values) => {
         if (values.days && values.check_in) {
           const checkInDate = new Date(values.check_in);
-          const checkOutDate = new Date(
-            checkInDate.getTime() + values.days * 24 * 60 * 60 * 1000
-          );
+          const checkOutDate = addDays(checkInDate, values.days);
           return { check_out: checkOutDate };
         }
         return {};
