@@ -23,6 +23,33 @@ import { CalendarWithDisabledReasons as Calendar } from "@/components/calendar/C
 
 import { CalendarDays, Minus, Plus } from "lucide-react";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
+
+/** Normalize to YYYY-MM-DD for day-only comparison */
+function toDayKey(d: Date): string {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().slice(0, 10);
+}
+
+/** Stay range is check-in through check-out (check-out = check-in + days). We treat both check-in and check-out days as "occupied", so no blocked date may fall in [checkIn, checkOut]. Returns true if any day in that range is blocked. */
+function stayOverlapsBlocked(
+  checkIn: Date,
+  days: number,
+  blockedDates: Date[]
+): boolean {
+  const blockedSet = new Set(blockedDates.map(toDayKey));
+  const start = new Date(checkIn.getFullYear(), checkIn.getMonth(), checkIn.getDate());
+  for (let i = 0; i <= days; i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    if (blockedSet.has(toDayKey(d))) return true;
+  }
+  return false;
+}
+
+/** True if choosing this date as check-in with `days` would make the stay overlap a blocked date */
+function isInvalidCheckIn(date: Date, days: number, blockedDates: Date[]): boolean {
+  return stayOverlapsBlocked(date, days, blockedDates);
+}
+
 type Field = {
   name: string;
   label?: string;
@@ -52,6 +79,8 @@ interface FormWrapperProps<T extends z.ZodType<any, any>> {
   submitLabel?: string;
   className?: string;
   onChangeFields?: (values: Partial<z.infer<T>>) => Partial<z.infer<T>>;
+  /** When true, submit button is disabled (visually and functionally) */
+  isSubmitDisabled?: (values: z.infer<T>) => boolean;
 }
 
 export function FormWrapper<T extends z.ZodType<any, any>>({
@@ -61,6 +90,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
   submitLabel = "Submit",
   className,
   onChangeFields,
+  isSubmitDisabled,
 }: FormWrapperProps<T>) {
   const [open, setOpen] = React.useState(false);
 
@@ -112,6 +142,8 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 
   const days = form.watch("days" as Path<z.output<T>>);
   const checkIn = form.watch("check_in" as Path<z.output<T>>);
+  const allValues = form.watch();
+  const submitDisabled = isSubmitDisabled?.(allValues as z.infer<T>) ?? false;
 
   // ✅ dynamically update computed fields like check_out
   React.useEffect(() => {
@@ -155,6 +187,54 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
     });
     return map;
   }, [data]);
+
+  const todayStart = React.useMemo(
+    () => new Date(new Date().setHours(0, 0, 0, 0)),
+    [],
+  );
+
+  // Validate that stay range does not overlap any blocked date; set/clear error on check_in
+  React.useEffect(() => {
+    if (!checkIn || !days || blockedDates.length === 0) {
+      form.clearErrors("check_in" as Path<z.output<T>>);
+      return;
+    }
+    const checkInDate =
+      checkIn && typeof checkIn === "object" && "getTime" in checkIn
+        ? (checkIn as Date)
+        : new Date(checkIn as string | number);
+    if (stayOverlapsBlocked(checkInDate, days, blockedDates)) {
+      form.setError("check_in" as Path<z.output<T>>, {
+        type: "manual",
+        message:
+          "Your stay overlaps blocked dates. Please choose a different check-in or fewer days so your stay is continuous.",
+      });
+    } else {
+      form.clearErrors("check_in" as Path<z.output<T>>);
+    }
+  }, [checkIn, days, blockedDates, form]);
+
+  const isDateDisabled = React.useCallback(
+    (date: Date) => {
+      const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      if (d < todayStart) return true;
+      if (blockedDates.some((b) => toDayKey(b) === toDayKey(d))) return true;
+      const numDays = typeof days === "number" && days >= 1 ? days : 1;
+      return isInvalidCheckIn(d, numDays, blockedDates);
+    },
+    [todayStart, blockedDates, days],
+  );
+
+  const isOverlapInvalid = React.useCallback(
+    (date: Date) => {
+      const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      if (d < todayStart) return false;
+      if (blockedDates.some((b) => toDayKey(b) === toDayKey(d))) return false;
+      const numDays = typeof days === "number" && days >= 1 ? days : 1;
+      return isInvalidCheckIn(d, numDays, blockedDates);
+    },
+    [todayStart, blockedDates, days],
+  );
 
   return (
     <Form {...form}>
@@ -229,7 +309,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                 className={cn(
                                   " font-normal h-12",
                                   !inputField.value && "text-muted-foreground",
-                                  field.className
+                                  field.className,
                                 )}>
                                 {inputField.value ? (
                                   new Date(inputField.value).toLocaleDateString(
@@ -238,7 +318,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                       year: "numeric",
                                       month: "long",
                                       day: "numeric",
-                                    }
+                                    },
                                   )
                                 ) : (
                                   <div className="flex items-center gap-2">
@@ -258,12 +338,10 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                   inputField.onChange(date);
                                   setOpen(false);
                                 }}
-                                disabled={[
-                                  { before: new Date(new Date().setHours(0, 0, 0, 0)) },
-                                  ...blockedDates,
-                                ]}
+                                disabled={isDateDisabled}
                                 blockedReasons={blockedReasons}
-
+                                overlapInvalidReason="Your stay would include blocked dates. Pick another check-in or fewer days."
+                                isOverlapInvalid={isOverlapInvalid}
                               />
                             </PopoverContent>
                           </Popover>
@@ -313,7 +391,8 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
         ))}
         <Button
           type="submit"
-          className="w-full text-white text-lg py-6 yellow-bg cursor-pointer font-bold">
+          disabled={submitDisabled}
+          className="w-full text-white text-lg py-6 yellow-bg cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed">
           {submitLabel}
         </Button>
       </form>
