@@ -7,9 +7,10 @@ interface CountryDropdownProps {
   value: string;
   onChange: (country: string) => void;
   disabled?: boolean;
+  id?: string;
 }
 
-export function CountryDropdown({ value, onChange, disabled }: CountryDropdownProps) {
+export function CountryDropdown({ value, onChange, disabled, id }: CountryDropdownProps) {
   const [open, setOpen] = useState(false);
   const [filtered, setFiltered] = useState<string[]>(COUNTRIES);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
@@ -61,6 +62,7 @@ export function CountryDropdown({ value, onChange, disabled }: CountryDropdownPr
   return (
     <div className="relative" ref={containerRef}>
       <Input
+        id={id}
         value={value}
         onChange={(e) => {
           onChange(e.target.value);
@@ -92,6 +94,9 @@ export function CountryDropdown({ value, onChange, disabled }: CountryDropdownPr
           {filtered.map((c, i) => (
             <li
               key={c}
+              role="option"
+              tabIndex={0}
+              aria-selected={i === activeIndex}
               className={`cursor-pointer px-3 py-2 text-sm flex items-center justify-between ${
                 i === activeIndex ? "bg-primary text-primary-foreground" : "hover:bg-muted"
               }`}
@@ -101,6 +106,12 @@ export function CountryDropdown({ value, onChange, disabled }: CountryDropdownPr
               }}
               onClick={() => handleSelect(c)}
               onMouseEnter={() => setActiveIndex(i)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleSelect(c);
+                }
+              }}
             >
               {c}
             </li>

@@ -8,6 +8,8 @@ type Props = React.ComponentProps<typeof Calendar> & {
   blockedReasons: Record<string, string>
 }
 
+const EMPTY_BLOCKED_REASONS: Record<string, string> = {}
+
 type DayWithReasonProps = React.ComponentProps<typeof DayButton> & {
   blockedReasons: Record<string, string>
   activeTooltipDate: string | null
@@ -34,7 +36,6 @@ function DayWithReason({
       className="relative"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
-      onClick={(e) => e.stopPropagation()}
     >
       <Button
         {...dayProps}
@@ -71,7 +72,7 @@ function DayWithReason({
 }
 
 export function CalendarWithDisabledReasons({
-  blockedReasons = {},
+  blockedReasons = EMPTY_BLOCKED_REASONS,
   components,
   ...props
 }: Props) {
