@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
 
 interface RoomCardProps {
   id: number;
@@ -110,19 +111,11 @@ export const RoomCard: React.FC<RoomCardProps> = ({
         role="img"
         aria-label={title}>
         {/* Type Badge (e.g. "family") in the top-left over the image */}
-        <div className="absolute top-2 left-2 z-10">
-          <span
-            className="inline-block px-3 py-1 rounded-full text-xs font-semibold capitalize"
-            style={{
-              backgroundColor: "var(--color-cream, #f5f5f0)",
-              color: "var(--color-sage, #7ebb5e)",
-              border: "1.5px solid var(--color-sage, #7ebb5e)",
-              boxShadow: "0 1px 3px 0 rgba(60,60,60,.08)",
-              letterSpacing: "0.03em",
-            }}>
-            {type}
-          </span>
-        </div>
+        {type && (
+          <div className="absolute top-2 left-2 z-10">
+            <RoomTypeBadge type={type} />
+          </div>
+        )}
         {/* Not available for selected dates — text only, readable on any background */}
         {!isAvailable && (
           <div

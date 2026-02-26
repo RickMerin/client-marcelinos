@@ -207,6 +207,43 @@
   }
 }
 
+/* Room type badge: diagonal sweeping shine */
+@keyframes badge-shine {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+    opacity: 0.5;
+  }
+}
+.room-type-badge-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.2) 42%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.2) 58%,
+    transparent 65%,
+    transparent 100%
+  );
+  transform: translateX(-100%) skewX(-12deg);
+  animation: badge-shine 2.8s ease-in-out infinite;
+  pointer-events: none;
+  /* Keep animation on its own layer, contained to badge only */
+  will-change: transform;
+  contain: layout paint;
+}
+
 /* Theme green = #1f5d1e (from .green-bg); default card = green, white text */
 .about-premium-card {
   position: relative;

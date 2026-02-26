@@ -63,57 +63,52 @@ export default function BubbleChat() {
       <button
         onClick={() => setOpen(true)}
         className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-green-700 text-white shadow-lg hover:bg-green-800 transition-transform duration-300 ${
-          open ? "scale-90 opacity-0 pointer-events-none" : "scale-100 opacity-100"
-        }`}
-      >
+          open
+            ? "scale-90 opacity-0 pointer-events-none"
+            : "scale-100 opacity-100"
+        }`}>
         <MessageCircle className="transition-transform duration-300" />
       </button>
-       <div
-            className="fixed inset-0 z-40"
-            onClick={() => setOpen(false)} // click outside closes chat
-            ></div>
 
       {/* CHAT WINDOW */}
       <div
         className={`
-          fixed bottom-4 right-4 sm:right-6 sm:top-22.5 z-50
-          w-[90%] max-w-[320px] sm:w-85 sm:max-w-87.5
-          max-h-[70vh] sm:max-h-[calc(100vh-110px)]
+          fixed bottom-4 right-4 sm:right-6 z-50
+          w-[90%] max-w-lg
+          max-h-[60vh]
           rounded-2xl border shadow-2xl overflow-hidden flex flex-col
           transform transition-all duration-500
           ${open ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" : "opacity-0 translate-y-10 scale-95 pointer-events-none"}
         `}
         style={{
           background: "linear-gradient(135deg, #a7f3d0 0%, #fef08a 100%)", // green to yellow
-        }}
-      >
+        }}>
         {/* HEADER */}
         <div className="flex items-center justify-between  bg-white opacity-70 px-4 py-3">
           <div className="flex items-center gap-2">
             <div className="h-11 w-11 rounded-full text-white flex items-center justify-center font-bold">
-              
-             <div className="relative inline-block">
-            <img src="/brand-logo.webp" alt="Brand Logo" className="block" />
-            
-            {/* Status circle */}
-            <span
-                className="absolute bottom-0 right-0 w-4 h-4 bg-green-600 rounded-full border-2 border-white"
-            ></span>
-            </div>
-              
+              <div className="relative inline-block">
+                <img
+                  src="/brand-logo.webp"
+                  alt="Brand Logo"
+                  className="block"
+                />
+
+                {/* Status circle */}
+                <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-600 rounded-full border-2 border-white"></span>
+              </div>
             </div>
             <div>
-              <p className="text-sm green font-semibold">Marcelino's Concierge</p>
-              
-                
-                <p className="text-xs green">
-                Ready to help</p>
+              <p className="text-sm green font-semibold">
+                Marcelino's Concierge
+              </p>
+
+              <p className="text-xs green">Ready to help</p>
             </div>
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="transition-transform duration-200 hover:scale-110"
-          >
+            className="transition-transform duration-200 hover:scale-110">
             <X className="h-5 w-5 text-black/50" />
           </button>
         </div>
@@ -124,21 +119,19 @@ export default function BubbleChat() {
             <div
               key={i}
               className={`max-w-[85%] transition-all duration-300 ${
-                msg.from === "user" ? "ml-auto text-right" : ""
-              }`}
-            >
-              {msg.from === "bot" && (
-                <p className="mb-1 text-[10px] uppercase tracking-wide text-green-700 font-semibold">
-                  Marcelino’s Concierge
-                </p>
-              )}
+                msg.from === "user" ? "ml-auto w-fit text-right" : ""
+              }`}>
+              <p className={`mb-1 text-[10px] uppercase tracking-wide font-semibold ${
+                msg.from === "user" ? "text-green-800" : "text-green-700"
+              }`}>
+                {msg.from === "bot" ? "Marcelino's Concierge" : "You"}
+              </p>
               <div
                 className={`rounded-xl px-3 py-2 shadow-sm whitespace-pre-line transition-all duration-300 ${
                   msg.from === "user"
                     ? "bg-green-700 text-white"
                     : "bg-green-50 border-l-4 border-green-600 text-gray-800"
-                }`}
-              >
+                }`}>
                 {msg.text}
               </div>
             </div>
@@ -153,19 +146,25 @@ export default function BubbleChat() {
             </div>
           )}
 
-          {/* FAQ Buttons */}
-          <div className="space-y-2 pt-2">
-            {faqs.map((faq, i) => (
-              <button
-                key={i}
-                onClick={() => handleFaqClick(faq)}
-                className="flex w-full items-center justify-between rounded-xl bg-white border px-3 py-3 text-left hover:bg-green-50 transition"
-              >
-                <span className="text-sm text-gray-700">{faq.question}</span>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-              </button>
-            ))}
-          </div>
+          {/* Inline suggested replies (user's questions) */}
+          {faqs.length > 0 && (
+            <div className="pt-2">
+              <p className="mb-2 text-[10px] uppercase tracking-wide text-green-700 font-semibold text-right">
+                You can ask
+              </p>
+              <div className="flex flex-wrap gap-2 justify-end">
+                {faqs.map((faq, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleFaqClick(faq)}
+                    className="inline-flex items-center gap-1 rounded-full bg-green-700/90 text-white px-3 py-2 text-xs hover:bg-green-800 transition shadow-sm max-w-[85%]">
+                    <span className="truncate">{faq.question}</span>
+                    <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* FOOTER */}

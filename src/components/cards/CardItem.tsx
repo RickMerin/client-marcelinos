@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
+import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
 
 interface CardItemProps {
   id: number;
@@ -53,13 +54,6 @@ function CardItem(props: CardItemProps) {
         .filter((x): x is string => Boolean(x))
     : [];
 
-    const colorMap: any = {
-      deluxe: "text-white bg-green-800",
-      standard: "text-white bg-green-600",
-      family: "text-white bg-yellow-500",
-    };
-
-    const typeColorClass = colorMap[typeTitle ?? ""] || " text-black";
 
   // Preview text for short card view
   const PREVIEW_WORD_LIMIT = 10;
@@ -107,12 +101,10 @@ function CardItem(props: CardItemProps) {
       <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
 
       {typeTitle && (
-        <span className={`absolute left-3 top-3 rounded-[4px] px-2.5 py-1 text-xs font-medium shadow-sm backdrop-blur-sm ${typeColorClass}`}>
-          {typeTitle}
-        </span>
-
-
-        )}
+        <div className="absolute left-3 top-3 z-10">
+          <RoomTypeBadge type={typeTitle} />
+        </div>
+      )}
       </div>
 
       {/* CONTENT */}
@@ -143,7 +135,7 @@ function CardItem(props: CardItemProps) {
                     event.stopPropagation();
                     setExpanded(true);
                   }}
-                  className="flex-shrink-0 font-medium green hover:underline transition-colors duration-200"
+                  className="shrink-0 font-medium green hover:underline transition-colors duration-200"
                 >
                   See more
                 </button>

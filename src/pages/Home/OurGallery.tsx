@@ -5,6 +5,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { endpoints, queryKeys } from "@/lib/api/endpoints";
+import GallerySkeleton from "@/components/skeleton/GallerySkeleton";
 
 interface GalleryItem {
   id: number;
@@ -37,9 +38,7 @@ const ImageCarousel: React.FC = () => {
     return (
       <section className="w-full text-center" aria-labelledby="gallery-heading">
         {galleryHeading}
-        <p className="text-sm text-(--color-charcoal) opacity-80">
-          Loading gallery...
-        </p>
+        <GallerySkeleton />
       </section>
     );
   }
