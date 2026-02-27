@@ -1,19 +1,62 @@
 import { useState } from "react";
-import FAQ from "./FAQ";
+import { z } from "zod";
 import { ButtonLoader } from "@/components/ui/loader";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import { endpoints } from "@/lib/api/endpoints";
 import { toast } from "@/lib/logger/toast";
 
-function ContactForm() {
-  interface FormData {
-    full_name: string;
-    email: string;
-    phone: string;
-    subject: string;
-    message: string;
-  }
+const contactSchema = z.object({
+  full_name: z.string().trim().min(1, "Full name is required"),
 
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email()
+    .refine(
+      (val) => z.string().email().safeParse(val).success,
+      { message: "Invalid email address" }
+    ),
+
+  phone: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .refine((val) => {
+      if (!val) return true;
+
+      const normalized = val.replace(/\s|-/g, "");
+      const phPhoneRegex = /^(?:\+63|63|0)9\d{9}$/;
+
+      return phPhoneRegex.test(normalized);
+    }, {
+      message: "Invalid phone number (Use 09171234567 or +639171234567)",
+    })
+    .transform((val) => {
+      if (!val) return "";
+
+      const normalized = val.replace(/\s|-/g, "");
+
+      if (normalized.startsWith("09")) {
+        return "+63" + normalized.slice(1);
+      }
+
+      if (normalized.startsWith("63")) {
+        return "+" + normalized;
+      }
+
+      return normalized;
+    }),
+
+  subject: z.string().trim().min(1, "Please select a subject"),
+
+  message: z.string().trim().min(1, "Message cannot be empty"),
+});
+
+type FormData = z.infer<typeof contactSchema>;
+
+function ContactForm() {
   const [formData, setFormData] = useState<FormData>({
     full_name: "",
     email: "",
@@ -22,21 +65,22 @@ function ContactForm() {
     message: "",
   });
 
-  const [formErrors, setFormErrors] = useState({
-    full_name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
-
-  const isValidEmail = (email: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const [formErrors, setFormErrors] =
+    useState<Partial<Record<keyof FormData, string>>>({});
 
   const contactMutation = useApiMutation("post", {
     onSuccess: () => {
       toast.success({ content: "Message sent! We'll get back to you soon." });
-      setFormData({ full_name: "", email: "", phone: "", subject: "", message: "" });
-      setFormErrors({ full_name: "", email: "", subject: "", message: "" });
+
+      setFormData({
+        full_name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      });
+
+      setFormErrors({});
     },
     onError: (error: any) => {
       const errorMessage =
@@ -54,50 +98,53 @@ function ContactForm() {
   ) => {
     const { name, value } = e.target;
 
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-    // Validate field
-    let error = "";
-    switch (name) {
-      case "full_name":
-        if (!value.trim()) error = "Full name is required";
-        break;
-      case "email":
-        if (!value.trim()) error = "Email is required";
-        else if (!isValidEmail(value)) error = "Invalid email address";
-        break;
-      case "subject":
-        if (!value.trim()) error = "Please select a subject";
-        break;
-      case "message":
-        if (!value.trim()) error = "Message cannot be empty";
-        break;
+    const fieldSchema = contactSchema.shape[name as keyof FormData];
+
+    if (fieldSchema) {
+      const result = fieldSchema.safeParse(value);
+
+      setFormErrors((prev) => ({
+        ...prev,
+        [name]: result.success ? "" : result.error.issues[0].message,
+      }));
     }
-
-    setFormErrors((prev) => ({ ...prev, [name]: error }));
   };
 
-  // Check if form is valid
-  const isFormValid =
-    formData.full_name.trim() &&
-    isValidEmail(formData.email) &&
-    formData.subject.trim() &&
-    formData.message.trim() &&
-    !formErrors.full_name &&
-    !formErrors.email &&
-    !formErrors.subject &&
-    !formErrors.message;
+  const isFormValid = contactSchema.safeParse(formData).success;
 
-  // Handle submit
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isFormValid) return;
-    contactMutation.mutate({ url: endpoints.contact, body: formData });
+
+    const result = contactSchema.safeParse(formData);
+
+    if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors;
+
+      setFormErrors({
+        full_name: fieldErrors.full_name?.[0],
+        email: fieldErrors.email?.[0],
+        phone: fieldErrors.phone?.[0],
+        subject: fieldErrors.subject?.[0],
+        message: fieldErrors.message?.[0],
+      });
+
+      return;
+    }
+
+    contactMutation.mutate({
+      url: endpoints.contact,
+      body: result.data,
+    });
   };
 
   return (
-    <div className="container mx-auto faq-container flex flex-col md:flex-row gap-10 md:gap-12 py-8">
-      <div className="w-full md:w-1/2 bg-white shadow-lg rounded-2xl border border-(--color-sage-muted) overflow-hidden">
+    <center>
+      <div id="contact" className="w-full max-w-2xl bg-white shadow-lg rounded-2xl border border-(--color-sage-muted) overflow-hidden">
 
         <h2
           id="contact-heading"
@@ -109,6 +156,7 @@ function ContactForm() {
 
         <div className="p-6 pt-0">
           <form onSubmit={handleSubmit} className="flex flex-col space-y-4" noValidate>
+
             {/* Full Name */}
             <div>
               <input
@@ -117,11 +165,10 @@ function ContactForm() {
                 placeholder="Full Name"
                 value={formData.full_name}
                 onChange={handleChange}
-                aria-label="Full name"
                 className="border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow w-full"
               />
               {formErrors.full_name && (
-                <p className="text-sm ml-2 text-red-600 mt-1">{formErrors.full_name}</p>
+                <p className=" text-left w-full text-sm ml-2 text-red-600 mt-1">{formErrors.full_name}</p>
               )}
             </div>
 
@@ -133,15 +180,14 @@ function ContactForm() {
                 placeholder="Email Address"
                 value={formData.email}
                 onChange={handleChange}
-                aria-label="Email address"
                 className="border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow w-full"
               />
               {formErrors.email && (
-                <p className="text-sm  ml-2 text-red-600 mt-1">{formErrors.email}</p>
+                <p className=" text-left w-full text-sm ml-2 text-red-600 mt-1">{formErrors.email}</p>
               )}
             </div>
 
-            {/* Phone (Optional) */}
+            {/* Phone */}
             <div>
               <input
                 type="tel"
@@ -149,9 +195,11 @@ function ContactForm() {
                 placeholder="Phone Number (Optional)"
                 value={formData.phone}
                 onChange={handleChange}
-                aria-label="Phone number"
                 className="border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow w-full"
               />
+              {formErrors.phone && (
+                <p className=" text-left w-full text-sm ml-2 text-red-600 mt-1">{formErrors.phone}</p>
+              )}
             </div>
 
             {/* Subject */}
@@ -160,7 +208,6 @@ function ContactForm() {
                 name="subject"
                 value={formData.subject}
                 onChange={handleChange}
-                aria-label="Subject"
                 className="border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow bg-white w-full"
               >
                 <option value="">Subject</option>
@@ -169,7 +216,7 @@ function ContactForm() {
                 <option value="Other">Other</option>
               </select>
               {formErrors.subject && (
-                <p className="text-sm text-red-600 mt-1">{formErrors.subject}</p>
+                <p className=" text-left w-full text-sm text-red-600 mt-1">{formErrors.subject}</p>
               )}
             </div>
 
@@ -181,38 +228,30 @@ function ContactForm() {
                 rows={4}
                 value={formData.message}
                 onChange={handleChange}
-                aria-label="Message"
                 className="border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow resize-y min-h-[100px] w-full"
               />
               {formErrors.message && (
-                <p className="text-sm ml-2 text-red-600 mt-1">{formErrors.message}</p>
+                <p className=" text-left w-full text-sm ml-2 text-red-600 mt-1">{formErrors.message}</p>
               )}
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={!isFormValid || contactMutation.isPending}
-              className={`
-                inline-flex items-center justify-center gap-2 font-semibold py-3 px-6 rounded-xl
-                transition-colors min-h-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-                ${isFormValid
-                  ? 'bg-yellow-400 hover:bg-yellow-500 text-white cursor-pointer'
-                  : 'bg-gray-300 cursor-not-allowed text-gray-600'}
-              `}
+              className={`inline-flex items-center justify-center gap-2 font-semibold py-3 px-6 rounded-xl transition-colors min-h-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                isFormValid
+                  ? "bg-[#829F6E] hover:bg-[#AFBE9C] text-white cursor-pointer"
+                  : "bg-[#AFBE9C] cursor-not-allowed text-white"
+              }`}
             >
               {contactMutation.isPending ? <ButtonLoader /> : "Send Message"}
             </button>
 
           </form>
-
         </div>
       </div>
-
-
-      <FAQ />
-
-    </div>
+    </center>
   );
 }
 
