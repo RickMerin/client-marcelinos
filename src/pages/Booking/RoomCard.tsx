@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
 
 interface RoomCardProps {
   id: number;
@@ -16,6 +17,8 @@ interface RoomCardProps {
   onSelectRoom: (id: number) => void;
   /** Optional list of amenity names for pill tags (e.g. ["WiFi", "AC", "Slippers"]) */
   amenityPills?: string[];
+  /** When false, room is not available for the selected dates; selection is disabled. When true or undefined, room is bookable. */
+  availability?: boolean | null;
 }
 
 const EMPTY_FIELD = "—";
@@ -33,8 +36,10 @@ export const RoomCard: React.FC<RoomCardProps> = ({
   selected = false,
   onSelectRoom,
   amenityPills,
+  availability = true,
 }) => {
   const showCapacity = capacity && capacity !== EMPTY_FIELD;
+  const isAvailable = availability !== false;
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const hasGallery = images.length > 1;
@@ -60,21 +65,35 @@ export const RoomCard: React.FC<RoomCardProps> = ({
     setActiveImageIndex((i) => (i + 1) % images.length);
   };
 
+  const handleSelect = () => {
+    if (!isAvailable) return;
+    onSelectRoom(id);
+  };
+
   return (
     <section
       role="button"
-      tabIndex={0}
+      tabIndex={isAvailable ? 0 : -1}
       aria-pressed={selected}
-      aria-label={`${title}, ${pricingFormat(String(price))} per night. ${selected ? "Selected" : "Select"}`}
+      aria-disabled={!isAvailable}
+      aria-label={
+        isAvailable
+          ? `${title}, ${pricingFormat(String(price))} per night. ${selected ? "Selected" : "Select"}`
+          : `${title}, ${pricingFormat(String(price))} per night. Not available for selected dates.`
+      }
       className={cn(
         "group relative flex flex-col rounded-md text-left shadow-sm transition-all duration-200 overflow-hidden",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-        selected
-          ? "border-2 border-(--color-sage) bg-sage-muted/30 shadow-md ring-2 ring-sage/20 focus-visible:ring-(--color-sage)"
-          : "border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md focus-visible:ring-(--color-sage)",
+        !isAvailable &&
+          "opacity-85 cursor-not-allowed border border-gray-200 bg-gray-50/80",
+        isAvailable &&
+          (selected
+            ? "border-2 border-(--color-sage) bg-sage-muted/30 shadow-md ring-2 ring-sage/20 focus-visible:ring-(--color-sage)"
+            : "border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md focus-visible:ring-(--color-sage)"),
       )}
-      onClick={() => onSelectRoom(id)}
+      onClick={handleSelect}
       onKeyDown={(e) => {
+        if (!isAvailable) return;
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onSelectRoom(id);
@@ -92,19 +111,37 @@ export const RoomCard: React.FC<RoomCardProps> = ({
         role="img"
         aria-label={title}>
         {/* Type Badge (e.g. "family") in the top-left over the image */}
-        <div className="absolute top-2 left-2 z-10">
-          <span
-            className="inline-block px-3 py-1 rounded-full text-xs font-semibold capitalize"
-            style={{
-              backgroundColor: "var(--color-cream, #f5f5f0)",
-              color: "var(--color-sage, #7ebb5e)",
-              border: "1.5px solid var(--color-sage, #7ebb5e)",
-              boxShadow: "0 1px 3px 0 rgba(60,60,60,.08)",
-              letterSpacing: "0.03em",
-            }}>
-            {type}
-          </span>
-        </div>
+        {type && (
+          <div className="absolute top-2 left-2 z-10">
+            <RoomTypeBadge type={type} />
+          </div>
+        )}
+        {/* Not available for selected dates — text only, readable on any background */}
+        {!isAvailable && (
+          <div
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-1.5 bg-black/30 backdrop-blur-[2px]"
+            onClick={(e) => e.stopPropagation()}
+            aria-hidden>
+            <p
+              className="text-center font-semibold leading-snug"
+              style={{
+                color: "#fafaf9",
+                fontSize: "0.9375rem",
+                textShadow:
+                  "0 0 1px rgba(0,0,0,1), 0 1px 3px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.7)",
+              }}>
+              Not available for selected dates
+            </p>
+            <p
+              className="text-center text-xs leading-relaxed"
+              style={{
+                color: "#f5f5f4",
+                textShadow: "0 0 1px rgba(0,0,0,1), 0 1px 2px rgba(0,0,0,0.8)",
+              }}>
+              Choose different dates or another room
+            </p>
+          </div>
+        )}
         {hasGallery && (
           <>
             <button
@@ -261,27 +298,40 @@ export const RoomCard: React.FC<RoomCardProps> = ({
           </div>
           <button
             type="button"
+            disabled={!isAvailable}
             onClick={(e) => {
               e.stopPropagation();
-              onSelectRoom(id);
+              if (isAvailable) onSelectRoom(id);
             }}
             className={cn(
               "shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold uppercase tracking-wide transition-all",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--color-sage) focus-visible:ring-offset-2",
-              selected
-                ? "bg-(--color-sage) text-white shadow-sm"
-                : "border border-gray-200/80 hover:bg-gray-100",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+              !isAvailable &&
+                "cursor-not-allowed border-0 bg-transparent text-gray-500 focus-visible:ring-gray-400",
+              isAvailable && "focus-visible:ring-(--color-sage)",
+              isAvailable &&
+                (selected
+                  ? "bg-(--color-sage) text-white shadow-sm"
+                  : "border border-gray-200/80 hover:bg-gray-100"),
             )}
             style={
-              selected
-                ? { backgroundColor: "var(--color-sage)" }
-                : {
-                    backgroundColor: "var(--color-cream, #f5f5f0)",
-                    color: "var(--color-charcoal)",
-                  }
+              !isAvailable
+                ? undefined
+                : selected
+                  ? { backgroundColor: "var(--color-sage)" }
+                  : {
+                      backgroundColor: "var(--color-cream, #f5f5f0)",
+                      color: "var(--color-charcoal)",
+                    }
             }
-            aria-label={selected ? "Selected" : "Select room"}>
-            {selected ? "Selected" : "Select"}
+            aria-label={
+              !isAvailable
+                ? "Not available for selected dates"
+                : selected
+                  ? "Selected"
+                  : "Select room"
+            }>
+            {!isAvailable ? "Unavailable" : selected ? "Selected" : "Select"}
           </button>
         </div>
       </div>

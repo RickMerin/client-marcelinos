@@ -5,6 +5,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { endpoints, queryKeys } from "@/lib/api/endpoints";
+import GallerySkeleton from "@/components/skeleton/GallerySkeleton";
 
 interface GalleryItem {
   id: number;
@@ -23,7 +24,7 @@ const ImageCarousel: React.FC = () => {
     error,
   } = useApiQuery<ApiResponse>([...queryKeys.galleries.all], endpoints.galleries);
 
-  const images = galleriesResponse?.data?.map((item) => item.image) || [];
+  const galleries = galleriesResponse?.data ?? [];
 
   const galleryHeading = (
     <h2
@@ -37,9 +38,7 @@ const ImageCarousel: React.FC = () => {
     return (
       <section className="w-full text-center" aria-labelledby="gallery-heading">
         {galleryHeading}
-        <p className="text-sm text-(--color-charcoal) opacity-80">
-          Loading gallery...
-        </p>
+        <GallerySkeleton />
       </section>
     );
   }
@@ -55,7 +54,7 @@ const ImageCarousel: React.FC = () => {
     );
   }
 
-  if (images.length === 0) {
+  if (galleries.length === 0) {
     return (
       <section className="w-full text-center" aria-labelledby="gallery-heading">
         {galleryHeading}
@@ -87,8 +86,8 @@ const ImageCarousel: React.FC = () => {
           margin: "0 auto",
           paddingBottom: "50px",
         }}>
-        {images.map((src, index) => (
-          <SwiperSlide key={index}>
+        {galleries.map((item) => (
+          <SwiperSlide key={item.id}>
             <div
               style={{
                 width: "100%",
@@ -98,8 +97,8 @@ const ImageCarousel: React.FC = () => {
                 boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
               }}>
               <img
-                src={src}
-                alt={`Gallery ${index + 1}`}
+                src={item.image}
+                alt={`Gallery ${item.id}`}
                 loading="lazy"
                 style={{
                   width: "100%",

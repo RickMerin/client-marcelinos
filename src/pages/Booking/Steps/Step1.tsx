@@ -294,6 +294,7 @@ export function Step1({
                 includes={amenityNames(room.amenities)}
                 amenityPills={amenityPills(room.amenities)}
                 price={room.price ?? 0}
+                availability={room.available ?? false}
                 selected={formData.rooms.some(
                   (r: any) => (r?.id ?? r) === room.id,
                 )}
@@ -350,6 +351,7 @@ export function Step1({
                 images={venueImages(venue)}
                 capacity={String(venue.capacity ?? "—")}
                 price={venue.price ?? 0}
+                availability={venue.available ?? false}
                 selected={formData.venues.some(
                   (v: any) => (v?.id ?? v) === venue.id,
                 )}

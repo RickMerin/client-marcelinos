@@ -207,6 +207,43 @@
   }
 }
 
+/* Room type badge: diagonal sweeping shine */
+@keyframes badge-shine {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+    opacity: 0.5;
+  }
+}
+.room-type-badge-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.2) 42%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.2) 58%,
+    transparent 65%,
+    transparent 100%
+  );
+  transform: translateX(-100%) skewX(-12deg);
+  animation: badge-shine 2.8s ease-in-out infinite;
+  pointer-events: none;
+  /* Keep animation on its own layer, contained to badge only */
+  will-change: transform;
+  contain: layout paint;
+}
+
 /* Theme green = #1f5d1e (from .green-bg); default card = green, white text */
 .about-premium-card {
   position: relative;
@@ -319,16 +356,18 @@
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  /* Layer 1: abstract SVG dapple pattern */
+  /* Layer 1: abstract SVG waves – transparent base, no white; waves tint the section */
   background:
-    url("data:image/svg+xml;utf8,<svg width='400' height='200' viewBox='0 0 400 200' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M0 60 Q100 100 200 60 T400 60 V200 H0 V60 Z' fill='%23ffd184' opacity='0.12'/><path d='M0 100 Q100 140 200 100 T400 100 V200 H0 V100 Z' fill='%239eb18d' opacity='0.10'/><path d='M0 140 Q100 180 200 140 T400 140 V200 H0 V140 Z' fill='%239ebe9d' opacity='0.13'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg width='400' height='200' viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'><rect width='400' height='200' fill='none'/><path d='M0 60 Q100 100 200 60 T400 60 V200 H0 V60 Z' fill='%23ffd184' opacity='0.14'/><path d='M0 100 Q100 140 200 100 T400 100 V200 H0 V100 Z' fill='%239eb18d' opacity='0.12'/><path d='M0 140 Q100 180 200 140 T400 140 V200 H0 V140 Z' fill='%239ebe9d' opacity='0.15'/></svg>"),
     /* Layer 2: subtle grain */
     url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAX0lEQVR42u3QsREAIAwEwZw/lpkHJi5E3kM+CJ3M/kMtLAAAgxRDAEBQgAhRjBACFGMIAEUYwQAhRjBACFGMEAIUYwAAUKUVG+uVP3DqQaWc/9EBU9DP04FX/gP85y4AJOINSlV8nyRgAAAABJRU5ErkJggg==");
   background-size: cover, 170px;
   background-repeat: no-repeat, repeat;
-  background-position: center center, 0 0;
-  opacity: 0.82;
-  mix-blend-mode: lighten, soft-light;
+  background-position:
+    center center,
+    0 0;
+  opacity: 1;
+  mix-blend-mode: multiply;
 }
 
 .landing-section-alt > * {
@@ -364,7 +403,9 @@
 }
 /* Interactive cards: hover lift and theme border */
 .landing-card-interactive {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 .landing-card-interactive:hover {
   transform: translateY(-4px);
@@ -373,3 +414,8 @@
 .landing-card-interactive:focus-within {
   box-shadow: 0 0 0 2px var(--color-sage-muted);
 }
+
+#about.landing-section {
+  padding: 25px 10px 10px 10px;
+}
+

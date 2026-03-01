@@ -59,7 +59,7 @@ export function BannerCarousel() {
                     alt="Banner 1"
                     loading="eager"
                     fetchPriority="high"
-                    className="w-full h-[80vh] object-cover object-center"
+                    className="w-full h-[88vh] object-cover object-center"
                   />
                   {/* Premium overlay: gradient for depth and readability */}
                   <div

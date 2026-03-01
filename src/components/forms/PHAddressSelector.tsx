@@ -1,10 +1,12 @@
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useReducer } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import {
   getFromLocalStorage,
   saveToLocalStorage,
 } from "@/lib/storage/localStorage";
-import { Input } from "@/components/ui/input";
+import { CountryDropdown } from "./CountryDropdown";  // custom dropdown component
+import { LazyMotion, m } from "framer-motion";
 
 type PSGCOption = {
   code: string;
@@ -26,6 +28,301 @@ type StoredPHAddress = {
 
 const STORAGE_KEY = "reservationDetails.personal.phAddress";
 
+type AddressState = {
+  addressType: "local" | "international";
+  internationalAddress: string;
+  regionCode: string;
+  provinceCode: string;
+  municipalityCode: string;
+  barangayCode: string;
+};
+
+type AddressAction =
+  | { type: "SET_ADDRESS_TYPE"; addressType: "local" | "international" }
+  | { type: "SET_INTERNATIONAL_ADDRESS"; internationalAddress: string }
+  | { type: "SET_REGION"; regionCode: string }
+  | { type: "SET_PROVINCE"; provinceCode: string }
+  | { type: "SET_MUNICIPALITY"; municipalityCode: string }
+  | { type: "SET_BARANGAY"; barangayCode: string };
+
+function addressReducer(state: AddressState, action: AddressAction): AddressState {
+  switch (action.type) {
+    case "SET_ADDRESS_TYPE": {
+      if (action.addressType === "local") {
+        return {
+          ...state,
+          addressType: "local",
+          internationalAddress: "",
+        };
+      }
+
+      return {
+        ...state,
+        addressType: "international",
+      };
+    }
+    case "SET_INTERNATIONAL_ADDRESS":
+      return {
+        ...state,
+        internationalAddress: action.internationalAddress,
+      };
+    case "SET_REGION":
+      return {
+        ...state,
+        regionCode: action.regionCode,
+        provinceCode: "",
+        municipalityCode: "",
+        barangayCode: "",
+      };
+    case "SET_PROVINCE":
+      return {
+        ...state,
+        provinceCode: action.provinceCode,
+        municipalityCode: "",
+        barangayCode: "",
+      };
+    case "SET_MUNICIPALITY":
+      return {
+        ...state,
+        municipalityCode: action.municipalityCode,
+        barangayCode: "",
+      };
+    case "SET_BARANGAY":
+      return {
+        ...state,
+        barangayCode: action.barangayCode,
+      };
+    default:
+      return state;
+  }
+}
+
+type AddressTypeToggleProps = {
+  addressType: AddressState["addressType"];
+  disabled?: boolean;
+  radioGroupName: string;
+  onSelectLocal: () => void;
+  onSelectInternational: () => void;
+};
+
+type InternationalAddressFormProps = {
+  disabled?: boolean;
+  countryInputId: string;
+  internationalAddress: string;
+  onInternationalAddressChange: (value: string) => void;
+};
+
+type LocalAddressFormProps = {
+  disabled?: boolean;
+  baseSelectClass: string;
+  regionCode: string;
+  provinceCode: string;
+  municipalityCode: string;
+  barangayCode: string;
+  regions: PSGCOption[];
+  provinces: PSGCOption[];
+  municipalities: PSGCOption[];
+  barangays: PSGCOption[];
+  onRegionChange: (regionCode: string) => void;
+  onProvinceChange: (provinceCode: string) => void;
+  onMunicipalityChange: (municipalityCode: string) => void;
+  onBarangayChange: (barangayCode: string) => void;
+};
+
+function AddressTypeToggle({
+  addressType,
+  disabled,
+  radioGroupName,
+  onSelectLocal,
+  onSelectInternational,
+}: AddressTypeToggleProps) {
+  return (
+    <div className="inline-flex space-x-2">
+      <label className="cursor-pointer">
+        <input
+          type="radio"
+          className="sr-only"
+          name={radioGroupName}
+          value="local"
+          checked={addressType === "local"}
+          onChange={onSelectLocal}
+          disabled={disabled}
+        />
+        <m.span
+          className="px-5 py-2 text-sm sm:text-base rounded-full"
+          animate={{
+            backgroundColor:
+              addressType === "local" ? "var(--color-primary)" : "transparent",
+            color:
+              addressType === "local"
+                ? "var(--color-primary-foreground)"
+                : "var(--color-foreground)",
+            scale: addressType === "local" ? 1.1 : 1,
+          }}
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        >
+          Local
+        </m.span>
+      </label>
+
+      <label className="cursor-pointer">
+        <input
+          type="radio"
+          className="sr-only"
+          name={radioGroupName}
+          value="international"
+          checked={addressType === "international"}
+          onChange={onSelectInternational}
+          disabled={disabled}
+        />
+        <m.span
+          className="px-5 py-2 text-sm sm:text-base rounded-full"
+          animate={{
+            backgroundColor:
+              addressType === "international"
+                ? "var(--color-primary)"
+                : "transparent",
+            color:
+              addressType === "international"
+                ? "var(--color-primary-foreground)"
+                : "var(--color-foreground)",
+            scale: addressType === "international" ? 1.1 : 1,
+          }}
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        >
+          Foreign
+        </m.span>
+      </label>
+    </div>
+  );
+}
+
+function InternationalAddressForm({
+  disabled,
+  countryInputId,
+  internationalAddress,
+  onInternationalAddressChange,
+}: InternationalAddressFormProps) {
+  return (
+    <div className="flex flex-col space-y-1">
+      <label className="text-sm font-medium" htmlFor={countryInputId}>
+        Country <span className="text-red-500">*</span>
+      </label>
+      <CountryDropdown
+        id={countryInputId}
+        value={internationalAddress}
+        onChange={onInternationalAddressChange}
+        disabled={disabled}
+      />
+    </div>
+  );
+}
+
+function LocalAddressForm({
+  disabled,
+  baseSelectClass,
+  regionCode,
+  provinceCode,
+  municipalityCode,
+  barangayCode,
+  regions,
+  provinces,
+  municipalities,
+  barangays,
+  onRegionChange,
+  onProvinceChange,
+  onMunicipalityChange,
+  onBarangayChange,
+}: LocalAddressFormProps) {
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="flex flex-col space-y-1">
+        <label className="text-sm font-medium">
+          <span>
+            Region <span className="text-red-500">*</span>
+          </span>
+          <select
+            value={regionCode}
+            onChange={(e) => onRegionChange(e.target.value)}
+            disabled={disabled}
+            className={baseSelectClass}
+          >
+            <option value="">Select region</option>
+            {regions.map((opt) => (
+              <option key={opt.code} value={opt.code}>
+                {opt.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <div className="flex flex-col space-y-1">
+        <label className="text-sm font-medium">
+          <span>
+            Province <span className="text-red-500">*</span>
+          </span>
+          <select
+            value={provinceCode}
+            onChange={(e) => onProvinceChange(e.target.value)}
+            disabled={disabled || !regionCode}
+            className={baseSelectClass}
+          >
+            <option value="">Select province</option>
+            {provinces.map((opt) => (
+              <option key={opt.code} value={opt.code}>
+                {opt.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <div className="flex flex-col space-y-1">
+        <label className="text-sm font-medium">
+          <span>
+            Municipality <span className="text-red-500">*</span>
+          </span>
+          <select
+            value={municipalityCode}
+            onChange={(e) => onMunicipalityChange(e.target.value)}
+            disabled={disabled || !provinceCode}
+            className={baseSelectClass}
+          >
+            <option value="">Select municipality</option>
+            {municipalities.map((opt) => (
+              <option key={opt.code} value={opt.code}>
+                {opt.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <div className="flex flex-col space-y-1">
+        <label className="text-sm font-medium">
+          <span>
+            Barangay <span className="text-red-500">*</span>
+          </span>
+          <select
+            value={barangayCode}
+            onChange={(e) => onBarangayChange(e.target.value)}
+            disabled={disabled || !municipalityCode}
+            className={baseSelectClass}
+          >
+            <option value="">Select barangay</option>
+            {barangays.map((opt) => (
+              <option key={opt.code} value={opt.code}>
+                {opt.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+    </div>
+  );
+}
+
 type Props = {
   value: string;
   onChange: (nextAddress: string) => void;
@@ -42,29 +339,75 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
   }, []);
 
   const radioGroupName = useId();
+  const countryInputId = useId();
 
-  const [addressType, setAddressType] = useState<
-    "local" | "international"
-  >(stored?.addressType ?? "local");
-  const [internationalAddress, setInternationalAddress] = useState<string>(
-    stored?.internationalAddress ?? "",
-  );
+  const [state, dispatch] = useReducer(addressReducer, {
+    addressType: stored?.addressType ?? "local",
+    internationalAddress: stored?.internationalAddress ?? "",
+    regionCode: stored?.regionCode ?? "",
+    provinceCode: stored?.provinceCode ?? "",
+    municipalityCode: stored?.municipalityCode ?? "",
+    barangayCode: stored?.barangayCode ?? "",
+  });
 
-  const [regions, setRegions] = useState<PSGCOption[]>([]);
-  const [provinces, setProvinces] = useState<PSGCOption[]>([]);
-  const [municipalities, setMunicipalities] = useState<PSGCOption[]>([]);
-  const [barangays, setBarangays] = useState<PSGCOption[]>([]);
+  const {
+    addressType,
+    internationalAddress,
+    regionCode,
+    provinceCode,
+    municipalityCode,
+    barangayCode,
+  } = state;
 
-  const [regionCode, setRegionCode] = useState<string>(stored?.regionCode ?? "");
-  const [provinceCode, setProvinceCode] = useState<string>(
-    stored?.provinceCode ?? "",
-  );
-  const [municipalityCode, setMunicipalityCode] = useState<string>(
-    stored?.municipalityCode ?? "",
-  );
-  const [barangayCode, setBarangayCode] = useState<string>(
-    stored?.barangayCode ?? "",
-  );
+  const { data: regionsData } = useQuery({
+    queryKey: ["psgc", "regions"],
+    queryFn: async () => {
+      const res = await fetch("https://psgc.gitlab.io/api/regions/");
+      const data: PSGCOption[] = await res.json();
+      return sortByName(data);
+    },
+  });
+
+  const { data: provincesData } = useQuery({
+    queryKey: ["psgc", "regions", regionCode, "provinces"],
+    queryFn: async () => {
+      const res = await fetch(
+        `https://psgc.gitlab.io/api/regions/${regionCode}/provinces`,
+      );
+      const data: PSGCOption[] = await res.json();
+      return sortByName(data);
+    },
+    enabled: !!regionCode,
+  });
+
+  const { data: municipalitiesData } = useQuery({
+    queryKey: ["psgc", "provinces", provinceCode, "cities-municipalities"],
+    queryFn: async () => {
+      const res = await fetch(
+        `https://psgc.gitlab.io/api/provinces/${provinceCode}/cities-municipalities`,
+      );
+      const data: PSGCOption[] = await res.json();
+      return sortByName(data);
+    },
+    enabled: !!provinceCode,
+  });
+
+  const { data: barangaysData } = useQuery({
+    queryKey: ["psgc", "cities-municipalities", municipalityCode, "barangays"],
+    queryFn: async () => {
+      const res = await fetch(
+        `https://psgc.gitlab.io/api/cities-municipalities/${municipalityCode}/barangays`,
+      );
+      const data: PSGCOption[] = await res.json();
+      return sortByName(data);
+    },
+    enabled: !!municipalityCode,
+  });
+
+  const regions = regionsData ?? [];
+  const provinces = regionCode ? (provincesData ?? []) : [];
+  const municipalities = provinceCode ? (municipalitiesData ?? []) : [];
+  const barangays = municipalityCode ? (barangaysData ?? []) : [];
 
   const selectedRegion = useMemo(
     () => regions.find((r) => r.code === regionCode) ?? null,
@@ -108,7 +451,7 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
     if ((value ?? "") !== computedAddress) {
       onChange(computedAddress);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks-exhaustive-deps
   }, [computedAddress, addressType]);
 
   // Keep RHF field in sync with the international input.
@@ -117,7 +460,7 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
     if ((value ?? "") !== internationalAddress) {
       onChange(internationalAddress);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks-exhaustive-deps
   }, [internationalAddress, addressType]);
 
   // Persist selection (codes + names) so reload restores dropdowns.
@@ -149,246 +492,71 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
     selectedBarangay?.name,
   ]);
 
-
-  
-  // Fetch regions once.
-  useEffect(() => {
-    let cancelled = false;
-
-    fetch("https://psgc.gitlab.io/api/regions/")
-      .then((res) => res.json())
-      .then((data: PSGCOption[]) => {
-        if (cancelled) return;
-        setRegions(sortByName(data));
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setRegions([]);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Fetch provinces when region changes.
-  useEffect(() => {
-    if (!regionCode) {
-      setProvinces([]);
-      return;
-    }
-
-    let cancelled = false;
-
-    fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/provinces`)
-      .then((res) => res.json())
-      .then((data: PSGCOption[]) => {
-        if (cancelled) return;
-        setProvinces(sortByName(data));
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setProvinces([]);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [regionCode]);
-
-  // Fetch municipalities when province changes.
-  useEffect(() => {
-    if (!provinceCode) {
-      setMunicipalities([]);
-      return;
-    }
-
-    let cancelled = false;
-
-    fetch(
-      `https://psgc.gitlab.io/api/provinces/${provinceCode}/cities-municipalities`,
-    )
-      .then((res) => res.json())
-      .then((data: PSGCOption[]) => {
-        if (cancelled) return;
-        setMunicipalities(sortByName(data));
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setMunicipalities([]);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [provinceCode]);
-
-  // Fetch barangays when municipality changes.
-  useEffect(() => {
-    if (!municipalityCode) {
-      setBarangays([]);
-      return;
-    }
-
-    let cancelled = false;
-
-    fetch(
-      `https://psgc.gitlab.io/api/cities-municipalities/${municipalityCode}/barangays`,
-    )
-      .then((res) => res.json())
-      .then((data: PSGCOption[]) => {
-        if (cancelled) return;
-        setBarangays(sortByName(data));
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setBarangays([]);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [municipalityCode]);
-
   const baseSelectClass =
     "h-10 w-full rounded-md border px-3 disabled:opacity-50";
 
+  const handleSelectLocal = () => {
+    dispatch({ type: "SET_ADDRESS_TYPE", addressType: "local" });
+    onChange(computedAddress);
+  };
+
+  const handleSelectInternational = () => {
+    dispatch({
+      type: "SET_ADDRESS_TYPE",
+      addressType: "international",
+    });
+    onChange(internationalAddress);
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-6">
-        <label className="inline-flex items-center gap-2">
-          <input
-            type="radio"
-            name={radioGroupName}
-            value="local"
-            checked={addressType === "local"}
-            onChange={() => {
-              setAddressType("local");
-              setInternationalAddress("");
-              onChange(computedAddress);
-            }}
-            disabled={disabled}
-          />
-          <span className="text-sm sm:text-base">Local</span>
-        </label>
-
-        <label className="inline-flex items-center gap-2">
-          <input
-            type="radio"
-            name={radioGroupName}
-            value="international"
-            checked={addressType === "international"}
-            onChange={() => {
-              setAddressType("international");
-              onChange(internationalAddress);
-            }}
-            disabled={disabled}
-          />
-          <span className="text-sm sm:text-base">International</span>
-        </label>
-      </div>
+      <LazyMotion features={() => import("framer-motion").then((res) => res.domAnimation)}>
+        <AddressTypeToggle
+          addressType={addressType}
+          disabled={disabled}
+          radioGroupName={radioGroupName}
+          onSelectLocal={handleSelectLocal}
+          onSelectInternational={handleSelectInternational}
+        />
+      </LazyMotion>
 
       {addressType === "international" ? (
-        <div className="flex flex-col space-y-1">
-          <label className="text-sm font-medium">
-            Country / Full Address <span className="text-red-500">*</span>
-          </label>
-          <Input
-            value={internationalAddress}
-            onChange={(e) => setInternationalAddress(e.target.value)}
-            placeholder="Enter country or full address"
-            disabled={disabled}
-          />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <div className="flex flex-col space-y-1">
-        <label className="text-sm font-medium">
-          Region <span className="text-red-500">*</span>
-        </label>
-        <select
-          value={regionCode}
-          onChange={(e) => {
-            const next = e.target.value;
-            setRegionCode(next);
-            setProvinceCode("");
-            setMunicipalityCode("");
-            setBarangayCode("");
-          }}
+        <InternationalAddressForm
           disabled={disabled}
-          className={baseSelectClass}>
-          <option value="">Select region</option>
-          {regions.map((opt) => (
-            <option key={opt.code} value={opt.code}>
-              {opt.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="flex flex-col space-y-1">
-        <label className="text-sm font-medium">
-          Province <span className="text-red-500">*</span>
-        </label>
-        <select
-          value={provinceCode}
-          onChange={(e) => {
-            const next = e.target.value;
-            setProvinceCode(next);
-            setMunicipalityCode("");
-            setBarangayCode("");
-          }}
-          disabled={disabled || !regionCode}
-          className={baseSelectClass}>
-          <option value="">Select province</option>
-          {provinces.map((opt) => (
-            <option key={opt.code} value={opt.code}>
-              {opt.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="flex flex-col space-y-1">
-        <label className="text-sm font-medium">
-          Municipality <span className="text-red-500">*</span>
-        </label>
-        <select
-          value={municipalityCode}
-          onChange={(e) => {
-            const next = e.target.value;
-            setMunicipalityCode(next);
-            setBarangayCode("");
-          }}
-          disabled={disabled || !provinceCode}
-          className={baseSelectClass}>
-          <option value="">Select municipality</option>
-          {municipalities.map((opt) => (
-            <option key={opt.code} value={opt.code}>
-              {opt.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="flex flex-col space-y-1">
-        <label className="text-sm font-medium">
-          Barangay <span className="text-red-500">*</span>
-        </label>
-        <select
-          value={barangayCode}
-          onChange={(e) => setBarangayCode(e.target.value)}
-          disabled={disabled || !municipalityCode}
-          className={baseSelectClass}>
-          <option value="">Select barangay</option>
-          {barangays.map((opt) => (
-            <option key={opt.code} value={opt.code}>
-              {opt.name}
-            </option>
-          ))}
-        </select>
-      </div>
-        </div>
+          countryInputId={countryInputId}
+          internationalAddress={internationalAddress}
+          onInternationalAddressChange={(next) =>
+            dispatch({
+              type: "SET_INTERNATIONAL_ADDRESS",
+              internationalAddress: next,
+            })
+          }
+        />
+      ) : (
+        <LocalAddressForm
+          disabled={disabled}
+          baseSelectClass={baseSelectClass}
+          regionCode={regionCode}
+          provinceCode={provinceCode}
+          municipalityCode={municipalityCode}
+          barangayCode={barangayCode}
+          regions={regions}
+          provinces={provinces}
+          municipalities={municipalities}
+          barangays={barangays}
+          onRegionChange={(next) =>
+            dispatch({ type: "SET_REGION", regionCode: next })
+          }
+          onProvinceChange={(next) =>
+            dispatch({ type: "SET_PROVINCE", provinceCode: next })
+          }
+          onMunicipalityChange={(next) =>
+            dispatch({ type: "SET_MUNICIPALITY", municipalityCode: next })
+          }
+          onBarangayChange={(next) =>
+            dispatch({ type: "SET_BARANGAY", barangayCode: next })
+          }
+        />
       )}
     </div>
   );

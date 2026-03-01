@@ -1,4 +1,4 @@
-import logo from "../../assets/img/marcelinos-logo.svg";
+import logo from "/brand-logo.webp";
 import diamond from "../../assets/img/diamond.svg";
 import wine from "../../assets/img/wine-toast.svg";
 import handshake from "../../assets/img/handshake.svg";
@@ -51,7 +51,7 @@ function About() {
           src={logo}
           alt="Marcelino's Logo"
           loading="lazy"
-          className="w-1/2 md:w-[50%] lg:w-[50%] h-auto"
+          className="w-1/2 md:w-[60%] lg:w-[60%] h-auto"
           itemProp="contentUrl"
         />
       </div>

@@ -1,7 +1,10 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
-import { BookingReceipt, BookingReferenceResponse } from "@/types/booking.types";
+import {
+  BookingReceipt,
+  BookingReferenceResponse,
+} from "@/types/booking.types";
 import { Step5 } from "./Steps/Step5";
 import { ProgressIndicator } from "./ProgressIndicator";
 import { PageLoader } from "@/components/ui/loader";
@@ -16,7 +19,9 @@ interface BookingReceiptPageProps {
 
 const RECEIPT_STEP = 5;
 
-export function BookingReceiptPage({ referenceNumber }: BookingReceiptPageProps) {
+export function BookingReceiptPage({
+  referenceNumber,
+}: BookingReceiptPageProps) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -29,22 +34,30 @@ export function BookingReceiptPage({ referenceNumber }: BookingReceiptPageProps)
     isPrivate: false,
     enabled: !!referenceNumber,
     onEvent: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.bookings.receipt(referenceNumber) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bookings.byReference(referenceNumber) });
-      queryClient.refetchQueries({ queryKey: queryKeys.bookings.receipt(referenceNumber) });
-      queryClient.refetchQueries({ queryKey: queryKeys.bookings.byReference(referenceNumber) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.bookings.receipt(referenceNumber),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.bookings.byReference(referenceNumber),
+      });
+      queryClient.refetchQueries({
+        queryKey: queryKeys.bookings.receipt(referenceNumber),
+      });
+      queryClient.refetchQueries({
+        queryKey: queryKeys.bookings.byReference(referenceNumber),
+      });
     },
   });
 
   const { data, isLoading, isError } = useApiQuery<BookingReceipt>(
     ["booking-receipt", referenceNumber],
     `/booking-receipt/${referenceNumber}`,
-    { retry: 1 }
+    { retry: 1 },
   );
   const { data: bookingReferenceData } = useApiQuery<BookingReferenceResponse>(
     ["booking-reference", referenceNumber],
     `/bookings/reference/${referenceNumber}`,
-    { retry: 1 }
+    { retry: 1 },
   );
   const receipt: BookingReceipt | undefined = data;
   const qrCodeUrl = bookingReferenceData?.qr_code_url ?? null;
@@ -66,13 +79,10 @@ export function BookingReceiptPage({ referenceNumber }: BookingReceiptPageProps)
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center p-4 pb-10"
+      className="min-h-screen flex flex-col items-center p-4 pb-10 landing-section-alt"
       style={{ backgroundColor: "var(--color-cream)" }}>
       <div className="w-full max-w-6xl mx-auto">
-        <ProgressIndicator
-          currentStep={RECEIPT_STEP}
-          
-        />
+        <ProgressIndicator currentStep={RECEIPT_STEP} />
         <div className="mt-6 mb-8">
           <Step5 receiptData={receipt} qrCodeUrl={qrCodeUrl} />
         </div>

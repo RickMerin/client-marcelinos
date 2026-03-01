@@ -6,15 +6,16 @@ export default function ModalDesign({ onAccept }: ModalDesignProps) {
   return (
     <>
       {/* HEADER */}
-      <div className="text-xl font-bold mb-4 md:mb-8 text-white">
-        <h2> Welcome to Marcelino's </h2>
+      <div className="text-xl font-bold mt-3 mb-3 md:mb-5 text-white">
+        <h2>Welcome to Marcelino's </h2>
         <h2>Resort and Hotel</h2>
       </div>
 
+      <p className="text-white text-xs">Thank you for visiting Marcelino's!</p>
+
       {/* INTRO */}
-      <div className="text-xs mb-4 md:mb-8 text-white">
-        <p>Thank you for visiting Marcelino's!</p>
-        <p>
+      <div className="text-xs mb-4 flex justify-center md:mb-8 text-white">
+        <p className="max-w-[38vw]">
           Please be informed that we currently do not have a swimming pool or
           restaurant, as our resort is new and still improving to serve you
           better.
@@ -34,15 +35,15 @@ export default function ModalDesign({ onAccept }: ModalDesignProps) {
       </div>
 
       {/* APPRECIATION MESSAGE */}
-      <div className="text-xs mb-6 text-white">
-        <p>
+      <div className="text-xs mb-6 flex justify-center text-white">
+        <p className="max-w-[38vw]">
           We truly appreciate your understanding and support as we continue to
           grow. Your comfort and relaxation remain our priority.
         </p>
       </div>
 
       {/* QUOTE / TAGLINE */}
-      <div className="text-sm mb-6 text-yellow-500 italic">
+      <div className="text-sm mb-6 yellow italic">
         “Marcelino’s — where nature and tranquility meet.”
       </div>
 

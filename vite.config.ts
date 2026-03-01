@@ -11,4 +11,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Avoid warning for large main chunk; routes are already lazy-loaded
+    chunkSizeWarningLimit: 1300,
+  },
 });

@@ -1,10 +1,15 @@
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { useEffect, useRef } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-// import pinIcon from '../../assets/img/marcelinos-logo.svg';
 import pinIcon from "../../assets/img/25530.png";
 
-// Custom icon
 const customIcon = L.icon({
   iconUrl: pinIcon,
   iconSize: [40, 40],
@@ -12,34 +17,71 @@ const customIcon = L.icon({
   popupAnchor: [0, -40],
 });
 
+// ✅ Handles auto-open + close-on-zoom
+function MapBehavior({ markerRef }: { markerRef: any }) {
+  const map = useMapEvents({
+    zoomstart() {
+      // Close popup when zooming starts
+      markerRef.current?.closePopup();
+    },
+  });
+
+  useEffect(() => {
+    // Open popup when map is ready
+    markerRef.current?.openPopup();
+  }, [map]);
+
+  return null;
+}
+
 export default function InteractiveMap() {
-  const position: [number, number] = [10.374, 124.749];
+  const markerRef = useRef<L.Marker>(null);
+  const position: [number, number] = [
+    10.377273056095643,
+    124.75196536185709,
+  ];
 
   return (
     <div className="container mx-auto">
-      <h2
-        id="location-heading"
-        className="font-display text-3xl font-bold tracking-tight text-center mb-8 text-(--color-charcoal)">
-        <span className="green">FIND</span> <span className="yellow">US</span>
+      <h2 className="text-3xl font-bold text-center mb-8">
+        <span className="green">FIND</span>{" "}
+        <span className="yellow">US</span>
       </h2>
-      <div className="w-full h-[70vh] rounded-2xl overflow-hidden border border-(--color-sage-muted) shadow-md">
+
+      <div className="w-full h-[30vh] md:h-[60vh] rounded-[4px] overflow-hidden shadow-md">
         <MapContainer
           center={position}
           zoom={15}
-          scrollWheelZoom={false}
-          style={{ height: "100%", width: "100%" }}>
+          scrollWheelZoom={true}
+          style={{ height: "100%", width: "100%" }}
+        >
           <TileLayer
-            attribution='© <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+            attribution="© OpenStreetMap contributors"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <Marker position={position} icon={customIcon}>
+
+          <Marker position={position} icon={customIcon} ref={markerRef}>
             <Popup>
-              {/* <img src={logo} alt="Marcelino's Logo" className="w-12 ml-auto object-contain"/>  */}
-              <b>Marcelino's Place</b>
+              <strong>Marcelino's Resort & Hotel</strong>
               <br />
-              9QG2+VQQ, Hilongos, Leyte
+              A. Mabini Street
+              <br />
+              Hilongos, Leyte
+              <br />
+              <br />
+              <a
+                href="https://www.google.com/maps?q=10.37727432074707,124.75197963429022"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 font-semibold underline"
+              >
+                Open in Google Maps
+              </a>
             </Popup>
           </Marker>
+
+          {/* ✅ Behavior Controller */}
+          <MapBehavior markerRef={markerRef} />
         </MapContainer>
       </div>
     </div>

@@ -37,6 +37,9 @@ export interface BookingReceipt {
   issued_on: string;
   nights: number;
   guest_name: string;
+  guest_email: string;
+  guest_contact: string;
+  guest_address: string;
   /** Multiple rooms (API now returns array) */
   rooms?: Array<{
     name: string;

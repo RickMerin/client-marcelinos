@@ -25,10 +25,10 @@ export default function BookingIndex() {
   }
 
   return (
-    <main
-      className="booking-funnel min-h-screen"
+    <div
+      className="booking-funnel min-h-screen landing-section-alt"
       style={{ backgroundColor: "var(--color-cream)" }}>
       <MultiStepForm />
-    </main>
+    </div>
   );
 }

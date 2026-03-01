@@ -10,6 +10,8 @@ interface VenueCardProps {
   price: string | number;
   selected?: boolean;
   onSelectVenue: (id: number) => void;
+  /** When false, venue is not available for the selected dates; selection is disabled. When true or undefined, venue is bookable. */
+  availability?: boolean | null;
 }
 
 export const VenueCard: React.FC<VenueCardProps> = ({
@@ -20,8 +22,10 @@ export const VenueCard: React.FC<VenueCardProps> = ({
   price,
   selected = false,
   onSelectVenue,
+  availability = true,
 }) => {
   const showCapacity = capacity && capacity.trim() !== "" && capacity !== "—";
+  const isAvailable = availability !== false;
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const hasGallery = images.length > 1;
@@ -37,21 +41,35 @@ export const VenueCard: React.FC<VenueCardProps> = ({
     setActiveImageIndex((i) => (i + 1) % images.length);
   };
 
+  const handleSelect = () => {
+    if (!isAvailable) return;
+    onSelectVenue(id);
+  };
+
   return (
     <article
       role="button"
-      tabIndex={0}
+      tabIndex={isAvailable ? 0 : -1}
       aria-pressed={selected}
-      aria-label={`${name}, ${pricingFormat(String(price))} per event. ${selected ? "Added" : "Add to booking"}`}
+      aria-disabled={!isAvailable}
+      aria-label={
+        isAvailable
+          ? `${name}, ${pricingFormat(String(price))} per event. ${selected ? "Added" : "Add to booking"}`
+          : `${name}, ${pricingFormat(String(price))} per event. Not available for selected dates.`
+      }
       className={cn(
         "group relative flex flex-col rounded-md border bg-white text-left shadow-sm transition-all duration-200 overflow-hidden",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-        selected
-          ? "border-(--color-sage) bg-sage-muted/30 shadow-md ring-2 ring-sage/20 focus-visible:ring-(--color-sage)"
-          : "border-gray-200/80 hover:border-(--color-sage-light) hover:shadow-md focus-visible:ring-(--color-sage)",
+        !isAvailable &&
+          "opacity-85 cursor-not-allowed border-gray-200 bg-gray-50/80",
+        isAvailable &&
+          (selected
+            ? "border-(--color-sage) bg-sage-muted/30 shadow-md ring-2 ring-sage/20 focus-visible:ring-(--color-sage)"
+            : "border-gray-200/80 hover:border-(--color-sage-light) hover:shadow-md focus-visible:ring-(--color-sage)"),
       )}
-      onClick={() => onSelectVenue(id)}
+      onClick={handleSelect}
       onKeyDown={(e) => {
+        if (!isAvailable) return;
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onSelectVenue(id);
@@ -68,6 +86,32 @@ export const VenueCard: React.FC<VenueCardProps> = ({
         }}
         role="img"
         aria-label={name}>
+        {/* Not available for selected dates — text only, readable on any background */}
+        {!isAvailable && (
+          <div
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-1.5 bg-black/30 backdrop-blur-[2px]"
+            onClick={(e) => e.stopPropagation()}
+            aria-hidden>
+            <p
+              className="text-center font-semibold leading-snug"
+              style={{
+                color: "#fafaf9",
+                fontSize: "0.9375rem",
+                textShadow:
+                  "0 0 1px rgba(0,0,0,1), 0 1px 3px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.7)",
+              }}>
+              Not available for selected dates
+            </p>
+            <p
+              className="text-center text-xs leading-relaxed"
+              style={{
+                color: "#f5f5f4",
+                textShadow: "0 0 1px rgba(0,0,0,1), 0 1px 2px rgba(0,0,0,0.8)",
+              }}>
+              Choose different dates or another venue
+            </p>
+          </div>
+        )}
         {hasGallery && (
           <>
             <button
@@ -186,20 +230,35 @@ export const VenueCard: React.FC<VenueCardProps> = ({
           </div>
           <button
             type="button"
+            disabled={!isAvailable}
             onClick={(e) => {
               e.stopPropagation();
-              onSelectVenue(id);
+              if (isAvailable) onSelectVenue(id);
             }}
             className={cn(
-              "shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-(--color-sage) focus-visible:ring-offset-2",
-              selected
-                ? "bg-(--color-sage) text-white shadow-sm"
-                : "bg-(--color-cream) text-(--color-charcoal) hover:bg-gray-200/80 border border-gray-200/80",
+              "shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold uppercase tracking-wide transition-all",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+              !isAvailable &&
+                "cursor-not-allowed border-0 bg-transparent text-gray-500 focus-visible:ring-gray-400",
+              isAvailable && "focus-visible:ring-(--color-sage)",
+              isAvailable &&
+                (selected
+                  ? "bg-(--color-sage) text-white shadow-sm"
+                  : "bg-(--color-cream) text-(--color-charcoal) hover:bg-gray-200/80 border border-gray-200/80"),
             )}
-            style={selected ? { borderColor: "(--color-sage)" } : undefined}
-            aria-label={selected ? "Added" : "Add venue"}>
-            {selected ? "Added" : "Add"}
+            style={
+              isAvailable && selected
+                ? { borderColor: "(--color-sage)" }
+                : undefined
+            }
+            aria-label={
+              !isAvailable
+                ? "Not available for selected dates"
+                : selected
+                  ? "Added"
+                  : "Add venue"
+            }>
+            {!isAvailable ? "Unavailable" : selected ? "Added" : "Add"}
           </button>
         </div>
       </div>

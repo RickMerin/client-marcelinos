@@ -18,7 +18,7 @@ const SECTION_IDS = [
   "services",
   "gallery",
   "reviews",
-  "faq",
+  "contact",
 ] as const;
 
 export default function Header() {
@@ -46,7 +46,7 @@ export default function Header() {
     { label: "Services", href: "#services", sectionId: "services" },
     { label: "Gallery", href: "#gallery", sectionId: "gallery" },
     { label: "Reviews", href: "#reviews", sectionId: "reviews" },
-    { label: "FAQ", href: "#faq", sectionId: "faq" },
+    { label: "Contact", href: "#contact", sectionId: "contact" },
   ];
 
   // GSAP: header entrance animation on mount
@@ -100,7 +100,7 @@ export default function Header() {
     return () => ctx.revert();
   }, []);
 
-  // Sync active section when landing on / with hash (e.g. /#faq)
+  // Sync active section when landing on / with hash (e.g. /#contact)
   useEffect(() => {
     if (location.pathname !== "/") return;
     const hash = location.hash.slice(1);
@@ -251,15 +251,15 @@ export default function Header() {
           onClick={() => navigate("/")}
           className="flex items-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 rounded-md transition-transform active:scale-[0.98]">
           <img
-            src="/brand-logo-png.png"
+            src="/brand-logo.webp"
             alt="Marcelino's Logo"
             className="h-15 w-15 object-contain"
           />
-          <div className="ml-2 leading-tight">
+          <div className="ml-1 leading-tight">
             <div className="text-[20px] font-extrabold tracking-widest text-green-900 font-serif">
               MARCELINO'S
             </div>
-            <div className="text-sm tracking-widest font-medium">
+            <div className="text-m tracking-widest font-medium">
               RESORT AND HOTEL
             </div>
           </div>
