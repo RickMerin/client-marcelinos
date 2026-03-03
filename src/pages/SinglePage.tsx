@@ -13,15 +13,17 @@ interface ApiListResponse<T> {
 }
 
 interface ListingItem {
-	id: number;
-	name?: string;
-	type?: string;
-	capacity?: number;
-	price?: number;
-	description?: string;
-	amenities?: unknown[];
-	featured_image?: string | null;
-	gallery?: string[];
+  id: number;
+  name?: string;
+  type?: string;
+  capacity?: number;
+  price?: number;
+  description?: string;
+  amenities?: unknown[];
+  featured_image?: string | null;
+  gallery?: string[];
+  bed_count?: number;
+  bed_type?: string;
 }
 
 function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
@@ -102,49 +104,50 @@ const SinglePage = () => {
 	}, [selectedItem]);
 
 	return (
-		<div className="w-full bg-gradient-to-b from-emerald-50 via-white to-white">
-			<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
-				<div className="flex items-start justify-between gap-4">
-					<div>
-						<p className="text-sm uppercase tracking-[0.15em] text-green-800/70 font-semibold">
-							{headingLabel}
-						</p>
-						<h1 className="font-display text-3xl sm:text-4xl font-bold text-(--color-charcoal)">
-							{introTitle}
-						</h1>
-						<p className="mt-2 text-gray-600 max-w-2xl">
-							{introCopy}
-						</p>
-					</div>
-					<button
-						type="button"
-						onClick={() => navigate(-1)}
-						className="inline-flex items-center gap-2 rounded-full border border-green-100 bg-white px-4 py-2 text-sm font-semibold text-green-900 shadow-sm transition hover:border-green-200 hover:shadow-md"
-					>
-						← Back
-					</button>
-				</div>
+    <div className="w-full bg-gradient-to-b from-emerald-50 via-white to-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm uppercase tracking-[0.15em] text-green-800/70 font-semibold">
+              {headingLabel}
+            </p>
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-(--color-charcoal)">
+              {introTitle}
+            </h1>
+            <p className="mt-2 text-gray-600 max-w-2xl">{introCopy}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 rounded-full border border-green-100 bg-white px-4 py-2 text-sm font-semibold text-green-900 shadow-sm transition hover:border-green-200 hover:shadow-md"
+          >
+            ← Back
+          </button>
+        </div>
 
-				{isLoading ? (
-					<div className="text-center text-gray-600">Loading {availableLabel}…</div>
-				) : error ? (
-					<div className="rounded-lg border border-red-100 bg-red-50 p-4 text-red-800">
-						Unable to load {availableLabel} right now. Please try again later.
-					</div>
-				) : (
-					<div className="space-y-12">
-						{selectedItem && (
-							<div
-								ref={detailRef}
-								className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-start rounded-3xl border border-gray-100 bg-white shadow-sm shadow-gray-900/5 p-6 sm:p-8">
-								<div className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
-									<OptimizedImage
-										src={heroImage ?? "/placeholder-room.jpg"}
-										alt={selectedItem.name ?? fallbackLabel}
-										containerClassName="h-[280px] sm:h-[360px]"
-										className="object-center"
-									/>
-								</div>
+        {isLoading ? (
+          <div className="text-center text-gray-600">
+            Loading {availableLabel}…
+          </div>
+        ) : error ? (
+          <div className="rounded-lg border border-red-100 bg-red-50 p-4 text-red-800">
+            Unable to load {availableLabel} right now. Please try again later.
+          </div>
+        ) : (
+          <div className="space-y-12">
+            {selectedItem && (
+              <div
+                ref={detailRef}
+                className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-start rounded-3xl border border-gray-100 bg-white shadow-sm shadow-gray-900/5 p-6 sm:p-8"
+              >
+                <div className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
+                  <OptimizedImage
+                    src={heroImage ?? "/placeholder-room.jpg"}
+                    alt={selectedItem.name ?? fallbackLabel}
+                    containerClassName="h-[280px] sm:h-[360px]"
+                    className="object-center"
+                  />
+                </div>
 
 								<div className="space-y-4">
 									<div className="flex items-center gap-3">
@@ -153,97 +156,110 @@ const SinglePage = () => {
 										)}
 									</div>
 
-									<h2 className="font-display text-3xl font-bold text-(--color-charcoal)">
-										{selectedItem.name ?? fallbackLabel}
-									</h2>
+                  <h2 className="font-display text-3xl font-bold text-(--color-charcoal)">
+                    {selectedItem.name ?? fallbackLabel}
+                  </h2>
 
-									{selectedItem.description && (
-										<p className="text-gray-700 leading-relaxed">
-											{selectedItem.description}
-										</p>
-									)}
+                  {selectedItem.description && (
+                    <p className="text-gray-700 leading-relaxed">
+                      {selectedItem.description}
+                    </p>
+                  )}
 
-									<div className="flex flex-wrap gap-4 text-sm text-gray-700">
-										{selectedItem.capacity != null && (
-											<div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
-												Capacity: {selectedItem.capacity} {selectedItem.capacity === 1 ? "person" : "people"}
-											</div>
-										)}
-										{selectedItem.price != null && (
-											<div className="rounded-full bg-amber-50 px-3 py-1 font-semibold text-green-900">
-												{pricingFormat(selectedItem.price)}
-											</div>
-										)}
-									</div>
+                  <div className="flex flex-wrap gap-4 text-sm text-gray-700">
+                    {selectedItem.capacity != null && (
+                      <div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
+                        Capacity: {selectedItem.capacity}{" "}
+                        {selectedItem.capacity === 1 ? "person" : "people"}
+                      </div>
+                    )}
+                    {selectedItem.price != null && (
+                      <div className="rounded-full bg-amber-50 px-3 py-1 font-semibold text-green-900">
+                        {pricingFormat(selectedItem.price)}
+                      </div>
+                    )}
+                    {selectedItem.bed_count != null &&
+                      selectedItem.bed_type && (
+                        <div className="rounded-full bg-green-50 px-3 py-1 font-medium text-green-900">
+                          🛏 {selectedItem.bed_count} {selectedItem.bed_type}{" "}
+                          bed{selectedItem.bed_count > 1 ? "s" : ""}
+                        </div>
+                      )}
+                  </div>
 
-									{amenities.length > 0 && (
-										<div className="space-y-2">
-											<div className="text-sm font-semibold text-(--color-charcoal)">Amenities</div>
-											<div className="flex flex-wrap gap-2">
-												{amenities.map((label) => (
-													<span
-														key={label}
-														className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-900"
-													>
-														{label}
-													</span>
-												))}
-											</div>
-										</div>
-									)}
+                  {amenities.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="text-sm font-semibold text-(--color-charcoal)">
+                        Amenities
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {amenities.map((label) => (
+                          <span
+                            key={label}
+                            className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-900"
+                          >
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-									<div className="flex flex-wrap gap-3 pt-2">
-										<button
-											type="button"
-											onClick={() => navigate(-1)}
-											className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-(--color-charcoal) transition hover:border-gray-300"
-										>
-											Back to previous page
-										</button>
-										<button
-											type="button"
-											onClick={() => navigate("/create-booking")}
-											className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-800"
-										>
-											{bookCta}
-										</button>
-									</div>
-								</div>
-							</div>
-						)}
+                  <div className="flex flex-wrap gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => navigate(-1)}
+                      className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-(--color-charcoal) transition hover:border-gray-300"
+                    >
+                      Back to previous page
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/create-booking")}
+                      className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-800"
+                    >
+                      {bookCta}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
-						<div className="space-y-4">
-							<div className="flex items-center justify-between">
-								<h3 className="font-display text-2xl font-semibold text-(--color-charcoal)">
-									{listLabel}
-								</h3>
-								<span className="text-sm text-gray-500">{visibleList.length} {availableLabel} available</span>
-							</div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-2xl font-semibold text-(--color-charcoal)">
+                  {listLabel}
+                </h3>
+                <span className="text-sm text-gray-500">
+                  {visibleList.length} {availableLabel} available
+                </span>
+              </div>
 
-							<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-								{visibleList.map((item) => (
-									<CardItem
-										key={item.id}
-										id={item.id}
-										type={item.type}
-										name={item.name}
-										description={item.description}
-										capacity={item.capacity}
-										price={item.price}
-										amenities={item.amenities}
-										featured_image={item.featured_image}
-										gallery={item.gallery}
-										onClick={() => handleCardClick(item.id, item)}
-									/>
-								))}
-							</div>
-						</div>
-					</div>
-				)}
-			</div>
-
-		</div>
-	);
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {visibleList.map((item) => (
+                  <CardItem
+                    key={item.id}
+                    id={item.id}
+                    type={item.type}
+                    name={item.name}
+                    description={item.description}
+                    capacity={item.capacity}
+                    price={item.price}
+                    amenities={item.amenities}
+                    featured_image={item.featured_image}
+                    gallery={item.gallery}
+                    bed_count={item.bed_count}
+                    bed_type={item.bed_type}
+                    onClick={() => handleCardClick(item.id, item)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default SinglePage;
