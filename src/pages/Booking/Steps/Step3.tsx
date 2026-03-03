@@ -72,11 +72,15 @@ export function Step3({ formData }: Props) {
               </div>
               <div>
                 <p className={labelClass}>Check-in</p>
-                <p className="mt-0.5">{check_in ? `${check_in} — 12PM` : "—"}</p>
+                <p className="mt-0.5">
+                  {check_in ? `${check_in} — 12PM` : "—"}
+                </p>
               </div>
               <div>
                 <p className={labelClass}>Check-out</p>
-                <p className="mt-0.5">{check_out ? `${check_out} — 2PM` : "—"}</p>
+                <p className="mt-0.5">
+                  {check_out ? `${check_out} — 2PM` : "—"}
+                </p>
               </div>
             </div>
           </div>
@@ -91,9 +95,7 @@ export function Step3({ formData }: Props) {
               Selected Rooms
             </div>
             {(formData.rooms ?? []).length === 0 ? (
-              <div
-                className="p-4 text-sm opacity-70"
-                style={bodyStyle}>
+              <div className="p-4 text-sm opacity-70" style={bodyStyle}>
                 No rooms selected
               </div>
             ) : (
@@ -110,14 +112,24 @@ export function Step3({ formData }: Props) {
                   <div
                     key={index}
                     className={`p-4 ${bodyText} grid grid-cols-2 sm:grid-cols-4 gap-3 border-t first:border-t-0`}
-                    style={{ ...bodyStyle, borderColor: "var(--color-sage-muted, #e5e7eb)" }}>
+                    style={{
+                      ...bodyStyle,
+                      borderColor: "var(--color-sage-muted, #e5e7eb)",
+                    }}>
                     <div>
                       <p className={labelClass}>Name / Type</p>
-                      <p className="mt-0.5">{room.name || room.type || "—"}</p>
+                      <p className="mt-0.5">
+                        {room.name}{" "}
+                        <small className="text-xs text-gray-500">
+                          ({room.type})
+                        </small>
+                      </p>
                     </div>
                     <div>
                       <p className={labelClass}>Price</p>
-                      <p className="mt-0.5">{pricingFormat(room.price ?? 0) || "—"}</p>
+                      <p className="mt-0.5">
+                        {pricingFormat(room.price ?? 0) || "—"}
+                      </p>
                     </div>
                     {room.capacity != null && (
                       <div>
@@ -149,14 +161,19 @@ export function Step3({ formData }: Props) {
                   <div
                     key={index}
                     className={`p-4 ${bodyText} grid grid-cols-2 sm:grid-cols-4 gap-3 border-t first:border-t-0`}
-                    style={{ ...bodyStyle, borderColor: "var(--color-sage-muted, #e5e7eb)" }}>
+                    style={{
+                      ...bodyStyle,
+                      borderColor: "var(--color-sage-muted, #e5e7eb)",
+                    }}>
                     <div>
                       <p className={labelClass}>Name</p>
                       <p className="mt-0.5">{venue.name || "—"}</p>
                     </div>
                     <div>
                       <p className={labelClass}>Price</p>
-                      <p className="mt-0.5">{pricingFormat(venue.price ?? 0) || "—"}</p>
+                      <p className="mt-0.5">
+                        {pricingFormat(venue.price ?? 0) || "—"}
+                      </p>
                     </div>
                     {venue.capacity != null && (
                       <div>
@@ -183,13 +200,15 @@ export function Step3({ formData }: Props) {
               className={`p-4 ${bodyText} grid grid-cols-2 sm:grid-cols-3 gap-4 text-center sm:text-left`}
               style={bodyStyle}>
               <div>
-                <p className={`${labelClass} text-xs uppercase tracking-wide opacity-80`}>
+                <p
+                  className={`${labelClass} text-xs uppercase tracking-wide opacity-80`}>
                   Day(s)
                 </p>
                 <p className="mt-0.5 text-lg font-medium">{days ?? "—"}</p>
               </div>
               <div>
-                <p className={`${labelClass} text-xs uppercase tracking-wide opacity-80`}>
+                <p
+                  className={`${labelClass} text-xs uppercase tracking-wide opacity-80`}>
                   Total Price
                 </p>
                 <p className="mt-0.5 text-lg font-medium">
@@ -197,10 +216,13 @@ export function Step3({ formData }: Props) {
                 </p>
               </div>
               <div>
-                <p className={`${labelClass} text-xs uppercase tracking-wide opacity-80`}>
+                <p
+                  className={`${labelClass} text-xs uppercase tracking-wide opacity-80`}>
                   Grand Total
                 </p>
-                <p className="mt-0.5 text-lg font-bold" style={{ color: "var(--color-sage)" }}>
+                <p
+                  className="mt-0.5 text-lg font-bold"
+                  style={{ color: "var(--color-sage)" }}>
                   {pricingFormat(grandTotalPrice ?? 0)}
                 </p>
               </div>
@@ -217,7 +239,9 @@ export function Step3({ formData }: Props) {
                 {pricingFormat(totalPrice ?? 0)} × {days ?? 0} day(s)
               </span>
               <span className="opacity-90"> = </span>
-              <span className="font-bold" style={{ color: "var(--color-sage)" }}>
+              <span
+                className="font-bold"
+                style={{ color: "var(--color-sage)" }}>
                 {pricingFormat(grandTotalPrice ?? 0)}
               </span>
             </div>
@@ -233,9 +257,7 @@ export function Step3({ formData }: Props) {
             style={{ backgroundColor: "var(--color-sage)" }}>
             Personal Information
           </div>
-          <div
-            className={`p-4 ${bodyText} space-y-3`}
-            style={bodyStyle}>
+          <div className={`p-4 ${bodyText} space-y-3`} style={bodyStyle}>
             <p>
               <span className={labelClass}>First Name: </span>
               {firstName || "—"}

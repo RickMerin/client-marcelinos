@@ -11,6 +11,7 @@ import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import CancelBookingContent from "@/components/modals/CancelBookingContent";
 import Modal from "@/components/modals/Modal";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ButtonLoader } from "@/components/ui/loader";
 // your existing Modal component
 
 interface Step5FormDataProps {
@@ -188,7 +189,11 @@ export function Step5(props: Props) {
   const displayGrandTotal =
     isFromApi && receipt ? grandTotal : calculatedGrandTotal;
 
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const downloadReceipt = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
     try {
       const element = document.getElementById("receipt");
       if (element) {
@@ -202,6 +207,8 @@ export function Step5(props: Props) {
       }
     } catch (error) {
       // Error downloading receipt
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -252,33 +259,43 @@ export function Step5(props: Props) {
         style={{
           borderColor: receiptBorder || "var(--color-sage-muted, #d1e7dd)",
         }}>
-        {/* Top header bar */}
-        <div className="bg-emerald-800 text-white px-6 py-4 sm:px-8 sm:py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+        {/* Responsive Top Header Bar */}
+        <div className="bg-emerald-800 text-white px-4 py-3 sm:px-8 sm:py-5 flex flex-col gap-4 md:gap-0 md:flex-row items-stretch md:items-center justify-between w-full">
+          {/* Logo and Title */}
+          <div className="flex flex-row items-center gap-3 min-w-0">
             <img
               src="/brand-logo.webp"
               alt="Marcelino's logo"
-              className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
+              className="w-12 h-12 sm:w-16 sm:h-16 object-contain shrink-0"
             />
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] opacity-80">
+            <div className="min-w-0">
+              <p className="text-xs uppercase tracking-[0.18em] opacity-80 truncate">
                 Marcelino&apos;s Resort &amp; Hotel
               </p>
-              <p className="text-sm opacity-80">Billing Statement</p>
+              <p className="text-sm opacity-80 truncate">Billing Statement</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-semibold tracking-[0.25em] uppercase">
+          {/* Invoice Section */}
+          <div className="flex flex-col items-end md:text-right w-full md:w-auto">
+            <p className="text-lg sm:text-2xl font-semibold tracking-[0.22em] uppercase leading-snug">
               Invoice
             </p>
             <div className="mt-2 text-xs space-y-0.5 opacity-90">
-              <p>
-                <span className="font-semibold">Invoice No:</span>{" "}
-                <span className="tabular-nums">{referenceNumber || "—"}</span>
+              <p className="flex flex-wrap gap-x-1">
+                <span className="font-semibold whitespace-nowrap">
+                  Invoice No:
+                </span>
+                <span className="tabular-nums break-all">
+                  {referenceNumber || "—"}
+                </span>
               </p>
-              <p>
-                <span className="font-semibold">Invoice Date:</span>{" "}
-                <span>{issuedOn || createdAt || "—"}</span>
+              <p className="flex flex-wrap gap-x-1">
+                <span className="font-semibold whitespace-nowrap">
+                  Invoice Date:
+                </span>
+                <span className="break-all">
+                  {issuedOn || createdAt || "—"}
+                </span>
               </p>
             </div>
           </div>
@@ -307,9 +324,12 @@ export function Step5(props: Props) {
                 Marcelino&apos;s Resort &amp; Hotel
               </p>
               <div className="mt-1 text-xs space-y-0.5 opacity-80">
-                <p>Brgy. Tagabinet, Puerto Princesa</p>
-                <p>Phone: +63 (000) 000 0000</p>
-                <p>Email: reservations@marcelinos.com</p>
+                <address>
+                  Mabini ST. Easter Barangay Poblacion, Hilongos, Philippines,
+                  6524
+                </address>
+                <p>Phone: ************</p>
+                <p>Email: ************</p>
               </div>
             </div>
           </div>
@@ -319,7 +339,7 @@ export function Step5(props: Props) {
           {/* Booking summary */}
           <div className="grid sm:grid-cols-2 gap-8">
             <div className="space-y-1.5">
-              <ReceiptRow label="Created" value={createdAt} />
+              <ReceiptRow label="Booking Created" value={createdAt} />
               <ReceiptRow label="Check-in" value={checkIn} />
               <ReceiptRow label="Check-out" value={checkOut} />
               <ReceiptRow label="Nights" value={String(nights)} />
@@ -359,9 +379,6 @@ export function Step5(props: Props) {
                   <th className="px-3 py-2 sm:px-4 sm:py-2.5 text-center">
                     Nights / Day
                   </th>
-                  <th className="px-3 py-2 sm:px-4 sm:py-2.5 text-right">
-                    Total
-                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -381,17 +398,9 @@ export function Step5(props: Props) {
                           ? room.price
                           : parseFloat(String(room.price || 0));
                       const qty = nights || 1;
-                      const lineTotal = unitPrice * qty;
+                      // const lineTotal = unitPrice * qty;
                       const title = room.name ?? "Room";
-                      const details = [
-                        room.description,
-                        room.type &&
-                          room.type.charAt(0).toUpperCase() +
-                            room.type.slice(1),
-                        room.capacity && `Capacity: ${room.capacity}`,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ");
+                      const type = room.type ?? "Room";
 
                       return (
                         <tr
@@ -400,24 +409,23 @@ export function Step5(props: Props) {
                             idx % 2 === 0 ? "bg-white" : "bg-emerald-50/30"
                           }>
                           <td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
-                            {String(idx + 1).padStart(2, "0")}
+                            #{String(idx + 1)}
                           </td>
                           <td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
-                            <div className="font-medium">{title}</div>
-                            {details && (
-                              <div className="text-[11px] sm:text-xs text-gray-600 mt-0.5">
-                                {details}
-                              </div>
-                            )}
+                            <div className="font-medium">
+                              {title}{" "}
+                              {type && (
+                                <span className="text-gray-500 text-xs">
+                                  ({type})
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="px-3 py-2 sm:px-4 sm:py-2.5 text-right align-top tabular-nums">
                             {pricingFormat(unitPrice)}
                           </td>
                           <td className="px-3 py-2 sm:px-4 sm:py-2.5 text-center align-top">
                             {qty}
-                          </td>
-                          <td className="px-3 py-2 sm:px-4 sm:py-2.5 text-right align-top tabular-nums">
-                            {pricingFormat(lineTotal)}
                           </td>
                         </tr>
                       );
@@ -501,8 +509,8 @@ export function Step5(props: Props) {
 
           {/* Footer with logo + QR / payment info */}
           <div className="grid sm:grid-cols-[1.5fr,1fr] gap-4 items-center">
-            <div className="flex items-center gap-3">
-              <div>
+            <div className="flex items-center justify-center gap-3">
+              <div className="text-center">
                 <p className="font-display text-base tracking-[0.3em] font-bold text-emerald-800">
                   MARCELINO&apos;S
                 </p>
@@ -547,11 +555,26 @@ export function Step5(props: Props) {
       <div>
         <div className="flex flex-col md:flex-row justify-center gap-3 mt-6">
           <button
+            type="button"
             onClick={downloadReceipt}
-            className="cursor-pointer text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto hover:opacity-95"
+            disabled={isDownloading}
+            className={`text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto ${
+              isDownloading
+                ? "opacity-80 cursor-not-allowed"
+                : "cursor-pointer hover:opacity-95"
+            }`}
             style={{ backgroundColor: "var(--color-sage)" }}>
-            <Download className="w-4 h-4" />
-            Download Receipt
+            {isDownloading ? (
+              <>
+                <ButtonLoader size="sm" />
+                Downloading...
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                Download Receipt
+              </>
+            )}
           </button>
           <button
             onClick={handleBookAnother}
@@ -567,12 +590,12 @@ export function Step5(props: Props) {
             onClick={handleCancel}
             disabled={isCancelled || cancelBooking.isPending}
             className={`text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto
-    ${
-      isCancelled || cancelBooking.isPending
-        ? "opacity-50 cursor-not-allowed"
-        : "hover:opacity-95"
-    }
-  `}
+              ${
+                isCancelled || cancelBooking.isPending
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:opacity-95"
+              }
+            `}
             style={{ backgroundColor: "var(--color-sage)" }}>
             {cancelBooking.isPending ? (
               <>
