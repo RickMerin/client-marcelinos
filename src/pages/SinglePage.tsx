@@ -4,6 +4,8 @@ import CardItem from "@/components/cards/CardItem";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
+
 
 interface ApiListResponse<T> {
 	success?: boolean;
@@ -42,7 +44,8 @@ const SinglePage = () => {
 	const { roomId, venueId } = useParams<{ roomId?: string; venueId?: string }>();
 	const location = useLocation();
 	const state = location.state as { room?: ListingItem; venue?: ListingItem } | null;
-  const detailRef = useRef<HTMLDivElement>(null);
+	const detailRef = useRef<HTMLDivElement>(null);
+
 
 	const isVenuePage = location.pathname.startsWith("/venues");
 	const stateItem = state?.room ?? state?.venue;
@@ -90,7 +93,7 @@ const SinglePage = () => {
 	const listLabel = isVenuePage ? "All venues" : "All rooms";
 	const availableLabel = isVenuePage ? "venues" : "rooms";
 	const bookCta = isVenuePage ? "Book this venue" : "Book this room";
-  const fallbackLabel = isVenuePage ? "Venue" : "Room";
+	const fallbackLabel = isVenuePage ? "Venue" : "Room";
 
 	useEffect(() => {
 		if (selectedItem && detailRef.current) {
@@ -146,9 +149,7 @@ const SinglePage = () => {
 								<div className="space-y-4">
 									<div className="flex items-center gap-3">
 										{selectedItem.type && (
-											<span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-green-800">
-												{selectedItem.type}
-											</span>
+											<RoomTypeBadge type={selectedItem.type} />
 										)}
 									</div>
 
@@ -240,6 +241,7 @@ const SinglePage = () => {
 					</div>
 				)}
 			</div>
+
 		</div>
 	);
 };
