@@ -5,9 +5,8 @@ import {
   BookingReceipt,
   BookingReferenceResponse,
 } from "@/types/booking.types";
-import { Step5 } from "./Steps/Step5";
+import { Step5, Step5Skeleton } from "./Steps/Step5";
 import { ProgressIndicator } from "./ProgressIndicator";
-import { PageLoader } from "@/components/ui/loader";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
 import { useRealtimeEvent } from "@/hooks/useRealtimeEvent";
 import { RealtimeChannels } from "@/lib/realtime/channels";
@@ -63,7 +62,18 @@ export function BookingReceiptPage({
   const qrCodeUrl = bookingReferenceData?.qr_code_url ?? null;
 
   if (isLoading) {
-    return <PageLoader message="Loading receipt…" />;
+    return (
+      <main
+        className="min-h-screen flex flex-col items-center p-4 pb-10 landing-section-alt"
+        style={{ backgroundColor: "var(--color-cream)" }}>
+        <div className="w-full max-w-6xl mx-auto">
+          <ProgressIndicator currentStep={RECEIPT_STEP} />
+          <div className="mt-6 mb-8">
+            <Step5Skeleton />
+          </div>
+        </div>
+      </main>
+    );
   }
 
   if (isError || !receipt) {
