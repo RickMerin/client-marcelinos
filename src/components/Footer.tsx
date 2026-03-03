@@ -1,6 +1,5 @@
 import { Facebook, Instagram, Twitter, ArrowRight } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import ContactForm from "./forms/ContactForm";
 
 function Footer() {
   const navigate = useNavigate();
@@ -72,9 +71,18 @@ function Footer() {
           </ul>
           <p className="my-5">Hilongos, Leyte</p>
           <div className="flex gap-3">
-            <Facebook className="yellow" size={30} />
-            <Instagram className="yellow" size={30} />
-            <Twitter className="yellow" size={30} />
+            <Link
+              to="https://www.facebook.com/profile.php?id=61557457680496"
+              target="_blank"
+              rel="noopener noreferrer">
+              <Facebook className="yellow" size={30} />
+            </Link>
+            {/* <Link to="https://www.instagram.com/marcelinosplace/">
+              <Instagram className="yellow" size={30} />
+            </Link>
+            <Link to="https://x.com/marcelinosplace">
+              <Twitter className="yellow" size={30} />
+            </Link> */}
           </div>
         </section>
 
@@ -89,8 +97,7 @@ function Footer() {
                 <button
                   type="button"
                   onClick={(e) => handleSectionClick(e, link.href)}
-                  className="hover:underline text-sm text-left bg-transparent border-none p-0 cursor-pointer text-white font-inherit"
-                >
+                  className="hover:underline text-sm text-left bg-transparent border-none p-0 cursor-pointer text-white font-inherit">
                   {link.name}
                 </button>
               </li>
@@ -108,8 +115,7 @@ function Footer() {
                 <ArrowRight size={16} className="yellow" />
                 <Link
                   to={link.href}
-                  className="hover:underline text-sm text-white no-underline"
-                >
+                  className="hover:underline text-sm text-white no-underline">
                   {link.name}
                 </Link>
               </li>
