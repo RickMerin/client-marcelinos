@@ -62,7 +62,7 @@ export default function BubbleChat() {
       {/* CHAT BUBBLE */}
       <button
         onClick={() => setOpen(true)}
-        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-green-700 text-white shadow-lg hover:bg-green-800 transition-transform duration-300 ${
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-green-700 text-white shadow-lg hover:bg-green-800 transition-transform duration-300 animate-pulse ${
           open
             ? "scale-90 opacity-0 pointer-events-none"
             : "scale-100 opacity-100"
@@ -121,9 +121,10 @@ export default function BubbleChat() {
               className={`max-w-[85%] transition-all duration-300 ${
                 msg.from === "user" ? "ml-auto w-fit text-right" : ""
               }`}>
-              <p className={`mb-1 text-[10px] uppercase tracking-wide font-semibold ${
-                msg.from === "user" ? "text-green-800" : "text-green-700"
-              }`}>
+              <p
+                className={`mb-1 text-[10px] uppercase tracking-wide font-semibold ${
+                  msg.from === "user" ? "text-green-800" : "text-green-700"
+                }`}>
                 {msg.from === "bot" ? "Marcelino's Concierge" : "You"}
               </p>
               <div
