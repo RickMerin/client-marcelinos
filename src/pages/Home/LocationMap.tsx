@@ -64,9 +64,7 @@ export default function InteractiveMap() {
             <Popup>
               <strong>Marcelino's Resort & Hotel</strong>
               <br />
-              A. Mabini Street
-              <br />
-              Hilongos, Leyte
+              A. Mabini Street, Hilongos,  Leyte
               <br />
               <br />
               <a

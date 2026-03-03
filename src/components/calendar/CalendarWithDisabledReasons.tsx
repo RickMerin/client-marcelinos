@@ -72,7 +72,7 @@ function DayWithReason({
         }}
         className={cn(
           className,
-          isBlocked && "bg-red-500 text-white opacity-80 cursor-not-allowed hover:bg-red-600 focus:bg-red-600",
+          isBlocked && "bg-red-500 mx-[1px] text-white opacity-80 cursor-not-allowed hover:bg-red-600 focus:bg-red-600",
           isOverlap && "line-through opacity-70 cursor-not-allowed"
         )}
       />
