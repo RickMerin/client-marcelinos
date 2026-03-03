@@ -165,7 +165,8 @@ function RoomCard() {
     <section className="w-full" aria-labelledby="rooms-heading">
       <h2
         id="rooms-heading"
-        className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
+        className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)"
+      >
         <span className="text-green-900">OUR</span>{" "}
         <span className="text-yellow-500">ROOMS</span>
       </h2>
@@ -179,7 +180,8 @@ function RoomCard() {
       ) : (
         <div
           className="relative w-[90%] max-w-[1200px] mx-auto pb-12 min-h-[495px]"
-          ref={containerRef}>
+          ref={containerRef}
+        >
           {/* Fixed track height prevents layout shift when FLIP uses absolute positioning */}
           <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-rows-[minmax(420px,1fr)] min-h-[420px]">
             {visibleRooms.map(
@@ -187,7 +189,8 @@ function RoomCard() {
                 <div
                   key={String(room.id)}
                   data-flip-id={String(room.id)}
-                  className="flex justify-center">
+                  className="flex justify-center"
+                >
                   <CardItem
                     id={room.id as number}
                     type={room.type as string}
@@ -198,6 +201,8 @@ function RoomCard() {
                     amenities={room.amenities as unknown[]}
                     featured_image={room.featured_image as string | null}
                     gallery={room.gallery as string[]}
+                    bed_count={room.bed_count as number} 
+                    bed_type = { room . bed_type as string }
                     onClick={() =>
                       navigate(`/rooms/${room.id}`, {
                         state: { room },
@@ -215,14 +220,16 @@ function RoomCard() {
                 type="button"
                 onClick={() => go(-1)}
                 className="absolute left-0 lg:-left-16 top-1/2 -translate-y-1/2 -translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-(--color-sage-muted) flex items-center justify-center text-green-800 hover:bg-sage-muted hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
-                aria-label="Previous rooms">
+                aria-label="Previous rooms"
+              >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 type="button"
                 onClick={() => go(1)}
                 className="absolute right-0 lg:-right-16 top-1/2 -translate-y-1/2 translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-(--color-sage-muted) flex items-center justify-center text-green-800 hover:bg-sage-muted hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
-                aria-label="Next rooms">
+                aria-label="Next rooms"
+              >
                 <ChevronRight className="w-5 h-5" />
               </button>
             </>

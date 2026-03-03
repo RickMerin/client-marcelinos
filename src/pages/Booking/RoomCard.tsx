@@ -11,6 +11,8 @@ interface RoomCardProps {
   images?: string[];
   size: string;
   capacity: string;
+  bed_count?: number;
+  bed_type?: string;
   includes: string;
   price: string | number;
   selected?: boolean;
