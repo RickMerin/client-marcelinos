@@ -330,7 +330,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                 )}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent align="start" className="p-0">
+                            <PopoverContent align="center" className="p-0">
                               <Calendar
                                 mode="single"
                                 selected={inputField.value}
