@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Download, House } from "lucide-react";
@@ -12,6 +12,8 @@ import CancelBookingContent from "@/components/modals/CancelBookingContent";
 import Modal from "@/components/modals/Modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ButtonLoader } from "@/components/ui/loader";
+import { getEcho } from "@/lib/realtime/echo";
+import { RealtimeChannels } from "@/lib/realtime/channels";
 // your existing Modal component
 
 interface Step5FormDataProps {
@@ -24,6 +26,39 @@ interface Step5ReceiptDataProps {
   qrCodeUrl?: string | null;
   formData?: never;
 }
+
+interface Booking {
+  reference: string;
+  status: string;
+  total_price: number;
+}
+
+export default function ReceiptPage({
+  referenceNumber,
+}: {
+  referenceNumber: string;
+}) {
+  const [booking, setBooking] = useState<Booking | null>(null);
+  useEffect(() => {
+    const echo = getEcho();
+    if (!echo || !referenceNumber) return;
+    const channel = echo.private(RealtimeChannels.booking(referenceNumber));
+    channel.listen(".booking.cancelled", (e: any) => {
+      setBooking((prev) => (prev ? { ...prev, status: e.status } : prev));
+    });
+    return () => {
+      echo.leave(RealtimeChannels.booking(referenceNumber));
+    };
+  }, [referenceNumber]);
+  return (
+    <div>
+      {" "}
+      <h1> Receipt </h1> <p> Status: {booking?.status} </p>{" "}
+    </div>
+  );
+} 
+ 
+ 
 
 type Props = Step5FormDataProps | Step5ReceiptDataProps;
 
@@ -626,7 +661,6 @@ export function Step5(props: Props) {
                 url: `/bookings/${referenceNumber}/cancel`,
               });
               setIsCancelModalOpen(false);
-              window.location.reload();
             } catch (error) {
               console.error(error);
               setIsSubmitting(false);

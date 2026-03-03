@@ -8,6 +8,8 @@ export const RealtimeChannels = {
   /** Public: single booking (receipt page). */
   booking: (reference: string) => `booking.${reference}`,
 
+  bookingCancelled: (reference: string) => `booking. ${reference} .cancelled`,
+
   /** Private: admin/staff dashboard. */
   adminDashboard: () => "admin.dashboard",
 
