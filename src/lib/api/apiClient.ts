@@ -12,11 +12,14 @@ const apiUrlProd = import.meta.env.VITE_API_URL_PROD;
 
 const baseURL = env === "production" ? apiUrlProd : apiUrlDev; // Dynamic base URL based on environment
 
+const apiKey = import.meta.env.VITE_API_KEY;
+
 // Create Axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL,
   headers: {
     "Content-Type": "application/json",
+    ...(apiKey ? { "x-api-key": apiKey } : {}),
   },
 });
 
