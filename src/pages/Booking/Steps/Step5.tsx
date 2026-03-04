@@ -56,9 +56,7 @@ export default function ReceiptPage({
       <h1> Receipt </h1> <p> Status: {booking?.status} </p>{" "}
     </div>
   );
-} 
- 
- 
+}
 
 type Props = Step5FormDataProps | Step5ReceiptDataProps;
 
@@ -302,6 +300,7 @@ export function Step5(props: Props) {
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessingCancel, setIsProcessingCancel] = useState(false);
 
   const roomsFromApi =
     receipt != null
@@ -424,7 +423,8 @@ export function Step5(props: Props) {
       className="flex flex-col items-center justify-center min-h-screen pb-10"
       initial="hidden"
       animate="visible"
-      variants={fadeInUp}>
+      variants={fadeInUp}
+    >
       <div
         id="receipt"
         role="document"
@@ -432,7 +432,8 @@ export function Step5(props: Props) {
         className="w-full max-w-3xl shadow-lg border border-emerald-100/70 rounded-lg overflow-hidden bg-white print:shadow-none"
         style={{
           borderColor: receiptBorder || "var(--color-sage-muted, #d1e7dd)",
-        }}>
+        }}
+      >
         {/* Responsive Top Header Bar */}
         <div className="bg-emerald-800 text-white px-4 py-3 sm:px-8 sm:py-5 flex flex-col gap-4 md:gap-0 md:flex-row items-stretch md:items-center justify-between w-full">
           {/* Logo and Title */}
@@ -560,7 +561,8 @@ export function Step5(props: Props) {
                   <tr>
                     <td
                       colSpan={5}
-                      className="px-4 py-4 text-center text-xs italic text-gray-500">
+                      className="px-4 py-4 text-center text-xs italic text-gray-500"
+                    >
                       No rooms or venues selected
                     </td>
                   </tr>
@@ -581,7 +583,8 @@ export function Step5(props: Props) {
                           key={`room-${idx}`}
                           className={
                             idx % 2 === 0 ? "bg-white" : "bg-emerald-50/30"
-                          }>
+                          }
+                        >
                           <td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
                             #{String(idx + 1)}
                           </td>
@@ -619,7 +622,8 @@ export function Step5(props: Props) {
                             (rooms.length + idx) % 2 === 0
                               ? "bg-white"
                               : "bg-emerald-50/30"
-                          }>
+                          }
+                        >
                           <td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
                             {String(rooms.length + idx + 1).padStart(2, "0")}
                           </td>
@@ -737,7 +741,8 @@ export function Step5(props: Props) {
                 ? "opacity-80 cursor-not-allowed"
                 : "cursor-pointer hover:opacity-95"
             }`}
-            style={{ backgroundColor: "var(--color-sage)" }}>
+            style={{ backgroundColor: "var(--color-sage)" }}
+          >
             {isDownloading ? (
               <>
                 <ButtonLoader size="sm" />
@@ -756,53 +761,61 @@ export function Step5(props: Props) {
             style={{
               backgroundColor: "var(--color-sage)",
               borderColor: "var(--color-sage)",
-            }}>
+            }}
+          >
             <House className="w-4 h-4" />
             Book Another Room
           </button>
-          <button
-            onClick={handleCancel}
-            disabled={isCancelled || cancelBooking.isPending}
-            className={`text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto
-              ${
-                isCancelled || cancelBooking.isPending
+          {!isCancelled && (
+            <button
+              onClick={handleCancel}
+              disabled={isProcessingCancel || cancelBooking.isPending}
+              className={`text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto ${
+                isProcessingCancel || cancelBooking.isPending
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:opacity-95"
-              }
-            `}
-            style={{ backgroundColor: "var(--color-sage)" }}>
-            {cancelBooking.isPending ? (
-              <>
-                <span
-                  className="spinner-border spinner-border-sm"
-                  role="status"></span>
-                Cancelling...
-              </>
-            ) : isCancelled ? (
-              "Booking Cancelled"
-            ) : (
-              "Cancel Booking"
-            )}
-          </button>
+              }`}
+              style={{ backgroundColor: "var(--color-sage)" }}
+            >
+              {isProcessingCancel || cancelBooking.isPending ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                  ></span>
+                  Cancelling...
+                </>
+              ) : (
+                "Cancel Booking"
+              )}
+            </button>
+          )}
         </div>
       </div>
 
       <Modal
         open={isCancelModalOpen}
         onClose={() => !isSubmitting && setIsCancelModalOpen(false)}
-        showCloseButton={!isSubmitting}>
+        showCloseButton={!isSubmitting}
+      >
         <CancelBookingContent
           onCancel={() => !isSubmitting && setIsCancelModalOpen(false)}
           onConfirm={async () => {
             setIsSubmitting(true);
+            setIsProcessingCancel(true); // immediately lock button
+
             try {
               await cancelBooking.mutateAsync({
                 url: `/bookings/${referenceNumber}/cancel`,
               });
+
               setIsCancelModalOpen(false);
+              // DO NOT set isProcessingCancel(false) here
+              // Let WebSocket update the status instead
             } catch (error) {
               console.error(error);
               setIsSubmitting(false);
+              setIsProcessingCancel(false); // unlock only if error
             }
           }}
           isSubmitting={isSubmitting}
