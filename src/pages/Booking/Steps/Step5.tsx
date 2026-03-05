@@ -251,8 +251,6 @@ export function Step5(props: Props) {
     enabled: !!qrCodeUrl,
   });
 
-  console.log(receipt);
-
   const referenceNumber = isFromApi
     ? receipt?.reference_number
     : form?.reference_number;
