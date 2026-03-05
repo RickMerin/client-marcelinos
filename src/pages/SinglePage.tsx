@@ -22,8 +22,6 @@ interface ListingItem {
   amenities?: unknown[];
   featured_image?: string | null;
   gallery?: string[];
-  bed_count?: number;
-  bed_type?: string;
 }
 
 function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
@@ -178,13 +176,6 @@ const SinglePage = () => {
                         {pricingFormat(selectedItem.price)}
                       </div>
                     )}
-                    {selectedItem.bed_count != null &&
-                      selectedItem.bed_type && (
-                        <div className="rounded-full bg-green-50 px-3 py-1 font-medium text-green-900">
-                          🛏 {selectedItem.bed_count} {selectedItem.bed_type}{" "}
-                          bed{selectedItem.bed_count > 1 ? "s" : ""}
-                        </div>
-                      )}
                   </div>
 
                   {amenities.length > 0 && (
@@ -248,8 +239,6 @@ const SinglePage = () => {
                     amenities={item.amenities}
                     featured_image={item.featured_image}
                     gallery={item.gallery}
-                    bed_count={item.bed_count}
-                    bed_type={item.bed_type}
                     onClick={() => handleCardClick(item.id, item)}
                   />
                 ))}

@@ -302,8 +302,6 @@ export function Step1({
                 images={roomImages(room)}
                 size={room.size ?? "—"}
                 capacity={String(room.capacity ?? "—")}
-                bed_count={room.bed_count ?? 1}
-                bed_type = { room.bed_type ?? "Standard" }
                 includes={amenityNames(room.amenities)}
                 amenityPills={amenityPills(room.amenities)}
                 price={room.price ?? 0}

@@ -16,8 +16,6 @@ interface CardItemProps {
   gallery?: string[];
   images?: string[];
   onClick?: () => void;
-  bed_count?: number;
-  bed_type?: string;
 }
 
 function CardItem(props: CardItemProps) {
@@ -32,11 +30,8 @@ function CardItem(props: CardItemProps) {
     gallery = [],
     images: imagesProp,
     onClick,
-    bed_count,
-    bed_type,
   } = props;
 
-  // console.log({ bed_count, bed_type });
 
   const [expanded, setExpanded] = useState(false);
 
@@ -129,15 +124,6 @@ function CardItem(props: CardItemProps) {
                 </span>
               </li>
             )}
-            {bed_count != null && bed_type ? (
-              <li className="flex items-center gap-2">
-                <span className="font-medium text-green-800"> Beds: </span>{" "}
-                <span>
-                  {bed_count} {bed_type} bed{bed_count > 1 ? "s" : ""}{" "}
-                </span>
-              </li>
-            ) : null}
-
             {description && (
               <div className="flex items-center gap-1 text-gray-700 text-sm leading-relaxed">
                 <span className="truncate">
