@@ -10,8 +10,6 @@ export interface RoomData {
   image: string;
   description: string;
   status: string;
-  bed_count?: number;
-  bed_type?: string;
 }
 
 interface RoomCardProps {
@@ -45,12 +43,6 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
         <p className="text-sm text-muted-foreground">
           ₱{room.price.toLocaleString()}
         </p>
-        {room.bed_count != null && room.bed_type ? (
-          <p className="text-sm text-muted-foreground">
-            🛏 {room.bed_count} {room.bed_type} bed
-            {room.bed_count > 1 ? "s" : ""}
-          </p>
-        ) : null}
         <p className="text-sm text-muted-foreground line-clamp-2">
           {room.description}
         </p>
