@@ -1,4 +1,5 @@
 import { FormData, BookingPayload } from "@/types/booking.types";
+import { getFromLocalStorage } from "@/lib/storage/localStorage";
 
 /**
  * Generates a unique reference ID for bookings
@@ -26,17 +27,6 @@ type StoredPHAddress = {
 
 const PH_ADDRESS_STORAGE_KEY = "reservationDetails.personal.phAddress";
 
-const safeReadLocalStorage = <T,>(key: string): T | null => {
-  try {
-    const ls = (globalThis as unknown as { localStorage?: Storage }).localStorage;
-    if (!ls) return null;
-    const raw = ls.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : null;
-  } catch {
-    return null;
-  }
-};
-
 /**
  * Parses the local PH address string produced by the UI:
  * "<Barangay>, <Municipality>, <Province>, <Region>".
@@ -61,9 +51,7 @@ const parseLocalPHAddress = (address: string): ParsedLocalPHAddress | null => {
  * check_in/check_out must be in "M d, Y" format (e.g. Jan 20, 2026).
  */
 export const buildBookingPayload = (formData: FormData): BookingPayload => {
-  const storedAddress = safeReadLocalStorage<StoredPHAddress>(
-    PH_ADDRESS_STORAGE_KEY,
-  );
+  const storedAddress = getFromLocalStorage(PH_ADDRESS_STORAGE_KEY) as StoredPHAddress | null;
   const isIntl = storedAddress?.addressType === "international";
   const roomIds = (formData.rooms || []).map(toId).filter(Boolean);
   const venueIds = (formData.venues || []).map(toId).filter(Boolean);
