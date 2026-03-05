@@ -31,12 +31,14 @@ export function ProgressIndicator({
                 <div
                   key={`connector-${index}`}
                   className={cn(
-                    "absolute top-6 h-0.5 transition-colors duration-300 hidden sm:block",
-                    isComplete ? "bg-(--color-sage)" : "bg-(--color-sage-muted)",
+                    "absolute top-6 h-0.5 transition-colors duration-300",
+                    isComplete
+                      ? "bg-(--color-sage)"
+                      : "bg-(--color-sage-muted)",
                   )}
                   style={{
                     left: `calc(${(index + 0.5) * (100 / steps.length)}% + 1.5rem)`,
-                    right: `calc(${(100 - (index + 1.5) * (100 / steps.length))}% + 1.5rem)`,
+                    right: `calc(${100 - (index + 1.5) * (100 / steps.length)}% + 1.5rem)`,
                   }}
                 />
               );
