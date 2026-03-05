@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { FormWrapper } from "./FormWrapper";
 import { useNavigate } from "react-router-dom";
-import { BOOKING_EXPIRATION, saveToLocalStorage} from "@/lib/storage/localStorage";
+import {
+  BOOKING_EXPIRATION,
+  saveToLocalStorage,
+  getFromLocalStorage,
+} from "@/lib/storage/localStorage";
 
 const bookingSchema = z.object({
   days: z.coerce.number().min(1, "Invalid number of days"),
@@ -12,9 +16,7 @@ const bookingSchema = z.object({
 
 export default function BookingForm() {
   const navigate = useNavigate();
-  const reservationDate = JSON.parse(
-    localStorage.getItem("reservationDate") || "{}"
-  );
+  const reservationDate = getFromLocalStorage("reservationDate") ?? {};
 
   const addDays = (date: Date, numDays: number) => {
     const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
