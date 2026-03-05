@@ -27,8 +27,7 @@ export default function Modal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.45, delay: 0.10 }}
-        >
+          transition={{ duration: 0.45, delay: 0.1 }}>
           {/* BACKDROP */}
           <motion.div
             className="absolute inset-0 bg-black/70"
@@ -52,15 +51,13 @@ export default function Modal({
               delay: 0.12, // ✨ DELAY HERE
             }}
             className={contentClassName}
-            onClick={(e) => e.stopPropagation()}
-          >
+            onClick={(e) => e.stopPropagation()}>
             {showCloseButton && (
               <button
                 type="button"
                 className="absolute top-2 right-2 text-white hover:text-gray-300 z-20"
                 onClick={onClose}
-                aria-label="Close modal"
-              >
+                aria-label="Close modal">
                 <CircleX />
               </button>
             )}

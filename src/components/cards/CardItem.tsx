@@ -32,6 +32,7 @@ function CardItem(props: CardItemProps) {
     onClick,
   } = props;
 
+
   const [expanded, setExpanded] = useState(false);
 
   // Build images array
@@ -98,13 +99,13 @@ function CardItem(props: CardItemProps) {
           containerClassName="h-60 w-full"
           className="object-center transition-transform duration-500 group-hover:scale-105"
         />
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
 
-      {typeTitle && (
-        <div className="absolute left-3 top-3 z-10">
-          <RoomTypeBadge type={typeTitle} />
-        </div>
-      )}
+        {typeTitle && (
+          <div className="absolute left-3 top-3 z-10">
+            <RoomTypeBadge type={typeTitle} />
+          </div>
+        )}
       </div>
 
       {/* CONTENT */}
@@ -123,26 +124,24 @@ function CardItem(props: CardItemProps) {
                 </span>
               </li>
             )}
-
-           {description && (
-            <div className="flex items-center gap-1 text-gray-700 text-sm leading-relaxed">
-              <span className="truncate">
-                {isLong ? previewText : description}
-              </span>
-              {isLong && (
-                <button
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setExpanded(true);
-                  }}
-                  className="shrink-0 font-medium green hover:underline transition-colors duration-200"
-                >
-                  See more
-                </button>
-              )}
-            </div>
-          )}
-
+            {description && (
+              <div className="flex items-center gap-1 text-gray-700 text-sm leading-relaxed">
+                <span className="truncate">
+                  {isLong ? previewText : description}
+                </span>
+                {isLong && (
+                  <button
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setExpanded(true);
+                    }}
+                    className="shrink-0 font-medium green hover:underline transition-colors duration-200"
+                  >
+                    See more
+                  </button>
+                )}
+              </div>
+            )}
           </ul>
         )}
 
@@ -181,49 +180,44 @@ function CardItem(props: CardItemProps) {
               onClick={(event) => event.stopPropagation()}
             >
               <div className="flex">
-              <h2 className="flex-1 font-display text-white text-xl font-semibold mb-4">{title}</h2>
+                <h2 className="flex-1 font-display text-white text-xl font-semibold mb-4">
+                  {title}
+                </h2>
 
-              {capacity != null && (
-                <p className="text-white text-sm">Capacity: {capacity}</p>
-              )}
+                {capacity != null && (
+                  <p className="text-white text-sm">Capacity: {capacity}</p>
+                )}
               </div>
 
               <div className="flex-1 overflow-y-auto text-white text-sm pr-2 custom-scroll">
-                
                 {amenityList.length > 0 && (
                   <div className="mb-4">
-                    <div className="font-medium">
-                      AMENITIES 
-                    </div>
-                    <div>
-                        {amenityList.join(", ")}
-                      </div>
+                    <div className="font-medium">AMENITIES</div>
+                    <div>{amenityList.join(", ")}</div>
                   </div>
-                )}<div>
+                )}
+                <div>
                   <div className="font-medium">DESCRIPTION</div>
-                  <div className="mt-1">
-                    {description}
-                  </div>
+                  <div className="mt-1">{description}</div>
                 </div>
-
               </div>
 
               <div className="flex">
                 {price != null && (
-                <div className="yellow text-m flex-1 font-semibold">
-                  {pricingFormat(String(price))}
-                </div>
-              )}
+                  <div className="yellow text-m flex-1 font-semibold">
+                    {pricingFormat(String(price))}
+                  </div>
+                )}
 
-              <button
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setExpanded(false);
-                }}
-                className="self-end text-sm font-medium yellow hover:underline"
-              >
-                Close
-              </button>
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setExpanded(false);
+                  }}
+                  className="self-end text-sm font-medium yellow hover:underline"
+                >
+                  Close
+                </button>
               </div>
             </motion.div>
           </>

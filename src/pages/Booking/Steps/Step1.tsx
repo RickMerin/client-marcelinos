@@ -187,7 +187,8 @@ export function Step1({
       <div className="space-y-2">
         <h2
           className="font-display text-3xl font-bold tracking-tight"
-          style={{ color: "var(--color-charcoal)" }}>
+          style={{ color: "var(--color-charcoal)" }}
+        >
           Choose your stay
         </h2>
         <p style={{ color: "var(--color-charcoal)" }}>
@@ -201,17 +202,20 @@ export function Step1({
         {/* Booking summary card */}
         <div
           className="rounded-md border bg-white p-5 shadow-sm md:p-6"
-          style={{ borderColor: "var(--color-sage-muted, #e5e7eb)" }}>
+          style={{ borderColor: "var(--color-sage-muted, #e5e7eb)" }}
+        >
           <div className="grid grid-cols-3 gap-4 md:gap-8">
             <div>
               <p
                 className="text-sm font-medium opacity-80"
-                style={{ color: "var(--color-charcoal)" }}>
+                style={{ color: "var(--color-charcoal)" }}
+              >
                 Rooms selected
               </p>
               <p
                 className="mt-1 text-xl font-bold tracking-tight"
-                style={{ color: "var(--color-charcoal)" }}>
+                style={{ color: "var(--color-charcoal)" }}
+              >
                 {roomCount}
               </p>
             </div>
@@ -219,24 +223,28 @@ export function Step1({
             <div>
               <p
                 className="text-sm font-medium opacity-80"
-                style={{ color: "var(--color-charcoal)" }}>
+                style={{ color: "var(--color-charcoal)" }}
+              >
                 Check-in
               </p>
               <p
                 className="mt-1 text-xl font-bold tracking-tight"
-                style={{ color: "var(--color-charcoal)" }}>
+                style={{ color: "var(--color-charcoal)" }}
+              >
                 {formatShortDate(checkIn)}
               </p>
             </div>
             <div>
               <p
                 className="text-sm font-medium opacity-80"
-                style={{ color: "var(--color-charcoal)" }}>
+                style={{ color: "var(--color-charcoal)" }}
+              >
                 Check-out
               </p>
               <p
                 className="mt-1 text-xl font-bold tracking-tight"
-                style={{ color: "var(--color-charcoal)" }}>
+                style={{ color: "var(--color-charcoal)" }}
+              >
                 {formatShortDate(checkOut)}
               </p>
             </div>
@@ -248,12 +256,14 @@ export function Step1({
         <div>
           <h3
             className="font-display text-xl font-semibold"
-            style={{ color: "var(--color-charcoal)" }}>
+            style={{ color: "var(--color-charcoal)" }}
+          >
             Where you&apos;ll stay
           </h3>
           <p
             className="text-sm mt-0.5 opacity-80"
-            style={{ color: "var(--color-charcoal)" }}>
+            style={{ color: "var(--color-charcoal)" }}
+          >
             Select one or more rooms. You can add multiple rooms to your
             booking.
           </p>
@@ -276,7 +286,8 @@ export function Step1({
               borderColor: "var(--color-sage-muted)",
               backgroundColor: "var(--color-cream)",
               color: "var(--color-charcoal)",
-            }}>
+            }}
+          >
             No rooms available for the selected dates.
           </div>
         ) : (
@@ -309,13 +320,15 @@ export function Step1({
         <div>
           <h3
             className="font-display text-xl font-semibold"
-            style={{ color: "var(--color-charcoal)" }}>
+            style={{ color: "var(--color-charcoal)" }}
+          >
             Event spaces{" "}
             <span className="font-normal opacity-80">(optional)</span>
           </h3>
           <p
             className="text-sm mt-0.5 opacity-80"
-            style={{ color: "var(--color-charcoal)" }}>
+            style={{ color: "var(--color-charcoal)" }}
+          >
             Add a venue if you need a dedicated space for events (e.g. meetings,
             celebrations).
           </p>
@@ -338,7 +351,8 @@ export function Step1({
               borderColor: "var(--color-sage-muted)",
               backgroundColor: "var(--color-cream)",
               color: "var(--color-charcoal)",
-            }}>
+            }}
+          >
             No venues available for the selected dates.
           </div>
         ) : (

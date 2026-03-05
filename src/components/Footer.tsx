@@ -1,6 +1,5 @@
-import { Facebook, Instagram, Twitter, ArrowRight } from "lucide-react";
+import { Facebook, ArrowRight } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import ContactForm from "./forms/ContactForm";
 
 function Footer() {
   const navigate = useNavigate();
@@ -19,8 +18,8 @@ function Footer() {
     { name: "Refund Policy", href: "/refund-policy" },
     { name: "Terms & Conditions", href: "/terms-and-conditions" },
     { name: "Privacy Policy", href: "/privacy-policy" },
-    { name: "FAQs", href: "/faqs" },
-    { name: "Careers", href: "/careers" },
+    // { name: "FAQs", href: "/faqs" },
+    // { name: "Careers", href: "/careers" }, //for future expansion
     { name: "Sitemap", href: "/sitemap" },
   ];
 
@@ -45,9 +44,9 @@ function Footer() {
 
   return (
     <footer className="bg-black px-4 py-10 text-white space-y-4">
-      <div className="container max-w-6xl mx-auto grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-8">
+      <div className="container mx-auto grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4">
         {/* ---------------------------------- */}
-        <section className="col-span-3 md:col-span-1 mb-5 md:mb-0">
+        {/* <section className="col-span-3 md:col-span-1 mb-5 md:mb-0">
           <h3 className="yellow md:text-lg font-bold">
             Marcelino's Resort Hotel
           </h3>
@@ -56,7 +55,7 @@ function Footer() {
             newsletter for exclusive offers and updates.
           </p>
           <ContactForm />
-        </section>
+        </section> */}
 
         {/* ----------------------------------- */}
 
@@ -72,9 +71,18 @@ function Footer() {
           </ul>
           <p className="my-5">Hilongos, Leyte</p>
           <div className="flex gap-3">
-            <Facebook className="yellow" size={30} />
-            <Instagram className="yellow" size={30} />
-            <Twitter className="yellow" size={30} />
+            <Link
+              to="https://www.facebook.com/profile.php?id=61557457680496"
+              target="_blank"
+              rel="noopener noreferrer">
+              <Facebook className="yellow" size={30} />
+            </Link>
+            {/* <Link to="https://www.instagram.com/marcelinosplace/">
+              <Instagram className="yellow" size={30} />
+            </Link>
+            <Link to="https://x.com/marcelinosplace">
+              <Twitter className="yellow" size={30} />
+            </Link> */}
           </div>
         </section>
 
@@ -89,8 +97,7 @@ function Footer() {
                 <button
                   type="button"
                   onClick={(e) => handleSectionClick(e, link.href)}
-                  className="hover:underline text-sm text-left bg-transparent border-none p-0 cursor-pointer text-white font-inherit"
-                >
+                  className="hover:underline text-sm text-left bg-transparent border-none p-0 cursor-pointer text-white font-inherit">
                   {link.name}
                 </button>
               </li>
@@ -108,8 +115,7 @@ function Footer() {
                 <ArrowRight size={16} className="yellow" />
                 <Link
                   to={link.href}
-                  className="hover:underline text-sm text-white no-underline"
-                >
+                  className="hover:underline text-sm text-white no-underline">
                   {link.name}
                 </Link>
               </li>

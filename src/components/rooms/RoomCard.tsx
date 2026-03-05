@@ -26,8 +26,9 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
         "cursor-pointer transition-all border-2 rounded-2xl overflow-hidden",
         isSelected
           ? "border-primary bg-primary/10"
-          : "border-muted hover:border-primary/40"
-      )}>
+          : "border-muted hover:border-primary/40",
+      )}
+    >
       <CardHeader>
         <CardTitle>{room.type}</CardTitle>
       </CardHeader>
@@ -41,9 +42,8 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
         />
         <p className="text-sm text-muted-foreground">
           ₱{room.price.toLocaleString()}
-          
         </p>
-                <p className="text-sm text-muted-foreground line-clamp-2">
+        <p className="text-sm text-muted-foreground line-clamp-2">
           {room.description}
         </p>
       </CardContent>
