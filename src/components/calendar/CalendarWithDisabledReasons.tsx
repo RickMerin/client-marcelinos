@@ -1,4 +1,5 @@
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { DayButton } from "react-day-picker"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
@@ -42,6 +43,13 @@ function DayWithReason({
   const isOverlap = (isOverlapInvalid?.(dayDate) ?? false) && !isBlocked
 
   const [isHovering, setIsHovering] = React.useState(false)
+  const [position, setPosition] = React.useState({
+    top: 0,
+    left: 0,
+    transform: "none",
+    width: 320,
+  })
+  const cellRef = React.useRef<HTMLDivElement>(null)
   const showTooltip = isHovering || activeTooltipDate === dateKey
   const tooltipReason = isBlocked
     ? reason
@@ -49,10 +57,52 @@ function DayWithReason({
       ? (overlapInvalidReason ?? OVERLAP_DEFAULT_REASON)
       : null
 
+  React.useLayoutEffect(() => {
+    if (!showTooltip || !tooltipReason || !cellRef.current) return
+    const rect = cellRef.current.getBoundingClientRect()
+    const padding = 8
+    const tooltipMaxWidth = Math.min(320, window.innerWidth - 24)
+    const left = rect.left + rect.width / 2 - tooltipMaxWidth / 2
+    const clampedLeft = Math.max(padding, Math.min(left, window.innerWidth - tooltipMaxWidth - padding))
+    const spaceAbove = rect.top
+    const spaceBelow = window.innerHeight - rect.bottom
+    const preferAbove = spaceAbove >= spaceBelow
+    const anchorY = preferAbove ? rect.top - padding : rect.bottom + padding
+    setPosition({
+      top: anchorY,
+      left: clampedLeft,
+      transform: preferAbove ? "translateY(-100%)" : "none",
+      width: tooltipMaxWidth,
+    })
+  }, [showTooltip, tooltipReason])
+
+  const tooltipEl =
+    (isBlocked || isOverlap) && tooltipReason && showTooltip ? (
+      createPortal(
+        <div
+          className="fixed rounded-md bg-black/95 px-3 py-2 text-sm text-white leading-normal shadow-lg z-[9999]"
+          style={{
+            top: position.top,
+            left: position.left,
+            transform: position.transform,
+            width: position.width,
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          {tooltipReason}
+        </div>,
+        document.body
+      )
+    ) : null
+
   return (
     <div
+      ref={cellRef}
       className="relative"
-      onMouseEnter={() => setIsHovering(true)}
+      onMouseEnter={() => {
+        setIsHovering(true)
+        setActiveTooltipDate(null)
+      }}
       onMouseLeave={() => setIsHovering(false)}
     >
       <Button
@@ -76,18 +126,7 @@ function DayWithReason({
           isOverlap && "line-through opacity-70 cursor-not-allowed"
         )}
       />
-
-      {(isBlocked || isOverlap) && tooltipReason && showTooltip && (
-        <div
-          className="
-            absolute bottom-full left-1/2 -translate-x-1/2
-            rounded bg-black px-2 py-1 text-xs text-white
-            whitespace-nowrap z-50 transition-opacity
-          "
-        >
-          {tooltipReason}
-        </div>
-      )}
+      {tooltipEl}
     </div>
   )
 }
