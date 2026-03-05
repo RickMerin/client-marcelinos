@@ -30,9 +30,14 @@ function toBookingReceipt(res: BookingReferenceResponse): BookingReceipt | null 
         .trim() || "—"
     : "—";
   const addressParts = guest
-    ? [guest.street, guest.barangay, guest.municipality, guest.province, guest.region].filter(
-        Boolean,
-      )
+    ? [
+        guest.street,
+        guest.barangay,
+        guest.municipality,
+        guest.province,
+        guest.region,
+        guest.country,
+      ].filter(Boolean)
     : [];
   const guestAddress = addressParts.length > 0 ? addressParts.join(", ") : "—";
   const total = b.total_price != null ? String(b.total_price) : "0";
