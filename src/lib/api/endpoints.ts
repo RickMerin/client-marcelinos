@@ -8,7 +8,6 @@
 export const endpoints = {
   bookings: "/bookings",
   bookingByReference: (reference: string) => `/bookings/reference/${reference}`,
-  bookingReceipt: (reference: string) => `/booking-receipt/${reference}`,
   cancelBooking: (reference: string) => `/bookings/ ${reference} /cancel`,
   rooms: "/rooms",
   roomById: (id: string | number) => `/rooms/${id}`,

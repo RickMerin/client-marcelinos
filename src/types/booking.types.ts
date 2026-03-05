@@ -21,7 +21,42 @@ export interface BookingConflictResponse {
 
 /** API response shape for GET /bookings/reference/:reference */
 export interface BookingReferenceResponse {
-  booking?: { reference_number: string; [key: string]: unknown };
+  booking?: {
+    reference_number: string;
+    status?: string;
+    check_in?: string;
+    check_out?: string;
+    no_of_days?: number;
+    total_price?: string | number;
+    created_at?: string;
+    guest?: {
+      first_name?: string;
+      middle_name?: string | null;
+      last_name?: string;
+      email?: string;
+      contact_num?: string;
+      street?: string;
+      barangay?: string;
+      municipality?: string;
+      province?: string;
+      region?: string;
+      [key: string]: unknown;
+    };
+    rooms?: Array<{
+      name?: string;
+      type?: string;
+      capacity?: number;
+      price?: string | number;
+      [key: string]: unknown;
+    }>;
+    venues?: Array<{
+      name?: string;
+      capacity?: number;
+      price?: string | number;
+      [key: string]: unknown;
+    }>;
+    [key: string]: unknown;
+  };
   qr_code_url?: string | null;
   /** True when a testimonial/site review has already been submitted for this booking. */
   has_testimonial?: boolean;
@@ -29,6 +64,8 @@ export interface BookingReferenceResponse {
 
 /** API response shape for GET /booking-receipt/:reference */
 export interface BookingReceipt {
+  /** QR code image URL for check-in */
+  qr_code_url?: string | null;
   reference_number: string;
   created_at: string;
   booking_status: string;
