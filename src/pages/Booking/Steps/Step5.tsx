@@ -251,6 +251,8 @@ export function Step5(props: Props) {
     enabled: !!qrCodeUrl,
   });
 
+  console.log(receipt);
+
   const referenceNumber = isFromApi
     ? receipt?.reference_number
     : form?.reference_number;
@@ -258,9 +260,11 @@ export function Step5(props: Props) {
   const createdAt = isFromApi
     ? receipt?.created_at
     : new Date().toLocaleDateString();
+
   const bookingStatus = isFromApi
     ? receipt?.booking_status
     : form?.booking_status;
+  
   const checkIn = isFromApi ? receipt?.check_in : form?.check_in;
   const checkOut = isFromApi ? receipt?.check_out : form?.check_out;
   const nights = isFromApi
@@ -286,6 +290,7 @@ export function Step5(props: Props) {
   const guestEmail = isFromApi ? receipt?.guest_email : form?.email;
   const guestPhone = isFromApi ? receipt?.guest_contact : form?.phone;
   const guestAddress = isFromApi ? receipt?.guest_address : form?.address;
+  
   const issuedOn = isFromApi
     ? (receipt?.issued_on ?? new Date().toLocaleDateString())
     : new Date().toLocaleDateString();
@@ -423,8 +428,7 @@ export function Step5(props: Props) {
       className="flex flex-col items-center justify-center min-h-screen pb-10"
       initial="hidden"
       animate="visible"
-      variants={fadeInUp}
-    >
+      variants={fadeInUp}>
       <div
         id="receipt"
         role="document"
@@ -432,8 +436,7 @@ export function Step5(props: Props) {
         className="w-full max-w-3xl shadow-lg border border-emerald-100/70 rounded-lg overflow-hidden bg-white print:shadow-none"
         style={{
           borderColor: receiptBorder || "var(--color-sage-muted, #d1e7dd)",
-        }}
-      >
+        }}>
         {/* Responsive Top Header Bar */}
         <div className="bg-emerald-800 text-white px-4 py-3 sm:px-8 sm:py-5 flex flex-col gap-4 md:gap-0 md:flex-row items-stretch md:items-center justify-between w-full">
           {/* Logo and Title */}
@@ -489,6 +492,7 @@ export function Step5(props: Props) {
                 {guestAddress && <p>{guestAddress}</p>}
                 {guestPhone && <p>Phone: {guestPhone}</p>}
                 {guestEmail && <p>Email: {guestEmail}</p>}
+                {}
               </div>
             </div>
             <div className="sm:text-right">
@@ -561,8 +565,7 @@ export function Step5(props: Props) {
                   <tr>
                     <td
                       colSpan={5}
-                      className="px-4 py-4 text-center text-xs italic text-gray-500"
-                    >
+                      className="px-4 py-4 text-center text-xs italic text-gray-500">
                       No rooms or venues selected
                     </td>
                   </tr>
@@ -583,8 +586,7 @@ export function Step5(props: Props) {
                           key={`room-${idx}`}
                           className={
                             idx % 2 === 0 ? "bg-white" : "bg-emerald-50/30"
-                          }
-                        >
+                          }>
                           <td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
                             #{String(idx + 1)}
                           </td>
@@ -613,7 +615,7 @@ export function Step5(props: Props) {
                           ? venue.price
                           : parseFloat(String(venue.price || 0));
                       const qty = 1;
-                      const lineTotal = unitPrice * qty;
+                      // const lineTotal = unitPrice * qty;
 
                       return (
                         <tr
@@ -622,8 +624,7 @@ export function Step5(props: Props) {
                             (rooms.length + idx) % 2 === 0
                               ? "bg-white"
                               : "bg-emerald-50/30"
-                          }
-                        >
+                          }>
                           <td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
                             {String(rooms.length + idx + 1).padStart(2, "0")}
                           </td>
@@ -640,9 +641,6 @@ export function Step5(props: Props) {
                           </td>
                           <td className="px-3 py-2 sm:px-4 sm:py-2.5 text-center align-top">
                             {qty}
-                          </td>
-                          <td className="px-3 py-2 sm:px-4 sm:py-2.5 text-right align-top tabular-nums">
-                            {pricingFormat(lineTotal)}
                           </td>
                         </tr>
                       );
@@ -741,8 +739,7 @@ export function Step5(props: Props) {
                 ? "opacity-80 cursor-not-allowed"
                 : "cursor-pointer hover:opacity-95"
             }`}
-            style={{ backgroundColor: "var(--color-sage)" }}
-          >
+            style={{ backgroundColor: "var(--color-sage)" }}>
             {isDownloading ? (
               <>
                 <ButtonLoader size="sm" />
@@ -761,8 +758,7 @@ export function Step5(props: Props) {
             style={{
               backgroundColor: "var(--color-sage)",
               borderColor: "var(--color-sage)",
-            }}
-          >
+            }}>
             <House className="w-4 h-4" />
             Book Another Room
           </button>
@@ -775,14 +771,12 @@ export function Step5(props: Props) {
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:opacity-95"
               }`}
-              style={{ backgroundColor: "var(--color-sage)" }}
-            >
+              style={{ backgroundColor: "var(--color-sage)" }}>
               {isProcessingCancel || cancelBooking.isPending ? (
                 <>
                   <span
                     className="spinner-border spinner-border-sm"
-                    role="status"
-                  ></span>
+                    role="status"></span>
                   Cancelling...
                 </>
               ) : (
@@ -796,8 +790,7 @@ export function Step5(props: Props) {
       <Modal
         open={isCancelModalOpen}
         onClose={() => !isSubmitting && setIsCancelModalOpen(false)}
-        showCloseButton={!isSubmitting}
-      >
+        showCloseButton={!isSubmitting}>
         <CancelBookingContent
           onCancel={() => !isSubmitting && setIsCancelModalOpen(false)}
           onConfirm={async () => {

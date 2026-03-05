@@ -240,6 +240,10 @@ export default function Header() {
 
   const activeLinkClass =
     "text-yellow-600 font-semibold border-b-2 border-yellow-500 border-solid";
+  
+  const isHome = () => {
+    return location.pathname === "/";
+  };
 
   return (
     <header
@@ -248,7 +252,11 @@ export default function Header() {
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 md:px-8">
         <button
           ref={logoRef}
-          onClick={() => navigate("/")}
+          onClick={() =>
+            isHome()
+              ? window.scrollTo({ top: 0, behavior: "smooth" })
+              : navigate("/")
+          }
           className="flex items-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 rounded-md transition-transform active:scale-[0.98]">
           <img
             src="/brand-logo.webp"

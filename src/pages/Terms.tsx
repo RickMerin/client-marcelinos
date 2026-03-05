@@ -1,6 +1,8 @@
 import { usePageSEO } from "@/hooks/usePageSEO";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 function Terms() {
+  useScrollToTop();
   usePageSEO({
     title: "Terms and Conditions | Marcelinos Hotel & Resort",
     description:
