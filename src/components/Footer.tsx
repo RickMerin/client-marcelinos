@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Twitter, ArrowRight } from "lucide-react";
+import { Facebook, ArrowRight } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 
 function Footer() {
