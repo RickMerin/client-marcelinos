@@ -1,6 +1,8 @@
 import { usePageSEO } from "@/hooks/usePageSEO";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 function PrivacyPolicy() {
+  useScrollToTop();
   usePageSEO({
     title: "Privacy Policy | Marcelinos Hotel & Resort",
     description:

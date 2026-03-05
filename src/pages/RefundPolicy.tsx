@@ -1,6 +1,8 @@
 import { usePageSEO } from "@/hooks/usePageSEO";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 function RefundPolicy() {
+  useScrollToTop();
   usePageSEO({
     title: "Refund Policy | Marcelinos Hotel & Resort",
     description:
