@@ -2,9 +2,48 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const SCROLL_THRESHOLD = 80;
+const SCROLL_DURATION_MS = 1200;
+const SCROLL_EASING = (t: number) => 1 - (1 - t) ** 3; // smooth ease-out
+
+function smoothScrollTo(targetY: number) {
+  const startY = window.scrollY ?? document.documentElement.scrollTop;
+  const startTime = performance.now();
+
+  const step = (now: number) => {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / SCROLL_DURATION_MS, 1);
+    const eased = SCROLL_EASING(progress);
+    const y = startY + (targetY - startY) * eased;
+    window.scrollTo(0, y);
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const buttonVariants = {
+  hidden: { opacity: 0, x: -20, scale: 0.85 },
+  show: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    transition: { type: "spring", stiffness: 400, damping: 22 },
+  },
+};
 
 export default function ScrollNav() {
   const [canScrollUp, setCanScrollUp] = useState(false);
@@ -45,7 +84,7 @@ export default function ScrollNav() {
   }, [updateScrollState]);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    smoothScrollTo(0);
   };
 
   const scrollToBottom = () => {
@@ -53,50 +92,73 @@ export default function ScrollNav() {
       document.body.scrollHeight,
       document.documentElement.scrollHeight,
     );
-    const maxScroll = scrollHeight - window.innerHeight;
-    window.scrollTo({ top: maxScroll, behavior: "smooth" });
+    const maxScroll = Math.max(0, scrollHeight - window.innerHeight);
+    smoothScrollTo(maxScroll);
   };
 
   if (!isScrollable) return null;
 
   const btnBase =
-    "flex items-center justify-center rounded-full backdrop-blur-sm transition-all duration-200 ease-out" +
+    "flex items-center justify-center rounded-full backdrop-blur-sm" +
     " focus:outline-none focus:ring-2 focus:ring-green-600/50 focus:ring-offset-2 focus:ring-offset-transparent";
 
   return (
-    <div
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
       className="fixed bottom-3 left-3 z-40 flex flex-col gap-1 sm:bottom-4 sm:left-4 sm:gap-1.5 md:bottom-5 md:left-5 md:gap-2"
       style={{
         paddingBottom: "env(safe-area-inset-bottom, 0)",
         paddingLeft: "env(safe-area-inset-left, 0)",
       }}
       aria-label="Scroll shortcuts">
-      <button
+      <motion.button
+        variants={buttonVariants}
         type="button"
         onClick={scrollToTop}
         disabled={!canScrollUp}
         aria-label="Scroll to top"
+        whileHover={canScrollUp ? { scale: 1.08, y: -2, boxShadow: "0 6px 20px rgba(21, 128, 61, 0.35)" } : {}}
+        whileTap={canScrollUp ? { scale: 0.96, y: 0 } : {}}
+        transition={{ type: "spring", stiffness: 400, damping: 22 }}
         className={cn(
           btnBase,
-          "h-9 w-9 sm:h-10 sm:w-10",
-          "bg-green-700/80 text-white shadow-md hover:bg-green-700/95 hover:scale-[1.06] active:scale-[0.98]",
+          "group h-9 w-9 sm:h-10 sm:w-10",
+          "bg-green-700/80 text-white shadow-md hover:bg-green-700/95",
           !canScrollUp && "cursor-not-allowed opacity-35",
         )}>
-        <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
-      </button>
-      <button
+        <span
+          className={cn(
+            "inline-block transition-transform duration-300 ease-out",
+            canScrollUp && "group-hover:-translate-y-0.5",
+          )}>
+          <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
+        </span>
+      </motion.button>
+      <motion.button
+        variants={buttonVariants}
         type="button"
         onClick={scrollToBottom}
         disabled={!canScrollDown}
         aria-label="Scroll to bottom"
+        whileHover={canScrollDown ? { scale: 1.08, y: 2, boxShadow: "0 6px 20px rgba(21, 128, 61, 0.35)" } : {}}
+        whileTap={canScrollDown ? { scale: 0.96, y: 0 } : {}}
+        transition={{ type: "spring", stiffness: 400, damping: 22 }}
         className={cn(
           btnBase,
-          "h-9 w-9 sm:h-10 sm:w-10",
-          "bg-green-700/80 text-white shadow-md hover:bg-green-700/95 hover:scale-[1.06] active:scale-[0.98]",
+          "group h-9 w-9 sm:h-10 sm:w-10",
+          "bg-green-700/80 text-white shadow-md hover:bg-green-700/95",
           !canScrollDown && "cursor-not-allowed opacity-35",
         )}>
-        <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
-      </button>
-    </div>
+        <span
+          className={cn(
+            "inline-block transition-transform duration-300 ease-out",
+            canScrollDown && "group-hover:translate-y-0.5",
+          )}>
+          <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
+        </span>
+      </motion.button>
+    </motion.div>
   );
 }
