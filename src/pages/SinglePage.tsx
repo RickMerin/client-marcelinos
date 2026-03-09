@@ -206,7 +206,11 @@ const SinglePage = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => navigate("/create-booking")}
+                      onClick={() =>
+                        navigate("/", {
+                          state: { openCheckIn: true },
+                        })
+                      }
                       className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-800"
                     >
                       {bookCta}

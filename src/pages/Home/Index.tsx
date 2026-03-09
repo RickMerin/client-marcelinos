@@ -1,6 +1,7 @@
 "use client";
 
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { BannerCarousel } from "@/components/carousels/BannerCarousel";
 import BookingForm from "@/components/forms/BookingForm";
@@ -19,6 +20,9 @@ import ClientReviews from "@/pages/Testimonial/ReviewSection";
 import LocationMap from "@/pages/Home/LocationMap";
 
 function Home() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -31,6 +35,21 @@ function Home() {
       el.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
+
+  useEffect(() => {
+    const navState = location.state as { openCheckIn?: boolean } | null;
+    if (!navState?.openCheckIn) return;
+
+    const timer = window.setTimeout(() => {
+      window.dispatchEvent(new Event("open-checkin"));
+      navigate(location.pathname + location.search + location.hash, {
+        replace: true,
+        state: null,
+      });
+    }, 200);
+
+    return () => window.clearTimeout(timer);
+  }, [location, navigate]);
 
   return (
     <>

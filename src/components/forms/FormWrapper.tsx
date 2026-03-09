@@ -99,31 +99,9 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
     fields.map((f) => [f.name, f.value ?? (f.type === "counter" ? 1 : "")])
   ) as z.output<T>;
 
-  const hasScrolledRef = React.useRef(false);
-
   React.useEffect(() => {
     const openCalendar = () => {
       setOpen(true);
-
-      const bookingEl = document.getElementById("booking-section");
-      const heroTop = window.scrollY < 100;
-
-      if (hasScrolledRef.current && !heroTop) {
-        window.scrollTo({
-          behavior: "smooth",
-          top: 200,
-        });
-        hasScrolledRef.current = false;
-        return;
-      }
-
-      if (!heroTop && bookingEl) {
-        bookingEl.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-        hasScrolledRef.current = true;
-      }
     };
 
     window.addEventListener("open-checkin", openCalendar);
@@ -330,7 +308,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                 )}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent align="center" className="p-0">
+                            <PopoverContent align="center" className="-mt-[30px] p-0">
                               <Calendar
                                 mode="single"
                                 selected={inputField.value}
