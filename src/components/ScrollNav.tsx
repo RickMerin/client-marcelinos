@@ -41,7 +41,7 @@ const buttonVariants = {
     opacity: 1,
     x: 0,
     scale: 1,
-    transition: { type: "spring", stiffness: 400, damping: 22 },
+    transition: { type: "spring" as const, stiffness: 400, damping: 22 },
   },
 };
 
