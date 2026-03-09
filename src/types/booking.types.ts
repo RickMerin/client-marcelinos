@@ -7,6 +7,8 @@ export interface BookingResponse {
   /** @deprecated use booking instead */
   bookings?: Array<{ reference_number: string; [key: string]: unknown }>;
   total_price?: number;
+  /** Xendit payment page URL (present when payment_method is 'online') */
+  payment_url?: string;
 }
 
 /** API 422 response when date range conflicts with existing booking */
@@ -141,6 +143,7 @@ export interface PersonalDetails {
 
 export interface BookingPayload {
   reference_number?: string;
+  payment_method?: string;
   check_in: string;
   check_out: string;
   days: number;
