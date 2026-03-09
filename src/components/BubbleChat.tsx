@@ -37,6 +37,7 @@ const FAQS_INITIAL = [
 
 export default function BubbleChat() {
   const [open, setOpen] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(true);
   const [messages, setMessages] = useState<Message[]>([
     {
       from: "bot",
@@ -59,16 +60,24 @@ export default function BubbleChat() {
 
   return (
     <>
-      {/* CHAT BUBBLE */}
-      <button
-        onClick={() => setOpen(true)}
-        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-green-700 text-white shadow-lg hover:bg-green-800 transition-transform duration-300 animate-pulse ${
-          open
-            ? "scale-90 opacity-0 pointer-events-none"
-            : "scale-100 opacity-100"
-        }`}>
-        <MessageCircle className="transition-transform duration-300" />
-      </button>
+      {/* CHAT BUBBLE + PROMPT */}
+      <div
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-2 sm:gap-3 ${
+          open ? "scale-90 opacity-0 pointer-events-none" : "scale-100 opacity-100"
+        } transition-transform duration-300`}>
+        {showPrompt && (
+          <button
+            onClick={() => setOpen(true)}
+            className="rounded-md bg-white/95 px-2 py-1.5 text-right text-xs font-medium text-gray-800 shadow-md ring-1 ring-black/5 hover:bg-white transition-colors">
+            Hi, need help?
+          </button>
+        )}
+        <button
+          onClick={() => setOpen(true)}
+          className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-full bg-green-700 text-white shadow-lg hover:bg-green-800 transition-transform duration-300 animate-pulse">
+          <MessageCircle className="transition-transform duration-300" />
+        </button>
+      </div>
 
       {/* CHAT WINDOW */}
       <div
@@ -107,7 +116,10 @@ export default function BubbleChat() {
             </div>
           </div>
           <button
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              setOpen(false);
+              setShowPrompt(false);
+            }}
             className="transition-transform duration-200 hover:scale-110">
             <X className="h-5 w-5 text-black/50" />
           </button>
