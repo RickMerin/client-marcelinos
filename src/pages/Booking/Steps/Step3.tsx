@@ -272,7 +272,7 @@ export function Step3({ formData }: Props) {
             </p>
             <p>
               <span className={labelClass}>Gender: </span>
-              {gender || "—"}
+              {gender ? gender.charAt(0).toUpperCase() + gender.slice(1) : "—"}
             </p>
             <p>
               <span className={labelClass}>Phone: </span>

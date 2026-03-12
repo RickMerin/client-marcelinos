@@ -57,7 +57,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
           : null,
       lastName: toUpper(raw.lastName) ?? "",
       gender:
-        raw.gender === "Male" || raw.gender === "Female"
+        raw.gender === "male" || raw.gender === "female" || raw.gender === "other"
           ? raw.gender
           : undefined,
       phone: raw.phone ?? "",
@@ -80,7 +80,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
         middleName: values.middleName ?? null,
         lastName: values.lastName,
         gender:
-          values.gender === "Male" || values.gender === "Female"
+          values.gender === "male" || values.gender === "female" || values.gender === "other"
             ? values.gender
             : "",
         phone: values.phone,
@@ -234,8 +234,9 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                           color: "var(--color-charcoal)",
                         }}>
                         <option value="">Select gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
                       </select>
                     </FormControl>
                     <FormMessage />

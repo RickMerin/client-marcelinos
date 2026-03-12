@@ -78,7 +78,7 @@ export const buildBookingPayload = (formData: FormData): BookingPayload => {
     last_name: formData.lastName || "N/A",
     email: formData.email,
     contact_num: formData.phone || "0000000000",
-    gender: formData.gender || "Male",
+    gender: formData.gender || "male",
     is_international: isIntl,
     country: isIntl ? formData.address || null : "Philippines",
     region: isIntl ? formData.region || null : parsedLocal?.region || null,
