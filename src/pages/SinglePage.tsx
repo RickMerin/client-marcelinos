@@ -5,6 +5,7 @@ import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
+import { ArrowLeft } from 'lucide-react';
 
 
 interface ApiListResponse<T> {
@@ -117,9 +118,9 @@ const SinglePage = () => {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 rounded-full border border-green-100 bg-white px-4 py-2 text-sm font-semibold text-green-900 shadow-sm transition hover:border-green-200 hover:shadow-md"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-green-100 bg-white px-3 py-2 text-xs font-semibold text-green-900 shadow-sm transition hover:border-green-200 hover:shadow-md"
           >
-            ← Back
+            <ArrowLeft size={16} /> Back
           </button>
         </div>
 
