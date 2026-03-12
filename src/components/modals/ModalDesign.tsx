@@ -9,6 +9,7 @@ export default function ModalDesign({ onAccept }: ModalDesignProps) {
       <div className="text-xl font-bold mt-3 mb-3 md:mb-5 text-white">
         <h2>Welcome to Marcelino's </h2>
         <h2>Resort and Hotel</h2>
+        <h2>Hilongos, Leyte</h2>
       </div>
 
       <p className="text-white text-xs">Thank you for visiting Marcelino's!</p>
