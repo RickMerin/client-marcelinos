@@ -169,7 +169,6 @@ export function Step4({
         onClose={isSubmitting ? () => {} : () => setIsProceedModalOpen(false)}
         showCloseButton={!isSubmitting}>
         <PaymentConfirmContent
-          paymentMethod={paymentMethod}
           onCancel={() => !isSubmitting && setIsProceedModalOpen(false)}
           onConfirm={handleConfirmProceed}
           isSubmitting={isSubmitting}
