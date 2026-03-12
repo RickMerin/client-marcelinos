@@ -15,7 +15,7 @@ export const personalDetailsSchema = z.object({
 
   lastName: z.string().min(1, "Last name is required").transform(toUpperCase),
 
-  gender: z.enum(["Male", "Female"], {
+  gender: z.enum(["male", "female", "other"], {
     message: "Please select a gender",
   }),
 

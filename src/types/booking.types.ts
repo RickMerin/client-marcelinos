@@ -1,4 +1,4 @@
-export type Gender = "Male" | "Female";
+export type Gender = "male" | "female" | "other";
 
 export interface BookingResponse {
   message: string;
