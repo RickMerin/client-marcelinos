@@ -131,7 +131,7 @@ function CardItem(props: CardItemProps) {
             )}
             {bed_specifications && bed_specifications.length > 0 && (
               <li className="flex items-center gap-2">
-                <span className="font-medium text-green-800">Room Specs:</span>
+                <span className="font-medium text-green-800">Beds:</span>
                 <span>
                   {bed_specifications.join(", ")}
                   {bed_modifiers &&
