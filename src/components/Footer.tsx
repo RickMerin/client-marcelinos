@@ -9,6 +9,7 @@ function Footer() {
     { name: "Home", href: "#home" },
     { name: "About", href: "#about" },
     { name: "Rooms", href: "#rooms" },
+    { name: "Venues", href: "#venues" },
     { name: "Services", href: "#services" },
     { name: "Gallery", href: "#gallery" },
     { name: "Review", href: "#reviews" },
