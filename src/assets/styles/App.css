@@ -53,10 +53,10 @@
 }
 
 
-#about {
-  scroll-margin-top: 80px;
-}
-#services {
+/* #about {
+  scroll-margin-top: 50px;
+} */
+/* #services {
   scroll-margin-top: 60px;
 }
 #gallery {
@@ -70,7 +70,7 @@
 }
 #reviews {
   scroll-margin-top: 75px;
-}
+} */
 .custom-scroll::-webkit-scrollbar {
   width: 6px;
 }
