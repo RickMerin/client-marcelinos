@@ -106,41 +106,38 @@ export function Step4({
           </div>
         </label>
 
-        {/* Pay Online (Soon) */}
+        {/* Pay Online (Xendit) */}
         <label
-          className="cursor-not-allowed border rounded-md p-4 bg-gray-100 flex items-start gap-3 shadow-sm opacity-60 relative"
-          aria-disabled="true">
+          className={`cursor-pointer border rounded-md p-4 flex items-start gap-3 shadow-sm transition relative
+            ${
+              paymentMethod === PAYMENT_METHODS.ONLINE
+                ? "ring-2 ring-[var(--color-sage)] bg-[var(--color-sage-muted)] border-[var(--color-sage)]"
+                : "bg-[var(--color-cream)] border-[var(--color-sage-muted)] hover:bg-[var(--color-cream-dark)]"
+            }`}>
           <input
             type="checkbox"
-            disabled
-            className="absolute top-3 right-3 w-5 h-5 accent-gray-400"
+            checked={paymentMethod === PAYMENT_METHODS.ONLINE}
+            onChange={() => handleSelect(PAYMENT_METHODS.ONLINE)}
+            className="absolute top-3 right-3 w-5 h-5 cursor-pointer"
+            style={{ accentColor: "var(--color-sage)" }}
           />
           <img
             src={cashless}
-            alt="Cashless"
+            alt="Pay Online"
             loading="lazy"
-            className="w-15 h-15 grayscale"
+            className="w-15 h-15"
           />
           <div>
             <h4
-              className="font-semibold flex items-center gap-2"
+              className="font-semibold"
               style={{ color: "var(--color-charcoal)" }}>
               Pay Online
-              <span
-                className="ml-2 text-xs px-2 py-0.5 rounded opacity-80"
-                style={{
-                  backgroundColor: "var(--color-sage-muted)",
-                  color: "var(--color-charcoal)",
-                }}>
-                Soon
-              </span>
             </h4>
             <p
               className="text-sm opacity-80"
               style={{ color: "var(--color-charcoal)" }}>
-              Guests are encouraged to pay online through secure methods such as
-              GCash, PayMaya, PayPal, or bank transfer for a fast and convenient
-              transaction.
+              Pay securely via GCash, PayMaya, debit/credit card, or bank
+              transfer. You will be redirected to our payment partner Xendit.
             </p>
           </div>
         </label>
@@ -172,7 +169,6 @@ export function Step4({
         onClose={isSubmitting ? () => {} : () => setIsProceedModalOpen(false)}
         showCloseButton={!isSubmitting}>
         <PaymentConfirmContent
-          paymentMethod={paymentMethod}
           onCancel={() => !isSubmitting && setIsProceedModalOpen(false)}
           onConfirm={handleConfirmProceed}
           isSubmitting={isSubmitting}

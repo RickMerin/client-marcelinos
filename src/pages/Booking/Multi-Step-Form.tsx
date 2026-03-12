@@ -64,6 +64,11 @@ export function MultiStepForm() {
     }
 
     await submitBooking(formData, (response) => {
+      // Online payment: redirect to Xendit payment page
+      if (response?.payment_url) {
+        window.location.href = response.payment_url;
+        return;
+      }
       const referenceNumber =
         response?.booking?.reference_number ??
         response?.bookings?.[0]?.reference_number ??

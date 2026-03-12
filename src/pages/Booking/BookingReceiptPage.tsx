@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import {
@@ -74,6 +75,8 @@ export function BookingReceiptPage({
   referenceNumber,
 }: BookingReceiptPageProps) {
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paymentStatus = searchParams.get("payment");
 
   useEffect(() => {
     clearBookingStorage();
@@ -137,12 +140,35 @@ export function BookingReceiptPage({
     );
   }
 
+  const PaymentStatusBanner = paymentStatus ? (
+    <div
+      className={`mb-6 p-4 rounded-lg flex items-center justify-between ${
+        paymentStatus === "success"
+          ? "bg-green-100 text-green-800"
+          : "bg-amber-100 text-amber-800"
+      }`}>
+      <span>
+        {paymentStatus === "success"
+          ? "Payment successful! Your booking is confirmed."
+          : "Payment was not completed. You can pay at the resort upon check-in."}
+      </span>
+      <button
+        type="button"
+        onClick={() => setSearchParams({})}
+        className="text-sm underline opacity-80 hover:opacity-100"
+      >
+        Dismiss
+      </button>
+    </div>
+  ) : null;
+
   return (
     <main
       className="min-h-screen flex flex-col items-center p-4 pb-10 landing-section-alt"
       style={{ backgroundColor: "var(--color-cream)" }}>
       <div className="w-full max-w-6xl mx-auto">
         <ProgressIndicator currentStep={RECEIPT_STEP} />
+        {PaymentStatusBanner}
         <div className="mt-6 mb-8">
           <Step5 receiptData={receipt} qrCodeUrl={qrCodeUrl} />
         </div>
