@@ -201,6 +201,8 @@ function RoomCard() {
                     amenities={room.amenities as unknown[]}
                     featured_image={room.featured_image as string | null}
                     gallery={room.gallery as string[]}
+                    bed_specifications={room.bed_specifications as string[]}
+                    bed_modifiers={room.bed_modifiers as string[]}
                     onClick={() =>
                       navigate(`/rooms/${room.id}`, {
                         state: { room },

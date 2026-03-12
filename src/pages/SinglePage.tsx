@@ -5,12 +5,11 @@ import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
-import { ArrowLeft } from 'lucide-react';
-
+import { ArrowLeft } from "lucide-react";
 
 interface ApiListResponse<T> {
-	success?: boolean;
-	data?: T[];
+  success?: boolean;
+  data?: T[];
 }
 
 interface ListingItem {
@@ -23,86 +22,97 @@ interface ListingItem {
   amenities?: unknown[];
   featured_image?: string | null;
   gallery?: string[];
+  bed_specifications?: string[];
+  bed_modifiers?: string[];
 }
 
 function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
-	if (Array.isArray(response)) return response;
-	if (response?.data && Array.isArray(response.data)) return response.data;
-	return [];
+  if (Array.isArray(response)) return response;
+  if (response?.data && Array.isArray(response.data)) return response.data;
+  return [];
 }
 
 function amenityLabels(amenities: unknown[] | undefined): string[] {
-	if (!Array.isArray(amenities)) return [];
-	return amenities
-		.map((item) =>
-			typeof item === "string" ? item : (item as { name?: string })?.name,
-		)
-		.filter((label): label is string => Boolean(label));
+  if (!Array.isArray(amenities)) return [];
+  return amenities
+    .map((item) =>
+      typeof item === "string" ? item : (item as { name?: string })?.name,
+    )
+    .filter((label): label is string => Boolean(label));
 }
 
 const SinglePage = () => {
-	const navigate = useNavigate();
-	const { roomId, venueId } = useParams<{ roomId?: string; venueId?: string }>();
-	const location = useLocation();
-	const state = location.state as { room?: ListingItem; venue?: ListingItem } | null;
-	const detailRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const { roomId, venueId } = useParams<{
+    roomId?: string;
+    venueId?: string;
+  }>();
+  const location = useLocation();
+  const state = location.state as {
+    room?: ListingItem;
+    venue?: ListingItem;
+  } | null;
+  const detailRef = useRef<HTMLDivElement>(null);
 
+  const isVenuePage = location.pathname.startsWith("/venues");
+  const stateItem = state?.room ?? state?.venue;
 
-	const isVenuePage = location.pathname.startsWith("/venues");
-	const stateItem = state?.room ?? state?.venue;
+  const { data, isLoading, error } = useApiQuery<
+    ApiListResponse<ListingItem> | ListingItem[]
+  >(
+    [isVenuePage ? "venues" : "rooms", "single-page"],
+    isVenuePage ? "/venues?is_all=1" : "/rooms?is_all=1",
+  );
 
-	const { data, isLoading, error } = useApiQuery<
-		ApiListResponse<ListingItem> | ListingItem[]
-	>([
-		isVenuePage ? "venues" : "rooms",
-		"single-page",
-	], isVenuePage ? "/venues?is_all=1" : "/rooms?is_all=1");
+  const itemList = useMemo(() => extractList<ListingItem>(data), [data]);
 
-	const itemList = useMemo(() => extractList<ListingItem>(data), [data]);
+  const selectedItem = useMemo(() => {
+    const idToMatch = isVenuePage ? venueId : roomId;
+    if (idToMatch) {
+      const match = itemList.find((item) => String(item.id) === idToMatch);
+      if (match) return match;
+    }
+    return stateItem ?? null;
+  }, [isVenuePage, venueId, roomId, itemList, stateItem]);
 
-	const selectedItem = useMemo(() => {
-		const idToMatch = isVenuePage ? venueId : roomId;
-		if (idToMatch) {
-			const match = itemList.find((item) => String(item.id) === idToMatch);
-			if (match) return match;
-		}
-		return stateItem ?? null;
-	}, [isVenuePage, venueId, roomId, itemList, stateItem]);
+  const visibleList = useMemo(() => {
+    if (!selectedItem) return itemList;
+    return itemList.filter((item) => item.id !== selectedItem.id);
+  }, [itemList, selectedItem]);
 
-	const visibleList = useMemo(() => {
-		if (!selectedItem) return itemList;
-		return itemList.filter((item) => item.id !== selectedItem.id);
-	}, [itemList, selectedItem]);
+  const handleCardClick = (id: number, item?: ListingItem) => {
+    const path = isVenuePage ? `/venues/${id}` : `/rooms/${id}`;
+    navigate(path, {
+      state: {
+        [isVenuePage ? "venue" : "room"]:
+          item ?? itemList.find((entry) => entry.id === id),
+      },
+    });
+  };
 
-	const handleCardClick = (id: number, item?: ListingItem) => {
-		const path = isVenuePage ? `/venues/${id}` : `/rooms/${id}`;
-		navigate(path, {
-			state: {
-				[isVenuePage ? "venue" : "room"]:
-					item ?? itemList.find((entry) => entry.id === id),
-			},
-		});
-	};
+  const heroImage = selectedItem?.featured_image ?? selectedItem?.gallery?.[0];
+  const amenities = amenityLabels(selectedItem?.amenities);
+  const bedSpecs = selectedItem?.bed_specifications ?? [];
+  const bedModifiers = selectedItem?.bed_modifiers ?? [];
+  const headingLabel = isVenuePage ? "Our Venues" : "Our Rooms";
+  const introTitle = isVenuePage
+    ? "Find the perfect venue"
+    : "Find the perfect stay";
+  const introCopy = isVenuePage
+    ? "Browse every venue we have available. Click any card to open its full details."
+    : "Browse every room we have available. Click any card to open its full details.";
+  const listLabel = isVenuePage ? "All venues" : "All rooms";
+  const availableLabel = isVenuePage ? "venues" : "rooms";
+  const bookCta = isVenuePage ? "Book this venue" : "Book this room";
+  const fallbackLabel = isVenuePage ? "Venue" : "Room";
 
-	const heroImage = selectedItem?.featured_image ?? selectedItem?.gallery?.[0];
-	const amenities = amenityLabels(selectedItem?.amenities);
-	const headingLabel = isVenuePage ? "Our Venues" : "Our Rooms";
-	const introTitle = isVenuePage ? "Find the perfect venue" : "Find the perfect stay";
-	const introCopy = isVenuePage
-		? "Browse every venue we have available. Click any card to open its full details."
-		: "Browse every room we have available. Click any card to open its full details.";
-	const listLabel = isVenuePage ? "All venues" : "All rooms";
-	const availableLabel = isVenuePage ? "venues" : "rooms";
-	const bookCta = isVenuePage ? "Book this venue" : "Book this room";
-	const fallbackLabel = isVenuePage ? "Venue" : "Room";
+  useEffect(() => {
+    if (selectedItem && detailRef.current) {
+      detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [selectedItem]);
 
-	useEffect(() => {
-		if (selectedItem && detailRef.current) {
-			detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-		}
-	}, [selectedItem]);
-
-	return (
+  return (
     <div className="w-full bg-gradient-to-b from-emerald-50 via-white to-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
         <div className="flex items-start justify-between gap-4">
@@ -148,12 +158,12 @@ const SinglePage = () => {
                   />
                 </div>
 
-								<div className="space-y-4">
-									<div className="flex items-center gap-3">
-										{selectedItem.type && (
-											<RoomTypeBadge type={selectedItem.type} />
-										)}
-									</div>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    {selectedItem.type && (
+                      <RoomTypeBadge type={selectedItem.type} />
+                    )}
+                  </div>
 
                   <h2 className="font-display text-3xl font-bold text-(--color-charcoal)">
                     {selectedItem.name ?? fallbackLabel}
@@ -170,6 +180,13 @@ const SinglePage = () => {
                       <div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
                         Capacity: {selectedItem.capacity}{" "}
                         {selectedItem.capacity === 1 ? "person" : "people"}
+                      </div>
+                    )}
+                    {bedSpecs.length > 0 && (
+                      <div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
+                        Room Specs: {bedSpecs.join(", ")}
+                        {bedModifiers.length > 0 &&
+                          `${bedModifiers.join(", ")}`}
                       </div>
                     )}
                     {selectedItem.price != null && (
@@ -244,6 +261,8 @@ const SinglePage = () => {
                     amenities={item.amenities}
                     featured_image={item.featured_image}
                     gallery={item.gallery}
+                    bed_specifications={item.bed_specifications}
+                    bed_modifiers={item.bed_modifiers}
                     onClick={() => handleCardClick(item.id, item)}
                   />
                 ))}
