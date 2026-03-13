@@ -261,13 +261,13 @@ export default function Header() {
           <img
             src="/brand-logo.webp"
             alt="Marcelino's Logo"
-            className="h-15 w-15 object-contain"
+            className="h-12 w-12 object-contain"
           />
-          <div className="ml-1 leading-tight">
-            <div className="text-[20px] font-extrabold tracking-widest text-green-900 font-serif">
+          <div className="ml-1 mt-[4px] leading-tight">
+            <div className="text-[17.5px] mb-[-3px] font-extrabold tracking-widest text-green-900 font-serif">
               MARCELINO'S
             </div>
-            <div className="text-m tracking-widest font-medium">
+            <div className="text-sm tracking-widest font-medium">
               RESORT AND HOTEL
             </div>
           </div>
