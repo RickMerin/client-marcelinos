@@ -406,7 +406,7 @@ export function Step5(props: Props) {
       if (element) {
         const dataUrl = await domtoimage.toPng(element);
         const link = document.createElement("a");
-        link.download = `marcelinos-hotel-resort-receipt-${referenceNumber || "-"}.png`;
+        link.download = `marcelinos-hotel-resort-billing-statement-${referenceNumber || "-"}.png`;
         link.href = dataUrl;
         document.body.appendChild(link);
         link.click();
