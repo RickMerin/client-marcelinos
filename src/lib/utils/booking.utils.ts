@@ -1,5 +1,6 @@
 import { FormData, BookingPayload } from "@/types/booking.types";
 import { getFromLocalStorage } from "@/lib/storage/localStorage";
+import { COUNTRIES } from "@/lib/constants/countries";
 
 /**
  * Generates a unique reference ID for bookings
@@ -27,6 +28,14 @@ type StoredPHAddress = {
 
 const PH_ADDRESS_STORAGE_KEY = "reservationDetails.personal.phAddress";
 
+const normalizeInternationalCountry = (rawCountry: string): string | null => {
+  const normalized = (rawCountry || "").trim().toLowerCase();
+  if (!normalized) return null;
+  return (
+    COUNTRIES.find((country) => country.toLowerCase() === normalized) ?? null
+  );
+};
+
 /**
  * Parses the local PH address string produced by the UI:
  * "<Barangay>, <Municipality>, <Province>, <Region>".
@@ -53,6 +62,9 @@ const parseLocalPHAddress = (address: string): ParsedLocalPHAddress | null => {
 export const buildBookingPayload = (formData: FormData): BookingPayload => {
   const storedAddress = getFromLocalStorage(PH_ADDRESS_STORAGE_KEY) as StoredPHAddress | null;
   const isIntl = storedAddress?.addressType === "international";
+  const validInternationalCountry = isIntl
+    ? normalizeInternationalCountry(formData.address)
+    : null;
   const roomIds = (formData.rooms || []).map(toId).filter(Boolean);
   const venueIds = (formData.venues || []).map(toId).filter(Boolean);
 
@@ -80,7 +92,7 @@ export const buildBookingPayload = (formData: FormData): BookingPayload => {
     contact_num: formData.phone || "0000000000",
     gender: formData.gender || "male",
     is_international: isIntl,
-    country: isIntl ? formData.address || null : "Philippines",
+    country: isIntl ? validInternationalCountry : "Philippines",
     region: isIntl ? formData.region || null : parsedLocal?.region || null,
     province,
     municipality,
