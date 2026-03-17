@@ -325,7 +325,10 @@ export function Step5(props: Props) {
   const formattedIssuedOn = formatReceiptDate(issuedOn);
   const paymentMethod = isFromApi ? undefined : form?.paymentMethod;
 
-  const isCancelled = bookingStatus === "cancelled";
+  const isCancelled =
+    bookingStatus === "cancelled" || bookingStatus === "completed"; //for display purposes, treat completed same as cancelled since booking is no longer active
+  const isCancel = bookingStatus === "completed"; //for downloading receipt only, hide cancel button if already completed
+
   const cancelBooking = useApiMutation<void>("patch", {
     onError: () => {
       alert("Failed to cancel booking.");
@@ -759,7 +762,7 @@ export function Step5(props: Props) {
       {/* Existing action buttons + modal stay the same */}
       <div>
         <div className="flex flex-col md:flex-row justify-center gap-3 mt-6">
-          {!isCancelled && (
+          {!isCancel && (
             <button
               type="button"
               onClick={downloadReceipt}
