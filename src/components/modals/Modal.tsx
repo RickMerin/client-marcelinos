@@ -15,15 +15,14 @@ export default function Modal({
   onClose,
   children,
   showCloseButton = true,
-  contentClassName =
-    "relative bg-green-800 text-center px-4 py-5 rounded-lg shadow-lg max-w-2xl w-full mx-4 overflow-hidden",
+  contentClassName = "relative bg-green-800 text-center px-4 py-5 rounded-lg shadow-lg max-w-2xl w-full mx-4 overflow-hidden",
   backgroundImage = "/green-leaves-extended.png",
 }: ModalProps) {
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-2000 flex items-start justify-center pt-20"
+          className="fixed inset-0 z-2000 flex items-center justify-center overflow-y-auto p-4 sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
