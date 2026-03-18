@@ -9,8 +9,10 @@ const Testimonial = lazy(() => import("../pages/Testimonial/Index"));
 const Terms = lazy(() => import("../pages/Terms"));
 const RefundPolicy = lazy(() => import("../pages/RefundPolicy.tsx"));
 const SinglePage = lazy(() => import("../pages/SinglePage"));
+const RedirectToBackend = lazy(() => import("../pages/RedirectToBackend"));
 
 export const routes = [
+  { path: "/login", component: RedirectToBackend },
   { path: "/", component: Home },
   { path: "/testimonial", component: Testimonial },
   { path: "*", component: NotFound },
