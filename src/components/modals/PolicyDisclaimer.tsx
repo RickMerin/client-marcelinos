@@ -29,26 +29,25 @@ export default function PaymentPolicyConfirmContent({
   const isDisabled = secondsLeft > 0 || isSubmitting;
 
   return (
-    <div className="flex flex-col h-[80vh] text-white">
-
+    <div className="flex flex-col max-h-[70vh] text-white">
       {/* HEADER */}
-      <div className="border-b border-white/20 pb-3 px-6 pt-6 text-center">
+      <div className="mt-3 mb-3 md:mb-5 text-center">
         <h2 className="text-xl font-bold">Booking Policy</h2>
         <p className="text-xs text-white/80 mt-1">
-          Review the terms and conditions to understand the booking guidelines and policies.
+          Review the terms and conditions to understand the booking guidelines
+          and policies.
         </p>
       </div>
 
       {/* SCROLLABLE BODY */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 text-xs space-y-5">
-
+      <div className="flex-1 overflow-y-auto text-xs space-y-5 pb-2">
         {/* CHECK IN / OUT */}
-        <div className="grid md:grid-cols-2 gap-4 text-center md:text-left">
+        <div className="grid md:grid-cols-2 gap-4 text-center">
           <div>
             <h3 className="font-bold">Check In:</h3>
             <p className="text-[11px]">
-              Check-in is at 12:00 PM. <br />
-              A valid ID must be presented upon check-in.
+              Check-in is at 12:00 PM. <br />A valid ID must be presented upon
+              check-in.
             </p>
           </div>
 
@@ -67,14 +66,16 @@ export default function PaymentPolicyConfirmContent({
           <h3 className="text-lg font-bold mb-1">Payment Policy</h3>
           <p className="text-[11px]">
             A 50% cash down payment is required and is non-refundable. <br />
-            For fully paid bookings, a 30% deduction will be applied in case of cancellation.
+            For fully paid bookings, a 30% deduction will be applied in case of
+            cancellation.
           </p>
         </div>
 
         {/* NO SMOKING */}
         <div className="text-center">
           <h3 className="text-lg font-extrabold uppercase">
-            STRICTLY <span className="text-red-500">NO SMOKING!</span> INSIDE THE ROOM
+            STRICTLY <span className="text-red-500">NO SMOKING!</span> INSIDE
+            THE ROOM
           </h3>
           <p className="text-xs">PENALTY — Php 5,000.00</p>
         </div>
@@ -110,16 +111,15 @@ export default function PaymentPolicyConfirmContent({
       </div>
 
       {/* FOOTER */}
-      <div className="border-t border-white/20 px-6 pt-3 pb-1 flex justify-end gap-3">
+      <div className="pt-3 pb-1 flex justify-center gap-3">
         <button
           onClick={onConfirm}
           disabled={isDisabled}
-          className={`inline-flex items-center justify-center gap-2 min-w-37.5 px-4 py-2 rounded-md transition ${
+          className={`inline-flex items-center justify-center gap-2 min-w-37.5 px-6 py-2 rounded bg-yellow-600 text-white transition ${
             isDisabled
-              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-              : "bg-amber-400 text-black hover:bg-amber-500"
-          }`}
-        >
+              ? "bg-yellow-600/60 cursor-not-allowed hover:bg-yellow-600/60"
+              : "hover:bg-yellow-800"
+          }`}>
           {isSubmitting ? (
             <ButtonLoader className="border-amber-800/40 border-t-amber-900" />
           ) : isDisabled ? (
@@ -131,8 +131,12 @@ export default function PaymentPolicyConfirmContent({
 
         <button
           onClick={onCancel}
-          className="px-4 py-2 rounded-md bg-gray-500 hover:bg-gray-600"
-        >
+          disabled={isSubmitting}
+          className={`px-6 py-2 rounded bg-gray-500 text-white transition hover:bg-gray-600 ${
+            isSubmitting
+              ? "cursor-not-allowed opacity-70 hover:bg-gray-500"
+              : ""
+          }`}>
           Cancel
         </button>
       </div>
