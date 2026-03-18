@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Download, House } from "lucide-react";
+import { Download, House, CircleX } from "lucide-react";
 import domtoimage from "dom-to-image";
 import { BookingReceipt } from "@/types/booking.types";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
@@ -232,6 +232,43 @@ function ReceiptRow({
   );
 }
 
+function parseDateInput(value?: string): Date | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatReceiptDate(value?: string): string {
+  const parsed = parseDateInput(value);
+  if (!parsed) return value ?? "—";
+
+  return parsed.toLocaleString("en-PH", {
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+function getNightsFromDates(
+  checkInValue?: string,
+  checkOutValue?: string,
+  fallback = 0,
+): number {
+  const checkInDate = parseDateInput(checkInValue);
+  const checkOutDate = parseDateInput(checkOutValue);
+
+  if (!checkInDate || !checkOutDate) return Math.max(0, Math.round(fallback));
+
+  const diffMs = checkOutDate.getTime() - checkInDate.getTime();
+  if (diffMs <= 0) return Math.max(0, Math.round(fallback));
+
+  const nights = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  return Math.max(1, nights);
+}
+
 export function Step5(props: Props) {
   const navigate = useNavigate();
 
@@ -262,20 +299,10 @@ export function Step5(props: Props) {
   const bookingStatus = isFromApi
     ? receipt?.booking_status
     : form?.booking_status;
-  
+
   const checkIn = isFromApi ? receipt?.check_in : form?.check_in;
   const checkOut = isFromApi ? receipt?.check_out : form?.check_out;
-  const nights = isFromApi
-    ? receipt
-      ? Math.round(receipt.nights)
-      : 0
-    : form?.check_in && form?.check_out
-      ? Math.ceil(
-          (new Date(form.check_out).getTime() -
-            new Date(form.check_in).getTime()) /
-            (1000 * 60 * 60 * 24),
-        )
-      : 0;
+  const nights = getNightsFromDates(checkIn, checkOut, receipt?.nights ?? 0);
   const guestName = isFromApi
     ? receipt?.guest_name
     : form
@@ -288,13 +315,20 @@ export function Step5(props: Props) {
   const guestEmail = isFromApi ? receipt?.guest_email : form?.email;
   const guestPhone = isFromApi ? receipt?.guest_contact : form?.phone;
   const guestAddress = isFromApi ? receipt?.guest_address : form?.address;
-  
+
   const issuedOn = isFromApi
     ? (receipt?.issued_on ?? new Date().toLocaleDateString())
     : new Date().toLocaleDateString();
+  const formattedCreatedAt = formatReceiptDate(createdAt);
+  const formattedCheckIn = formatReceiptDate(checkIn);
+  const formattedCheckOut = formatReceiptDate(checkOut);
+  const formattedIssuedOn = formatReceiptDate(issuedOn);
   const paymentMethod = isFromApi ? undefined : form?.paymentMethod;
 
-  const isCancelled = bookingStatus === "cancelled";
+  const isCancelled =
+    bookingStatus === "cancelled" || bookingStatus === "completed"; //for display purposes, treat completed same as cancelled since booking is no longer active
+  const isCancel = bookingStatus === "completed"; //for downloading receipt only, hide cancel button if already completed
+
   const cancelBooking = useApiMutation<void>("patch", {
     onError: () => {
       alert("Failed to cancel booking.");
@@ -375,7 +409,7 @@ export function Step5(props: Props) {
       if (element) {
         const dataUrl = await domtoimage.toPng(element);
         const link = document.createElement("a");
-        link.download = `marcelinos-hotel-resort-receipt-${referenceNumber || "-"}.png`;
+        link.download = `marcelinos-hotel-resort-billing-statement-${referenceNumber || "-"}.png`;
         link.href = dataUrl;
         document.body.appendChild(link);
         link.click();
@@ -457,7 +491,7 @@ export function Step5(props: Props) {
               Invoice
             </p>
             <div className="mt-2 text-xs space-y-0.5 opacity-90">
-              <p className="flex flex-wrap gap-x-1">
+              <p className="flex w-full flex-wrap justify-end gap-x-1 text-right">
                 <span className="font-semibold whitespace-nowrap">
                   Invoice No:
                 </span>
@@ -465,12 +499,12 @@ export function Step5(props: Props) {
                   {referenceNumber || "—"}
                 </span>
               </p>
-              <p className="flex flex-wrap gap-x-1">
+              <p className="flex w-full flex-wrap justify-end gap-x-1 text-right">
                 <span className="font-semibold whitespace-nowrap">
                   Invoice Date:
                 </span>
                 <span className="break-all">
-                  {issuedOn || createdAt || "—"}
+                  {formattedIssuedOn || formattedCreatedAt || "—"}
                 </span>
               </p>
             </div>
@@ -516,9 +550,9 @@ export function Step5(props: Props) {
           {/* Booking summary */}
           <div className="grid sm:grid-cols-2 gap-8">
             <div className="space-y-1.5">
-              <ReceiptRow label="Booking Created" value={createdAt} />
-              <ReceiptRow label="Check-in" value={checkIn} />
-              <ReceiptRow label="Check-out" value={checkOut} />
+              <ReceiptRow label="Booking Created" value={formattedCreatedAt} />
+              <ReceiptRow label="Check-in" value={formattedCheckIn} />
+              <ReceiptRow label="Check-out" value={formattedCheckOut} />
               <ReceiptRow label="Nights" value={String(nights)} />
             </div>
             <div className="space-y-1.5 sm:text-right">
@@ -537,7 +571,7 @@ export function Step5(props: Props) {
                 <ReceiptRow label="Payment Method" value={paymentMethod} />
               )}
               <ReceiptRow label="Reference No." value={referenceNumber} />
-              <ReceiptRow label="Issued" value={issuedOn} />
+              <ReceiptRow label="Issued" value={formattedIssuedOn} />
             </div>
           </div>
 
@@ -718,7 +752,7 @@ export function Step5(props: Props) {
               </p>
               <div className="text-[11px] text-gray-600 space-y-0.5">
                 {paymentMethod && <p>Payment: {paymentMethod}</p>}
-                <p>Issued on {issuedOn}</p>
+                <p>Issued on {formattedIssuedOn}</p>
               </div>
             </div>
           </div>
@@ -728,31 +762,33 @@ export function Step5(props: Props) {
       {/* Existing action buttons + modal stay the same */}
       <div>
         <div className="flex flex-col md:flex-row justify-center gap-3 mt-6">
-          <button
-            type="button"
-            onClick={downloadReceipt}
-            disabled={isDownloading}
-            className={`text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto ${
-              isDownloading
-                ? "opacity-80 cursor-not-allowed"
-                : "cursor-pointer hover:opacity-95"
-            }`}
-            style={{ backgroundColor: "var(--color-sage)" }}>
-            {isDownloading ? (
-              <>
-                <ButtonLoader size="sm" />
-                Downloading...
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4" />
-                Download Receipt
-              </>
-            )}
-          </button>
+          {!isCancel && (
+            <button
+              type="button"
+              onClick={downloadReceipt}
+              disabled={isDownloading}
+              className={`text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto ${
+                isDownloading
+                  ? "opacity-80 cursor-not-allowed"
+                  : "cursor-pointer hover:opacity-95"
+              }`}
+              style={{ backgroundColor: "var(--color-sage)" }}>
+              {isDownloading ? (
+                <>
+                  <ButtonLoader size="sm" />
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  Download Receipt
+                </>
+              )}
+            </button>
+          )}
           <button
             onClick={handleBookAnother}
-            className="cursor-pointer text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto border-2 hover:opacity-95"
+            className="cursor-pointer text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto hover:opacity-95"
             style={{
               backgroundColor: "var(--color-sage)",
               borderColor: "var(--color-sage)",
@@ -778,7 +814,10 @@ export function Step5(props: Props) {
                   Cancelling...
                 </>
               ) : (
-                "Cancel Booking"
+                  <>
+                  <CircleX className="w-4 h-4" />
+                  Cancel Booking
+                </>
               )}
             </button>
           )}

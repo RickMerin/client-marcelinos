@@ -123,6 +123,7 @@ type LocalAddressFormProps = {
   provinces: PSGCOption[];
   municipalities: PSGCOption[];
   barangays: PSGCOption[];
+  isNCR: boolean;
   onRegionChange: (regionCode: string) => void;
   onProvinceChange: (provinceCode: string) => void;
   onMunicipalityChange: (municipalityCode: string) => void;
@@ -229,6 +230,7 @@ function LocalAddressForm({
   provinces,
   municipalities,
   barangays,
+  isNCR,
   onRegionChange,
   onProvinceChange,
   onMunicipalityChange,
@@ -265,7 +267,7 @@ function LocalAddressForm({
           <select
             value={provinceCode}
             onChange={(e) => onProvinceChange(e.target.value)}
-            disabled={disabled || !regionCode}
+            disabled={disabled || !regionCode || isNCR}
             className={baseSelectClass}
           >
             <option value="">Select province</option>
@@ -286,7 +288,7 @@ function LocalAddressForm({
           <select
             value={municipalityCode}
             onChange={(e) => onMunicipalityChange(e.target.value)}
-            disabled={disabled || !provinceCode}
+            disabled={disabled || (!provinceCode && !isNCR)}
             className={baseSelectClass}
           >
             <option value="">Select municipality</option>
@@ -359,6 +361,8 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
     barangayCode,
   } = state;
 
+  const isNCR: boolean = regionCode === "130000000";
+
   const { data: regionsData } = useQuery({
     queryKey: ["psgc", "regions"],
     queryFn: async () => {
@@ -381,15 +385,18 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
   });
 
   const { data: municipalitiesData } = useQuery({
-    queryKey: ["psgc", "provinces", provinceCode, "cities-municipalities"],
+    queryKey: isNCR
+      ? ["psgc", "regions", regionCode, "cities-municipalities"]
+      : ["psgc", "provinces", provinceCode, "cities-municipalities"],
     queryFn: async () => {
-      const res = await fetch(
-        `https://psgc.gitlab.io/api/provinces/${provinceCode}/cities-municipalities`,
-      );
+      const url = isNCR
+        ? `https://psgc.gitlab.io/api/regions/${regionCode}/cities-municipalities`
+        : `https://psgc.gitlab.io/api/provinces/${provinceCode}/cities-municipalities`;
+      const res = await fetch(url);
       const data: PSGCOption[] = await res.json();
       return sortByName(data);
     },
-    enabled: !!provinceCode,
+    enabled: !!regionCode && (!!provinceCode || isNCR),
   });
 
   const { data: barangaysData } = useQuery({
@@ -406,7 +413,8 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
 
   const regions = regionsData ?? [];
   const provinces = regionCode ? (provincesData ?? []) : [];
-  const municipalities = provinceCode ? (municipalitiesData ?? []) : [];
+  const municipalities =
+    provinceCode || isNCR ? (municipalitiesData ?? []) : [];
   const barangays = municipalityCode ? (barangaysData ?? []) : [];
 
   const selectedRegion = useMemo(
@@ -429,19 +437,24 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
   const computedAddress = useMemo(() => {
     if (
       !selectedRegion?.name ||
-      !selectedProvince?.name ||
+      (!isNCR && !selectedProvince?.name) ||
       !selectedMunicipality?.name ||
       !selectedBarangay?.name
     ) {
       return "";
     }
 
-    return `${selectedBarangay.name}, ${selectedMunicipality.name}, ${selectedProvince.name}, ${selectedRegion.name}`;
+    if (isNCR) {
+      return `${selectedBarangay.name}, ${selectedMunicipality.name}, ${selectedRegion.name}`;
+    } else {
+      return `${selectedBarangay.name}, ${selectedMunicipality.name}, ${selectedProvince?.name}, ${selectedRegion.name}`;
+    }
   }, [
     selectedBarangay?.name,
     selectedMunicipality?.name,
     selectedProvince?.name,
     selectedRegion?.name,
+    isNCR,
   ]);
 
   // Keep RHF field in sync with the computed address.
@@ -462,6 +475,12 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
     }
     // eslint-disable-next-line react-hooks-exhaustive-deps
   }, [internationalAddress, addressType]);
+
+  useEffect(() => {
+    if (isNCR) {
+      dispatch({ type: "SET_PROVINCE", provinceCode: "" });
+    }
+  }, [regionCode]);
 
   // Persist selection (codes + names) so reload restores dropdowns.
   useEffect(() => {
@@ -510,7 +529,9 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
 
   return (
     <div className="space-y-4">
-      <LazyMotion features={() => import("framer-motion").then((res) => res.domAnimation)}>
+      <LazyMotion
+        features={() => import("framer-motion").then((res) => res.domAnimation)}
+      >
         <AddressTypeToggle
           addressType={addressType}
           disabled={disabled}
@@ -544,6 +565,7 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
           provinces={provinces}
           municipalities={municipalities}
           barangays={barangays}
+          isNCR={isNCR}
           onRegionChange={(next) =>
             dispatch({ type: "SET_REGION", regionCode: next })
           }

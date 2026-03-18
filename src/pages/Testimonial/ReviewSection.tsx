@@ -19,16 +19,91 @@ interface ReviewResponse {
   reviews: Review[];
 }
 
+type ReviewApiResponse =
+  | Review[]
+  | ReviewResponse
+  | { data?: Review[] | ReviewResponse | { reviews?: Review[] } }
+  | undefined;
+
+function pickString(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0
+    ? value
+    : null;
+}
+
+function pickNumber(value: unknown): number {
+  const numeric =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value)
+        : NaN;
+  if (!Number.isFinite(numeric)) return 0;
+  return Math.max(0, Math.min(5, Math.round(numeric)));
+}
+
+function normalizeReview(item: unknown): Review {
+  const source = (item ?? {}) as Record<string, unknown>;
+  return {
+    guest_name:
+      pickString(source.guest_name) ??
+      pickString(source.guestName) ??
+      pickString(source.name),
+    rating: pickNumber(source.rating ?? source.stars ?? source.rate),
+    title: pickString(source.title) ?? "",
+    comment:
+      pickString(source.comment) ??
+      pickString(source.review) ??
+      pickString(source.message) ??
+      "",
+    date:
+      pickString(source.date) ??
+      pickString(source.created_at) ??
+      pickString(source.createdAt),
+  };
+}
+
+function extractReviews(response: ReviewApiResponse): Review[] {
+  if (Array.isArray(response)) return response.map(normalizeReview);
+
+  if (response && "reviews" in response && Array.isArray(response.reviews)) {
+    return response.reviews.map(normalizeReview);
+  }
+
+  const nestedData =
+    response &&
+    typeof response === "object" &&
+    "data" in response
+      ? response.data
+      : undefined;
+  if (Array.isArray(nestedData)) return nestedData.map(normalizeReview);
+
+  if (
+    nestedData &&
+    typeof nestedData === "object" &&
+    "reviews" in nestedData &&
+    Array.isArray((nestedData as { reviews?: unknown[] }).reviews)
+  ) {
+    return ((nestedData as { reviews?: unknown[] }).reviews ?? []).map(
+      normalizeReview,
+    );
+  }
+
+  return [];
+}
+
 /* ---------------- COMPONENT ---------------- */
 
 function ClientReviews() {
   /* ---------------- FETCH ---------------- */
-  const { data, isLoading, isError } = useApiQuery<ReviewResponse>(
+  const { data, isLoading, isError } = useApiQuery<ReviewApiResponse>(
     ["reviews"],
     "/reviews",
   );
 
-  const reviews = data?.reviews ?? [];
+  const reviews = extractReviews(data).filter(
+    (review) => review.comment.trim().length > 0,
+  );
 
   /* ---------------- FORMAT DATE ---------------- */
 

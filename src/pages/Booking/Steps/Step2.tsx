@@ -42,16 +42,27 @@ const STORAGE_KEY = "reservationDetails.personal";
 export function Step2({ formData, onUpdate, onValuesChange }: Props) {
   const saved = getFromLocalStorage(STORAGE_KEY);
 
+  const raw = saved ?? formData;
+  const toUpper = (v: string) =>
+    v != null && v !== "" ? String(v).toUpperCase() : v;
+
   const form = useForm<PersonalDetailsFormValues>({
     resolver: zodResolver(personalDetailsSchema),
     defaultValues: {
-      ...(saved ?? formData),
+      ...raw,
+      firstName: toUpper(raw.firstName) ?? "",
+      middleName:
+        raw.middleName != null && raw.middleName !== ""
+          ? String(raw.middleName).toUpperCase()
+          : null,
+      lastName: toUpper(raw.lastName) ?? "",
       gender:
-        (saved ?? formData).gender === "Male" ||
-        (saved ?? formData).gender === "Female"
-          ? (saved ?? formData).gender
+        raw.gender === "male" || raw.gender === "female" || raw.gender === "other"
+          ? raw.gender
           : undefined,
-      middleName: (saved ?? formData).middleName ?? null,
+      phone: raw.phone ?? "",
+      email: raw.email ?? "",
+      address: toUpper(raw.address) ?? "",
     },
     mode: "onChange",
   });
@@ -69,7 +80,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
         middleName: values.middleName ?? null,
         lastName: values.lastName,
         gender:
-          values.gender === "Male" || values.gender === "Female"
+          values.gender === "male" || values.gender === "female" || values.gender === "other"
             ? values.gender
             : "",
         phone: values.phone,
@@ -140,6 +151,9 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                         <Input
                           {...field}
                           value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value.toUpperCase())
+                          }
                           placeholder="Juan"
                         />
                       </FormControl>
@@ -159,6 +173,9 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                         <Input
                           {...field}
                           value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value.toUpperCase())
+                          }
                           placeholder="Dela Cruz"
                         />
                       </FormControl>
@@ -181,6 +198,9 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                         <Input
                           {...field}
                           value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value.toUpperCase())
+                          }
                           placeholder="Optional"
                         />
                       </FormControl>
@@ -214,8 +234,9 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                           color: "var(--color-charcoal)",
                         }}>
                         <option value="">Select gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
                       </select>
                     </FormControl>
                     <FormMessage />
@@ -245,6 +266,9 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                           {...field}
                           value={field.value ?? ""}
                           type="tel"
+                          onChange={(e) =>
+                            field.onChange(e.target.value.toUpperCase())
+                          }
                           placeholder="09XX XXX XXXX"
                         />
                       </FormControl>
@@ -265,6 +289,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                           {...field}
                           value={field.value ?? ""}
                           type="email"
+                          onChange={(e) => field.onChange(e.target.value)}
                           placeholder="you@example.com"
                         />
                       </FormControl>

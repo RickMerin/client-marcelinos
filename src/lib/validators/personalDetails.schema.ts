@@ -15,15 +15,19 @@ export const personalDetailsSchema = z.object({
 
   lastName: z.string().min(1, "Last name is required").transform(toUpperCase),
 
-  gender: z.enum(["Male", "Female"], {
+  gender: z.enum(["male", "female", "other"], {
     message: "Please select a gender",
   }),
 
   phone: z
     .string()
-    .regex(/^09\d{9}$/, "Phone must start with 09 and be 11 digits"),
+    .regex(/^09\d{9}$/, "Phone must start with 09 and be 11 digits")
+    .transform((v) => v.toUpperCase()),
 
-  email: z.string().email("Invalid email address"),
+  email: z
+    .string()
+    .email("Invalid email address")
+    .transform((v) => v.toUpperCase()),
 
   address: z.string().min(1, "Address is required").transform(toUpperCase),
 

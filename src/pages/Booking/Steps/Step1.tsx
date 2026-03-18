@@ -304,6 +304,8 @@ export function Step1({
                 capacity={String(room.capacity ?? "—")}
                 includes={amenityNames(room.amenities)}
                 amenityPills={amenityPills(room.amenities)}
+                bed_specifications={room.bed_specifications}
+                bed_modifiers={room.bed_modifiers}
                 price={room.price ?? 0}
                 availability={room.available ?? false}
                 selected={formData.rooms.some(

@@ -10,10 +10,17 @@ interface CountryDropdownProps {
   id?: string;
 }
 
+const findExactCountry = (raw: string): string | null => {
+  const normalized = raw.trim().toLowerCase();
+  if (!normalized) return null;
+  return COUNTRIES.find((country) => country.toLowerCase() === normalized) ?? null;
+};
+
 export function CountryDropdown({ value, onChange, disabled, id }: CountryDropdownProps) {
   const [open, setOpen] = useState(false);
   const [filtered, setFiltered] = useState<string[]>(COUNTRIES);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
+  const [showInvalidMessage, setShowInvalidMessage] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -56,6 +63,20 @@ export function CountryDropdown({ value, onChange, disabled, id }: CountryDropdo
 
   const handleSelect = (country: string) => {
     onChange(country);
+    setShowInvalidMessage(false);
+    setOpen(false);
+  };
+
+  const handleBlur = () => {
+    const exactCountry = findExactCountry(value);
+    if (value.trim() && !exactCountry) {
+      setShowInvalidMessage(true);
+      // Keep only countries from the dropdown list.
+      onChange("");
+    } else {
+      setShowInvalidMessage(false);
+      onChange(exactCountry ?? "");
+    }
     setOpen(false);
   };
 
@@ -66,14 +87,17 @@ export function CountryDropdown({ value, onChange, disabled, id }: CountryDropdo
         value={value}
         onChange={(e) => {
           onChange(e.target.value);
+          setShowInvalidMessage(false);
           if (!disabled) setOpen(true);
         }}
         onFocus={() => {
           if (!disabled) setOpen(true);
         }}
+        onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         placeholder="Select or type country"
         disabled={disabled}
+        aria-invalid={showInvalidMessage}
         className="pr-10" // space for dropdown arrow/button
       />
       {/* chevron button, clickable to toggle list */}
@@ -117,6 +141,9 @@ export function CountryDropdown({ value, onChange, disabled, id }: CountryDropdo
             </li>
           ))}
         </ul>
+      )}
+      {showInvalidMessage && (
+        <p className="mt-1 text-xs text-red-600">Please select a country from the list.</p>
       )}
     </div>
   );

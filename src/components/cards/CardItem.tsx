@@ -16,6 +16,9 @@ interface CardItemProps {
   gallery?: string[];
   images?: string[];
   onClick?: () => void;
+
+  bed_specifications?: string[];
+  bed_modifiers?: string[];
 }
 
 function CardItem(props: CardItemProps) {
@@ -28,6 +31,8 @@ function CardItem(props: CardItemProps) {
     amenities,
     featured_image,
     gallery = [],
+    bed_specifications,
+    bed_modifiers,
     images: imagesProp,
     onClick,
   } = props;
@@ -121,6 +126,17 @@ function CardItem(props: CardItemProps) {
                 <span className="font-medium text-green-800">Capacity:</span>
                 <span>
                   {capacity} {capacity === 1 ? "person" : "people"}
+                </span>
+              </li>
+            )}
+            {bed_specifications && bed_specifications.length > 0 && (
+              <li className="flex items-center gap-2">
+                <span className="font-medium text-green-800">Beds:</span>
+                <span>
+                  {bed_specifications.join(", ")}
+                  {bed_modifiers &&
+                    bed_modifiers.length > 0 &&
+                    ` (${bed_modifiers.join(", ")})`}
                 </span>
               </li>
             )}
