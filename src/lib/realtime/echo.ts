@@ -69,7 +69,7 @@ export function getEcho(): Echo<any> | null {
       wsPort: Number(port),
       wssPort: Number(port),
       forceTLS: useTls,
-      enabledTransports: ["ws", "wss"],
+      enabledTransports: useTls ? ["wss", "ws"] : ["ws"],
       authEndpoint,
       auth: {
         headers: {
