@@ -257,16 +257,18 @@ function getNightsFromDates(
   checkOutValue?: string,
   fallback = 0,
 ): number {
+  // Receipt rule: nights are displayed as booked days minus one.
+  const fallbackNights = Math.max(0, Math.round(fallback) - 1);
   const checkInDate = parseDateInput(checkInValue);
   const checkOutDate = parseDateInput(checkOutValue);
 
-  if (!checkInDate || !checkOutDate) return Math.max(0, Math.round(fallback));
+  if (!checkInDate || !checkOutDate) return fallbackNights;
 
   const diffMs = checkOutDate.getTime() - checkInDate.getTime();
-  if (diffMs <= 0) return Math.max(0, Math.round(fallback));
+  if (diffMs <= 0) return fallbackNights;
 
-  const nights = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-  return Math.max(1, nights);
+  const bookedDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  return Math.max(0, bookedDays - 1);
 }
 
 export function Step5(props: Props) {
