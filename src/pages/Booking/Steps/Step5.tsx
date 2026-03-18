@@ -476,7 +476,7 @@ export function Step5(props: Props) {
           <img
             src="/brand-logo.webp"
             alt=""
-            className="w-52 sm:w-72 lg:w-150 opacity-10 object-contain"
+            className="max-w-[80%] sm:max-w-[70%] lg:max-w-[70%] opacity-10 object-contain"
           />
         </div>
 
