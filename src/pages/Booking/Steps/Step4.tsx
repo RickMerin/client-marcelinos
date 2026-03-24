@@ -80,8 +80,8 @@ export function Step4({
           className={`cursor-pointer border rounded-md p-4 flex items-start gap-3 shadow-sm transition relative
             ${
               paymentMethod === PAYMENT_METHODS.CASH
-                ? "ring-2 ring-[var(--color-sage)] bg-[var(--color-sage-muted)] border-[var(--color-sage)]"
-                : "bg-[var(--color-cream)] border-[var(--color-sage-muted)] hover:bg-[var(--color-cream-dark)]"
+                ? "ring-2 ring-(--color-sage) bg-(--color-sage-muted) border-(--color-sage)"
+                : "bg-(--color-cream) border-(--color-sage-muted) hover:bg-(--color-cream-dark)"
             }`}>
           <input
             type="checkbox"
@@ -108,17 +108,19 @@ export function Step4({
 
         {/* Pay Online (Xendit) */}
         <label
-          className={`cursor-pointer border rounded-md p-4 flex items-start gap-3 shadow-sm transition relative
+          className={`cursor-not-allowed border rounded-md p-4 flex items-start gap-3 shadow-sm relative opacity-50
+    bg-(--color-cream) border-(--color-sage-muted)
             ${
               paymentMethod === PAYMENT_METHODS.ONLINE
-                ? "ring-2 ring-[var(--color-sage)] bg-[var(--color-sage-muted)] border-[var(--color-sage)]"
-                : "bg-[var(--color-cream)] border-[var(--color-sage-muted)] hover:bg-[var(--color-cream-dark)]"
+                ? "ring-2 ring-(--color-sage) bg-(--color-sage-muted) border-(--color-sage)"
+                : "bg-(--color-cream) border-(--color-sage-muted) hover:bg-(--color-cream-dark)"
             }`}>
           <input
             type="checkbox"
             checked={paymentMethod === PAYMENT_METHODS.ONLINE}
             onChange={() => handleSelect(PAYMENT_METHODS.ONLINE)}
-            className="absolute top-3 right-3 w-5 h-5 cursor-pointer"
+            disabled
+            className="absolute top-3 right-3 w-5 h-5 cursor-not-allowed"
             style={{ accentColor: "var(--color-sage)" }}
           />
           <img
