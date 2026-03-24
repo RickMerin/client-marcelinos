@@ -1,5 +1,5 @@
 import { Facebook, ArrowRight } from "lucide-react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link, href } from "react-router-dom";
 
 function Footer() {
   const navigate = useNavigate();
@@ -22,6 +22,7 @@ function Footer() {
     // { name: "FAQs", href: "/faqs" },
     // { name: "Careers", href: "/careers" }, //for future expansion
     { name: "Sitemap", href: "/sitemap" },
+    {name: "Hotel Rooms Rules and Regulations", href: "/rules-regulation"}
   ];
 
   const handleSectionClick = (e: React.MouseEvent, hash: string) => {
