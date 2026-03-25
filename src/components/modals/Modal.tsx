@@ -1,5 +1,6 @@
 import { CircleX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 
 export interface ModalProps {
   open: boolean;
@@ -18,15 +19,18 @@ export default function Modal({
   contentClassName = "relative bg-green-800 text-center px-4 py-5 rounded-lg shadow-lg max-w-2xl w-full mx-4 overflow-hidden",
   backgroundImage = "/green-leaves-extended.png",
 }: ModalProps) {
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-2000 flex items-center justify-center overflow-y-auto p-4 sm:p-6"
+          className="fixed inset-0 z-[2000] flex items-center justify-center p-4 sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.45, delay: 0.1 }}>
+          transition={{ duration: 0.45, delay: 0.1 }}
+        >
           {/* BACKDROP */}
           <motion.div
             className="absolute inset-0 bg-black/70"
@@ -50,13 +54,15 @@ export default function Modal({
               delay: 0.12, // ✨ DELAY HERE
             }}
             className={contentClassName}
-            onClick={(e) => e.stopPropagation()}>
+            onClick={(e) => e.stopPropagation()}
+          >
             {showCloseButton && (
               <button
                 type="button"
                 className="absolute top-2 right-2 text-white hover:text-gray-300 z-20"
                 onClick={onClose}
-                aria-label="Close modal">
+                aria-label="Close modal"
+              >
                 <CircleX />
               </button>
             )}
@@ -72,6 +78,7 @@ export default function Modal({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
