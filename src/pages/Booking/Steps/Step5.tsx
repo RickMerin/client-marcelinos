@@ -9,6 +9,7 @@ import { clearBookingStorage } from "@/lib/storage/localStorage";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import CancelBookingContent from "@/components/modals/CancelBookingContent";
+import RescheduleBookingContent from "@/components/modals/RescheduleBookingContent";
 import Modal from "@/components/modals/Modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ButtonLoader } from "@/components/ui/loader";
@@ -46,10 +47,28 @@ export default function ReceiptPage({
     channel.listen(".booking.cancelled", (e: any) => {
       setBooking((prev) => (prev ? { ...prev, status: e.status } : prev));
     });
+    //    channel.listen(".booking.cancelled", (e: any) => {
+    //   setBooking((prev) =>
+    //     prev ? { ...prev, status: e.status } : prev
+    //   );
+    // });
+
+    // ✅ RESCHEDULE EVENT (ADD THIS HERE)
+    channel.listen(".booking.rescheduled", (e: any) => {
+      setBooking((prev) =>
+        prev
+          ? {
+              ...prev,
+              status: e.booking.status,
+            }
+          : prev,
+      );
+    });
     return () => {
       echo.leave(RealtimeChannels.booking(referenceNumber));
     };
   }, [referenceNumber]);
+
   return (
     <div>
       {" "}
@@ -73,7 +92,8 @@ export function Step5Skeleton() {
       <div
         role="status"
         aria-label="Loading receipt"
-        className="w-full max-w-3xl shadow-lg border border-emerald-100/70 rounded-lg overflow-hidden bg-white">
+        className="w-full max-w-3xl shadow-lg border border-emerald-100/70 rounded-lg overflow-hidden bg-white"
+      >
         {/* Header skeleton */}
         <div className="bg-emerald-800 text-white px-4 py-3 sm:px-8 sm:py-5 flex flex-col gap-4 md:flex-row items-stretch md:items-center justify-between w-full">
           <div className="flex flex-row items-center gap-3 min-w-0">
@@ -145,7 +165,8 @@ export function Step5Skeleton() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className={`flex gap-4 px-4 py-2.5 ${i % 2 === 0 ? "bg-white" : "bg-emerald-50/30"}`}>
+                className={`flex gap-4 px-4 py-2.5 ${i % 2 === 0 ? "bg-white" : "bg-emerald-50/30"}`}
+              >
                 <Skeleton className="h-4 w-6" />
                 <Skeleton className="h-4 flex-1 max-w-[200px]" />
                 <Skeleton className="h-4 w-16" />
@@ -403,6 +424,8 @@ export function Step5(props: Props) {
 
   const [isDownloading, setIsDownloading] = useState(false);
 
+  const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
+
   const downloadReceipt = async () => {
     if (isDownloading) return;
     setIsDownloading(true);
@@ -462,7 +485,8 @@ export function Step5(props: Props) {
       className="flex flex-col items-center justify-center min-h-screen pb-10"
       initial="hidden"
       animate="visible"
-      variants={fadeInUp}>
+      variants={fadeInUp}
+    >
       <div
         id="receipt"
         role="document"
@@ -470,7 +494,8 @@ export function Step5(props: Props) {
         className="w-full max-w-3xl shadow-lg border border-emerald-100/70 rounded-lg overflow-hidden bg-white print:shadow-none relative"
         style={{
           borderColor: receiptBorder || "var(--color-sage-muted, #d1e7dd)",
-        }}>
+        }}
+      >
         {/* Background watermark logo */}
         <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none">
           <img
@@ -614,7 +639,8 @@ export function Step5(props: Props) {
                     <tr>
                       <td
                         colSpan={5}
-                        className="px-4 py-4 text-center text-xs italic text-gray-500">
+                        className="px-4 py-4 text-center text-xs italic text-gray-500"
+                      >
                         No rooms or venues selected
                       </td>
                     </tr>
@@ -635,7 +661,8 @@ export function Step5(props: Props) {
                             key={`room-${idx}`}
                             className={
                               idx % 2 === 0 ? "bg-white" : "bg-emerald-50/30"
-                            }>
+                            }
+                          >
                             <td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
                               #{String(idx + 1)}
                             </td>
@@ -673,7 +700,8 @@ export function Step5(props: Props) {
                               (rooms.length + idx) % 2 === 0
                                 ? "bg-white"
                                 : "bg-emerald-50/30"
-                            }>
+                            }
+                          >
                             <td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
                               {String(rooms.length + idx + 1).padStart(2, "0")}
                             </td>
@@ -790,7 +818,8 @@ export function Step5(props: Props) {
                   ? "opacity-80 cursor-not-allowed"
                   : "cursor-pointer hover:opacity-95"
               }`}
-              style={{ backgroundColor: "var(--color-sage)" }}>
+              style={{ backgroundColor: "var(--color-sage)" }}
+            >
               {isDownloading ? (
                 <>
                   <ButtonLoader size="sm" />
@@ -810,7 +839,8 @@ export function Step5(props: Props) {
             style={{
               backgroundColor: "var(--color-sage)",
               borderColor: "var(--color-sage)",
-            }}>
+            }}
+          >
             <House className="w-4 h-4" />
             Book Another Room
           </button>
@@ -823,12 +853,14 @@ export function Step5(props: Props) {
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:opacity-95"
               }`}
-              style={{ backgroundColor: "var(--color-sage)" }}>
+              style={{ backgroundColor: "var(--color-sage)" }}
+            >
               {isProcessingCancel || cancelBooking.isPending ? (
                 <>
                   <span
                     className="spinner-border spinner-border-sm"
-                    role="status"></span>
+                    role="status"
+                  ></span>
                   Cancelling...
                 </>
               ) : (
@@ -839,13 +871,23 @@ export function Step5(props: Props) {
               )}
             </button>
           )}
+          {!isCancelled && (
+            <button
+              onClick={() => setIsRescheduleModalOpen(true)}
+              className="text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto hover:opacity-95"
+              style={{ backgroundColor: "var(--color-sage)" }}
+            >
+              Reschedule Booking
+            </button>
+          )}
         </div>
       </div>
 
       <Modal
         open={isCancelModalOpen}
         onClose={() => !isSubmitting && setIsCancelModalOpen(false)}
-        showCloseButton={!isSubmitting}>
+        showCloseButton={!isSubmitting}
+      >
         <CancelBookingContent
           onCancel={() => !isSubmitting && setIsCancelModalOpen(false)}
           onConfirm={async () => {
@@ -869,7 +911,18 @@ export function Step5(props: Props) {
           isSubmitting={isSubmitting}
         />
       </Modal>
-
+      <Modal
+        open={isRescheduleModalOpen}
+        onClose={() => setIsRescheduleModalOpen(false)}
+        contentClassName="relative bg-green-800 text-left p-0 rounded-2xl shadow-xl w-full max-w-4xl mx-4 overflow-hidden"
+      >
+        <RescheduleBookingContent
+          referenceNumber={referenceNumber || ""}
+          onClose={() => setIsRescheduleModalOpen(false)}
+          currentCheckIn={checkIn}
+          currentDays={nights || 1}
+        />
+      </Modal>
       {/* 🔵 Floating Chat Bubble */}
       <BubbleChat />
     </motion.div>
