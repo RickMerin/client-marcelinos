@@ -55,14 +55,26 @@ export const useBookingForm = () => {
   }, [reservationDate, navigate]);
   // Keep grandTotalPrice in sync when days or rooms/venues change
   useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      grandTotalPrice: calculateGrandTotalPrice(
-        prev.rooms,
+    setFormData((prev) => {
+      const rooms = prev.rooms ?? [];
+      const venues = prev.venues ?? [];
+      const totalPrice =
+        calculateTotalPrice(rooms) + calculateTotalPrice(venues);
+      const grandTotalPrice = calculateGrandTotalPrice(
+        rooms,
         prev.days,
-        prev.venues ?? [],
-      ),
-    }));
+        venues,
+      );
+
+      if (
+        totalPrice === prev.totalPrice &&
+        grandTotalPrice === prev.grandTotalPrice
+      ) {
+        return prev;
+      }
+
+      return { ...prev, totalPrice, grandTotalPrice };
+    });
   }, [formData.days, formData.rooms, formData.venues]);
 
   const handleInputChange = (

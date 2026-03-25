@@ -6,6 +6,17 @@ import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
 import { ArrowLeft } from "lucide-react";
+import { buildAvailabilityUrl } from "@/hooks/useRoomList";
+import {
+  BOOKING_EXPIRATION,
+  getFromLocalStorage,
+  saveToLocalStorage,
+} from "@/lib/storage/localStorage";
+import {
+  calculateGrandTotalPrice,
+  calculateTotalPrice,
+} from "@/lib/math/calculate";
+
 
 interface ApiListResponse<T> {
   success?: boolean;
@@ -111,6 +122,59 @@ const SinglePage = () => {
       detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [selectedItem]);
+
+  // Persist selected room so it remains checked after choosing dates
+  const handleBookSelectedRoom = () => {
+    if (!selectedItem) {
+      navigate("/", { state: { openCheckIn: true } });
+      return;
+    }
+
+    const existingDetails = getFromLocalStorage("reservationDetails") ?? {};
+    const existingVenues = Array.isArray(existingDetails?.venues)
+      ? existingDetails.venues
+      : [];
+    const reservationDate = getFromLocalStorage("reservationDate") ?? {};
+    const rooms = [selectedItem];
+    const days = reservationDate?.days ?? existingDetails?.days ?? 1;
+
+    const totalPrice =
+      calculateTotalPrice(rooms) + calculateTotalPrice(existingVenues);
+    const grandTotalPrice = calculateGrandTotalPrice(
+      rooms,
+      days,
+      existingVenues,
+    );
+
+    saveToLocalStorage(
+      "reservationDetails",
+      {
+        ...existingDetails,
+        rooms,
+        venues: existingVenues,
+        days,
+        totalPrice,
+        grandTotalPrice,
+        current_step: 1,
+      },
+      BOOKING_EXPIRATION,
+    );
+
+    navigate("/", { state: { openCheckIn: true } });
+  };
+
+
+  /**
+   * Example of using the buildAvailabilityUrl function to construct an API URL for fetching available rooms based on check-in and check-out dates. This demonstrates how to integrate the utility function from useRoomList into the SinglePage component to retrieve availability data. 
+   */
+  const dateToday = new Date().toISOString().split("T")[0];
+  const dateTommorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  .split("T")[0];
+
+  const extractAvailabilityUrl = buildAvailabilityUrl("/rooms", dateToday, dateTommorrow);
+  const {data: availabilityRoomData} = useApiQuery<ApiListResponse<any>>(["rooms", dateToday, dateTommorrow], extractAvailabilityUrl);
+
+  console.table(availabilityRoomData?.data);
 
   return (
     <div className="w-full bg-gradient-to-b from-emerald-50 via-white to-white">
@@ -224,11 +288,7 @@ const SinglePage = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        navigate("/", {
-                          state: { openCheckIn: true },
-                        })
-                      }
+                      onClick={handleBookSelectedRoom}
                       className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-800"
                     >
                       {bookCta}

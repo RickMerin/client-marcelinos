@@ -1,7 +1,8 @@
 /**
  * Calculates the total price of all rooms/venues in the given arrays.
+ * Allows missing/undefined price values and treats them as 0.
  */
-type PriceItem = { price: number | string };
+type PriceItem = { price?: number | string };
 
 export const calculateTotalPrice = (items: PriceItem[] = []) => {
   if (!Array.isArray(items) || items.length === 0) return 0;
