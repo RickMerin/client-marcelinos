@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { RoomCard } from "../RoomCard";
 import { VenueCard } from "../VenueCard";
@@ -81,6 +81,7 @@ export function Step1({
   setSelectedRooms,
   setSelectedVenues,
 }: Props) {
+  const [recentlyUnselectedCount, setRecentlyUnselectedCount] = useState(0);
   const checkIn = formData.check_in || "";
   const checkOut = formData.check_out || "";
   const roomsUrl = useMemo(
@@ -114,6 +115,31 @@ export function Step1({
     () => extractList<any>(venuesResponse),
     [venuesResponse],
   );
+
+  // Remove any pre-selected rooms that the API marks as unavailable for the chosen dates
+  useEffect(() => {
+    if (!roomList.length || !formData.rooms.length) return;
+
+    const availableRoomIds = new Set(
+      roomList
+        .filter((room: any) => room?.available !== false)
+        .map((room: any) => room.id),
+    );
+
+    const filteredRooms = formData.rooms.filter((r: any) =>
+      availableRoomIds.has(r?.id ?? r),
+    );
+
+    if (filteredRooms.length !== formData.rooms.length) {
+      setSelectedRooms(filteredRooms);
+      setRecentlyUnselectedCount(formData.rooms.length - filteredRooms.length);
+      return;
+    }
+
+    if (recentlyUnselectedCount !== 0) {
+      setRecentlyUnselectedCount(0);
+    }
+  }, [roomList, formData.rooms, setSelectedRooms, recentlyUnselectedCount]);
 
   const onSelectRoom = (room: any) => {
     const isAlreadySelected = formData.rooms.some(
@@ -227,6 +253,16 @@ export function Step1({
           <p className="text-red-600 text-sm py-2">
             Error loading rooms. Please try again.
           </p>
+        )}
+        {recentlyUnselectedCount > 0 && (
+          <div
+            className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900"
+            style={{ color: "var(--color-charcoal)" }}
+          >
+            {recentlyUnselectedCount === 1
+              ? "A room you selected became unavailable for these dates and was removed."
+              : `${recentlyUnselectedCount} rooms you selected became unavailable for these dates and were removed.`}
+          </div>
         )}
         {roomsLoading ? (
           <div className="grid gap-6 sm:grid-cols-2">
