@@ -3,6 +3,8 @@ import { FormData } from "@/types/booking.types";
 
 export const defaultFormData: FormData = {
   current_step: 1,
+  booking_type: "room",
+  venue_event_date: "",
   check_in: "",
   check_out: "",
   days: 1,

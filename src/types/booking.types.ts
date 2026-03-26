@@ -1,5 +1,8 @@
 export type Gender = "male" | "female" | "other";
 
+/** Drives date rules on the hero form and pricing (room nights vs single-day venue). */
+export type BookingKind = "room" | "venue" | "both";
+
 export interface BookingResponse {
   message: string;
   guest?: unknown;
@@ -102,6 +105,10 @@ export interface BookingReceipt {
 export interface FormData {
   reference_number?: string;
   current_step: number;
+  /** What the guest is booking: stay only, event space only, or both */
+  booking_type: BookingKind;
+  /** For `both`: calendar day of the venue/event (same-day use). Used for venue availability API. */
+  venue_event_date: string;
   check_in: string;
   check_out: string;
   days: number;
