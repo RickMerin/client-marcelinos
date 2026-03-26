@@ -16,6 +16,7 @@ function Footer() {
   ];
 
   const second_link = [
+    { name: "Blog", href: "/blog" },
     { name: "Refund Policy", href: "/refund-policy" },
     { name: "Terms & Conditions", href: "/terms-and-conditions" },
     { name: "Privacy Policy", href: "/privacy-policy" },

@@ -18,6 +18,8 @@ export const endpoints = {
   testimonialByReference: (reference: string) =>
     `/bookings/reference/${reference}/review`,
   galleries: "/galleries",
+  blogPosts: "/blog-posts",
+  blogPostBySlug: (slug: string) => `/blog-posts/${encodeURIComponent(slug)}`,
 } as const;
 
 /**
@@ -50,6 +52,10 @@ export const queryKeys = {
   },
   galleries: {
     all: ["galleries"] as const,
+  },
+  blogPosts: {
+    all: ["blog-posts"] as const,
+    detail: (slug: string) => ["blog-posts", slug] as const,
   },
   reviews: {
     all: ["reviews"] as const,
