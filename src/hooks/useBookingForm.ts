@@ -24,15 +24,29 @@ export const useBookingForm = () => {
     navigate("/");
   }
 
+	const bookingTypeInit =
+		(reservationDate?.booking_type as FormData["booking_type"]) ||
+		storedFormData?.booking_type ||
+		defaultFormData.booking_type;
+
   const initialFormData: FormData = {
-    ...defaultFormData,
-    ...(storedFormData || {}),
-    check_in:
-      formatDate(reservationDate?.check_in) || storedFormData?.check_in || "",
-    check_out:
-      formatDate(reservationDate?.check_out) || storedFormData?.check_out || "",
-    days: reservationDate?.days || storedFormData?.days || 1,
-  };
+		...defaultFormData,
+		...(storedFormData || {}),
+		booking_type: bookingTypeInit,
+		venue_event_date:
+			(reservationDate?.venue_event_date &&
+				formatDate(reservationDate.venue_event_date)) ||
+			storedFormData?.venue_event_date ||
+			(bookingTypeInit === "both" && reservationDate?.check_in
+				? formatDate(reservationDate.check_in)
+				: "") ||
+			"",
+		check_in:
+			formatDate(reservationDate?.check_in) || storedFormData?.check_in || "",
+		check_out:
+			formatDate(reservationDate?.check_out) || storedFormData?.check_out || "",
+		days: reservationDate?.days || storedFormData?.days || 1,
+	};
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
 
@@ -94,10 +108,11 @@ export const useBookingForm = () => {
       const totalPrice =
         calculateTotalPrice(rooms) + calculateTotalPrice(prev.venues ?? []);
       const grandTotalPrice = calculateGrandTotalPrice(
-        rooms,
-        prev.days,
-        prev.venues ?? [],
-      );
+				rooms,
+				prev.days,
+				prev.venues ?? [],
+				prev.booking_type,
+			);
       return { ...prev, rooms, totalPrice, grandTotalPrice };
     });
 
@@ -106,10 +121,11 @@ export const useBookingForm = () => {
       const totalPrice =
         calculateTotalPrice(prev.rooms) + calculateTotalPrice(venues);
       const grandTotalPrice = calculateGrandTotalPrice(
-        prev.rooms,
-        prev.days,
-        venues,
-      );
+				prev.rooms,
+				prev.days,
+				venues,
+				prev.booking_type,
+			);
       return { ...prev, venues, totalPrice, grandTotalPrice };
     });
 

@@ -16,6 +16,8 @@ import {
   calculateGrandTotalPrice,
   calculateTotalPrice,
 } from "@/lib/math/calculate";
+import { formatDate } from "@/lib/formatters/formatDate";
+import type { BookingKind } from "@/types/booking.types";
 
 
 interface ApiListResponse<T> {
@@ -137,6 +139,10 @@ const SinglePage = () => {
     const reservationDate = getFromLocalStorage("reservationDate") ?? {};
     const rooms = [selectedItem];
     const days = reservationDate?.days ?? existingDetails?.days ?? 1;
+    const bookingType: BookingKind =
+      (reservationDate?.booking_type as BookingKind | undefined) ||
+      (existingDetails?.booking_type as BookingKind | undefined) ||
+      "room";
 
     const totalPrice =
       calculateTotalPrice(rooms) + calculateTotalPrice(existingVenues);
@@ -144,12 +150,24 @@ const SinglePage = () => {
       rooms,
       days,
       existingVenues,
+      bookingType,
     );
+
+    const mergedVenueEventDate =
+      (existingDetails as { venue_event_date?: string })?.venue_event_date ||
+      (reservationDate?.venue_event_date
+        ? formatDate(reservationDate.venue_event_date as string | Date)
+        : "") ||
+      (bookingType === "both" && reservationDate?.check_in
+        ? formatDate(reservationDate.check_in as string | Date)
+        : "");
 
     saveToLocalStorage(
       "reservationDetails",
       {
         ...existingDetails,
+        booking_type: bookingType,
+        venue_event_date: mergedVenueEventDate,
         rooms,
         venues: existingVenues,
         days,

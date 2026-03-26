@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
+import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
 
 interface RoomCardProps {
   id: number;
@@ -21,6 +22,10 @@ interface RoomCardProps {
   amenityPills?: string[];
   /** When false, room is not available for the selected dates; selection is disabled. When true or undefined, room is bookable. */
   availability?: boolean | null;
+  /** From API when unavailable: short headline (e.g. maintenance, blocked, already reserved). */
+  unavailabilityTitle?: string | null;
+  /** From API: supporting explanation (e.g. staff block reason or reservation overlap). */
+  unavailabilityDetail?: string | null;
 }
 
 const EMPTY_FIELD = "—";
@@ -41,7 +46,15 @@ export const RoomCard: React.FC<RoomCardProps> = ({
   onSelectRoom,
   amenityPills,
   availability = true,
+  unavailabilityTitle,
+  unavailabilityDetail,
 }) => {
+  const unavailableHeadline =
+    unavailabilityTitle?.trim() || "Not available for selected dates";
+  const unavailableSub =
+    unavailabilityDetail?.trim() ||
+    "Choose different dates or another room";
+
   const showCapacity = capacity && capacity !== EMPTY_FIELD;
   const bedSpecs = bed_specifications ?? [];
   const bedMods = bed_modifiers ?? [];
@@ -85,7 +98,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({
       aria-label={
         isAvailable
           ? `${title}, ${pricingFormat(String(price))} per night. ${selected ? "Selected" : "Select"}`
-          : `${title}, ${pricingFormat(String(price))} per night. Not available for selected dates.`
+          : `${title}, ${pricingFormat(String(price))} per night. ${unavailableHeadline}. ${unavailableSub}`
       }
       className={cn(
         "group relative flex flex-col rounded-md text-left shadow-sm transition-all duration-200 overflow-hidden",
@@ -126,32 +139,10 @@ export const RoomCard: React.FC<RoomCardProps> = ({
         )}
         {/* Not available for selected dates — text only, readable on any background */}
         {!isAvailable && (
-          <div
-            className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-1.5 bg-black/30 backdrop-blur-[2px]"
-            onClick={(e) => e.stopPropagation()}
-            aria-hidden
-          >
-            <p
-              className="text-center font-semibold leading-snug"
-              style={{
-                color: "#fafaf9",
-                fontSize: "0.9375rem",
-                textShadow:
-                  "0 0 1px rgba(0,0,0,1), 0 1px 3px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.7)",
-              }}
-            >
-              Not available for selected dates
-            </p>
-            <p
-              className="text-center text-xs leading-relaxed"
-              style={{
-                color: "#f5f5f4",
-                textShadow: "0 0 1px rgba(0,0,0,1), 0 1px 2px rgba(0,0,0,0.8)",
-              }}
-            >
-              Choose different dates or another room
-            </p>
-          </div>
+          <UnavailableReasonOverlay
+            title={unavailableHeadline}
+            detail={unavailableSub}
+          />
         )}
         {hasGallery && (
           <>
@@ -363,7 +354,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             }
             aria-label={
               !isAvailable
-                ? "Not available for selected dates"
+                ? `${unavailableHeadline}. ${unavailableSub}`
                 : selected
                   ? "Selected"
                   : "Select room"

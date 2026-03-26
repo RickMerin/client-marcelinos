@@ -26,8 +26,13 @@ export const useBookingValidation = (
    */
   const isStepComplete = (step: number): boolean => {
     switch (step) {
-      case 1:
+      case 1: {
+        const t = formData.booking_type ?? "room";
+        if (t === "room") return formData.rooms.length > 0;
+        if (t === "venue") return formData.venues.length > 0;
+        /** "both" on the home page: guest may book only rooms, only venues, or both */
         return formData.rooms.length > 0 || formData.venues.length > 0;
+      }
       case 2:
         return personalDetailsSchema.safeParse(personalDetails).success;
       case 3:

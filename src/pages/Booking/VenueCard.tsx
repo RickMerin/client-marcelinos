@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
 
 interface VenueCardProps {
   id: number;
@@ -12,6 +13,8 @@ interface VenueCardProps {
   onSelectVenue: (id: number) => void;
   /** When false, venue is not available for the selected dates; selection is disabled. When true or undefined, venue is bookable. */
   availability?: boolean | null;
+  unavailabilityTitle?: string | null;
+  unavailabilityDetail?: string | null;
 }
 
 export const VenueCard: React.FC<VenueCardProps> = ({
@@ -23,7 +26,15 @@ export const VenueCard: React.FC<VenueCardProps> = ({
   selected = false,
   onSelectVenue,
   availability = true,
+  unavailabilityTitle,
+  unavailabilityDetail,
 }) => {
+  const unavailableHeadline =
+    unavailabilityTitle?.trim() || "Not available for selected dates";
+  const unavailableSub =
+    unavailabilityDetail?.trim() ||
+    "Choose different dates or another venue";
+
   const showCapacity = capacity && capacity.trim() !== "" && capacity !== "—";
   const isAvailable = availability !== false;
 
@@ -55,7 +66,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({
       aria-label={
         isAvailable
           ? `${name}, ${pricingFormat(String(price))} per event. ${selected ? "Added" : "Add to booking"}`
-          : `${name}, ${pricingFormat(String(price))} per event. Not available for selected dates.`
+          : `${name}, ${pricingFormat(String(price))} per event. ${unavailableHeadline}. ${unavailableSub}`
       }
       className={cn(
         "group relative flex flex-col rounded-md border bg-white text-left shadow-sm transition-all duration-200 overflow-hidden",
@@ -88,29 +99,10 @@ export const VenueCard: React.FC<VenueCardProps> = ({
         aria-label={name}>
         {/* Not available for selected dates — text only, readable on any background */}
         {!isAvailable && (
-          <div
-            className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-1.5 bg-black/30 backdrop-blur-[2px]"
-            onClick={(e) => e.stopPropagation()}
-            aria-hidden>
-            <p
-              className="text-center font-semibold leading-snug"
-              style={{
-                color: "#fafaf9",
-                fontSize: "0.9375rem",
-                textShadow:
-                  "0 0 1px rgba(0,0,0,1), 0 1px 3px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.7)",
-              }}>
-              Not available for selected dates
-            </p>
-            <p
-              className="text-center text-xs leading-relaxed"
-              style={{
-                color: "#f5f5f4",
-                textShadow: "0 0 1px rgba(0,0,0,1), 0 1px 2px rgba(0,0,0,0.8)",
-              }}>
-              Choose different dates or another venue
-            </p>
-          </div>
+          <UnavailableReasonOverlay
+            title={unavailableHeadline}
+            detail={unavailableSub}
+          />
         )}
         {hasGallery && (
           <>
@@ -253,7 +245,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({
             }
             aria-label={
               !isAvailable
-                ? "Not available for selected dates"
+                ? `${unavailableHeadline}. ${unavailableSub}`
                 : selected
                   ? "Added"
                   : "Add venue"
