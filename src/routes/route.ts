@@ -11,6 +11,8 @@ const RulesandRegulation = lazy(() => import ("../pages/RulesandRegulations.tsx"
 const RefundPolicy = lazy(() => import("../pages/RefundPolicy.tsx"));
 const SinglePage = lazy(() => import("../pages/SinglePage"));
 const RedirectToBackend = lazy(() => import("../pages/RedirectToBackend"));
+const Blog = lazy(() => import("../pages/Blog"));
+const BlogPost = lazy(() => import("../pages/BlogPost"));
 
 export const routes = [
   { path: "/login", component: RedirectToBackend },
@@ -21,6 +23,8 @@ export const routes = [
   { path: "/terms-and-conditions", component: Terms },
   {path: "/rules-regulation", component: RulesandRegulation },
   { path: "/refund-policy", component: RefundPolicy },
+  { path: "/blog", component: Blog },
+  { path: "/blog/:slug", component: BlogPost },
   { path: "/create-booking", component: Booking },
   {
     path: "/booking-receipt/:reference_number",
