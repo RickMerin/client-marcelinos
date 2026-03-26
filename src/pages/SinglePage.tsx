@@ -18,6 +18,7 @@ import {
 } from "@/lib/math/calculate";
 import { formatDate } from "@/lib/formatters/formatDate";
 import type { BookingKind } from "@/types/booking.types";
+import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
 
 
 interface ApiListResponse<T> {
@@ -194,6 +195,44 @@ const SinglePage = () => {
 
   console.table(availabilityRoomData?.data);
 
+  const availabilityList = useMemo(
+    () => extractList<any>(availabilityRoomData?.data ?? availabilityRoomData),
+    [availabilityRoomData],
+  );
+
+  const availabilityMatch = useMemo(() => {
+    if (isVenuePage || !roomId) return null;
+    return availabilityList.find((item) => String(item.id) === roomId) ?? null;
+  }, [availabilityList, isVenuePage, roomId]);
+
+  const isUnavailable = availabilityMatch?.available === false;
+  const unavailableTitle =
+    availabilityMatch?.unavailability_title || "Reserved for your dates";
+  const unavailableDetail =
+    availabilityMatch?.unavailability_detail ||
+    "Please pick different dates or another room.";
+
+  const unavailableReasonText = `${availabilityMatch?.unavailability_title ?? ""} ${availabilityMatch?.unavailability_detail ?? ""}`.toLowerCase();
+  const isReservedReason =
+    isUnavailable && (unavailableReasonText.includes("reserv") || unavailableReasonText.includes("booked"));
+  const isBlockedReason =
+    isUnavailable && unavailableReasonText.includes("block");
+  const showUnavailableOverlay = false;
+
+  const bookingButtonLabel = isReservedReason
+    ? "Booked as of today"
+    : isBlockedReason
+      ? "Unavailable"
+      : bookCta;
+
+  const bookingButtonClass = isReservedReason
+    ? "rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition"
+    : isBlockedReason
+      ? "rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition"
+      : "rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-800";
+
+  const bookingButtonDisabled = isUnavailable;
+
   return (
     <div className="w-full bg-gradient-to-b from-emerald-50 via-white to-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
@@ -231,13 +270,19 @@ const SinglePage = () => {
                 ref={detailRef}
                 className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-start rounded-3xl border border-gray-100 bg-white shadow-sm shadow-gray-900/5 p-6 sm:p-8"
               >
-                <div className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
+                <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
                   <OptimizedImage
                     src={heroImage ?? "/placeholder-room.jpg"}
                     alt={selectedItem.name ?? fallbackLabel}
                     containerClassName="h-[280px] sm:h-[360px]"
                     className="object-center"
                   />
+                  {showUnavailableOverlay && (
+                    <UnavailableReasonOverlay
+                      title={unavailableTitle}
+                      detail={unavailableDetail}
+                    />
+                  )}
                 </div>
 
                 <div className="space-y-4">
@@ -306,10 +351,14 @@ const SinglePage = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={handleBookSelectedRoom}
-                      className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-800"
+                      onClick={() => {
+                        if (bookingButtonDisabled) return;
+                        handleBookSelectedRoom();
+                      }}
+                      disabled={bookingButtonDisabled}
+                      className={`${bookingButtonClass} ${bookingButtonDisabled ? "cursor-not-allowed opacity-85" : ""}`}
                     >
-                      {bookCta}
+                      {bookingButtonLabel}
                     </button>
                   </div>
                 </div>
