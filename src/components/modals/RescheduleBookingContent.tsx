@@ -40,11 +40,13 @@ function stayOverlapsBlocked(
 export default function RescheduleBookingContent({
   referenceNumber,
   onClose,
+  onSuccess,
   currentCheckIn,
   currentDays = 1,
 }: {
   referenceNumber: string;
   onClose: () => void;
+  onSuccess?: () => void;
   currentCheckIn?: string;
   currentDays?: number;
 }) {
@@ -131,6 +133,7 @@ export default function RescheduleBookingContent({
       });
 
       toast.success({ content: "Booking rescheduled successfully!" });
+      onSuccess?.();
       onClose();
     } catch (error: any) {
       toast.error({

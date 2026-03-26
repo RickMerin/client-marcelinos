@@ -351,6 +351,7 @@ export function Step5(props: Props) {
   const isCancelled =
     bookingStatus === "cancelled" || bookingStatus === "completed"; //for display purposes, treat completed same as cancelled since booking is no longer active
   const isCancel = bookingStatus === "completed"; //for downloading receipt only, hide cancel button if already completed
+  const isRescheduled = bookingStatus === "rescheduled";
 
   const cancelBooking = useApiMutation<void>("patch", {
     onError: () => {
@@ -361,6 +362,13 @@ export function Step5(props: Props) {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProcessingCancel, setIsProcessingCancel] = useState(false);
+  const [isProcessingReschedule, setIsProcessingReschedule] = useState(false);
+
+  useEffect(() => {
+    if (bookingStatus === "rescheduled") {
+      setIsProcessingReschedule(false);
+    }
+  }, [bookingStatus]);
 
   const roomsFromApi =
     receipt != null
@@ -871,13 +879,29 @@ export function Step5(props: Props) {
               )}
             </button>
           )}
-          {!isCancelled && (
+          {!isCancelled && !isRescheduled && (
             <button
               onClick={() => setIsRescheduleModalOpen(true)}
-              className="text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto hover:opacity-95"
+              disabled={isProcessingReschedule}
+              className={`text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto ${
+                isProcessingReschedule
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:opacity-95"
+              }`}
               style={{ backgroundColor: "var(--color-sage)" }}
             >
-              Reschedule Booking
+              {isProcessingReschedule ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm inline-block w-4 h-4 border-2 border-current border-t-transparent text-white rounded-full animate-spin"
+                    role="status"
+                    aria-label="Processing"
+                  ></span>
+                  Rescheduling...
+                </>
+              ) : (
+                "Reschedule Booking"
+              )}
             </button>
           )}
         </div>
@@ -919,6 +943,7 @@ export function Step5(props: Props) {
         <RescheduleBookingContent
           referenceNumber={referenceNumber || ""}
           onClose={() => setIsRescheduleModalOpen(false)}
+          onSuccess={() => setIsProcessingReschedule(true)}
           currentCheckIn={checkIn}
           currentDays={nights || 1}
         />
