@@ -1,4 +1,6 @@
+import type { CSSProperties } from "react";
 import { BedDouble, Users, Crown, ShieldQuestionMark } from "lucide-react";
+import { ROOM_TYPE_BADGE_THEME } from "@/lib/constants/roomTypeTheme";
 
 interface RoomTypeBadgeProps {
   type: string;
@@ -16,18 +18,18 @@ export function RoomTypeBadge({
   const isFamily = typeKey === "family";
   const isStandard = typeKey === "standard";
 
-  const baseStyle = isDeluxe
-    ? {
-        background:
-          "linear-gradient(135deg, #8b6914 0%, #c69646 50%, #a6752e 100%)",
-        boxShadow:
-          "0 1px 4px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2)",
-      }
-    : {
-        backgroundColor: "#315a3b",
-        boxShadow:
-          "0 1px 4px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2)",
-      };
+  const theme = isDeluxe
+    ? ROOM_TYPE_BADGE_THEME.deluxe
+    : isFamily
+      ? ROOM_TYPE_BADGE_THEME.family
+      : isStandard
+        ? ROOM_TYPE_BADGE_THEME.standard
+        : ROOM_TYPE_BADGE_THEME.standard;
+
+  const baseStyle: CSSProperties = {
+    background: theme.background,
+    boxShadow: theme.boxShadow,
+  };
 
   const sizeClasses = isTitle
     ? "px-2 py-1 text-sm sm:text-sm rounded-md mb-1 inline-flex w-fit shadow-sm"
@@ -51,7 +53,7 @@ export function RoomTypeBadge({
       </div>
       <span
         className={`relative z-10 flex shrink-0 items-center justify-center rounded-sm ${iconContainerSize}`}
-        style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+        style={{ backgroundColor: theme.iconBackground }}
       >
         {isStandard && <BedDouble size={iconSize} />}
         {isFamily && <Users size={iconSize} />}

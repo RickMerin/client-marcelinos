@@ -3,6 +3,9 @@ export type Gender = "male" | "female" | "other";
 /** Drives date rules on the hero form and pricing (room nights vs single-day venue). */
 export type BookingKind = "room" | "venue" | "both";
 
+/** Room inventory `type` values (matches backend `rooms.type` enum). */
+export type RoomTypeFilter = "standard" | "family" | "deluxe";
+
 export interface BookingResponse {
   message: string;
   guest?: unknown;
@@ -112,6 +115,11 @@ export interface FormData {
   check_in: string;
   check_out: string;
   days: number;
+  /**
+   * For `room` and `both`: which room types to show on step 1 (one or more).
+   * Ignored for `venue`-only bookings.
+   */
+  room_type_filters: RoomTypeFilter[];
   rooms: any[];
   venues: any[];
 
