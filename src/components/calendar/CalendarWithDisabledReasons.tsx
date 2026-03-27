@@ -96,39 +96,37 @@ function DayWithReason({
     ) : null
 
   return (
-    <div
-      ref={cellRef}
-      className="relative"
-      onMouseEnter={() => {
-        setIsHovering(true)
-        setActiveTooltipDate(null)
-      }}
-      onMouseLeave={() => setIsHovering(false)}
-    >
-      <Button
-        {...dayProps}
-        variant="ghost"
-        size="icon"
-        onClick={(e) => {
-          if (isBlocked || isOverlap) {
-            e.preventDefault()
-            e.stopPropagation()
-            setActiveTooltipDate((prev) =>
-              prev === dateKey ? null : dateKey,
-            );
-            return
-          }
-          dayProps.onClick?.(e)
-        }}
-        className={cn(
-          className,
-          isBlocked && "bg-red-500 mx-[1px] text-white opacity-80 cursor-not-allowed hover:bg-red-600 focus:bg-red-600",
-          isOverlap && "line-through opacity-70 cursor-not-allowed"
-        )}
-      />
-      {tooltipEl}
-    </div>
-  )
+		<div
+			ref={cellRef}
+			className="relative"
+			onMouseEnter={() => {
+				setIsHovering(true);
+				setActiveTooltipDate(null);
+			}}
+			onMouseLeave={() => setIsHovering(false)}>
+			<Button
+				{...dayProps}
+				variant="ghost"
+				size="icon"
+				onClick={(e) => {
+					if (isBlocked || isOverlap) {
+						e.preventDefault();
+						e.stopPropagation();
+						setActiveTooltipDate((prev) => (prev === dateKey ? null : dateKey));
+						return;
+					}
+					dayProps.onClick?.(e);
+				}}
+				className={cn(
+					className,
+					isBlocked &&
+						"bg-red-500 mx-[1px] text-white cursor-not-allowed hover:bg-red-600 focus:bg-red-600",
+					isOverlap && "line-through opacity-70 cursor-not-allowed",
+				)}
+			/>
+			{tooltipEl}
+		</div>
+	);
 }
 
 export function CalendarWithDisabledReasons({

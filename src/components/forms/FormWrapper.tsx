@@ -32,6 +32,17 @@ function toDayKey(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+function startOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+/** Calendar days between two local dates (check-out − check-in). Same day → 0. */
+function diffDays(a: Date, b: Date): number {
+  const sa = startOfDay(a).getTime();
+  const sb = startOfDay(b).getTime();
+  return Math.round((sb - sa) / 86400000);
+}
+
 /**
  * Returns true if any calendar day in the booking window hits a blocked date.
  * - `nights`: `numberOfNights` is the stay length in nights; we check `nights + 1` calendar days
@@ -82,7 +93,8 @@ type Field = {
 		| "select"
 		| "drawer"
 		| "date"
-		| "radio";
+		| "radio"
+		| "display";
 	className?: string;
 	disabled?: boolean;
 	readOnly?: boolean;
@@ -90,6 +102,10 @@ type Field = {
 	value?: any;
 	/** For `calendar`: `stay` = multi-day stay rules; `single` = one calendar day (e.g. venue event). */
 	calendarVariant?: "stay" | "single";
+	/**
+	 * For `calendar` on `check_out`: minimum calendar days after check-in (0 = same day OK, 1 = at least one night).
+	 */
+	minCheckOutOffsetDays?: number;
 };
 
 export type BlockedDateStayMode = "nights" | "single_calendar";
@@ -128,7 +144,11 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 
 	// ✅ derive default values from fields
 	const defaultValues = Object.fromEntries(
-		fields.map((f) => [f.name, f.value ?? (f.type === "counter" ? 1 : "")]),
+		fields.map((f) => [
+			f.name,
+			f.value ??
+				(f.type === "counter" ? 1 : f.type === "display" ? "" : ""),
+		]),
 	) as z.output<T>;
 
 	React.useEffect(() => {
@@ -146,6 +166,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 
 	const days = form.watch("days" as Path<z.output<T>>);
 	const checkIn = form.watch("check_in" as Path<z.output<T>>);
+	const checkOut = form.watch("check_out" as Path<z.output<T>>);
 	const venueEventDate = form.watch("venue_event_date" as Path<z.output<T>>);
 	const allValues = form.watch();
 	const submitDisabled = isSubmitDisabled?.(allValues as z.infer<T>) ?? false;
@@ -156,11 +177,11 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 		const updated = onChangeFields({
 			days,
 			check_in: checkIn,
+			check_out: checkOut,
 			venue_event_date: venueEventDate,
 		} as unknown as Partial<z.infer<T>>);
 		if (updated) {
 			Object.entries(updated).forEach(([key, val]) => {
-				if (val === undefined) return;
 				const current = form.getValues(key as Path<z.output<T>>);
 				if (current === val) return;
 				form.setValue(key as Path<z.output<T>>, val as any, {
@@ -168,7 +189,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 				});
 			});
 		}
-	}, [days, checkIn, venueEventDate, onChangeFields]);
+	}, [days, checkIn, checkOut, venueEventDate, onChangeFields]);
 
 	/** Laravel `ApiResponse::success($rows)` returns `{ success, data: [...] }`. */
 	type BlockedDatesResponse = {
@@ -206,13 +227,29 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 		[],
 	);
 
+	const overlapNights = React.useMemo(() => {
+		if (!checkIn || !checkOut) return null;
+		const checkInDate =
+			checkIn && typeof checkIn === "object" && "getTime" in checkIn
+				? (checkIn as Date)
+				: new Date(checkIn as string | number);
+		const checkOutDate =
+			checkOut && typeof checkOut === "object" && "getTime" in checkOut
+				? (checkOut as Date)
+				: new Date(checkOut as string | number);
+		const ci = startOfDay(checkInDate);
+		const co = startOfDay(checkOutDate);
+		if (co < ci) return null;
+		return diffDays(ci, co);
+	}, [checkIn, checkOut]);
+
 	// Validate that stay range does not overlap any blocked date; set/clear error on check_in
 	React.useEffect(() => {
 		if (!checkIn || blockedDates.length === 0) {
 			form.clearErrors("check_in" as Path<z.output<T>>);
 			return;
 		}
-		if (blockedDateStayMode === "nights" && (days == null || days === "")) {
+		if (overlapNights === null) {
 			form.clearErrors("check_in" as Path<z.output<T>>);
 			return;
 		}
@@ -220,12 +257,14 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 			checkIn && typeof checkIn === "object" && "getTime" in checkIn
 				? (checkIn as Date)
 				: new Date(checkIn as string | number);
-		const nights =
-			typeof days === "number" && days >= 1 ? days : 1;
+		const nightsForOverlap =
+			blockedDateStayMode === "single_calendar"
+				? 0
+				: overlapNights;
 		if (
 			stayOverlapsBlocked(
 				checkInDate,
-				nights,
+				nightsForOverlap,
 				blockedDates,
 				blockedDateStayMode,
 			)
@@ -241,7 +280,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 		} else {
 			form.clearErrors("check_in" as Path<z.output<T>>);
 		}
-	}, [checkIn, days, blockedDates, blockedDateStayMode, form]);
+	}, [checkIn, overlapNights, blockedDates, blockedDateStayMode, form]);
 
 	return (
 		<Form {...form}>
@@ -309,6 +348,51 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 
 											case "calendar": {
 												const variant = field.calendarVariant ?? "stay";
+												const minOff = field.minCheckOutOffsetDays ?? 1;
+
+												const nightsForStayCandidate = (
+													candidate: Date,
+													fieldName: string,
+												): number => {
+													if (fieldName === "check_out") {
+														const ci = form.getValues(
+															"check_in" as Path<z.output<T>>,
+														);
+														if (!ci) return 0;
+														const ciDate =
+															ci && typeof ci === "object" && "getTime" in (ci as object)
+																? (ci as Date)
+																: new Date(ci as string);
+														return Math.max(
+															0,
+															diffDays(startOfDay(ciDate), startOfDay(candidate)),
+														);
+													}
+													if (fieldName === "check_in") {
+														const co = form.getValues(
+															"check_out" as Path<z.output<T>>,
+														);
+														if (co) {
+															const coDate =
+																co &&
+																typeof co === "object" &&
+																"getTime" in (co as object)
+																	? (co as Date)
+																	: new Date(co as string);
+															return Math.max(
+																0,
+																diffDays(
+																	startOfDay(candidate),
+																	startOfDay(coDate),
+																),
+															);
+														}
+													}
+													return typeof days === "number" && days >= 1
+														? days
+														: 1;
+												};
+
 												const isDateDisabledForField = (date: Date) => {
 													const d = new Date(
 														date.getFullYear(),
@@ -342,11 +426,54 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 														}
 														return false;
 													}
-													const numDays =
-														typeof days === "number" && days >= 1 ? days : 1;
+													if (field.name === "check_out") {
+														const ci = form.getValues(
+															"check_in" as Path<z.output<T>>,
+														);
+														if (!ci) return true;
+														const ciDate =
+															ci && typeof ci === "object" && "getTime" in (ci as object)
+																? (ci as Date)
+																: new Date(ci as string);
+														const ciD = startOfDay(ciDate);
+														const n = diffDays(ciD, d);
+														if (n < minOff) return true;
+														const nightsForOverlap =
+															blockedDateStayMode === "single_calendar"
+																? 0
+																: n;
+														return stayOverlapsBlocked(
+															ciD,
+															nightsForOverlap,
+															blockedDates,
+															blockedDateStayMode,
+														);
+													}
+													if (field.name === "check_in") {
+														const co = form.getValues(
+															"check_out" as Path<z.output<T>>,
+														);
+														if (co) {
+															const coDate =
+																co &&
+																typeof co === "object" &&
+																"getTime" in (co as object)
+																	? (co as Date)
+																	: new Date(co as string);
+															const coD = startOfDay(coDate);
+															const n = diffDays(d, coD);
+															if (n < 0) return true;
+															if (minOff >= 1 && n < 1) return true;
+														}
+													}
+													const numNights = nightsForStayCandidate(d, field.name);
+													const nightsForOverlap =
+														blockedDateStayMode === "single_calendar"
+															? 0
+															: numNights;
 													return isInvalidCheckIn(
 														d,
-														numDays,
+														nightsForOverlap,
 														blockedDates,
 														blockedDateStayMode,
 													);
@@ -365,11 +492,52 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 													)
 														return false;
 													if (variant === "single") return false;
-													const numDays =
-														typeof days === "number" && days >= 1 ? days : 1;
+													if (field.name === "check_out") {
+														const ci = form.getValues(
+															"check_in" as Path<z.output<T>>,
+														);
+														if (!ci) return false;
+														const ciDate =
+															ci && typeof ci === "object" && "getTime" in (ci as object)
+																? (ci as Date)
+																: new Date(ci as string);
+														const ciD = startOfDay(ciDate);
+														const n = diffDays(ciD, d);
+														if (n < minOff) return false;
+														return stayOverlapsBlocked(
+															ciD,
+															blockedDateStayMode === "single_calendar"
+																? 0
+																: n,
+															blockedDates,
+															blockedDateStayMode,
+														);
+													}
+													if (field.name === "check_in") {
+														const co = form.getValues(
+															"check_out" as Path<z.output<T>>,
+														);
+														if (co) {
+															const coDate =
+																co &&
+																typeof co === "object" &&
+																"getTime" in (co as object)
+																	? (co as Date)
+																	: new Date(co as string);
+															const coD = startOfDay(coDate);
+															const n = diffDays(d, coD);
+															if (n < 0) return false;
+															if (minOff >= 1 && n < 1) return false;
+														}
+													}
+													const numNights = nightsForStayCandidate(d, field.name);
+													const nightsForOverlap =
+														blockedDateStayMode === "single_calendar"
+															? 0
+															: numNights;
 													return isInvalidCheckIn(
 														d,
-														numDays,
+														nightsForOverlap,
 														blockedDates,
 														blockedDateStayMode,
 													);
@@ -473,8 +641,29 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 																			day: "numeric",
 																		},
 																	)
-																: "Select Check-in Date"
+																: field.placeholder || "Select date"
 														}
+													/>
+												);
+
+											case "display":
+												return (
+													<Input
+														{...inputField}
+														readOnly
+														tabIndex={-1}
+														className={cn(
+															"cursor-default bg-muted/50 text-center font-medium",
+															field.className,
+														)}
+														value={
+															inputField.value !== "" &&
+															inputField.value != null &&
+															Number(inputField.value) >= 1
+																? String(inputField.value)
+																: "—"
+														}
+														onChange={() => {}}
 													/>
 												);
 
