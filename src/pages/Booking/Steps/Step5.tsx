@@ -326,6 +326,15 @@ export function Step5(props: Props) {
   const checkIn = isFromApi ? receipt?.check_in : form?.check_in;
   const checkOut = isFromApi ? receipt?.check_out : form?.check_out;
   const nights = getNightsFromDates(checkIn, checkOut, receipt?.nights ?? 0);
+
+  const bookingType = isFromApi
+    ? receipt?.venues?.length
+      ? receipt?.rooms?.length
+        ? "both"
+        : "venue"
+      : "room"
+    : form?.booking_type ?? "room";
+
   const guestName = isFromApi
     ? receipt?.guest_name
     : form
@@ -946,6 +955,7 @@ export function Step5(props: Props) {
           onSuccess={() => setIsProcessingReschedule(true)}
           currentCheckIn={checkIn}
           currentDays={nights || 1}
+          bookingType={bookingType}
         />
       </Modal>
       {/* 🔵 Floating Chat Bubble */}
