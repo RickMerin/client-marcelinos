@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { toast } from "@/lib/logger/toast";
@@ -13,6 +13,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { BookingKind } from "@/types/booking.types";
+
+const OTP_RESEND_SECONDS = 60;
 
 function toDayKey(d: Date): string {
   // Use date-fns format to prevent timezone offset issues (-1 day) from using toISOString
@@ -59,7 +61,26 @@ export default function RescheduleBookingContent({
     `${count} ${isVenueBooking ? (count === 1 ? "day" : "days") : count === 1 ? "night" : "nights"}`;
 
   const rescheduleBooking = useApiMutation("patch");
+  const sendOtp = useApiMutation<{ message?: string }>("post", {
+    onError: (err: Error & { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) => {
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.errors?.otp?.[0] ||
+        err?.response?.data?.errors?.phone?.[0] ||
+        "Could not send verification code.";
+      toast.error({ content: msg });
+    },
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
 
   const [days, setDays] = useState(currentDays);
 
@@ -114,6 +135,23 @@ export default function RescheduleBookingContent({
     [todayStart, blockedDates, days],
   );
 
+  const otpDigits = otp.replace(/\D/g, "").slice(0, 6);
+
+  const handleSendOtp = async () => {
+    if (!referenceNumber || resendIn > 0 || sendOtp.isPending) return;
+    try {
+      await sendOtp.mutateAsync({
+        url: `/bookings/${referenceNumber}/otp/send`,
+        body: { purpose: "reschedule" },
+      });
+      setOtpSent(true);
+      setResendIn(OTP_RESEND_SECONDS);
+      toast.success({ content: "Verification code sent to your mobile number." });
+    } catch {
+      /* toast in onError */
+    }
+  };
+
   const handleSubmit = async () => {
     if (!selectedDate) {
       toast.error({ content: "Please select a new check-in date." });
@@ -128,6 +166,13 @@ export default function RescheduleBookingContent({
       return;
     }
 
+    if (!otpSent || otpDigits.length !== 6) {
+      toast.error({
+        content: "Send the verification code and enter the 6-digit OTP first.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -137,6 +182,7 @@ export default function RescheduleBookingContent({
           check_in: toDayKey(selectedDate),
           check_out: toDayKey(addDays(selectedDate, days)),
           days: days,
+          otp: otpDigits,
         },
       });
 
@@ -339,13 +385,74 @@ export default function RescheduleBookingContent({
           </div>
         </div>
 
-        <div className="mt-8 space-y-2 pt-6 border-t border-gray-200">
+        <div className="mt-8 space-y-3 pt-6 border-t border-gray-200">
+          <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/50 p-4 text-left">
+            <p className="text-xs font-bold text-emerald-900 mb-1">
+              SMS verification
+            </p>
+            <p className="text-[11px] text-gray-600 mb-2">
+              A code is sent to the mobile number on this booking. Enter it to
+              confirm reschedule.
+            </p>
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                disabled={
+                  !referenceNumber ||
+                  resendIn > 0 ||
+                  sendOtp.isPending ||
+                  isSubmitting
+                }
+                className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {sendOtp.isPending ? (
+                  <span className="inline-flex items-center gap-1">
+                    <ButtonLoader
+                      className="border-white/40 border-t-white"
+                      size="sm"
+                    />
+                    Sending…
+                  </span>
+                ) : resendIn > 0 ? (
+                  `Resend in ${resendIn}s`
+                ) : (
+                  "Send verification code"
+                )}
+              </button>
+              {otpSent && (
+                <span className="text-[10px] font-medium text-emerald-700">
+                  Code sent.
+                </span>
+              )}
+            </div>
+            <label className="block">
+              <span className="sr-only">6-digit code</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                placeholder="6-digit code"
+                value={otp}
+                onChange={(e) =>
+                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+                disabled={isSubmitting}
+                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400"
+              />
+            </label>
+          </div>
+
           <button
             onClick={handleSubmit}
             disabled={
               isSubmitting ||
               !selectedDate ||
-              stayOverlapsBlocked(selectedDate, days, blockedDates)
+              stayOverlapsBlocked(selectedDate, days, blockedDates) ||
+              !otpSent ||
+              otpDigits.length !== 6 ||
+              sendOtp.isPending
             }
             className="w-full py-3.5 px-4 bg-emerald-600 text-white rounded-xl font-bold shadow-sm transition hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 text-sm"
           >
