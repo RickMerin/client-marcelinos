@@ -16,6 +16,7 @@ import { ButtonLoader } from "@/components/ui/loader";
 import { getEcho } from "@/lib/realtime/echo";
 import { RealtimeChannels } from "@/lib/realtime/channels";
 import BubbleChat from "@/components/BubbleChat";
+import { toast } from "@/lib/logger/toast";
 
 interface Step5FormDataProps {
   formData: any;
@@ -363,8 +364,10 @@ export function Step5(props: Props) {
   const isRescheduled = bookingStatus === "rescheduled";
 
   const cancelBooking = useApiMutation<void>("patch", {
-    onError: () => {
-      alert("Failed to cancel booking.");
+    onError: (err: Error & { response?: { data?: { message?: string } } }) => {
+      const msg =
+        err?.response?.data?.message || "Failed to cancel booking.";
+      toast.error({ content: msg });
     },
   });
 
@@ -922,14 +925,16 @@ export function Step5(props: Props) {
         showCloseButton={!isSubmitting}
       >
         <CancelBookingContent
+          referenceNumber={referenceNumber || ""}
           onCancel={() => !isSubmitting && setIsCancelModalOpen(false)}
-          onConfirm={async () => {
+          onConfirm={async (otp) => {
             setIsSubmitting(true);
             setIsProcessingCancel(true); // immediately lock button
 
             try {
               await cancelBooking.mutateAsync({
                 url: `/bookings/${referenceNumber}/cancel`,
+                body: { otp },
               });
 
               setIsCancelModalOpen(false);
