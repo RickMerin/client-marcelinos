@@ -334,7 +334,7 @@ export function Step5(props: Props) {
         ? "both"
         : "venue"
       : "room"
-    : form?.booking_type ?? "room";
+    : (form?.booking_type ?? "room");
 
   const guestName = isFromApi
     ? receipt?.guest_name
@@ -365,8 +365,7 @@ export function Step5(props: Props) {
 
   const cancelBooking = useApiMutation<void>("patch", {
     onError: (err: Error & { response?: { data?: { message?: string } } }) => {
-      const msg =
-        err?.response?.data?.message || "Failed to cancel booking.";
+      const msg = err?.response?.data?.message || "Failed to cancel booking.";
       toast.error({ content: msg });
     },
   });
@@ -389,6 +388,7 @@ export function Step5(props: Props) {
             room_number: r.number ?? null,
             type: r.type ?? "",
             name: r.name ?? "",
+            bed_specifications: r.bed_specifications ?? [],
             capacity: r.capacity ?? 0,
             price:
               typeof r.price === "number"
@@ -401,6 +401,8 @@ export function Step5(props: Props) {
               {
                 room_number: receipt.room.number,
                 type: receipt.room.type,
+                bed_specifications:
+                  (receipt.room as any).bed_specifications ?? [],
                 capacity: receipt.room.capacity,
                 price: parseFloat(receipt.room.price),
                 status: "",
@@ -673,7 +675,11 @@ export function Step5(props: Props) {
                             : parseFloat(String(room.price || 0));
                         const qty = nights || 1;
                         // const lineTotal = unitPrice * qty;
-                        const title = room.name ?? "Room";
+                        const title =
+                          room.bed_specifications &&
+                          room.bed_specifications.length > 0
+                            ? room.bed_specifications.join(", ")
+                            : (room.type ?? "Room");
                         const type = room.type ?? "Room";
 
                         return (

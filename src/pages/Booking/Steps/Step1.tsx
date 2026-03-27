@@ -6,13 +6,13 @@ import { RoomCard } from "../RoomCard";
 import { VenueCard } from "../VenueCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-    buildAvailabilityUrl,
-    extractList,
-    amenityNames,
-    amenityPills,
-    roomImages,
-    venueImages,
-    formatShortDate,
+  buildAvailabilityUrl,
+  extractList,
+  amenityNames,
+  amenityPills,
+  roomImages,
+  venueImages,
+  formatShortDate,
 } from "@/hooks/useRoomList";
 import type { BookingKind } from "@/types/booking.types";
 
@@ -33,7 +33,6 @@ interface Props {
   setSelectedRooms: (rooms: any[]) => void;
   setSelectedVenues: (venues: any[]) => void;
 }
-
 
 function RoomCardSkeleton() {
   return (
@@ -115,8 +114,7 @@ export function Step1({
     [checkIn, checkOut],
   );
   const venuesUrl = useMemo(
-    () =>
-      buildAvailabilityUrl("/venues", venueRangeStart, venueRangeEnd),
+    () => buildAvailabilityUrl("/venues", venueRangeStart, venueRangeEnd),
     [venueRangeStart, venueRangeEnd],
   );
 
@@ -466,7 +464,12 @@ export function Step1({
                 <RoomCard
                   key={room.id}
                   id={room.id}
-                  title={room.name || "Room"}
+                  title={
+                    room.bed_specifications &&
+                    room.bed_specifications.length > 0
+                      ? room.bed_specifications.join(", ")
+                      : room.type || "Standard"
+                  }
                   type={room.type || "Standard"}
                   description={room.description || amenityNames(room.amenities)}
                   images={roomImages(room)}
@@ -474,7 +477,7 @@ export function Step1({
                   capacity={String(room.capacity ?? "—")}
                   includes={amenityNames(room.amenities)}
                   amenityPills={amenityPills(room.amenities)}
-                  bed_specifications={room.bed_specifications}
+                  bed_specifications={[]}
                   bed_modifiers={room.bed_modifiers}
                   price={room.price ?? 0}
                   availability={room.available ?? false}

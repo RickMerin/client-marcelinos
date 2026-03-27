@@ -37,14 +37,13 @@ function CardItem(props: CardItemProps) {
     onClick,
   } = props;
 
-
   const [expanded, setExpanded] = useState(false);
 
   // Build images array
   const images =
     imagesProp ??
     [featured_image, ...(Array.isArray(gallery) ? gallery : [])].filter(
-      (url): url is string => Boolean(url)
+      (url): url is string => Boolean(url),
     );
 
   const mainImage = images[0];
@@ -55,11 +54,10 @@ function CardItem(props: CardItemProps) {
   const amenityList: string[] = Array.isArray(amenities)
     ? amenities
         .map((a: unknown) =>
-          typeof a === "string" ? a : (a as { name?: string })?.name
+          typeof a === "string" ? a : (a as { name?: string })?.name,
         )
         .filter((x): x is string => Boolean(x))
     : [];
-
 
   // Preview text for short card view
   const PREVIEW_WORD_LIMIT = 10;
@@ -75,7 +73,6 @@ function CardItem(props: CardItemProps) {
       isLong: true,
     };
   }, [description]);
-  
 
   return (
     <motion.div

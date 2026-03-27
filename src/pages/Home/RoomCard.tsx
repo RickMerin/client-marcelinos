@@ -150,7 +150,8 @@ function RoomCard() {
       <section className="w-full" aria-labelledby="rooms-heading">
         <h2
           id="rooms-heading"
-          className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
+          className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)"
+        >
           <span className="text-green-900">OUR</span>{" "}
           <span className="text-yellow-500">ROOMS</span>
         </h2>
@@ -194,14 +195,19 @@ function RoomCard() {
                   <CardItem
                     id={room.id as number}
                     type={room.type as string}
-                    name={room.name as string}
+                    name={
+                      room.bed_specifications &&
+                      (room.bed_specifications as string[]).length > 0
+                        ? (room.bed_specifications as string[]).join(", ")
+                        : (room.type as string) || "Room"
+                    }
                     description={room.description as string}
                     capacity={room.capacity as number}
                     price={room.price as number}
                     amenities={room.amenities as unknown[]}
                     featured_image={room.featured_image as string | null}
                     gallery={room.gallery as string[]}
-                    bed_specifications={room.bed_specifications as string[]}
+                    bed_specifications={[]}
                     bed_modifiers={room.bed_modifiers as string[]}
                     onClick={() =>
                       navigate(`/rooms/${room.id}`, {

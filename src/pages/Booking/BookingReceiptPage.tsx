@@ -20,7 +20,9 @@ interface BookingReceiptPageProps {
 const RECEIPT_STEP = 5;
 
 /** Transform GET /bookings/reference/:ref response into BookingReceipt format for Step5 */
-function toBookingReceipt(res: BookingReferenceResponse): BookingReceipt | null {
+function toBookingReceipt(
+  res: BookingReferenceResponse,
+): BookingReceipt | null {
   const b = res.booking;
   if (!b) return null;
   const guest = b.guest;
@@ -59,6 +61,7 @@ function toBookingReceipt(res: BookingReferenceResponse): BookingReceipt | null 
       type: r.type ?? "",
       capacity: r.capacity ?? 0,
       price: r.price ?? 0,
+      bed_specifications: r.bed_specifications ?? [],
     })),
     venues: (b.venues ?? []).map((v) => ({
       name: v.name ?? "",
@@ -102,9 +105,12 @@ export function BookingReceiptPage({
     }, 400);
   }, [queryClient, referenceNumber]);
 
-  useEffect(() => () => {
-    if (refetchDebounceRef.current) clearTimeout(refetchDebounceRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (refetchDebounceRef.current) clearTimeout(refetchDebounceRef.current);
+    },
+    [],
+  );
 
   useRealtimeEvent({
     channel: RealtimeChannels.booking(referenceNumber),
@@ -118,7 +124,8 @@ export function BookingReceiptPage({
     return (
       <main
         className="min-h-screen flex flex-col items-center p-4 pb-10 landing-section-alt"
-        style={{ backgroundColor: "var(--color-cream)" }}>
+        style={{ backgroundColor: "var(--color-cream)" }}
+      >
         <div className="w-full max-w-6xl mx-auto">
           <ProgressIndicator currentStep={RECEIPT_STEP} />
           <div className="mt-6 mb-8">
@@ -146,7 +153,8 @@ export function BookingReceiptPage({
         paymentStatus === "success"
           ? "bg-green-100 text-green-800"
           : "bg-amber-100 text-amber-800"
-      }`}>
+      }`}
+    >
       <span>
         {paymentStatus === "success"
           ? "Payment successful! Your booking is confirmed."
@@ -165,7 +173,8 @@ export function BookingReceiptPage({
   return (
     <main
       className="min-h-screen flex flex-col items-center p-4 pb-10 landing-section-alt"
-      style={{ backgroundColor: "var(--color-cream)" }}>
+      style={{ backgroundColor: "var(--color-cream)" }}
+    >
       <div className="w-full max-w-6xl mx-auto">
         <ProgressIndicator currentStep={RECEIPT_STEP} />
         {PaymentStatusBanner}

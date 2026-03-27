@@ -20,7 +20,6 @@ import { formatDate } from "@/lib/formatters/formatDate";
 import type { BookingKind } from "@/types/booking.types";
 import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
 
-
 interface ApiListResponse<T> {
   success?: boolean;
   data?: T[];
@@ -107,7 +106,6 @@ const SinglePage = () => {
   const heroImage = selectedItem?.featured_image ?? selectedItem?.gallery?.[0];
   const amenities = amenityLabels(selectedItem?.amenities);
   const bedSpecs = selectedItem?.bed_specifications ?? [];
-  const bedModifiers = selectedItem?.bed_modifiers ?? [];
   const headingLabel = isVenuePage ? "Our Venues" : "Our Rooms";
   const introTitle = isVenuePage
     ? "Find the perfect venue"
@@ -119,6 +117,12 @@ const SinglePage = () => {
   const availableLabel = isVenuePage ? "venues" : "rooms";
   const bookCta = isVenuePage ? "Book this venue" : "Book this room";
   const fallbackLabel = isVenuePage ? "Venue" : "Room";
+
+  const mainTitle = isVenuePage
+    ? (selectedItem?.name ?? fallbackLabel)
+    : bedSpecs.length > 0
+      ? bedSpecs.join(", ")
+      : (selectedItem?.type ?? fallbackLabel);
 
   useEffect(() => {
     if (selectedItem && detailRef.current) {
@@ -182,16 +186,23 @@ const SinglePage = () => {
     navigate("/", { state: { openCheckIn: true } });
   };
 
-
   /**
-   * Example of using the buildAvailabilityUrl function to construct an API URL for fetching available rooms based on check-in and check-out dates. This demonstrates how to integrate the utility function from useRoomList into the SinglePage component to retrieve availability data. 
+   * Example of using the buildAvailabilityUrl function to construct an API URL for fetching available rooms based on check-in and check-out dates. This demonstrates how to integrate the utility function from useRoomList into the SinglePage component to retrieve availability data.
    */
   const dateToday = new Date().toISOString().split("T")[0];
-  const dateTommorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-  .split("T")[0];
+  const dateTommorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0];
 
-  const extractAvailabilityUrl = buildAvailabilityUrl("/rooms", dateToday, dateTommorrow);
-  const {data: availabilityRoomData} = useApiQuery<ApiListResponse<any>>(["rooms", dateToday, dateTommorrow], extractAvailabilityUrl);
+  const extractAvailabilityUrl = buildAvailabilityUrl(
+    "/rooms",
+    dateToday,
+    dateTommorrow,
+  );
+  const { data: availabilityRoomData } = useApiQuery<ApiListResponse<any>>(
+    ["rooms", dateToday, dateTommorrow],
+    extractAvailabilityUrl,
+  );
 
   console.table(availabilityRoomData?.data);
 
@@ -212,9 +223,12 @@ const SinglePage = () => {
     availabilityMatch?.unavailability_detail ||
     "Please pick different dates or another room.";
 
-  const unavailableReasonText = `${availabilityMatch?.unavailability_title ?? ""} ${availabilityMatch?.unavailability_detail ?? ""}`.toLowerCase();
+  const unavailableReasonText =
+    `${availabilityMatch?.unavailability_title ?? ""} ${availabilityMatch?.unavailability_detail ?? ""}`.toLowerCase();
   const isReservedReason =
-    isUnavailable && (unavailableReasonText.includes("reserv") || unavailableReasonText.includes("booked"));
+    isUnavailable &&
+    (unavailableReasonText.includes("reserv") ||
+      unavailableReasonText.includes("booked"));
   const isBlockedReason =
     isUnavailable && unavailableReasonText.includes("block");
   const showUnavailableOverlay = false;
@@ -273,7 +287,7 @@ const SinglePage = () => {
                 <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
                   <OptimizedImage
                     src={heroImage ?? "/placeholder-room.jpg"}
-                    alt={selectedItem.name ?? fallbackLabel}
+                    alt={mainTitle}
                     containerClassName="h-[280px] sm:h-[360px]"
                     className="object-center"
                   />
@@ -293,7 +307,7 @@ const SinglePage = () => {
                   </div>
 
                   <h2 className="font-display text-3xl font-bold text-(--color-charcoal)">
-                    {selectedItem.name ?? fallbackLabel}
+                    {mainTitle}
                   </h2>
 
                   {selectedItem.description && (
@@ -307,13 +321,6 @@ const SinglePage = () => {
                       <div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
                         Capacity: {selectedItem.capacity}{" "}
                         {selectedItem.capacity === 1 ? "person" : "people"}
-                      </div>
-                    )}
-                    {bedSpecs.length > 0 && (
-                      <div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
-                        Room Specs: {bedSpecs.join(", ")}
-                        {bedModifiers.length > 0 &&
-                          `${bedModifiers.join(", ")}`}
                       </div>
                     )}
                     {selectedItem.price != null && (
@@ -381,14 +388,23 @@ const SinglePage = () => {
                     key={item.id}
                     id={item.id}
                     type={item.type}
-                    name={item.name}
+                    name={
+                      !isVenuePage
+                        ? item.bed_specifications &&
+                          item.bed_specifications.length > 0
+                          ? item.bed_specifications.join(", ")
+                          : (item.type ?? "Room")
+                        : item.name
+                    }
                     description={item.description}
                     capacity={item.capacity}
                     price={item.price}
                     amenities={item.amenities}
                     featured_image={item.featured_image}
                     gallery={item.gallery}
-                    bed_specifications={item.bed_specifications}
+                    bed_specifications={
+                      !isVenuePage ? [] : item.bed_specifications
+                    }
                     bed_modifiers={item.bed_modifiers}
                     onClick={() => handleCardClick(item.id, item)}
                   />
