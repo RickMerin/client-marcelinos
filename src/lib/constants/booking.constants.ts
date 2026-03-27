@@ -1,5 +1,21 @@
 import { easeInOut } from "framer-motion";
-import { FormData } from "@/types/booking.types";
+import type { FormData, RoomTypeFilter } from "@/types/booking.types";
+
+/** Default: all room types visible until the guest narrows the list. */
+export const DEFAULT_ROOM_TYPE_FILTERS: RoomTypeFilter[] = [
+  "standard",
+  "family",
+  "deluxe",
+];
+
+export const ROOM_TYPE_FILTER_OPTIONS: {
+  value: RoomTypeFilter;
+  label: string;
+}[] = [
+  { value: "standard", label: "Standard" },
+  { value: "family", label: "Family" },
+  { value: "deluxe", label: "Deluxe" },
+];
 
 export const defaultFormData: FormData = {
   current_step: 1,
@@ -8,6 +24,7 @@ export const defaultFormData: FormData = {
   check_in: "",
   check_out: "",
   days: 1,
+  room_type_filters: [...DEFAULT_ROOM_TYPE_FILTERS],
   rooms: [],
   venues: [],
 

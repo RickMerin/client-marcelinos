@@ -1,6 +1,41 @@
-import { FormData, BookingPayload } from "@/types/booking.types";
+import {
+  FormData,
+  BookingPayload,
+  type RoomTypeFilter,
+} from "@/types/booking.types";
 import { getFromLocalStorage } from "@/lib/storage/localStorage";
 import { COUNTRIES } from "@/lib/constants/countries";
+import { DEFAULT_ROOM_TYPE_FILTERS } from "@/lib/constants/booking.constants";
+
+const ROOM_TYPE_SLUGS = new Set<RoomTypeFilter>([
+  "standard",
+  "family",
+  "deluxe",
+]);
+
+/** Parse stored room-type filters; falls back to all types when missing or invalid. */
+export function parseRoomTypeFilters(raw: unknown): RoomTypeFilter[] {
+  if (!Array.isArray(raw)) return [...DEFAULT_ROOM_TYPE_FILTERS];
+  const next = raw.filter((x): x is RoomTypeFilter =>
+    typeof x === "string" && ROOM_TYPE_SLUGS.has(x as RoomTypeFilter),
+  );
+  return next.length > 0 ? next : [...DEFAULT_ROOM_TYPE_FILTERS];
+}
+
+/** Map API `room.type` to a known slug, or null if unknown. */
+export function normalizeRoomTypeSlug(type: unknown): RoomTypeFilter | null {
+  const t = String(type ?? "")
+    .toLowerCase()
+    .trim();
+  if (t === "standard" || t === "family" || t === "deluxe") return t;
+  return null;
+}
+
+/** Group rooms by `description`; empty/missing shares one bucket. */
+export function normalizeRoomDescriptionKey(description: unknown): string {
+  const s = String(description ?? "").trim();
+  return s || "__default__";
+}
 
 /**
  * Generates a unique reference ID for bookings

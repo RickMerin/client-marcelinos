@@ -9,6 +9,7 @@ import {
   getFromLocalStorage,
 } from "@/lib/storage/localStorage";
 import type { BookingKind } from "@/types/booking.types";
+import { DEFAULT_ROOM_TYPE_FILTERS } from "@/lib/constants/booking.constants";
 import { cn } from "@/lib/utils";
 
 const KIND_OPTIONS: {
@@ -232,6 +233,9 @@ export default function BookingForm() {
 				days,
 				check_in: checkIn?.toISOString?.() ?? checkIn,
 				check_out: checkOut?.toISOString?.() ?? checkOut,
+				...(kind === "room" || kind === "both"
+					? { room_type_filters: [...DEFAULT_ROOM_TYPE_FILTERS] }
+					: {}),
 				...(kind === "both" && venueEventDate
 					? {
 							venue_event_date: venueEventDate.toISOString(),

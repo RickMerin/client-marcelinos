@@ -9,6 +9,7 @@ import {
   BOOKING_EXPIRATION,
 } from "@/lib/storage/localStorage";
 import { calculateTotalPrice, calculateGrandTotalPrice } from "@/lib/math/calculate";
+import { parseRoomTypeFilters } from "@/lib/utils/booking.utils";
 /**
  * Custom hook for managing booking form state and persistence
  */
@@ -46,6 +47,13 @@ export const useBookingForm = () => {
 		check_out:
 			formatDate(reservationDate?.check_out) || storedFormData?.check_out || "",
 		days: reservationDate?.days || storedFormData?.days || 1,
+		room_type_filters:
+			bookingTypeInit === "venue"
+				? []
+				: parseRoomTypeFilters(
+						reservationDate?.room_type_filters ??
+							storedFormData?.room_type_filters,
+					),
 	};
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -156,4 +164,4 @@ export const useBookingForm = () => {
     nextStep,
     previousStep,
   };
-};;
+};
