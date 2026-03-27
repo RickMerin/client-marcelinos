@@ -35,13 +35,24 @@ export const useBookingValidation = (
       }
       case 2:
         return personalDetailsSchema.safeParse(personalDetails).success;
-      case 3:
+      case 3: {
+        const t = formData.booking_type ?? "room";
+        const hasSelection =
+          t === "room"
+            ? formData.rooms.length > 0
+            : t === "venue"
+              ? formData.venues.length > 0
+              : formData.rooms.length + formData.venues.length > 0;
+
+        if (!hasSelection) return false;
+
         let refId = formData.reference_number;
         if (!refId) {
           refId = generateReferenceId();
           updateFormData({ reference_number: refId });
         }
         return true;
+      }
       case 4:
         return formData.paymentMethod !== "";
       default:
