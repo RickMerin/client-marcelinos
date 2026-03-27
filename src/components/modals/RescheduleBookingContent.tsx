@@ -12,6 +12,7 @@ import {
   Plus,
   AlertCircle,
 } from "lucide-react";
+import { BookingKind } from "@/types/booking.types";
 
 function toDayKey(d: Date): string {
   // Use date-fns format to prevent timezone offset issues (-1 day) from using toISOString
@@ -43,13 +44,20 @@ export default function RescheduleBookingContent({
   onSuccess,
   currentCheckIn,
   currentDays = 1,
+  bookingType = "room",
 }: {
   referenceNumber: string;
   onClose: () => void;
   onSuccess?: () => void;
   currentCheckIn?: string;
   currentDays?: number;
+  bookingType?: BookingKind;
 }) {
+  const isVenueBooking = bookingType === "venue" || bookingType === "both";
+  const durationLabel = isVenueBooking ? "Number of Days" : "Number of Nights";
+  const formatDurationText = (count: number) =>
+    `${count} ${isVenueBooking ? (count === 1 ? "day" : "days") : count === 1 ? "night" : "nights"}`;
+
   const rescheduleBooking = useApiMutation("patch");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -173,7 +181,7 @@ export default function RescheduleBookingContent({
           {/* Days Counter */}
           <div className="space-y-3">
             <label className="text-sm font-semibold text-gray-700 block">
-              Number of Nights
+              {durationLabel}
             </label>
             <div className="flex items-center gap-3">
               <button
@@ -275,7 +283,7 @@ export default function RescheduleBookingContent({
               </div>
               <div className="mt-3 pt-3 border-t border-gray-100 text-right">
                 <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded-md">
-                  {currentDays} {currentDays === 1 ? "night" : "nights"}
+                  {formatDurationText(currentDays)}
                 </span>
               </div>
             </div>
@@ -313,7 +321,7 @@ export default function RescheduleBookingContent({
                   </div>
                   <div className="mt-3 pt-3 border-t border-emerald-100/50 text-right">
                     <span className="text-xs text-emerald-700 font-bold bg-emerald-100/50 px-2 py-1 rounded-md">
-                      {days} {days === 1 ? "night" : "nights"}
+                      {formatDurationText(days)}
                     </span>
                   </div>
                 </>
