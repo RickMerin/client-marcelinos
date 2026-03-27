@@ -40,22 +40,54 @@ const KIND_OPTIONS: {
 	},
 ];
 
+function startOfDay(d: Date): Date {
+	return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+/** Calendar days between two local dates (check-out − check-in). Same day → 0. */
+function diffDays(a: Date, b: Date): number {
+	const sa = startOfDay(a).getTime();
+	const sb = startOfDay(b).getTime();
+	return Math.round((sb - sa) / 86400000);
+}
+
 function buildSchema(kind: BookingKind) {
 	const base = z.object({
-		days: z.coerce.number().min(1, "Invalid number of days").optional(),
+		days: z.coerce.number().min(0).optional(),
 		check_in: z.coerce.date({ error: "Select a date" }),
-		check_out: z.coerce.date().optional(),
+		check_out: z.preprocess(
+			(v) => (v === "" || v == null ? undefined : v),
+			z.coerce.date({ error: "Select check-out date" }).optional(),
+		),
 		venue_event_date: z.coerce.date().optional(),
 	});
 
 	return base.superRefine((data, ctx) => {
+		if (!data.check_out) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["check_out"],
+				message: "Select check-out date",
+			});
+			return;
+		}
+		const ci = startOfDay(data.check_in);
+		const co = startOfDay(data.check_out);
+		if (co < ci) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["check_out"],
+				message: "Check-out must be on or after check-in",
+			});
+			return;
+		}
+		const d = diffDays(ci, co);
 		if (kind === "room" || kind === "both") {
-			const d = data.days;
-			if (d == null || Number(d) < 1) {
+			if (d < 1) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					path: ["days"],
-					message: "Set at least one night",
+					path: ["check_out"],
+					message: "Check-out must be after check-in (at least one night)",
 				});
 			}
 		}
@@ -80,27 +112,45 @@ export default function BookingForm() {
 
 	const fields = useMemo(() => {
 		const r = reservationDate as Record<string, unknown>;
-		const daysVal = typeof r.days === "number" && r.days >= 1 ? r.days : 1;
 
 		const checkInVal = r.check_in ? new Date(r.check_in as string) : "";
 		const checkOutVal = r.check_out ? new Date(r.check_out as string) : "";
+		let daysStored = 0;
+		if (checkInVal && checkOutVal) {
+			daysStored = Math.max(
+				1,
+				diffDays(startOfDay(checkInVal), startOfDay(checkOutVal)),
+			);
+		}
+
+		const minOff = kind === "venue" ? 0 : 1;
+
 		if (kind === "venue") {
 			return [
 				{
 					name: "check_in",
 					type: "calendar" as const,
-					calendarVariant: "single" as const,
-					label: "Event date",
-					placeholder: "Select event date",
+					calendarVariant: "stay" as const,
+					minCheckOutOffsetDays: minOff,
+					label: "Check-in Date",
+					placeholder: "Select check-in date",
 					value: checkInVal,
 				},
 				{
 					name: "check_out",
-					type: "date" as const,
-					label: "End date",
-					readOnly: true,
-					className: "cursor-not-allowed text-center",
-					value: checkOutVal || checkInVal,
+					type: "calendar" as const,
+					calendarVariant: "stay" as const,
+					minCheckOutOffsetDays: minOff,
+					label: "Check-out Date",
+					placeholder: "Select check-out date",
+					value: checkOutVal,
+				},
+				{
+					name: "days",
+					type: "display" as const,
+					label: "Number of Day(s)",
+					value: daysStored,
+					itemClassName: "sm:col-span-2",
 				},
 			];
 		}
@@ -108,25 +158,28 @@ export default function BookingForm() {
 		if (kind === "both") {
 			return [
 				{
-					name: "days",
-					type: "counter" as const,
-					label: "Nights (room & venue)",
-					value: daysVal,
-				},
-				{
 					name: "check_in",
 					type: "calendar" as const,
+					calendarVariant: "stay" as const,
+					minCheckOutOffsetDays: minOff,
 					label: "Check-in (room & venue)",
 					placeholder: "Select check-in date",
 					value: checkInVal,
 				},
 				{
 					name: "check_out",
-					type: "date" as const,
+					type: "calendar" as const,
+					calendarVariant: "stay" as const,
+					minCheckOutOffsetDays: minOff,
 					label: "Check-out (room & venue)",
-					readOnly: true,
-					className: "cursor-not-allowed text-center",
+					placeholder: "Select check-out date",
 					value: checkOutVal,
+				},
+				{
+					name: "days",
+					type: "display" as const,
+					label: "Number of Night(s)",
+					value: daysStored,
 					itemClassName: "sm:col-span-2",
 				},
 			];
@@ -134,45 +187,42 @@ export default function BookingForm() {
 
 		return [
 			{
-				name: "days",
-				type: "counter" as const,
-				label: "Number of Day(s)",
-				value: daysVal,
-			},
-			{
 				name: "check_in",
 				type: "calendar" as const,
+				calendarVariant: "stay" as const,
+				minCheckOutOffsetDays: minOff,
 				label: "Check-in Date",
 				placeholder: "Select check-in date",
 				value: checkInVal,
 			},
 			{
 				name: "check_out",
-				type: "date" as const,
+				type: "calendar" as const,
+				calendarVariant: "stay" as const,
+				minCheckOutOffsetDays: minOff,
 				label: "Check-out Date",
-				readOnly: true,
-				className: "cursor-not-allowed text-center",
+				placeholder: "Select check-out date",
 				value: checkOutVal,
+			},
+			{
+				name: "days",
+				type: "display" as const,
+				label: "Number of Night(s)",
+				value: daysStored,
 				itemClassName: "sm:col-span-2",
 			},
 		];
 	}, [kind, reservationDate]);
 
 	const handleSubmit = (values: z.infer<typeof schema>) => {
-		const days = kind === "venue" ? 1 : Math.max(1, Number(values.days) || 1);
-		let checkIn = values.check_in as Date;
-		let checkOut = values.check_out as Date | undefined;
+		const checkIn = values.check_in as Date;
+		const checkOut = values.check_out as Date;
+		const d = diffDays(startOfDay(checkIn), startOfDay(checkOut));
+		const days = Math.max(1, d);
 		let venueEventDate: Date | undefined;
 
-		if (kind === "venue") {
-			checkOut = checkIn;
-		} else if (kind === "both") {
-			checkOut = values.check_out as Date;
+		if (kind === "both") {
 			venueEventDate = checkIn;
-		} else {
-			checkOut =
-				values.check_out ??
-				(checkIn && days ? addDays(checkIn, days) : undefined);
 		}
 
 		saveToLocalStorage(
@@ -289,38 +339,29 @@ export default function BookingForm() {
 				fields={fields}
 				onSubmit={handleSubmit}
 				submitLabel="Book Now"
-				blockedDateStayMode={
-					kind === "venue" ? "single_calendar" : "nights"
-				}
+				blockedDateStayMode="nights"
 				isSubmitDisabled={(values) => {
-					if (!values.check_in) return true;
+					if (!values.check_in || !values.check_out) return true;
 					return false;
 				}}
 				className={cn(formGridClass, "pb-2")}
 				onChangeFields={(values) => {
-					if (kind === "venue") {
-						if (!values.check_in) return {};
-						// Same calendar day for event; do not set `days` here — `days: 1` in the
-						// form was incorrectly treated as "one night" (2 calendar days) for blocked-date overlap.
-						return {
-							check_out: values.check_in,
-						};
+					const ci = values.check_in as Date | undefined;
+					const co = values.check_out as Date | undefined;
+					if (!ci) return {};
+					if (!co) {
+						return { days: 0 };
 					}
-					if (kind === "room") {
-						if (values.days && values.check_in) {
-							const checkInDate = new Date(values.check_in as Date);
-							return { check_out: addDays(checkInDate, Number(values.days)) };
+					const ciD = startOfDay(new Date(ci));
+					const coD = startOfDay(new Date(co));
+					if (coD < ciD) {
+						if (kind === "venue") {
+							return { check_out: ciD, days: 1 };
 						}
-						return {};
+						return { check_out: addDays(ciD, 1), days: 1 };
 					}
-					if (kind === "both") {
-						if (!values.days || !values.check_in) return {};
-						const checkInDate = new Date(values.check_in as Date);
-						return {
-							check_out: addDays(checkInDate, Number(values.days)),
-						};
-					}
-					return {};
+					const d = Math.max(1, diffDays(ciD, coD));
+					return { days: d };
 				}}
 			/>
 
