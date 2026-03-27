@@ -52,12 +52,9 @@ export const RoomCard: React.FC<RoomCardProps> = ({
   const unavailableHeadline =
     unavailabilityTitle?.trim() || "Not available for selected dates";
   const unavailableSub =
-    unavailabilityDetail?.trim() ||
-    "Choose different dates or another room";
+    unavailabilityDetail?.trim() || "Choose different dates or another room";
 
   const showCapacity = capacity && capacity !== EMPTY_FIELD;
-  const bedSpecs = bed_specifications ?? [];
-  const bedMods = bed_modifiers ?? [];
   const isAvailable = availability !== false;
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -131,12 +128,6 @@ export const RoomCard: React.FC<RoomCardProps> = ({
         role="img"
         aria-label={title}
       >
-        {/* Type Badge (e.g. "family") in the top-left over the image */}
-        {type && (
-          <div className="absolute top-2 left-2 z-10">
-            <RoomTypeBadge type={type} />
-          </div>
-        )}
         {/* Not available for selected dates — text only, readable on any background */}
         {!isAvailable && (
           <UnavailableReasonOverlay
@@ -241,12 +232,18 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             </svg>
           </div>
         )}
-        <h3
-          className="font-display text-xl font-bold capitalize tracking-tight"
-          style={{ color: "var(--color-charcoal)" }}
-        >
-          {title}
-        </h3>
+        {type ? (
+          <div className="mb-2">
+            <RoomTypeBadge type={type} isTitle />
+          </div>
+        ) : (
+          <h3
+            className="font-display text-xl font-bold capitalize tracking-tight"
+            style={{ color: "var(--color-charcoal)" }}
+          >
+            {title}
+          </h3>
+        )}
         {description && description !== EMPTY_FIELD && (
           <p
             className="mt-1 text-sm opacity-80"
@@ -269,18 +266,24 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             </span>
           </p>
         )}
-        {bedSpecs.length > 0 && (
+        {bed_specifications && bed_specifications.length > 0 && (
           <p
-            className="mt-1 text-sm opacity-80"
+            className={cn(
+              "mt-2 text-sm",
+              selected ? "font-medium" : "opacity-80",
+            )}
             style={{ color: "var(--color-charcoal)" }}
           >
-            Bed:{" "}
+            Beds:{" "}
             <span className="font-semibold">
-              {bedSpecs.join(", ")}
-              {bedMods.length > 0 && ` (${bedMods.join(", ")})`}
+              {bed_specifications.join(", ")}
+              {bed_modifiers &&
+                bed_modifiers.length > 0 &&
+                ` (${bed_modifiers.join(", ")})`}
             </span>
           </p>
         )}
+        {/* bedSpecs omitted because they are now the title */}
         {pills.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {pills.map((label, i) => (

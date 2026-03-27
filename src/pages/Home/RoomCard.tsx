@@ -150,7 +150,8 @@ function RoomCard() {
       <section className="w-full" aria-labelledby="rooms-heading">
         <h2
           id="rooms-heading"
-          className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
+          className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)"
+        >
           <span className="text-green-900">OUR</span>{" "}
           <span className="text-yellow-500">ROOMS</span>
         </h2>

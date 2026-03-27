@@ -20,7 +20,6 @@ import { formatDate } from "@/lib/formatters/formatDate";
 import type { BookingKind } from "@/types/booking.types";
 import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
 
-
 interface ApiListResponse<T> {
   success?: boolean;
   data?: T[];
@@ -107,7 +106,6 @@ const SinglePage = () => {
   const heroImage = selectedItem?.featured_image ?? selectedItem?.gallery?.[0];
   const amenities = amenityLabels(selectedItem?.amenities);
   const bedSpecs = selectedItem?.bed_specifications ?? [];
-  const bedModifiers = selectedItem?.bed_modifiers ?? [];
   const headingLabel = isVenuePage ? "Our Venues" : "Our Rooms";
   const introTitle = isVenuePage
     ? "Find the perfect venue"
@@ -119,6 +117,12 @@ const SinglePage = () => {
   const availableLabel = isVenuePage ? "venues" : "rooms";
   const bookCta = isVenuePage ? "Book this venue" : "Book this room";
   const fallbackLabel = isVenuePage ? "Venue" : "Room";
+
+  const mainTitle = isVenuePage
+    ? (selectedItem?.name ?? fallbackLabel)
+    : bedSpecs.length > 0
+      ? bedSpecs.join(", ")
+      : (selectedItem?.type ?? fallbackLabel);
 
   useEffect(() => {
     if (selectedItem && detailRef.current) {
@@ -182,16 +186,23 @@ const SinglePage = () => {
     navigate("/", { state: { openCheckIn: true } });
   };
 
-
   /**
-   * Example of using the buildAvailabilityUrl function to construct an API URL for fetching available rooms based on check-in and check-out dates. This demonstrates how to integrate the utility function from useRoomList into the SinglePage component to retrieve availability data. 
+   * Example of using the buildAvailabilityUrl function to construct an API URL for fetching available rooms based on check-in and check-out dates. This demonstrates how to integrate the utility function from useRoomList into the SinglePage component to retrieve availability data.
    */
   const dateToday = new Date().toISOString().split("T")[0];
-  const dateTommorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-  .split("T")[0];
+  const dateTommorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0];
 
-  const extractAvailabilityUrl = buildAvailabilityUrl("/rooms", dateToday, dateTommorrow);
-  const {data: availabilityRoomData} = useApiQuery<ApiListResponse<any>>(["rooms", dateToday, dateTommorrow], extractAvailabilityUrl);
+  const extractAvailabilityUrl = buildAvailabilityUrl(
+    "/rooms",
+    dateToday,
+    dateTommorrow,
+  );
+  const { data: availabilityRoomData } = useApiQuery<ApiListResponse<any>>(
+    ["rooms", dateToday, dateTommorrow],
+    extractAvailabilityUrl,
+  );
 
   console.table(availabilityRoomData?.data);
 
@@ -212,9 +223,12 @@ const SinglePage = () => {
     availabilityMatch?.unavailability_detail ||
     "Please pick different dates or another room.";
 
-  const unavailableReasonText = `${availabilityMatch?.unavailability_title ?? ""} ${availabilityMatch?.unavailability_detail ?? ""}`.toLowerCase();
+  const unavailableReasonText =
+    `${availabilityMatch?.unavailability_title ?? ""} ${availabilityMatch?.unavailability_detail ?? ""}`.toLowerCase();
   const isReservedReason =
-    isUnavailable && (unavailableReasonText.includes("reserv") || unavailableReasonText.includes("booked"));
+    isUnavailable &&
+    (unavailableReasonText.includes("reserv") ||
+      unavailableReasonText.includes("booked"));
   const isBlockedReason =
     isUnavailable && unavailableReasonText.includes("block");
   const showUnavailableOverlay = false;
@@ -273,7 +287,7 @@ const SinglePage = () => {
                 <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
                   <OptimizedImage
                     src={heroImage ?? "/placeholder-room.jpg"}
-                    alt={selectedItem.name ?? fallbackLabel}
+                    alt={mainTitle}
                     containerClassName="h-[280px] sm:h-[360px]"
                     className="object-center"
                   />
@@ -286,15 +300,15 @@ const SinglePage = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    {selectedItem.type && (
-                      <RoomTypeBadge type={selectedItem.type} />
-                    )}
-                  </div>
-
-                  <h2 className="font-display text-3xl font-bold text-(--color-charcoal)">
-                    {selectedItem.name ?? fallbackLabel}
-                  </h2>
+                  {selectedItem.type ? (
+                    <div className="flex items-center gap-3 mb-2">
+                      <RoomTypeBadge type={selectedItem.type} isTitle />
+                    </div>
+                  ) : (
+                    <h2 className="font-display text-3xl font-bold text-(--color-charcoal)">
+                      {mainTitle}
+                    </h2>
+                  )}
 
                   {selectedItem.description && (
                     <p className="text-gray-700 leading-relaxed">
@@ -309,13 +323,15 @@ const SinglePage = () => {
                         {selectedItem.capacity === 1 ? "person" : "people"}
                       </div>
                     )}
-                    {bedSpecs.length > 0 && (
-                      <div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
-                        Room Specs: {bedSpecs.join(", ")}
-                        {bedModifiers.length > 0 &&
-                          `${bedModifiers.join(", ")}`}
-                      </div>
-                    )}
+                    {selectedItem.bed_specifications &&
+                      selectedItem.bed_specifications.length > 0 && (
+                        <div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
+                          Beds: {selectedItem.bed_specifications.join(", ")}
+                          {selectedItem.bed_modifiers &&
+                            selectedItem.bed_modifiers.length > 0 &&
+                            ` (${selectedItem.bed_modifiers.join(", ")})`}
+                        </div>
+                      )}
                     {selectedItem.price != null && (
                       <div className="rounded-full bg-amber-50 px-3 py-1 font-semibold text-green-900">
                         {pricingFormat(selectedItem.price)}
