@@ -30,11 +30,11 @@ export function RoomTypeBadge({
       };
 
   const sizeClasses = isTitle
-    ? "px-3 py-1.5 text-lg sm:text-xl rounded-lg mb-2 inline-flex w-fit"
+    ? "px-2 py-1 text-sm sm:text-sm rounded-md mb-1 inline-flex w-fit shadow-sm"
     : "px-1.5 py-1 text-[10px] rounded-md";
 
-  const iconContainerSize = isTitle ? "h-8 w-8" : "h-5 w-5";
-  const iconSize = isTitle ? 20 : 14;
+  const iconContainerSize = isTitle ? "h-5 w-5" : "h-5 w-5";
+  const iconSize = isTitle ? 14 : 14;
 
   return (
     <div
@@ -44,7 +44,7 @@ export function RoomTypeBadge({
     >
       {/* Shine only inside badge: clipped so it never blocks section/nav */}
       <div
-        className={`pointer-events-none absolute inset-0 overflow-hidden ${isTitle ? "rounded-lg" : "rounded-md"}`}
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-md"
         aria-hidden
       >
         <div className="room-type-badge-shine" aria-hidden />
@@ -61,7 +61,7 @@ export function RoomTypeBadge({
         )}
       </span>
       <span
-        className={`relative z-10 w-px shrink-0 ${isTitle ? "h-5" : "h-3"}`}
+        className={`relative z-10 w-px shrink-0 ${isTitle ? "h-3.5" : "h-3"}`}
         style={{ backgroundColor: "rgba(255,255,255,0.6)" }}
         aria-hidden
       />
