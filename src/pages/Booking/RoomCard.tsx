@@ -40,6 +40,8 @@ export const RoomCard: React.FC<RoomCardProps> = ({
   capacity,
   includes,
   price,
+  bed_specifications,
+  bed_modifiers,
   selected = false,
   onSelectRoom,
   amenityPills,
@@ -126,12 +128,6 @@ export const RoomCard: React.FC<RoomCardProps> = ({
         role="img"
         aria-label={title}
       >
-        {/* Type Badge (e.g. "family") in the top-left over the image */}
-        {type && (
-          <div className="absolute top-2 left-2 z-10">
-            <RoomTypeBadge type={type} />
-          </div>
-        )}
         {/* Not available for selected dates — text only, readable on any background */}
         {!isAvailable && (
           <UnavailableReasonOverlay
@@ -236,12 +232,18 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             </svg>
           </div>
         )}
-        <h3
-          className="font-display text-xl font-bold capitalize tracking-tight"
-          style={{ color: "var(--color-charcoal)" }}
-        >
-          {title}
-        </h3>
+        {type ? (
+          <div className="mb-2">
+            <RoomTypeBadge type={type} isTitle />
+          </div>
+        ) : (
+          <h3
+            className="font-display text-xl font-bold capitalize tracking-tight"
+            style={{ color: "var(--color-charcoal)" }}
+          >
+            {title}
+          </h3>
+        )}
         {description && description !== EMPTY_FIELD && (
           <p
             className="mt-1 text-sm opacity-80"
@@ -261,6 +263,23 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             Capacity:{" "}
             <span className="font-semibold">
               {capacity} {Number(capacity) === 1 ? "guest" : "guests"}
+            </span>
+          </p>
+        )}
+        {bed_specifications && bed_specifications.length > 0 && (
+          <p
+            className={cn(
+              "mt-2 text-sm",
+              selected ? "font-medium" : "opacity-80",
+            )}
+            style={{ color: "var(--color-charcoal)" }}
+          >
+            Beds:{" "}
+            <span className="font-semibold">
+              {bed_specifications.join(", ")}
+              {bed_modifiers &&
+                bed_modifiers.length > 0 &&
+                ` (${bed_modifiers.join(", ")})`}
             </span>
           </p>
         )}

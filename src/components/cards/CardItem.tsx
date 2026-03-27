@@ -102,19 +102,19 @@ function CardItem(props: CardItemProps) {
           className="object-center transition-transform duration-500 group-hover:scale-105"
         />
         <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
-
-        {typeTitle && (
-          <div className="absolute left-3 top-3 z-10">
-            <RoomTypeBadge type={typeTitle} />
-          </div>
-        )}
       </div>
 
       {/* CONTENT */}
       <div className="relative p-5">
-        <h2 className="font-display mb-2 text-xl font-semibold tracking-tight text-gray-900">
-          {title}
-        </h2>
+        {typeTitle ? (
+          <div className="mb-2">
+            <RoomTypeBadge type={typeTitle} isTitle />
+          </div>
+        ) : (
+          <h2 className="font-display mb-2 text-xl font-semibold tracking-tight text-gray-900">
+            {title}
+          </h2>
+        )}
 
         {(capacity != null || description || amenityList.length > 0) && (
           <ul className="mb-3 space-y-1 text-sm text-gray-600 opacity-90">
@@ -197,9 +197,17 @@ function CardItem(props: CardItemProps) {
                   {title}
                 </h2>
 
-                {capacity != null && (
-                  <p className="text-white text-sm">Capacity: {capacity}</p>
-                )}
+                <div className="flex flex-col items-end text-sm text-white/90">
+                  {capacity != null && <p>Capacity: {capacity}</p>}
+                  {bed_specifications && bed_specifications.length > 0 && (
+                    <p>
+                      Beds: {bed_specifications.join(", ")}
+                      {bed_modifiers &&
+                        bed_modifiers.length > 0 &&
+                        ` (${bed_modifiers.join(", ")})`}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="flex-1 overflow-y-auto text-white text-sm pr-2 custom-scroll">

@@ -195,19 +195,14 @@ function RoomCard() {
                   <CardItem
                     id={room.id as number}
                     type={room.type as string}
-                    name={
-                      room.bed_specifications &&
-                      (room.bed_specifications as string[]).length > 0
-                        ? (room.bed_specifications as string[]).join(", ")
-                        : (room.type as string) || "Room"
-                    }
+                    name={room.name as string}
                     description={room.description as string}
                     capacity={room.capacity as number}
                     price={room.price as number}
                     amenities={room.amenities as unknown[]}
                     featured_image={room.featured_image as string | null}
                     gallery={room.gallery as string[]}
-                    bed_specifications={[]}
+                    bed_specifications={room.bed_specifications as string[]}
                     bed_modifiers={room.bed_modifiers as string[]}
                     onClick={() =>
                       navigate(`/rooms/${room.id}`, {

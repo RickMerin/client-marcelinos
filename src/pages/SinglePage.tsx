@@ -300,15 +300,15 @@ const SinglePage = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    {selectedItem.type && (
-                      <RoomTypeBadge type={selectedItem.type} />
-                    )}
-                  </div>
-
-                  <h2 className="font-display text-3xl font-bold text-(--color-charcoal)">
-                    {mainTitle}
-                  </h2>
+                  {selectedItem.type ? (
+                    <div className="flex items-center gap-3 mb-2">
+                      <RoomTypeBadge type={selectedItem.type} isTitle />
+                    </div>
+                  ) : (
+                    <h2 className="font-display text-3xl font-bold text-(--color-charcoal)">
+                      {mainTitle}
+                    </h2>
+                  )}
 
                   {selectedItem.description && (
                     <p className="text-gray-700 leading-relaxed">
@@ -323,6 +323,15 @@ const SinglePage = () => {
                         {selectedItem.capacity === 1 ? "person" : "people"}
                       </div>
                     )}
+                    {selectedItem.bed_specifications &&
+                      selectedItem.bed_specifications.length > 0 && (
+                        <div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
+                          Beds: {selectedItem.bed_specifications.join(", ")}
+                          {selectedItem.bed_modifiers &&
+                            selectedItem.bed_modifiers.length > 0 &&
+                            ` (${selectedItem.bed_modifiers.join(", ")})`}
+                        </div>
+                      )}
                     {selectedItem.price != null && (
                       <div className="rounded-full bg-amber-50 px-3 py-1 font-semibold text-green-900">
                         {pricingFormat(selectedItem.price)}
@@ -388,23 +397,14 @@ const SinglePage = () => {
                     key={item.id}
                     id={item.id}
                     type={item.type}
-                    name={
-                      !isVenuePage
-                        ? item.bed_specifications &&
-                          item.bed_specifications.length > 0
-                          ? item.bed_specifications.join(", ")
-                          : (item.type ?? "Room")
-                        : item.name
-                    }
+                    name={item.name}
                     description={item.description}
                     capacity={item.capacity}
                     price={item.price}
                     amenities={item.amenities}
                     featured_image={item.featured_image}
                     gallery={item.gallery}
-                    bed_specifications={
-                      !isVenuePage ? [] : item.bed_specifications
-                    }
+                    bed_specifications={item.bed_specifications}
                     bed_modifiers={item.bed_modifiers}
                     onClick={() => handleCardClick(item.id, item)}
                   />

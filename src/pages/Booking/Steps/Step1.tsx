@@ -464,12 +464,7 @@ export function Step1({
                 <RoomCard
                   key={room.id}
                   id={room.id}
-                  title={
-                    room.bed_specifications &&
-                    room.bed_specifications.length > 0
-                      ? room.bed_specifications.join(", ")
-                      : room.type || "Standard"
-                  }
+                  title={room.name || room.type || "Standard"}
                   type={room.type || "Standard"}
                   description={room.description || amenityNames(room.amenities)}
                   images={roomImages(room)}
@@ -477,7 +472,7 @@ export function Step1({
                   capacity={String(room.capacity ?? "—")}
                   includes={amenityNames(room.amenities)}
                   amenityPills={amenityPills(room.amenities)}
-                  bed_specifications={[]}
+                  bed_specifications={room.bed_specifications}
                   bed_modifiers={room.bed_modifiers}
                   price={room.price ?? 0}
                   availability={room.available ?? false}
