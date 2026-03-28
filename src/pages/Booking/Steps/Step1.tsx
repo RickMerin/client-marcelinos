@@ -4,39 +4,19 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { RoomTypeQuantityCard } from "../RoomTypeQuantityCard";
 import { VenueCard } from "../VenueCard";
-import { BedDouble, Crown, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   buildAvailabilityUrl,
   extractList,
   venueImages,
   formatShortDate,
 } from "@/hooks/useRoomList";
-import type { BookingKind, FormData, RoomTypeFilter } from "@/types/booking.types";
+import type { BookingKind, RoomTypeFilter } from "@/types/booking.types";
 import { ROOM_TYPE_FILTER_OPTIONS } from "@/lib/constants/booking.constants";
-import { ROOM_TYPE_FILTER_CARD_THEME } from "@/lib/constants/roomTypeTheme";
 import {
   normalizeRoomDescriptionKey,
   normalizeRoomTypeSlug,
 } from "@/lib/utils/booking.utils";
-import { cn } from "@/lib/utils";
-
-const ROOM_FILTER_ICONS = {
-  standard: BedDouble,
-  family: Users,
-  deluxe: Crown,
-} as const;
-
-const ROOM_FILTER_BLURBS: Record<RoomTypeFilter, string> = {
-  standard: "Essential comfort & value",
-  family: "Extra room for families or groups",
-  deluxe: "Premium space & details",
-};
-
-const ROOM_FILTER_CHECKBOX_BASE =
-  "size-5 shrink-0 rounded-md border-2 border-stone-300 bg-white shadow-sm " +
-  "focus-visible:ring-2 focus-visible:ring-offset-2";
 
 interface ApiListResponse<T> {
   success?: boolean;
@@ -49,13 +29,11 @@ interface Props {
     venue_event_date?: string;
     check_in: string;
     check_out: string;
-    room_type_filters?: RoomTypeFilter[];
     rooms: any[];
     venues: any[];
   };
   setSelectedRooms: (rooms: any[]) => void;
   setSelectedVenues: (venues: any[]) => void;
-  updateFormData: (updates: Partial<FormData>) => void;
 }
 
 function RoomCardSkeleton() {
@@ -121,11 +99,9 @@ export function Step1({
   formData,
   setSelectedRooms,
   setSelectedVenues,
-  updateFormData,
 }: Props) {
   const [recentlyUnselectedCount, setRecentlyUnselectedCount] = useState(0);
   const bookingType = formData.booking_type ?? "room";
-  const roomTypeFilters = formData.room_type_filters ?? [];
   const checkIn = formData.check_in || "";
   const checkOut = formData.check_out || "";
   /** For room + venue, venue availability uses the same stay window as the room. */
@@ -167,7 +143,7 @@ export function Step1({
     [venuesResponse],
   );
 
-  /** Rooms grouped by Standard / Family / Deluxe (sorted by id). Respects room-type filters. */
+  /** Rooms grouped by Standard / Family / Deluxe (sorted by id). All categories shown. */
   const roomsByType = useMemo(() => {
     const map = new Map<RoomTypeFilter, any[]>();
     for (const opt of ROOM_TYPE_FILTER_OPTIONS) {
@@ -176,30 +152,20 @@ export function Step1({
     for (const room of roomList) {
       const t = normalizeRoomTypeSlug(room.type);
       if (!t) continue;
-      if (roomTypeFilters.length > 0 && !roomTypeFilters.includes(t)) continue;
       map.get(t)!.push(room);
     }
     for (const opt of ROOM_TYPE_FILTER_OPTIONS) {
       map.get(opt.value)!.sort((a: any, b: any) => a.id - b.id);
     }
     return map;
-  }, [roomList, roomTypeFilters]);
+  }, [roomList]);
 
-  /** Which categories appear in the UI (filter chips). Empty array means all three. */
-  const visibleTypes = useMemo((): RoomTypeFilter[] => {
-    if (!roomTypeFilters.length) {
-      return ROOM_TYPE_FILTER_OPTIONS.map((o) => o.value);
-    }
-    return roomTypeFilters;
-  }, [roomTypeFilters]);
-
-  /** Types that have at least one inventory row for the current filters/dates. */
+  /** Types that have at least one inventory row for these dates. */
   const typesWithInventory = useMemo(() => {
     return ROOM_TYPE_FILTER_OPTIONS.map((o) => o.value).filter(
-      (t) =>
-        visibleTypes.includes(t) && (roomsByType.get(t)?.length ?? 0) > 0,
+      (t) => (roomsByType.get(t)?.length ?? 0) > 0,
     );
-  }, [visibleTypes, roomsByType]);
+  }, [roomsByType]);
 
   /**
    * Within each type (Standard / Family / Deluxe), sub-group by `description`
@@ -290,20 +256,7 @@ export function Step1({
     return rooms[0]?.description?.trim() || key;
   };
 
-  const toggleRoomTypeFilter = (value: RoomTypeFilter) => {
-    const next = roomTypeFilters.includes(value)
-      ? roomTypeFilters.length <= 1
-        ? roomTypeFilters
-        : roomTypeFilters.filter((x) => x !== value)
-      : [...roomTypeFilters, value].sort(
-          (a, b) =>
-            ROOM_TYPE_FILTER_OPTIONS.findIndex((o) => o.value === a) -
-            ROOM_TYPE_FILTER_OPTIONS.findIndex((o) => o.value === b),
-        );
-    updateFormData({ room_type_filters: next });
-  };
-
-  // Remove pre-selected rooms that are unavailable or no longer match room-type filters
+  // Remove pre-selected rooms that are unavailable for the current inventory response
   useEffect(() => {
     if (!roomList.length || !formData.rooms.length) return;
 
@@ -313,19 +266,9 @@ export function Step1({
         .map((room: any) => room.id),
     );
 
-    const allowedTypes =
-      roomTypeFilters.length > 0
-        ? new Set(roomTypeFilters.map((x) => x.toLowerCase()))
-        : null;
-
-    const filteredRooms = formData.rooms.filter((r: any) => {
-      if (!availableRoomIds.has(r?.id ?? r)) return false;
-      if (allowedTypes) {
-        const t = normalizeRoomTypeSlug(r.type);
-        if (!t || !allowedTypes.has(t)) return false;
-      }
-      return true;
-    });
+    const filteredRooms = formData.rooms.filter((r: any) =>
+      availableRoomIds.has(r?.id ?? r),
+    );
 
     if (filteredRooms.length !== formData.rooms.length) {
       setSelectedRooms(filteredRooms);
@@ -336,13 +279,7 @@ export function Step1({
     if (recentlyUnselectedCount !== 0) {
       setRecentlyUnselectedCount(0);
     }
-  }, [
-    roomList,
-    roomTypeFilters,
-    formData.rooms,
-    setSelectedRooms,
-    recentlyUnselectedCount,
-  ]);
+  }, [roomList, formData.rooms, setSelectedRooms, recentlyUnselectedCount]);
 
   const onSelectVenue = (venue: any) => {
     const isAlreadySelected = formData.venues.some(
@@ -600,113 +537,10 @@ export function Step1({
               style={{ color: "var(--color-charcoal)" }}
             >
               {bookingType === "both"
-                ? "Optional if you only need a venue: choose which categories appear, then set how many rooms per category (up to what’s available)."
-                : "Select which categories to show, then use +/− to choose how many rooms per category. You can’t exceed availability for your dates."}
+                ? "Standard, Family, and Deluxe appear below by layout. Use +/− for each—up to what’s available—or skip rooms if you only need a venue."
+                : "Browse Standard, Family, and Deluxe by layout. Use +/− to choose how many rooms you need; you can’t exceed availability for your dates."}
             </p>
           </div>
-          {(bookingType === "room" || bookingType === "both") && (
-            <div
-              className="overflow-hidden rounded-2xl border border-stone-200/90 shadow-[0_1px_0_rgba(15,23,42,0.04),0_20px_50px_-24px_rgba(15,23,42,0.12)]"
-              style={{
-                background:
-                  "linear-gradient(165deg, #fffefc 0%, #f7f5f0 48%, #f3f1ec 100%)",
-              }}
-            >
-              <div
-                className="relative border-b border-stone-200/70 px-5 py-5 md:px-7 md:py-6"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(49, 90, 59, 0.07) 0%, rgba(49, 90, 59, 0.02) 55%, transparent 100%)",
-                }}
-              >
-                <div
-                  className="absolute left-0 top-0 h-full w-1 rounded-r-sm bg-gradient-to-b from-emerald-700/90 via-[var(--color-sage,#315a3b)] to-emerald-900/80"
-                  aria-hidden
-                />
-                <p className="pl-3 text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-stone-500">
-                  Categories
-                </p>
-                <h4
-                  className="font-display mt-1.5 pl-3 text-xl font-semibold tracking-tight text-stone-900 md:text-2xl"
-                  style={{ color: "var(--color-charcoal)" }}
-                >
-                  Room types to show
-                </h4>
-                <p
-                  className="mt-2 max-w-2xl pl-3 text-sm leading-relaxed text-stone-600"
-                  style={{ color: "var(--color-charcoal)" }}
-                >
-                  Choose which room lines appear below. At least one category
-                  must stay on—toggle to focus on Standard, Family, or Deluxe.
-                </p>
-              </div>
-              <div className="p-4 md:p-6">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-                  {ROOM_TYPE_FILTER_OPTIONS.map((opt) => {
-                    const checked = roomTypeFilters.includes(opt.value);
-                    const Icon = ROOM_FILTER_ICONS[opt.value];
-                    const blurb = ROOM_FILTER_BLURBS[opt.value];
-                    const ft = ROOM_TYPE_FILTER_CARD_THEME[opt.value];
-                    return (
-                      <label
-                        key={opt.value}
-                        className={cn(
-                          "group flex cursor-pointer flex-col rounded-2xl border p-4 transition-all duration-200 md:p-5",
-                          "min-h-[7.5rem]",
-                          checked
-                            ? cn(
-                                "border ring-1",
-                                ft.checkedBorder,
-                                ft.checkedRing,
-                                ft.checkedBg,
-                              )
-                            : cn(ft.cardUnchecked, ft.hoverBorder),
-                          ft.focusRing,
-                        )}
-                        style={{ color: "var(--color-charcoal)" }}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div
-                            className={cn(
-                              "h-11 w-11 shrink-0 overflow-hidden rounded-xl border transition-colors duration-200",
-                              checked ? ft.iconOuter : ft.iconUnchecked,
-                            )}
-                          >
-                            {checked ? (
-                              <div className={ft.iconInner}>
-                                <Icon className="size-5" strokeWidth={1.75} />
-                              </div>
-                            ) : (
-                              <Icon className="size-5" strokeWidth={1.75} />
-                            )}
-                          </div>
-                          <Checkbox
-                            className={cn(
-                              ROOM_FILTER_CHECKBOX_BASE,
-                              ft.checkboxChecked,
-                              ft.checkboxFocus,
-                            )}
-                            checked={checked}
-                            onCheckedChange={() =>
-                              toggleRoomTypeFilter(opt.value)
-                            }
-                          />
-                        </div>
-                        <div className="mt-3 min-w-0 flex-1">
-                          <span className="font-display text-base font-semibold tracking-tight text-stone-900 md:text-lg">
-                            {opt.label}
-                          </span>
-                          <p className="mt-1 text-xs leading-snug text-stone-500">
-                            {blurb}
-                          </p>
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
           {roomsError && (
             <p className="text-red-600 text-sm py-2">
               Error loading rooms. Please try again.
@@ -738,8 +572,8 @@ export function Step1({
                 color: "var(--color-charcoal)",
               }}
             >
-              No rooms match the selected room types. Try including more types
-              above, or change your dates on the home page.
+              No bookable rooms in Standard, Family, or Deluxe for these dates.
+              Try different dates on the home page.
             </div>
           ) : (
             <div className="space-y-12">

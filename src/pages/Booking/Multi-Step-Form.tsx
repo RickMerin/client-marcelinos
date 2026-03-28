@@ -96,7 +96,6 @@ export function MultiStepForm() {
                 formData={formData}
                 setSelectedRooms={setSelectedRooms}
                 setSelectedVenues={setSelectedVenues}
-                updateFormData={updateFormData}
               />
             </motion.div>
           )}
