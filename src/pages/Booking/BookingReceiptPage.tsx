@@ -61,8 +61,25 @@ function toBookingReceipt(
       type: r.type ?? "",
       capacity: r.capacity ?? 0,
       price: r.price ?? 0,
-      bed_specifications: r.bed_specifications ?? [],
+      bed_specifications: Array.isArray(r.bed_specifications)
+        ? (r.bed_specifications as string[])
+        : [],
     })),
+    room_lines: Array.isArray(b.room_lines)
+      ? b.room_lines.map((l: Record<string, unknown>) => ({
+          room_type: String(l.room_type ?? ""),
+          inventory_group_key: String(l.inventory_group_key ?? ""),
+          quantity: Number(l.quantity) || 0,
+          unit_price_per_night:
+            typeof l.unit_price_per_night === "number" ||
+            typeof l.unit_price_per_night === "string"
+              ? (l.unit_price_per_night as number | string)
+              : 0,
+        }))
+      : [],
+    has_room_stay:
+      (Array.isArray(b.room_lines) ? b.room_lines.length : 0) > 0 ||
+      (b.rooms?.length ?? 0) > 0,
     venues: (b.venues ?? []).map((v) => ({
       name: v.name ?? "",
       capacity: v.capacity ?? 0,

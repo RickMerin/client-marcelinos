@@ -18,6 +18,16 @@ function formatConflictMessage(error: ErrorWithResponse): string {
   if (data.conflicts.rooms?.length) {
     parts.push(`Rooms: ${data.conflicts.rooms.map((r) => r.name).join(", ")}`);
   }
+  if (data.conflicts.room_lines?.length) {
+    parts.push(
+      data.conflicts.room_lines
+        .map(
+          (l) =>
+            `${l.room_type} (${l.requested} requested, ${l.available} available)`,
+        )
+        .join("; "),
+    );
+  }
   if (data.conflicts.venues?.length) {
     parts.push(
       `Venues: ${data.conflicts.venues.map((v) => v.name).join(", ")}`,

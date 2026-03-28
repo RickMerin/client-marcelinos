@@ -27,6 +27,12 @@ export interface BookingConflictResponse {
   conflicts?: {
     rooms?: Array<{ id: number; name: string }>;
     venues?: Array<{ id: number; name: string }>;
+    room_lines?: Array<{
+      room_type: string;
+      inventory_group_key: string;
+      requested: number;
+      available: number;
+    }>;
   };
 }
 
@@ -89,13 +95,23 @@ export interface BookingReceipt {
   guest_email: string;
   guest_contact: string;
   guest_address: string;
-  /** Multiple rooms (API now returns array) */
+  /** Assigned physical rooms (optional until staff assigns). */
   rooms?: Array<{
     name: string;
     type: string;
     capacity: number;
     price: number | string;
+    bed_specifications?: string[];
   }>;
+  /** Requested room types from guest checkout (no room name yet). */
+  room_lines?: Array<{
+    room_type: string;
+    inventory_group_key: string;
+    quantity: number;
+    unit_price_per_night: number | string;
+  }>;
+  /** True when stay includes accommodation (show check-in/out times on receipt). */
+  has_room_stay?: boolean;
   /** Multiple venues */
   venues?: Array<{
     name: string;
@@ -169,13 +185,22 @@ export interface PersonalDetails {
   address: string;
 }
 
+/** Collapsed room-type lines for POST /bookings (no specific room id). */
+export interface RoomLinePayload {
+  room_type: string;
+  inventory_group_key: string;
+  quantity: number;
+  unit_price: number;
+}
+
 export interface BookingPayload {
   reference_number?: string;
   payment_method?: string;
   check_in: string;
   check_out: string;
   days: number;
-  rooms: number[];
+  /** Guest booking: room type + bed-spec lines (staff assigns physical rooms later). */
+  room_lines?: RoomLinePayload[];
   venues?: number[];
   venue_event_type?: string;
   total_price: number;

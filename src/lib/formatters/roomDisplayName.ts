@@ -59,3 +59,35 @@ export function roomTypeAndBedTitle(room: {
   if (desc) return `${typeLabel} - ${desc}`;
   return typeLabel;
 }
+
+/**
+ * Billing line when a physical room is assigned: "Room 101 (Standard - 1 Double Bed)".
+ */
+export function assignedRoomBillingTitle(room: {
+  name?: string | null;
+  type?: string | null;
+  description?: string | null;
+  bed_specifications?: string[] | null;
+  bed_modifiers?: string[] | null;
+}): string {
+  const inner = roomTypeAndBedTitle(room);
+  const name = (room.name ?? "").trim() || "Room";
+  return `${name} (${inner})`;
+}
+
+/** Receipt row for requested room type only (no room name until staff assigns). */
+export function formatRoomLineTitle(line: {
+  room_type: string;
+  inventory_group_key: string;
+  quantity: number;
+}): string {
+  const typeLabel = roomTypeDisplayLabel(line.room_type);
+  const raw = line.inventory_group_key;
+  const detail = raw.startsWith("spec:")
+    ? raw.slice(5)
+    : raw.startsWith("desc:")
+      ? raw.slice(5)
+      : raw;
+  const qty = line.quantity > 1 ? ` ×${line.quantity}` : "";
+  return `${typeLabel} - ${detail}${qty}`;
+}

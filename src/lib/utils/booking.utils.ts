@@ -1,8 +1,10 @@
 import {
   FormData,
   BookingPayload,
+  type RoomLinePayload,
   type RoomTypeFilter,
 } from "@/types/booking.types";
+import { roomInventoryGroupKey } from "@/lib/formatters/roomDisplayName";
 import { getFromLocalStorage } from "@/lib/storage/localStorage";
 import { COUNTRIES } from "@/lib/constants/countries";
 import { DEFAULT_ROOM_TYPE_FILTERS } from "@/lib/constants/booking.constants";
@@ -60,6 +62,40 @@ export const generateReferenceId = (): string => {
 const toId = (item: { id?: number } | number): number =>
   typeof item === "number" ? item : Number((item as { id: number }).id) || 0;
 
+/**
+ * Collapse selected inventory rows into API room_lines (type + bed-spec group + qty + rate).
+ * Matches backend {@link RoomInventoryGroupKey}.
+ */
+export function collapseRoomsToLines(rooms: unknown[]): RoomLinePayload[] {
+  if (!Array.isArray(rooms) || rooms.length === 0) return [];
+  const map = new Map<
+    string,
+    { room_type: string; inventory_group_key: string; quantity: number; unit_price: number }
+  >();
+  for (const r of rooms) {
+    const room = r as {
+      type?: string;
+      price?: number | string;
+    };
+    const type = normalizeRoomTypeSlug(room.type) ?? "standard";
+    const key = roomInventoryGroupKey(r as Parameters<typeof roomInventoryGroupKey>[0]);
+    const id = `${type}|${key}`;
+    const price = Number(room.price) || 0;
+    const existing = map.get(id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      map.set(id, {
+        room_type: type,
+        inventory_group_key: key,
+        quantity: 1,
+        unit_price: price,
+      });
+    }
+  }
+  return Array.from(map.values());
+}
+
 type ParsedLocalPHAddress = {
   barangay: string;
   municipality: string;
@@ -111,7 +147,7 @@ export const buildBookingPayload = (formData: FormData): BookingPayload => {
   const validInternationalCountry = isIntl
     ? normalizeInternationalCountry(formData.address)
     : null;
-  const roomIds = (formData.rooms || []).map(toId).filter(Boolean);
+  const roomLines = collapseRoomsToLines(formData.rooms || []);
   const venueIds = (formData.venues || []).map(toId).filter(Boolean);
 
   const parsedLocal = !isIntl ? parseLocalPHAddress(formData.address) : null;
@@ -127,7 +163,7 @@ export const buildBookingPayload = (formData: FormData): BookingPayload => {
     check_in: formData.check_in,
     check_out: formData.check_out,
     days: formData.days,
-    rooms: roomIds,
+    ...(roomLines.length > 0 && { room_lines: roomLines }),
     ...(venueIds.length > 0 && { venues: venueIds }),
     ...(venueIds.length > 0 && {
       venue_event_type: formData.venue_event_type || "wedding",

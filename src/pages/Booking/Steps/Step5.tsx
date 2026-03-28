@@ -12,7 +12,10 @@ import {
 import { VENUE_EVENT_OPTIONS } from "@/lib/constants/booking.constants";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
-import { roomTypeAndBedTitle } from "@/lib/formatters/roomDisplayName";
+import {
+  assignedRoomBillingTitle,
+  formatRoomLineTitle,
+} from "@/lib/formatters/roomDisplayName";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import CancelBookingContent from "@/components/modals/CancelBookingContent";
 import RescheduleBookingContent from "@/components/modals/RescheduleBookingContent";
@@ -266,9 +269,17 @@ function parseDateInput(value?: string): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-function formatReceiptDate(value?: string): string {
+function formatReceiptDate(value?: string, includeTime = true): string {
   const parsed = parseDateInput(value);
   if (!parsed) return value ?? "—";
+
+  if (!includeTime) {
+    return parsed.toLocaleDateString("en-PH", {
+      year: "numeric",
+      month: "long",
+      day: "2-digit",
+    });
+  }
 
   return parsed.toLocaleString("en-PH", {
     year: "numeric",
@@ -332,14 +343,21 @@ export function Step5(props: Props) {
 
   const checkIn = isFromApi ? receipt?.check_in : form?.check_in;
   const checkOut = isFromApi ? receipt?.check_out : form?.check_out;
-  const nights = getNightsFromDates(checkIn, checkOut, receipt?.nights ?? 0);
+  const nights =
+    isFromApi && receipt?.nights != null && !Number.isNaN(Number(receipt.nights))
+      ? Math.max(0, Number(receipt.nights))
+      : getNightsFromDates(checkIn, checkOut, receipt?.nights ?? 0);
 
   const bookingType = isFromApi
-    ? receipt?.venues?.length
-      ? receipt?.rooms?.length
-        ? "both"
-        : "venue"
-      : "room"
+    ? (() => {
+        const hasRooms =
+          (receipt?.rooms?.length ?? 0) > 0 ||
+          (receipt?.room_lines?.length ?? 0) > 0;
+        const hasVenues = (receipt?.venues?.length ?? 0) > 0;
+        if (hasRooms && hasVenues) return "both";
+        if (hasVenues) return "venue";
+        return "room";
+      })()
     : (form?.booking_type ?? "room");
 
   const guestName = isFromApi
@@ -358,9 +376,19 @@ export function Step5(props: Props) {
   const issuedOn = isFromApi
     ? (receipt?.issued_on ?? new Date().toLocaleDateString())
     : new Date().toLocaleDateString();
+  const includeRoomTimes = isFromApi
+    ? (receipt?.has_room_stay ?? false)
+    : (() => {
+        const bt = form?.booking_type ?? "room";
+        if (bt === "venue") return false;
+        if (bt === "both" && (!form?.rooms || form.rooms.length === 0))
+          return false;
+        return true;
+      })();
+
   const formattedCreatedAt = formatReceiptDate(createdAt);
-  const formattedCheckIn = formatReceiptDate(checkIn);
-  const formattedCheckOut = formatReceiptDate(checkOut);
+  const formattedCheckIn = formatReceiptDate(checkIn, includeRoomTimes);
+  const formattedCheckOut = formatReceiptDate(checkOut, includeRoomTimes);
   const formattedIssuedOn = formatReceiptDate(issuedOn);
   const paymentMethod = isFromApi ? undefined : form?.paymentMethod;
 
@@ -416,8 +444,27 @@ export function Step5(props: Props) {
             ]
           : []
       : [];
+
+  const roomLinesFromApi =
+    isFromApi && receipt?.room_lines?.length
+      ? receipt.room_lines.map((l) => ({
+          kind: "line" as const,
+          room_type: l.room_type,
+          inventory_group_key: l.inventory_group_key,
+          quantity: l.quantity,
+          price:
+            typeof l.unit_price_per_night === "number"
+              ? l.unit_price_per_night
+              : parseFloat(String(l.unit_price_per_night || 0)),
+        }))
+      : [];
   const roomsFromForm = Array.isArray(form?.rooms) ? form.rooms : [];
-  const rooms = isFromApi ? roomsFromApi : roomsFromForm;
+  const rooms =
+    isFromApi && roomsFromApi.length === 0 && roomLinesFromApi.length > 0
+      ? roomLinesFromApi
+      : isFromApi
+        ? roomsFromApi
+        : roomsFromForm;
 
   const venuesFromApi = receipt?.venues ?? [];
   const venuesFromForm = Array.isArray(form?.venues) ? form.venues : [];
@@ -438,14 +485,16 @@ export function Step5(props: Props) {
     ? Math.max(1, receipt?.nights ?? 1)
     : Math.max(1, form?.days ?? 1);
 
-  const roomsTotal = rooms.reduce(
-    (sum: number, r: { price?: number | string }) =>
-      sum +
-      (typeof r.price === "number"
+  const roomsTotal = rooms.reduce((sum: number, r: any) => {
+    const p =
+      typeof r.price === "number"
         ? r.price
-        : parseFloat(String(r.price || 0))),
-    0,
-  );
+        : parseFloat(String(r.price || 0));
+    if (r.kind === "line") {
+      return sum + p * (r.quantity || 1);
+    }
+    return sum + p;
+  }, 0);
   const venuesLinePerNight = calculateVenuesLineTotal(
     venues as Parameters<typeof calculateVenuesLineTotal>[0],
     venueEventTypeRaw as "wedding" | "birthday" | "seminar" | "",
@@ -689,6 +738,14 @@ export function Step5(props: Props) {
                             ? room.price
                             : parseFloat(String(room.price || 0));
                         const qty = nights || 1;
+                        const title =
+                          room.kind === "line"
+                            ? formatRoomLineTitle({
+                                room_type: room.room_type,
+                                inventory_group_key: room.inventory_group_key,
+                                quantity: room.quantity,
+                              })
+                            : assignedRoomBillingTitle(room);
                         // const lineTotal = unitPrice * qty;
                         return (
                           <tr
@@ -701,9 +758,7 @@ export function Step5(props: Props) {
                               #{String(idx + 1)}
                             </td>
                             <td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
-                              <div className="font-medium">
-                                {roomTypeAndBedTitle(room)}
-                              </div>
+                              <div className="font-medium">{title}</div>
                             </td>
                             <td className="px-3 py-2 sm:px-4 sm:py-2.5 text-right align-top tabular-nums">
                               {pricingFormat(unitPrice)}
