@@ -17,9 +17,13 @@ import {
   VENUE_EVENT_OPTIONS,
 } from "@/lib/constants/booking.constants";
 import {
-  normalizeRoomDescriptionKey,
+  isRoomInventoryAvailable,
   normalizeRoomTypeSlug,
 } from "@/lib/utils/booking.utils";
+import {
+  bedSpecificationLine,
+  roomInventoryGroupKey,
+} from "@/lib/formatters/roomDisplayName";
 import { venueEffectiveUnitPrice } from "@/lib/math/calculate";
 import type { VenueEventType } from "@/types/booking.types";
 
@@ -176,8 +180,8 @@ export function Step1({
   }, [roomsByType]);
 
   /**
-   * Within each type (Standard / Family / Deluxe), sub-group by `description`
-   * so e.g. Standard "2 Single Bed" vs "1 Double Bed" get separate steppers.
+   * Within each type (Standard / Family / Deluxe), sub-group by API layout:
+   * `bed_specifications` when present, else `description` (same as review step).
    */
   const subgroupsByType = useMemo(() => {
     const map = new Map<
@@ -188,7 +192,7 @@ export function Step1({
       const rooms = roomsByType.get(t) ?? [];
       const byDesc = new Map<string, any[]>();
       for (const room of rooms) {
-        const k = normalizeRoomDescriptionKey(room.description);
+        const k = roomInventoryGroupKey(room);
         if (!byDesc.has(k)) byDesc.set(k, []);
         byDesc.get(k)!.push(room);
       }
@@ -204,26 +208,26 @@ export function Step1({
   }, [roomsByType]);
 
   const roomMatchesSubgroup = useCallback(
-    (r: any, type: RoomTypeFilter, descriptionKey: string) => {
+    (r: any, type: RoomTypeFilter, inventoryGroupKey: string) => {
       if (normalizeRoomTypeSlug(r.type) !== type) return false;
-      return normalizeRoomDescriptionKey(r.description) === descriptionKey;
+      return roomInventoryGroupKey(r) === inventoryGroupKey;
     },
     [],
   );
 
   const setQuantityForSubgroup = useCallback(
-    (type: RoomTypeFilter, descriptionKey: string, nextCount: number) => {
+    (type: RoomTypeFilter, inventoryGroupKey: string, nextCount: number) => {
       const pool = (roomsByType.get(type) || [])
         .filter(
           (r: any) =>
-            normalizeRoomDescriptionKey(r.description) === descriptionKey &&
-            r.available !== false,
+            roomInventoryGroupKey(r) === inventoryGroupKey &&
+            isRoomInventoryAvailable(r),
         )
         .sort((a: any, b: any) => a.id - b.id);
       const max = pool.length;
       const clamped = Math.max(0, Math.min(nextCount, max));
       const selectedOfSubgroup = formData.rooms.filter((r: any) =>
-        roomMatchesSubgroup(r, type, descriptionKey),
+        roomMatchesSubgroup(r, type, inventoryGroupKey),
       );
       const current = selectedOfSubgroup.length;
       if (clamped === current) return;
@@ -252,16 +256,17 @@ export function Step1({
     [formData.rooms, roomsByType, setSelectedRooms, roomMatchesSubgroup],
   );
 
-  const countForSubgroup = (type: RoomTypeFilter, descriptionKey: string) =>
+  const countForSubgroup = (type: RoomTypeFilter, inventoryGroupKey: string) =>
     formData.rooms.filter((r: any) =>
-      roomMatchesSubgroup(r, type, descriptionKey),
+      roomMatchesSubgroup(r, type, inventoryGroupKey),
     ).length;
 
-  const layoutLabelForSubgroup = (key: string, rooms: any[]) => {
-    if (key === "__default__") {
-      return rooms[0]?.description?.trim() || "Room options";
-    }
-    return rooms[0]?.description?.trim() || key;
+  const layoutLabelForSubgroup = (_key: string, rooms: any[]) => {
+    const rep = rooms[0];
+    if (!rep) return "Room options";
+    const bed = bedSpecificationLine(rep);
+    if (bed) return bed;
+    return rep.description?.trim() || "Room options";
   };
 
   // Remove pre-selected rooms that are unavailable for the current inventory response
@@ -270,7 +275,7 @@ export function Step1({
 
     const availableRoomIds = new Set(
       roomList
-        .filter((room: any) => room?.available !== false)
+        .filter((room: any) => isRoomInventoryAvailable(room))
         .map((room: any) => room.id),
     );
 
@@ -613,7 +618,7 @@ export function Step1({
                     <div className="grid gap-6 sm:grid-cols-2">
                       {subgroups.map(({ key, rooms: roomsInGroup }) => {
                         const maxAvailable = roomsInGroup.filter(
-                          (r: any) => r.available !== false,
+                          (r: any) => isRoomInventoryAvailable(r),
                         ).length;
                         const n = countForSubgroup(type, key);
                         const layoutLabel = layoutLabelForSubgroup(

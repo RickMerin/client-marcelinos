@@ -11,6 +11,8 @@ import {
   roomImages,
 } from "@/hooks/useRoomList";
 import type { RoomTypeFilter } from "@/types/booking.types";
+import { bedSpecificationLine } from "@/lib/formatters/roomDisplayName";
+import { isRoomInventoryAvailable } from "@/lib/utils/booking.utils";
 
 const EMPTY_FIELD = "—";
 
@@ -26,18 +28,6 @@ export interface RoomTypeQuantityCardProps {
   onDecrement: () => void;
 }
 
-function bedSpecsLine(room: any): string | null {
-  const specs = room?.bed_specifications;
-  if (!Array.isArray(specs) || specs.length === 0) return null;
-  const mods = room?.bed_modifiers;
-  const base = specs.filter(Boolean).join(", ");
-  if (!base) return null;
-  if (Array.isArray(mods) && mods.length > 0) {
-    return `${base} (${mods.join(", ")})`;
-  }
-  return base;
-}
-
 export function RoomTypeQuantityCard({
   roomType,
   typeLabel,
@@ -48,7 +38,9 @@ export function RoomTypeQuantityCard({
   onIncrement,
   onDecrement,
 }: RoomTypeQuantityCardProps) {
-  const availableRooms = roomsInGroup.filter((r) => r.available !== false);
+  const availableRooms = roomsInGroup.filter((r) =>
+    isRoomInventoryAvailable(r),
+  );
   const rep =
     availableRooms[0] ??
     roomsInGroup[0] ??
@@ -82,7 +74,7 @@ export function RoomTypeQuantityCard({
         ? `${maxCap} ${capacityGuestWord}`
         : `${minCap}–${maxCap} ${capacityGuestWord}`;
 
-  const bedExtra = bedSpecsLine(rep);
+  const bedExtra = bedSpecificationLine(rep);
   const showBedExtra =
     bedExtra &&
     bedExtra.toLowerCase() !== headline.toLowerCase();
@@ -93,7 +85,7 @@ export function RoomTypeQuantityCard({
   const samePrice = minPrice === maxPrice;
 
   const fullyBooked = maxAvailable === 0 && roomsInGroup.length > 0;
-  const firstBlocked = roomsInGroup.find((r) => r.available === false);
+  const firstBlocked = roomsInGroup.find((r) => !isRoomInventoryAvailable(r));
   const unavailableTitle =
     firstBlocked?.unavailability_title?.trim() || "Fully booked";
   const unavailableDetail =
