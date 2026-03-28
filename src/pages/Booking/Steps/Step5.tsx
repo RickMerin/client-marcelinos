@@ -5,6 +5,11 @@ import { motion } from "framer-motion";
 import { Download, House, CircleX } from "lucide-react";
 import domtoimage from "dom-to-image";
 import { BookingReceipt } from "@/types/booking.types";
+import {
+  calculateVenuesLineTotal,
+  venueEffectiveUnitPrice,
+} from "@/lib/math/calculate";
+import { VENUE_EVENT_OPTIONS } from "@/lib/constants/booking.constants";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
@@ -417,10 +422,20 @@ export function Step5(props: Props) {
   const venuesFromForm = Array.isArray(form?.venues) ? form.venues : [];
   const venues = isFromApi ? venuesFromApi : venuesFromForm;
 
+  const venueEventTypeRaw =
+    (isFromApi ? receipt?.venue_event_type : form?.venue_event_type) || "wedding";
+  const venueEventLabel =
+    VENUE_EVENT_OPTIONS.find((o) => o.value === venueEventTypeRaw)?.label ??
+    venueEventTypeRaw;
+
   const grandTotal =
     isFromApi && receipt
       ? parseFloat(receipt.grand_total)
       : (form?.grandTotalPrice ?? 0);
+
+  const nightsForPricing = isFromApi
+    ? Math.max(1, receipt?.nights ?? 1)
+    : Math.max(1, form?.days ?? 1);
 
   const roomsTotal = rooms.reduce(
     (sum: number, r: { price?: number | string }) =>
@@ -430,16 +445,12 @@ export function Step5(props: Props) {
         : parseFloat(String(r.price || 0))),
     0,
   );
-  const venuesTotal = venues.reduce(
-    (sum: number, v: { price?: number | string }) =>
-      sum +
-      (typeof v.price === "number"
-        ? v.price
-        : parseFloat(String(v.price || 0))),
-    0,
+  const venuesLinePerNight = calculateVenuesLineTotal(
+    venues as Parameters<typeof calculateVenuesLineTotal>[0],
+    venueEventTypeRaw as "wedding" | "birthday" | "seminar" | "",
   );
-  const roomsGrandTotal = nights > 0 ? roomsTotal * nights : roomsTotal;
-  const venuesGrandTotal = venuesTotal;
+  const roomsGrandTotal = roomsTotal * nightsForPricing;
+  const venuesGrandTotal = venuesLinePerNight * nightsForPricing;
   const calculatedGrandTotal = roomsGrandTotal + venuesGrandTotal;
   const displayGrandTotal =
     isFromApi && receipt ? grandTotal : calculatedGrandTotal;
@@ -616,6 +627,9 @@ export function Step5(props: Props) {
                 <ReceiptRow label="Check-in" value={formattedCheckIn} />
                 <ReceiptRow label="Check-out" value={formattedCheckOut} />
                 <ReceiptRow label="Nights" value={String(nights)} />
+                {venues.length > 0 && (
+                  <ReceiptRow label="Event type" value={venueEventLabel} />
+                )}
               </div>
               <div className="space-y-1.5 sm:text-right">
                 <ReceiptRow
@@ -712,12 +726,11 @@ export function Step5(props: Props) {
                         );
                       })}
                       {venues.map((venue: any, idx: number) => {
-                        const unitPrice =
-                          typeof venue.price === "number"
-                            ? venue.price
-                            : parseFloat(String(venue.price || 0));
-                        const qty = 1;
-                        // const lineTotal = unitPrice * qty;
+                        const unitPrice = venueEffectiveUnitPrice(
+                          venue,
+                          venueEventTypeRaw as "wedding" | "birthday" | "seminar" | "",
+                        );
+                        const qty = nightsForPricing;
 
                         return (
                           <tr

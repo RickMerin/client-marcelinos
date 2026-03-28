@@ -1,6 +1,18 @@
-import { FormData } from "@/types/booking.types";
+import { FormData, type VenueEventType } from "@/types/booking.types";
 import { personalDetailsSchema } from "@/lib/validators/personalDetails.schema";
 import { generateReferenceId } from "@/lib/utils/booking.utils";
+
+const VENUE_EVENT_TYPES = new Set<VenueEventType>([
+  "wedding",
+  "birthday",
+  "seminar",
+]);
+
+function hasValidVenueEventType(formData: FormData): boolean {
+  if (!formData.venues?.length) return true;
+  const t = (formData.venue_event_type || "wedding") as VenueEventType;
+  return VENUE_EVENT_TYPES.has(t);
+}
 
 /**
  * Custom hook for booking form validation logic
@@ -45,6 +57,7 @@ export const useBookingValidation = (
               : formData.rooms.length + formData.venues.length > 0;
 
         if (!hasSelection) return false;
+        if (!hasValidVenueEventType(formData)) return false;
 
         let refId = formData.reference_number;
         if (!refId) {

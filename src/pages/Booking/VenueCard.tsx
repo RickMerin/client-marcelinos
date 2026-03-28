@@ -9,6 +9,8 @@ interface VenueCardProps {
   images?: string[];
   capacity: string;
   price: string | number;
+  /** Shown under the amount, e.g. "Full price" vs "Seminar rate" */
+  priceTierLabel?: string;
   selected?: boolean;
   onSelectVenue: (id: number) => void;
   /** When false, venue is not available for the selected dates; selection is disabled. When true or undefined, venue is bookable. */
@@ -23,6 +25,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({
   images = [],
   capacity,
   price,
+  priceTierLabel,
   selected = false,
   onSelectVenue,
   availability = true,
@@ -219,6 +222,13 @@ export const VenueCard: React.FC<VenueCardProps> = ({
               {pricingFormat(String(price))}
               <span className="text-sm font-normal opacity-70"> /event</span>
             </p>
+            {priceTierLabel ? (
+              <p
+                className="text-xs mt-1 font-medium"
+                style={{ color: "var(--color-sage, #4a6741)" }}>
+                {priceTierLabel}
+              </p>
+            ) : null}
           </div>
           <button
             type="button"

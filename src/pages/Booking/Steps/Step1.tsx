@@ -11,12 +11,17 @@ import {
   venueImages,
   formatShortDate,
 } from "@/hooks/useRoomList";
-import type { BookingKind, RoomTypeFilter } from "@/types/booking.types";
-import { ROOM_TYPE_FILTER_OPTIONS } from "@/lib/constants/booking.constants";
+import type { BookingKind, FormData, RoomTypeFilter } from "@/types/booking.types";
+import {
+  ROOM_TYPE_FILTER_OPTIONS,
+  VENUE_EVENT_OPTIONS,
+} from "@/lib/constants/booking.constants";
 import {
   normalizeRoomDescriptionKey,
   normalizeRoomTypeSlug,
 } from "@/lib/utils/booking.utils";
+import { venueEffectiveUnitPrice } from "@/lib/math/calculate";
+import type { VenueEventType } from "@/types/booking.types";
 
 interface ApiListResponse<T> {
   success?: boolean;
@@ -27,11 +32,13 @@ interface Props {
   formData: {
     booking_type?: BookingKind;
     venue_event_date?: string;
+    venue_event_type?: string;
     check_in: string;
     check_out: string;
     rooms: any[];
     venues: any[];
   };
+  updateFormData: (updates: Partial<FormData>) => void;
   setSelectedRooms: (rooms: any[]) => void;
   setSelectedVenues: (venues: any[]) => void;
 }
@@ -97,6 +104,7 @@ function VenueCardSkeleton() {
 
 export function Step1({
   formData,
+  updateFormData,
   setSelectedRooms,
   setSelectedVenues,
 }: Props) {
@@ -662,6 +670,56 @@ export function Step1({
                   : "Add a venue if you need a dedicated space for events (e.g. meetings, celebrations)."}
             </p>
           </div>
+
+          <div
+            className="rounded-md border bg-white p-5 shadow-sm md:p-6"
+            style={{ borderColor: "var(--color-sage-muted, #e5e7eb)" }}
+          >
+            <p
+              className="text-sm font-semibold mb-3"
+              style={{ color: "var(--color-charcoal)" }}
+            >
+              Event type
+            </p>
+            <p
+              className="text-xs opacity-80 mb-4 max-w-2xl"
+              style={{ color: "var(--color-charcoal)" }}
+            >
+              Venue list prices update based on your choice. Wedding and
+              birthday use the full list price; seminar uses the seminar rate
+              set for each venue.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              {VENUE_EVENT_OPTIONS.map((opt) => {
+                const selected =
+                  (formData.venue_event_type || "wedding") === opt.value;
+                return (
+                  <label
+                    key={opt.value}
+                    className={`flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2.5 text-sm transition ${
+                      selected
+                        ? "border-emerald-700 bg-emerald-50/80 font-medium"
+                        : "border-gray-200 hover:border-emerald-300"
+                    }`}
+                    style={{ color: "var(--color-charcoal)" }}
+                  >
+                    <input
+                      type="radio"
+                      name="venue_event_type"
+                      value={opt.value}
+                      checked={selected}
+                      onChange={() =>
+                        updateFormData({ venue_event_type: opt.value })
+                      }
+                      className="accent-emerald-700"
+                    />
+                    {opt.label}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
           {venuesError && (
             <p className="text-red-600 text-sm py-2">
               Error loading venues. Please try again.
@@ -686,23 +744,31 @@ export function Step1({
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {venueList.map((venue: any) => (
-                <VenueCard
-                  key={venue.id}
-                  id={venue.id}
-                  name={venue.name ?? "Venue"}
-                  images={venueImages(venue)}
-                  capacity={String(venue.capacity ?? "—")}
-                  price={venue.price ?? 0}
-                  availability={venue.available ?? false}
-                  unavailabilityTitle={venue.unavailability_title}
-                  unavailabilityDetail={venue.unavailability_detail}
-                  selected={formData.venues.some(
-                    (v: any) => (v?.id ?? v) === venue.id,
-                  )}
-                  onSelectVenue={() => onSelectVenue(venue)}
-                />
-              ))}
+              {venueList.map((venue: any) => {
+                const eventType = (formData.venue_event_type ||
+                  "wedding") as VenueEventType | "";
+                const displayPrice = venueEffectiveUnitPrice(venue, eventType);
+                const priceTierLabel =
+                  eventType === "seminar" ? "Seminar rate" : "Full price";
+                return (
+                  <VenueCard
+                    key={venue.id}
+                    id={venue.id}
+                    name={venue.name ?? "Venue"}
+                    images={venueImages(venue)}
+                    capacity={String(venue.capacity ?? "—")}
+                    price={displayPrice}
+                    priceTierLabel={priceTierLabel}
+                    availability={venue.available ?? false}
+                    unavailabilityTitle={venue.unavailability_title}
+                    unavailabilityDetail={venue.unavailability_detail}
+                    selected={formData.venues.some(
+                      (v: any) => (v?.id ?? v) === venue.id,
+                    )}
+                    onSelectVenue={() => onSelectVenue(venue)}
+                  />
+                );
+              })}
             </div>
           )}
         </section>

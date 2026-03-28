@@ -3,6 +3,9 @@ export type Gender = "male" | "female" | "other";
 /** Drives date rules on the hero form and pricing (room nights vs single-day venue). */
 export type BookingKind = "room" | "venue" | "both";
 
+/** When booking venues, rate tier: full price (wedding/birthday) vs seminar rate. */
+export type VenueEventType = "wedding" | "birthday" | "seminar";
+
 /** Room inventory `type` values (matches backend `rooms.type` enum). */
 export type RoomTypeFilter = "standard" | "family" | "deluxe";
 
@@ -35,6 +38,7 @@ export interface BookingReferenceResponse {
     check_in?: string;
     check_out?: string;
     no_of_days?: number;
+    venue_event_type?: string | null;
     total_price?: string | number;
     created_at?: string;
     guest?: {
@@ -93,7 +97,14 @@ export interface BookingReceipt {
     price: number | string;
   }>;
   /** Multiple venues */
-  venues?: Array<{ name: string; capacity: number; price: number | string }>;
+  venues?: Array<{
+    name: string;
+    capacity: number;
+    price: number | string;
+    seminar_price?: number | string;
+  }>;
+  /** Stored when the booking includes venues */
+  venue_event_type?: string | null;
   /** @deprecated use rooms instead */
   room?: {
     number: number | null;
@@ -112,6 +123,8 @@ export interface FormData {
   booking_type: BookingKind;
   /** For `both`: calendar day of the venue/event (same-day use). Used for venue availability API. */
   venue_event_date: string;
+  /** Required when `venues` is non-empty; drives venue line pricing. */
+  venue_event_type: VenueEventType | "";
   check_in: string;
   check_out: string;
   days: number;
@@ -164,6 +177,7 @@ export interface BookingPayload {
   days: number;
   rooms: number[];
   venues?: number[];
+  venue_event_type?: string;
   total_price: number;
   grand_total_price?: number;
   first_name: string;
