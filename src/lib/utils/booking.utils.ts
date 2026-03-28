@@ -38,6 +38,17 @@ export function normalizeRoomDescriptionKey(description: unknown): string {
 }
 
 /**
+ * Whether the rooms API row can be booked for the requested dates.
+ * Honors `available`, `is_block_date`, and explicit `available: false` from the API.
+ */
+export function isRoomInventoryAvailable(room: any): boolean {
+  if (room == null) return false;
+  if (room.available === false) return false;
+  if (room.is_block_date === true) return false;
+  return true;
+}
+
+/**
  * Generates a unique reference ID for bookings
  */
 export const generateReferenceId = (): string => {

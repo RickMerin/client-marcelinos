@@ -12,6 +12,7 @@ import {
 import { VENUE_EVENT_OPTIONS } from "@/lib/constants/booking.constants";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { roomTypeAndBedTitle } from "@/lib/formatters/roomDisplayName";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import CancelBookingContent from "@/components/modals/CancelBookingContent";
 import RescheduleBookingContent from "@/components/modals/RescheduleBookingContent";
@@ -689,13 +690,6 @@ export function Step5(props: Props) {
                             : parseFloat(String(room.price || 0));
                         const qty = nights || 1;
                         // const lineTotal = unitPrice * qty;
-                        const title =
-                          room.bed_specifications &&
-                          room.bed_specifications.length > 0
-                            ? room.bed_specifications.join(", ")
-                            : (room.type ?? "Room");
-                        const type = room.type ?? "Room";
-
                         return (
                           <tr
                             key={`room-${idx}`}
@@ -708,12 +702,7 @@ export function Step5(props: Props) {
                             </td>
                             <td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
                               <div className="font-medium">
-                                {title}{" "}
-                                {type && (
-                                  <span className="text-gray-500 text-xs">
-                                    ({type})
-                                  </span>
-                                )}
+                                {roomTypeAndBedTitle(room)}
                               </div>
                             </td>
                             <td className="px-3 py-2 sm:px-4 sm:py-2.5 text-right align-top tabular-nums">

@@ -1,22 +1,32 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { buildAvailabilityUrl, extractList } from "@/hooks/useRoomList";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { pluralize } from "@/lib/formatters/plural";
 import type { FormData } from "@/types/booking.types";
-import type { BookingKind } from "@/types/booking.types";
+import type { BookingKind, RoomTypeFilter } from "@/types/booking.types";
 import {
   calculateTotalPrice,
   calculateVenuesLineTotal,
   venueEffectiveUnitPrice,
 } from "@/lib/math/calculate";
-import { Calendar, Pencil, Trash2, CheckCircle2, Plus } from "lucide-react";
+import { Calendar, Pencil, Trash2, CheckCircle2, Plus, Minus } from "lucide-react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarWithDisabledReasons } from "@/components/calendar/CalendarWithDisabledReasons";
+import {
+  roomInventoryGroupKey,
+  roomTypeAndBedTitle,
+} from "@/lib/formatters/roomDisplayName";
+import {
+  isRoomInventoryAvailable,
+  normalizeRoomTypeSlug,
+} from "@/lib/utils/booking.utils";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface Props {
   formData: FormData;
@@ -86,6 +96,21 @@ function bookingKindLabel(t: BookingKind): string {
   return "Rooms only";
 }
 
+const ROOM_TYPE_ORDER: RoomTypeFilter[] = ["standard", "family", "deluxe"];
+
+function capacityLineForGroup(groupRooms: any[]): string | null {
+  const caps = groupRooms
+    .map((r) => Number(r.capacity))
+    .filter((n) => !Number.isNaN(n) && n > 0);
+  if (!caps.length) return null;
+  const minCap = Math.min(...caps);
+  const maxCap = Math.max(...caps);
+  const gw = maxCap === 1 ? "guest" : "guests";
+  return minCap === maxCap
+    ? `${maxCap} ${gw}`
+    : `${minCap}–${maxCap} ${gw}`;
+}
+
 export function Step3({
   formData,
   updateFormData,
@@ -106,7 +131,6 @@ export function Step3({
   const [openCalendarField, setOpenCalendarField] = useState<string | null>(
     null,
   );
-  const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
   const [openAddRoom, setOpenAddRoom] = useState(false);
 
   useEffect(() => {
@@ -125,8 +149,8 @@ export function Step3({
   );
 
   const availableRoomsList = extractList(roomsResponse);
-  const availableRooms = availableRoomsList.filter(
-    (r: any) => r.available !== false,
+  const availableRooms = availableRoomsList.filter((r: any) =>
+    isRoomInventoryAvailable(r),
   );
 
   // ✅ Fetch blocked dates like FormWrapper does
@@ -268,33 +292,162 @@ export function Step3({
     setOpenCalendarField(null);
   };
 
-  const handleDeleteRoom = (index: number) => {
-    if (!setSelectedRooms) return;
-    if (rooms.length === 1 && bookingType !== "both") {
-      if (
-        !confirm(
-          "This is your last room. You cannot proceed without any rooms. Delete?",
-        )
-      )
-        return;
-    }
-    const updated = rooms.filter((_, i) => i !== index);
-    setSelectedRooms(updated);
-    setEditingRoomIndex(null);
-  };
+  /** At least one venue must remain when venues are required for the booking flow. */
+  const canRemoveVenue =
+    venues.length > 1 ||
+    (bookingType === "both" && rooms.length > 0);
 
-  const handleSelectRoomVariant = (index: number, newRoom: any) => {
-    if (!setSelectedRooms) return;
-    const updated = [...rooms];
-    updated[index] = newRoom;
-    setSelectedRooms(updated);
-    setEditingRoomIndex(null);
-  };
+  const roomMatchesSubgroup = useCallback(
+    (r: any, type: RoomTypeFilter, inventoryGroupKeyStr: string) => {
+      if (normalizeRoomTypeSlug(r.type) !== type) return false;
+      return roomInventoryGroupKey(r) === inventoryGroupKeyStr;
+    },
+    [],
+  );
+
+  /**
+   * Same rules as Step 1: pool by room type + description (bed layout group);
+   * add/remove concrete units by id when the quantity changes.
+   */
+  const setQuantityForSubgroup = useCallback(
+    (type: RoomTypeFilter, inventoryGroupKeyStr: string, nextCount: number) => {
+      if (!setSelectedRooms) return;
+      const pool = availableRoomsList
+        .filter(
+          (r: any) =>
+            normalizeRoomTypeSlug(r.type) === type &&
+            roomInventoryGroupKey(r) === inventoryGroupKeyStr &&
+            isRoomInventoryAvailable(r),
+        )
+        .sort((a: any, b: any) => a.id - b.id);
+      const max = pool.length;
+      const clamped = Math.max(0, Math.min(nextCount, max));
+      const selectedOfSubgroup = rooms.filter((r: any) =>
+        roomMatchesSubgroup(r, type, inventoryGroupKeyStr),
+      );
+      const current = selectedOfSubgroup.length;
+      if (clamped === current) return;
+
+      let nextRooms: any[];
+      if (clamped < current) {
+        const sortedSel = [...selectedOfSubgroup].sort(
+          (a: any, b: any) => b.id - a.id,
+        );
+        const toRemove = new Set(
+          sortedSel.slice(0, current - clamped).map((r: any) => r.id),
+        );
+        nextRooms = rooms.filter((r: any) => !toRemove.has(r?.id ?? r));
+      } else {
+        const selectedIds = new Set(rooms.map((r: any) => r?.id ?? r));
+        const toAdd = pool
+          .filter((r: any) => !selectedIds.has(r.id))
+          .slice(0, clamped - current);
+        nextRooms = [...rooms, ...toAdd];
+      }
+
+      if (nextRooms.length === 0) {
+        if (bookingType === "room") return;
+        if (bookingType === "both" && venues.length === 0) return;
+      }
+      setSelectedRooms(nextRooms);
+    },
+    [
+      rooms,
+      availableRoomsList,
+      setSelectedRooms,
+      roomMatchesSubgroup,
+      bookingType,
+      venues.length,
+    ],
+  );
+
+  /** Selected rooms grouped like Step 1 (type + bed layout / description). */
+  const groupedRoomRows = useMemo(() => {
+    const map = new Map<
+      string,
+      { type: RoomTypeFilter; inventoryGroupKey: string; groupRooms: any[] }
+    >();
+    for (const r of rooms) {
+      const type = normalizeRoomTypeSlug(r.type);
+      if (!type) continue;
+      const inventoryGroupKeyStr = roomInventoryGroupKey(r);
+      const key = `${type}:${inventoryGroupKeyStr}`;
+      if (!map.has(key)) {
+        map.set(key, { type, inventoryGroupKey: inventoryGroupKeyStr, groupRooms: [] });
+      }
+      map.get(key)!.groupRooms.push(r);
+    }
+    for (const g of map.values()) {
+      g.groupRooms.sort((a, b) => a.id - b.id);
+    }
+    return [...map.values()].sort((a, b) => {
+      const ia = ROOM_TYPE_ORDER.indexOf(a.type);
+      const ib = ROOM_TYPE_ORDER.indexOf(b.type);
+      if (ia !== ib) return ia - ib;
+      return a.inventoryGroupKey.localeCompare(b.inventoryGroupKey);
+    });
+  }, [rooms]);
+
+  /**
+   * Add Room popover: one row per type + bed layout (Standard, Family, Deluxe).
+   */
+  const addRoomInventoryGroups = useMemo(() => {
+    const map = new Map<
+      string,
+      { type: RoomTypeFilter; inventoryGroupKey: string; pool: any[] }
+    >();
+    for (const r of availableRoomsList as any[]) {
+      if (!isRoomInventoryAvailable(r)) continue;
+      const type = normalizeRoomTypeSlug(r.type);
+      if (!type) continue;
+      const inventoryGroupKeyStr = roomInventoryGroupKey(r);
+      const key = `${type}:${inventoryGroupKeyStr}`;
+      if (!map.has(key)) {
+        map.set(key, { type, inventoryGroupKey: inventoryGroupKeyStr, pool: [] });
+      }
+      map.get(key)!.pool.push(r);
+    }
+    for (const g of map.values()) {
+      g.pool.sort((a: any, b: any) => a.id - b.id);
+    }
+    return [...map.values()].sort((a, b) => {
+      const ia = ROOM_TYPE_ORDER.indexOf(a.type);
+      const ib = ROOM_TYPE_ORDER.indexOf(b.type);
+      if (ia !== ib) return ia - ib;
+      return a.inventoryGroupKey.localeCompare(b.inventoryGroupKey);
+    });
+  }, [availableRoomsList]);
+
+  /**
+   * Add Room only lists groups not yet in the booking — avoid duplicating rows that
+   * already appear under Selected Rooms (quantity is changed with +/− there).
+   */
+  const addRoomInventoryGroupsNotYetSelected = useMemo(() => {
+    return addRoomInventoryGroups.filter((g) => {
+      const selectedInGroup = rooms.filter((r: any) =>
+        roomMatchesSubgroup(r, g.type, g.inventoryGroupKey),
+      ).length;
+      return selectedInGroup === 0;
+    });
+  }, [addRoomInventoryGroups, rooms, roomMatchesSubgroup]);
+
+  /** Stepping down is blocked when it would leave no rooms while the booking still requires at least one. */
+  const canDecrementRooms = useCallback(
+    (selectedInGroup: number) =>
+      selectedInGroup > 0 &&
+      (rooms.length > 1 ||
+        (bookingType === "both" && venues.length > 0)),
+    [rooms.length, bookingType, venues.length],
+  );
 
   const handleDeleteVenue = (index: number) => {
     if (!setSelectedVenues) return;
-    const updated = venues.filter((_, i) => i !== index);
-    setSelectedVenues(updated);
+    const nextVenues = venues.filter((_, i) => i !== index);
+    if (nextVenues.length === 0) {
+      if (bookingType === "venue") return;
+      if (bookingType === "both" && rooms.length === 0) return;
+    }
+    setSelectedVenues(nextVenues);
   };
 
   const stepIntro =
@@ -585,53 +738,91 @@ export function Step3({
                           Add a room:
                         </p>
                         <div className="space-y-2 max-h-80 overflow-y-auto">
-                          {availableRooms.length > 0 ? (
-                            availableRooms.map(
-                              (availRoom: any, idx: number) => (
+                          {addRoomInventoryGroupsNotYetSelected.length > 0 ? (
+                            addRoomInventoryGroupsNotYetSelected.map((g) => {
+                              const rep = g.pool[0];
+                              const prices = g.pool.map(
+                                (r: any) => Number(r.price) || 0,
+                              );
+                              const minP = Math.min(...prices);
+                              const maxP = Math.max(...prices);
+                              const sameP = minP === maxP;
+                              const caps = g.pool
+                                .map((r: any) => Number(r.capacity))
+                                .filter(
+                                  (n: number) => !Number.isNaN(n) && n > 0,
+                                );
+                              const capLine =
+                                caps.length > 0
+                                  ? (() => {
+                                      const minC = Math.min(...caps);
+                                      const maxC = Math.max(...caps);
+                                      const gw =
+                                        maxC === 1 ? "guest" : "guests";
+                                      return minC === maxC
+                                        ? `${maxC} ${gw}`
+                                        : `${minC}–${maxC} ${gw}`;
+                                    })()
+                                  : null;
+                              const selectedInGroup = rooms.filter((r: any) =>
+                                roomMatchesSubgroup(
+                                  r,
+                                  g.type,
+                                  g.inventoryGroupKey,
+                                ),
+                              ).length;
+                              const maxAdd = g.pool.length;
+                              const canAddMore = selectedInGroup < maxAdd;
+
+                              return (
                                 <button
-                                  key={`${availRoom.id}-${idx}-add`}
+                                  key={`${g.type}:${g.inventoryGroupKey}`}
+                                  type="button"
+                                  disabled={!canAddMore}
+                                  title={
+                                    !canAddMore
+                                      ? "No more units available in this group for these dates."
+                                      : undefined
+                                  }
                                   onClick={() => {
-                                    setSelectedRooms([...rooms, availRoom]);
+                                    setQuantityForSubgroup(
+                                      g.type,
+                                      g.inventoryGroupKey,
+                                      selectedInGroup + 1,
+                                    );
                                     setOpenAddRoom(false);
                                   }}
-                                  className="w-full text-left p-2 hover:bg-sage-50 rounded-md border border-gray-200 hover:border-sage-300 transition"
+                                  className="w-full text-left p-2 rounded-md border border-gray-200 transition enabled:hover:bg-sage-50 enabled:hover:border-sage-300 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                  <div className="flex flex-wrap gap-1.5 mb-1">
-                                    {availRoom.bed_specifications &&
-                                    availRoom.bed_specifications.length > 0 ? (
-                                      availRoom.bed_specifications.map(
-                                        (spec: string, sIdx: number) => (
-                                          <span
-                                            key={sIdx}
-                                            className="px-2 py-0.5 bg-sage-100 text-sage-700 text-xs font-semibold rounded-md"
-                                          >
-                                            {spec}
-                                          </span>
-                                        ),
-                                      )
-                                    ) : (
-                                      <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md">
-                                        {availRoom.name ?? availRoom.type}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="text-xs text-gray-600">
-                                    {availRoom.capacity && (
-                                      <span>
-                                        {availRoom.capacity} guests •{" "}
-                                      </span>
-                                    )}
+                                  <p className="text-sm font-semibold text-gray-900 leading-snug">
+                                    {roomTypeAndBedTitle(rep)}
+                                  </p>
+                                  <p className="text-xs text-gray-600 mt-1">
+                                    {capLine && <span>{capLine} • </span>}
                                     <span className="font-medium text-green-800">
-                                      {pricingFormat(availRoom.price ?? 0)}
-                                      /night
+                                      {sameP ? (
+                                        <>
+                                          {pricingFormat(minP)}
+                                          /night
+                                        </>
+                                      ) : (
+                                        <>
+                                          {pricingFormat(minP)} –{" "}
+                                          {pricingFormat(maxP)}/night
+                                        </>
+                                      )}
                                     </span>
                                   </p>
                                 </button>
-                              ),
-                            )
+                              );
+                            })
                           ) : (
                             <p className="text-sm text-gray-500">
-                              No available rooms for the selected dates.
+                              {roomsLoading
+                                ? "Loading…"
+                                : addRoomInventoryGroups.length === 0
+                                  ? "No room groups available to add for these dates."
+                                  : "Every group is already in your selection above. Use +/− on each row to change quantities."}
                             </p>
                           )}
                         </div>
@@ -642,132 +833,111 @@ export function Step3({
               </div>
 
               <div className="divide-y divide-gray-100">
-                {rooms.map((room: any, index: number) => (
-                  <div
-                    key={index}
-                    className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                  >
-                    <div className="space-y-2 flex-1">
-                      {/* Display bed_specifications as badges */}
-                      <div className="flex flex-wrap gap-2">
-                        {room.bed_specifications &&
-                        room.bed_specifications.length > 0 ? (
-                          room.bed_specifications.map(
-                            (spec: string, idx: number) => (
-                              <span
-                                key={idx}
-                                className="px-2.5 py-1 bg-sage-50 text-sage-700 text-xs font-semibold rounded-md border border-sage-200"
-                              >
-                                {spec}
-                              </span>
-                            ),
-                          )
-                        ) : (
-                          <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-md border border-gray-200">
-                            {room.name ?? room.type ?? "Room"}
+                {groupedRoomRows.map((group) => {
+                  const rep = group.groupRooms[0];
+                  const selectedCount = group.groupRooms.length;
+                  const pool = availableRoomsList
+                    .filter(
+                      (r: any) =>
+                        normalizeRoomTypeSlug(r.type) === group.type &&
+                        roomInventoryGroupKey(r) === group.inventoryGroupKey &&
+                        isRoomInventoryAvailable(r),
+                    )
+                    .sort((a: any, b: any) => a.id - b.id);
+                  const maxAvailable = pool.length;
+                  const prices = pool.map((r: any) => Number(r.price) || 0);
+                  const minPrice = prices.length ? Math.min(...prices) : 0;
+                  const maxPrice = prices.length ? Math.max(...prices) : 0;
+                  const samePrice = minPrice === maxPrice;
+                  const capLine = capacityLineForGroup(group.groupRooms);
+                  const canInc = selectedCount < maxAvailable;
+                  const canDec =
+                    canDecrementRooms(selectedCount) && selectedCount > 0;
+
+                  return (
+                    <div
+                      key={`${group.type}:${group.inventoryGroupKey}`}
+                      className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="space-y-2 flex-1 min-w-0">
+                        <div className="flex flex-wrap gap-2">
+                          <span className="px-2.5 py-1 bg-sage-50 text-sage-700 text-xs font-semibold rounded-md border border-sage-200">
+                            {roomTypeAndBedTitle(rep)}
                           </span>
-                        )}
+                        </div>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600 pt-0.5">
+                          {capLine && <span>{capLine}</span>}
+                          <span className="font-medium text-green-800">
+                            From{" "}
+                            {samePrice ? (
+                              pricingFormat(minPrice)
+                            ) : (
+                              <>
+                                {pricingFormat(minPrice)}
+                                <span className="font-normal text-gray-600">
+                                  {" "}
+                                  – {pricingFormat(maxPrice)}
+                                </span>
+                              </>
+                            )}
+                            {" "}
+                            / night
+                          </span>
+                          <span className="text-emerald-800 text-xs font-semibold sm:ml-1">
+                            {maxAvailable} available
+                          </span>
+                        </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-600 pt-1">
-                        {room.capacity && <span>{room.capacity} guests</span>}
-                        <span className="font-medium text-green-800">
-                          {pricingFormat(room.price ?? 0)} / night
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0 border-t sm:border-none pt-3 sm:pt-0">
-                      {editingRoomIndex === index ? (
-                        <Popover
-                          open={true}
-                          onOpenChange={(o) => !o && setEditingRoomIndex(null)}
+                      <div className="flex shrink-0 items-center gap-2 border-t sm:border-none pt-3 sm:pt-0">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="border-stone-200 bg-white shadow-sm hover:bg-stone-50 h-9 w-9"
+                          disabled={!canDec}
+                          onClick={() =>
+                            setQuantityForSubgroup(
+                              group.type,
+                              group.inventoryGroupKey,
+                              selectedCount - 1,
+                            )
+                          }
+                          aria-label={`Remove one ${roomTypeAndBedTitle(rep)}`}
                         >
-                          <PopoverTrigger asChild>
-                            <span className="sr-only">Room selection menu</span>
-                          </PopoverTrigger>
-                          <PopoverContent align="end" className="p-3 w-80">
-                            <div className="space-y-3">
-                              <p className="text-sm font-semibold text-gray-900">
-                                Choose a different room:
-                              </p>
-                              <div className="space-y-2 max-h-80 overflow-y-auto">
-                                {availableRooms.length > 0 ? (
-                                  availableRooms.map(
-                                    (availRoom: any, idx: number) => (
-                                      <button
-                                        key={`${availRoom.id}-${idx}`}
-                                        onClick={() =>
-                                          handleSelectRoomVariant(
-                                            index,
-                                            availRoom,
-                                          )
-                                        }
-                                        className="w-full text-left p-2 hover:bg-sage-50 rounded-md border border-gray-200 hover:border-sage-300 transition"
-                                      >
-                                        <div className="flex flex-wrap gap-1.5 mb-1">
-                                          {availRoom.bed_specifications &&
-                                          availRoom.bed_specifications.length >
-                                            0 ? (
-                                            availRoom.bed_specifications.map(
-                                              (spec: string, sIdx: number) => (
-                                                <span
-                                                  key={sIdx}
-                                                  className="px-2 py-0.5 bg-sage-100 text-sage-700 text-xs font-semibold rounded-md"
-                                                >
-                                                  {spec}
-                                                </span>
-                                              ),
-                                            )
-                                          ) : (
-                                            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md">
-                                              {availRoom.name ?? availRoom.type}
-                                            </span>
-                                          )}
-                                        </div>
-                                        <p className="text-xs text-gray-600">
-                                          {availRoom.capacity && (
-                                            <span>
-                                              {availRoom.capacity} guests •{" "}
-                                            </span>
-                                          )}
-                                          <span className="font-medium">
-                                            {pricingFormat(
-                                              availRoom.price ?? 0,
-                                            )}
-                                            /night
-                                          </span>
-                                        </p>
-                                      </button>
-                                    ),
-                                  )
-                                ) : (
-                                  <p className="text-sm text-gray-500">
-                                    No available rooms for the selected dates.
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      ) : null}
-
-                      <button
-                        onClick={() => setEditingRoomIndex(index)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md transition border border-blue-200"
-                      >
-                        <Pencil className="w-3.5 h-3.5" /> Change Room
-                      </button>
-
-                      <button
-                        onClick={() => handleDeleteRoom(index)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 rounded-md transition border border-red-200"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" /> Remove
-                      </button>
+                          <Minus className="size-4" />
+                        </Button>
+                        <span
+                          className="min-w-10 text-center font-display text-lg font-semibold tabular-nums text-stone-900"
+                          aria-live="polite"
+                        >
+                          {selectedCount}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className={cn(
+                            "border-stone-200 bg-white shadow-sm hover:bg-stone-50 h-9 w-9",
+                            canInc &&
+                              "border-emerald-300/90 hover:border-emerald-400 hover:bg-emerald-50/90",
+                          )}
+                          disabled={!canInc}
+                          onClick={() =>
+                            setQuantityForSubgroup(
+                              group.type,
+                              group.inventoryGroupKey,
+                              selectedCount + 1,
+                            )
+                          }
+                          aria-label={`Add one ${roomTypeAndBedTitle(rep)}`}
+                        >
+                          <Plus className="size-4 text-emerald-700" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -813,8 +983,15 @@ export function Step3({
                     </div>
 
                     <button
+                      type="button"
+                      disabled={!canRemoveVenue}
+                      title={
+                        !canRemoveVenue
+                          ? "At least one venue must stay selected for this booking."
+                          : undefined
+                      }
                       onClick={() => handleDeleteVenue(index)}
-                      className="w-full sm:w-auto flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 rounded-md transition"
+                      className="w-full sm:w-auto flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 rounded-md transition disabled:pointer-events-none disabled:opacity-45"
                     >
                       <Trash2 className="w-3.5 h-3.5" /> Remove
                     </button>
