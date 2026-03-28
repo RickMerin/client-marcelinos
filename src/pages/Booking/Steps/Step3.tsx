@@ -5,7 +5,11 @@ import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { pluralize } from "@/lib/formatters/plural";
 import type { FormData } from "@/types/booking.types";
 import type { BookingKind } from "@/types/booking.types";
-import { calculateTotalPrice } from "@/lib/math/calculate";
+import {
+  calculateTotalPrice,
+  calculateVenuesLineTotal,
+  venueEffectiveUnitPrice,
+} from "@/lib/math/calculate";
 import { Calendar, Pencil, Trash2, CheckCircle2, Plus } from "lucide-react";
 import {
   Popover,
@@ -798,7 +802,12 @@ export function Step3({
                           <span>Up to {venue.capacity} persons</span>
                         )}
                         <span className="font-medium text-green-800">
-                          {pricingFormat(venue.price ?? 0)}
+                          {pricingFormat(
+                            venueEffectiveUnitPrice(
+                              venue,
+                              formData.venue_event_type || "wedding",
+                            ),
+                          )}
                         </span>
                       </div>
                     </div>
@@ -839,8 +848,10 @@ export function Step3({
                   <span className="text-gray-600">Venues</span>
                   <span className="font-medium text-gray-900">
                     {pricingFormat(
-                      calculateTotalPrice(venues) *
-                        (bookingType === "both" ? days : 1),
+                      calculateVenuesLineTotal(
+                        venues,
+                        formData.venue_event_type || "wedding",
+                      ) * (bookingType === "both" ? days : 1),
                     )}
                   </span>
                 </div>

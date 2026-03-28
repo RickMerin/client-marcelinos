@@ -118,6 +118,9 @@ export const buildBookingPayload = (formData: FormData): BookingPayload => {
     days: formData.days,
     rooms: roomIds,
     ...(venueIds.length > 0 && { venues: venueIds }),
+    ...(venueIds.length > 0 && {
+      venue_event_type: formData.venue_event_type || "wedding",
+    }),
     total_price: formData.grandTotalPrice ?? (formData.totalPrice ?? 0) * (formData.days ?? 1),
 
     first_name: formData.firstName || "N/A",

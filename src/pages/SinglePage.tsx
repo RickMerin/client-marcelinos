@@ -15,6 +15,7 @@ import {
 import {
   calculateGrandTotalPrice,
   calculateTotalPrice,
+  calculateVenuesLineTotal,
 } from "@/lib/math/calculate";
 import { formatDate } from "@/lib/formatters/formatDate";
 import type { BookingKind } from "@/types/booking.types";
@@ -142,21 +143,17 @@ const SinglePage = () => {
       ? existingDetails.venues
       : [];
     const reservationDate = getFromLocalStorage("reservationDate") ?? {};
-    const rooms = [selectedItem];
     const days = reservationDate?.days ?? existingDetails?.days ?? 1;
     const bookingType: BookingKind =
       (reservationDate?.booking_type as BookingKind | undefined) ||
       (existingDetails?.booking_type as BookingKind | undefined) ||
       "room";
-
-    const totalPrice =
-      calculateTotalPrice(rooms) + calculateTotalPrice(existingVenues);
-    const grandTotalPrice = calculateGrandTotalPrice(
-      rooms,
-      days,
-      existingVenues,
-      bookingType,
-    );
+    const venueEventType =
+      ((existingDetails as { venue_event_type?: string }).venue_event_type as
+        | "wedding"
+        | "birthday"
+        | "seminar"
+        | "") || "wedding";
 
     const mergedVenueEventDate =
       (existingDetails as { venue_event_date?: string })?.venue_event_date ||
@@ -167,12 +164,57 @@ const SinglePage = () => {
         ? formatDate(reservationDate.check_in as string | Date)
         : "");
 
+    if (isVenuePage) {
+      const rooms: ListingItem[] = [];
+      const venues = [selectedItem];
+      const totalPrice =
+        calculateTotalPrice(rooms) + calculateVenuesLineTotal(venues, venueEventType);
+      const grandTotalPrice = calculateGrandTotalPrice(
+        rooms,
+        days,
+        venues,
+        "venue",
+        venueEventType,
+      );
+      saveToLocalStorage(
+        "reservationDetails",
+        {
+          ...existingDetails,
+          booking_type: "venue",
+          venue_event_date: mergedVenueEventDate,
+          venue_event_type: venueEventType,
+          rooms,
+          venues,
+          days,
+          totalPrice,
+          grandTotalPrice,
+          current_step: 1,
+        },
+        BOOKING_EXPIRATION,
+      );
+      navigate("/", { state: { openCheckIn: true } });
+      return;
+    }
+
+    const rooms = [selectedItem];
+    const totalPrice =
+      calculateTotalPrice(rooms) + calculateVenuesLineTotal(existingVenues, venueEventType);
+    const grandTotalPrice = calculateGrandTotalPrice(
+      rooms,
+      days,
+      existingVenues,
+      bookingType,
+      venueEventType,
+    );
+
     saveToLocalStorage(
       "reservationDetails",
       {
         ...existingDetails,
         booking_type: bookingType,
         venue_event_date: mergedVenueEventDate,
+        venue_event_type:
+          existingVenues.length > 0 ? venueEventType : "",
         rooms,
         venues: existingVenues,
         days,
