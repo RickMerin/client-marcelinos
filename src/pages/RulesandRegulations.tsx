@@ -34,8 +34,8 @@ function RulesRegulation() {
           <section>
             <h2 className="font-semibold text-green-900">1. CHECK-IN / CHECK-OUT</h2>
             <ul className="list-disc pl-6">
-              <li>Check-in Time: 2:00 PM</li>
-              <li>Check-out time: 12:00 NN</li>
+              <li>Check-in Time: 12:00 NN</li>
+              <li>Check-out time: 10:00 AM</li>
             </ul>
           </section>
 
