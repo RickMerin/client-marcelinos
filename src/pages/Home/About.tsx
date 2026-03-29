@@ -1,108 +1,114 @@
 import logo from "/brand-logo.webp";
-import diamond from "../../assets/img/diamond.svg";
-import wine from "../../assets/img/wine-toast.svg";
-import handshake from "../../assets/img/handshake.svg";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Bed, Gem, Handshake, Wine, type LucideIcon } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 /**
  * About - About Section with SEO features and dynamic card rendering.
  * Adds semantic HTML and schema.org markup for SEO,
  * and renders feature cards from a data array.
+ * Card styling matches OUR SERVICES (landing-premium-card + Lucide stroke icons).
  */
-const aboutFeatures = [
+const aboutFeatures: {
+  Icon: LucideIcon;
+  title: string;
+  description: string;
+}[] = [
   {
-    icon: diamond,
-    iconAlt: "diamond symbolizing elegance",
+    Icon: Gem,
     title: "Timeless\nElegance",
     description:
-      "Marcelino’s Place offers a refined venue where every celebration is crafted with sophistication and lasting beauty.",
+      "From guest rooms to event spaces, Marcelino’s offers a refined resort setting where stays and celebrations alike are crafted with sophistication and lasting beauty.",
   },
   {
-    icon: wine,
-    iconAlt: "wine toast symbolizing gatherings",
+    Icon: Wine,
     title: "Elegant\nGatherings",
     description:
-      "A sophisticated venue designed for weddings, parties, and life’s cherished occasions.",
+      "Our venues are designed for weddings, parties, and life’s cherished occasions—beautiful backdrops for the moments that matter most.",
   },
   {
-    icon: handshake,
-    iconAlt: "handshake symbolizing hospitality",
+    Icon: Bed,
+    title: "Comfortable\nStays",
+    description:
+      "Rest in thoughtfully appointed rooms and suites—your peaceful retreat after a day of celebration, or a relaxing getaway surrounded by nature.",
+  },
+  {
+    Icon: Handshake,
     title: "Refined\nHospitality",
     description:
-      "We blend elegance with heartfelt service for every celebration.",
+      "We blend warm resort hospitality with attentive service for overnight guests, families, and everyone hosting or attending an event.",
   },
 ];
 
 function About() {
   return (
-    <section
-      id="about"
-      className="text-center md:text-left p-10 grid md:grid-cols-[calc(100%-60%)_auto] grid-cols-1"
+    <div
+      className="w-full"
       itemScope
       itemType="https://schema.org/AboutPage"
       aria-labelledby="about-heading">
-      {/* Logo (left side on desktop, top on mobile) */}
-      <div
-        className="flex justify-center items-center w-full"
-        itemProp="image"
-        itemScope
-        itemType="https://schema.org/ImageObject">
-        <img
-          src={logo}
-          alt="Marcelino's Logo"
-          loading="lazy"
-          className="w-1/2 md:w-[60%] lg:w-[60%] h-auto"
-          itemProp="contentUrl"
-        />
-      </div>
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 lg:gap-14">
+        {/* Intro: copy left / logo right on large screens; stacked & centered on small */}
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-12 xl:gap-16">
+          <div className="flex flex-col items-center space-y-4 text-center lg:items-start lg:text-left">
+            <h2
+              id="about-heading"
+              className="font-display flex justify-center gap-2 text-3xl font-bold tracking-tight text-(--color-charcoal) lg:justify-start"
+              itemProp="headline">
+              <span className="green">ABOUT</span>
+              <span className="yellow">US</span>
+            </h2>
 
-      {/* Text and Cards (right side on desktop) */}
-      <div className="flex flex-col items-center md:items-start justify-start">
-        {/* Heading */}
-        <h2
-          id="about-heading"
-          className="font-display text-3xl font-bold tracking-tight flex gap-2 mb-2 justify-center md:justify-start text-(--color-charcoal)"
-          itemProp="headline">
-          <span className="green">ABOUT</span>
-          <span className="yellow">US</span>
-        </h2>
+            <h3 className="font-display text-xl font-semibold text-(--color-charcoal)">
+              Welcome To Marcelino’s Resort!
+            </h3>
+            <p
+              className="max-w-prose text-base leading-relaxed text-(--color-charcoal) opacity-90 lg:max-w-none"
+              itemProp="description">
+              Where elegance meets celebration. Stay with us in comfortable
+              rooms and suites, or gather in our venues for weddings, parties,
+              and life’s most cherished moments—Marcelino’s Resort brings
+              together restful accommodations, stunning event spaces, and
+              unforgettable experiences.
+            </p>
+          </div>
 
-        {/* Welcome Section */}
-        <div className="text-center md:text-left" itemProp="description">
-          <h3 className="font-display text-lg font-semibold mb-1 text-(--color-charcoal)">
-            Welcome To Marcelino’s Resort!
-          </h3>
-          <p className="text-sm opacity-90 text-(--color-charcoal) leading-relaxed w-[85%] mx-auto md:mx-0 max-w-2xl">
-            Where elegance meets celebration. Perfect for weddings, parties, and
-            life’s most cherished moments, our venue blends timeless beauty with
-            unforgettable experiences.
-          </p>
-
-          {/* Cards Section - grid, theme green default, complementary hover */}
           <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-8 w-full max-w-5xl"
-            itemProp="mainEntity"
+            className="flex w-full justify-center "
+            itemProp="image"
             itemScope
-            itemType="https://schema.org/ItemList">
-            {aboutFeatures.map((feature, idx) => (
+            itemType="https://schema.org/ImageObject">
+            <img
+              src={logo}
+              alt="Marcelino's Logo"
+              loading="lazy"
+              className="h-auto w-full max-w-[220px] object-contain drop-shadow-sm sm:max-w-[260px] lg:max-w-[280px]"
+              itemProp="contentUrl"
+            />
+          </div>
+        </div>
+
+        {/* Feature cards */}
+        <div
+          className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-6 md:gap-8 lg:grid-cols-4"
+          itemProp="mainEntity"
+          itemScope
+          itemType="https://schema.org/ItemList">
+          {aboutFeatures.map((feature, idx) => {
+            const { Icon } = feature;
+            return (
               <Card
                 key={idx}
-                className="about-premium-card group text-center text-white rounded-2xl transition-all duration-300 hover:scale-[1.03] hover:bg-(--color-cream) hover:text-green-900 hover:border-amber-200/60"
+                className="landing-premium-card landing-card-interactive group flex h-full min-h-[220px] w-full cursor-pointer flex-col items-center justify-center rounded-2xl text-center text-white transition-all duration-300 hover:scale-[1.03] hover:bg-(--color-cream) hover:text-green-900 hover:border-amber-200/60 focus-within:ring-2 focus-within:ring-(--color-sage) focus-within:ring-offset-2"
                 itemProp="itemListElement"
                 itemScope
                 itemType="https://schema.org/ListItem">
                 <meta itemProp="position" content={String(idx + 1)} />
-                <CardHeader>
-                  <div className="flex justify-center items-center mb-2">
-                    <img
-                      src={feature.icon}
-                      alt={feature.iconAlt}
-                      className="w-10 h-auto transition-transform duration-300 group-hover:scale-110"
-                      itemProp="image"
-                    />
+                <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+                  <div className="mb-3 text-white/95 transition-transform duration-300 group-hover:scale-110">
+                    <Icon size={48} strokeWidth={1.5} aria-hidden />
                   </div>
-                  <CardTitle
-                    className="font-display text-lg font-semibold text-inherit"
+                  <h3
+                    className="font-display mb-2 text-lg font-semibold text-inherit"
                     itemProp="name">
                     {feature.title.split("\n").map((line, i) => (
                       <span key={i}>
@@ -110,19 +116,19 @@ function About() {
                         {i < feature.title.split("\n").length - 1 && <br />}
                       </span>
                     ))}
-                  </CardTitle>
+                  </h3>
                   <p
-                    className="text-sm mt-2 opacity-90 text-inherit"
+                    className="text-sm leading-relaxed text-inherit opacity-90"
                     itemProp="description">
                     {feature.description}
                   </p>
-                </CardHeader>
+                </CardContent>
               </Card>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
