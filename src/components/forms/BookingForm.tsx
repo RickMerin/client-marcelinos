@@ -224,7 +224,7 @@ export default function BookingForm() {
 				value: checkInVal,
 			},
 			{
-				name: "date_reset",
+				name: "date_reset", 
 				type: "reset" as const,
 				itemClassName: "flex justify-center items-center",
 				className: "text-white hover:bg-white/15 border-white/20 bg-white/10",
