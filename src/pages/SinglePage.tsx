@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import SinglePageSkeleton from "@/components/skeleton/SinglePageSkeleton";
 import CardItem from "@/components/cards/CardItem";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
@@ -312,9 +313,7 @@ const SinglePage = () => {
         </div>
 
         {isLoading ? (
-          <div className="text-center text-gray-600">
-            Loading {availableLabel}…
-          </div>
+          <SinglePageSkeleton />
         ) : error ? (
           <div className="rounded-lg border border-red-100 bg-red-50 p-4 text-red-800">
             Unable to load {availableLabel} right now. Please try again later.
