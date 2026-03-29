@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/popover";
 import { CalendarWithDisabledReasons as Calendar } from "@/components/calendar/CalendarWithDisabledReasons"
 
-import { CalendarDays, Minus, Plus } from "lucide-react";
+import { CalendarDays, Minus, Plus, RotateCcw } from "lucide-react";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 
 /** Local calendar date as YYYY-MM-DD (avoid `toISOString()` shifting the day in non-UTC zones). */
@@ -94,8 +94,10 @@ type Field = {
 		| "drawer"
 		| "date"
 		| "radio"
-		| "display";
+		| "display"
+		| "reset";
 	className?: string;
+	onClick?: (form: any) => void;
 	disabled?: boolean;
 	readOnly?: boolean;
 	options?: any[];
@@ -599,7 +601,26 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 												);
 											}
 
-											case "radio":
+											case "reset":
+									return (
+										<div className="flex justify-center mt-5">
+											<Button
+												type="button"
+												variant="outline"
+												className={cn(
+													"h-12 w-12 rounded-full p-0",
+													field.className,
+												)}
+												onClick={() => field.onClick?.(form)}>
+												<RotateCcw className="size-5" />
+												<span className="sr-only">
+													{field.label || "Reset dates"}
+												</span>
+											</Button>
+										</div>
+									);
+
+								case "radio":
 												return (
 													<div className="flex flex-wrap gap-2">
 														{(field.options ?? []).map(
@@ -686,11 +707,11 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 						)}
 					/>
 				))}
-				<div className="col-span-full w-full sm:col-span-2 pt-2">
+				<div className="col-span-full flex justify-center pt-2">
 					<Button
 						type="submit"
 						disabled={submitDisabled}
-						className="w-full text-white text-lg py-6 yellow-bg cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed">
+						className="w-full max-w-lg text-white text-lg py-6 yellow-bg cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed">
 						{submitLabel}
 					</Button>
 				</div>

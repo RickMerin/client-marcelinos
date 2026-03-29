@@ -138,6 +138,19 @@ export default function BookingForm() {
 					value: checkInVal,
 				},
 				{
+					name: "date_reset",
+					type: "reset" as const,
+					itemClassName: "flex justify-center items-center mt-4",
+					className: "text-white hover:bg-white/15 border-white/20 bg-white/10",
+					label: "",
+					onClick: (form: any) => {
+						form.setValue("check_in" as any, "");
+						form.setValue("check_out" as any, "");
+						form.setValue("days" as any, 0);
+						form.clearErrors(["check_in" as any, "check_out" as any]);
+					},
+				},
+				{
 					name: "check_out",
 					type: "calendar" as const,
 					calendarVariant: "stay" as const,
@@ -151,7 +164,7 @@ export default function BookingForm() {
 					type: "display" as const,
 					label: "Number of Day(s)",
 					value: daysStored,
-					itemClassName: "sm:col-span-2",
+					itemClassName: "sm:col-span-3",
 				},
 			];
 		}
@@ -168,6 +181,19 @@ export default function BookingForm() {
 					value: checkInVal,
 				},
 				{
+					name: "date_reset",
+					type: "reset" as const,
+					itemClassName: "flex justify-center items-center",
+					className: "text-white hover:bg-white/15 border-white/20 bg-white/10",
+					label: "",
+					onClick: (form: any) => {
+						form.setValue("check_in" as any, "");
+						form.setValue("check_out" as any, "");
+						form.setValue("days" as any, 0);
+						form.clearErrors(["check_in" as any, "check_out" as any]);
+					},
+				},
+				{
 					name: "check_out",
 					type: "calendar" as const,
 					calendarVariant: "stay" as const,
@@ -181,7 +207,7 @@ export default function BookingForm() {
 					type: "display" as const,
 					label: "Number of Night(s)",
 					value: daysStored,
-					itemClassName: "sm:col-span-2",
+					itemClassName: "sm:col-span-3",
 				},
 			];
 		}
@@ -197,6 +223,19 @@ export default function BookingForm() {
 				value: checkInVal,
 			},
 			{
+				name: "date_reset",
+				type: "reset" as const,
+				itemClassName: "flex justify-center items-center",
+				className: "text-white hover:bg-white/15 border-white/20 bg-white/10",
+				label: "",
+				onClick: (form: any) => {
+					form.setValue("check_in" as any, "");
+					form.setValue("check_out" as any, "");
+					form.setValue("days" as any, 0);
+					form.clearErrors(["check_in" as any, "check_out" as any]);
+				},
+			},
+			{
 				name: "check_out",
 				type: "calendar" as const,
 				calendarVariant: "stay" as const,
@@ -210,7 +249,7 @@ export default function BookingForm() {
 				type: "display" as const,
 				label: "Number of Night(s)",
 				value: daysStored,
-				itemClassName: "sm:col-span-2",
+				itemClassName: "sm:col-span-3",
 			},
 		];
 	}, [kind, reservationDate]);
@@ -250,7 +289,7 @@ export default function BookingForm() {
 
 	const formGridClass = cn(
 		"relative z-10 w-full max-w-5xl mx-auto px-4 md:px-10 py-2",
-		"grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 items-start",
+		"grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-4 md:gap-6 items-start",
 		"[&_label]:text-white/95 [&_label]:text-sm",
 	);
 
