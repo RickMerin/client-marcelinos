@@ -244,55 +244,7 @@
   contain: layout paint;
 }
 
-/* Theme green = #1f5d1e (from .green-bg); default card = green, white text */
-.about-premium-card {
-  position: relative;
-  overflow: hidden;
-  background: #016730; /* theme green */
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.15),
-    0 10px 20px -5px rgba(0, 0, 0, 0.12);
-}
-
-/* Shine streak visible on dark green */
-.about-premium-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 0%,
-    transparent 35%,
-    rgba(255, 255, 255, 0.2) 45%,
-    rgba(244, 201, 93, 0.35) 50%,
-    rgba(255, 255, 255, 0.2) 55%,
-    transparent 65%,
-    transparent 100%
-  );
-  transform: translateX(-100%) skewX(-12deg);
-  animation: about-card-shine 4s ease-in-out infinite;
-  pointer-events: none;
-}
-
-/* Hover: cream background + dark text (complementary) – bg/color set by Tailwind on card */
-.about-premium-card:hover {
-  border-color: rgba(245, 158, 11, 0.4);
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.08),
-    0 20px 40px -10px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(125, 155, 105, 0.2);
-}
-
-.about-premium-card > *,
-.landing-premium-card > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Services (and any other section): same green bg + shine + hover as About cards */
+/* Services & About feature cards: dark green, animated shine, cream hover */
 .landing-premium-card {
   position: relative;
   overflow: hidden;
@@ -328,6 +280,10 @@
     0 10px 15px -3px rgba(0, 0, 0, 0.08),
     0 20px 40px -10px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(125, 155, 105, 0.2);
+}
+.landing-premium-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* ========== Landing page: premium sections, readability, interactivity ========== */
@@ -414,8 +370,3 @@
 .landing-card-interactive:focus-within {
   box-shadow: 0 0 0 2px var(--color-sage-muted);
 }
-
-#about.landing-section {
-  padding: 25px 10px 10px 10px;
-}
-
