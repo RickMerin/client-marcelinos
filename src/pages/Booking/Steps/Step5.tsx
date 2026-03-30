@@ -617,7 +617,7 @@ export function Step5(props: Props) {
               <div className="mt-2 text-xs space-y-0.5 opacity-90">
                 <p className="flex w-full flex-wrap justify-end gap-x-1 text-right">
                   <span className="font-semibold whitespace-nowrap">
-                    Invoice No:
+                    Statement No:
                   </span>
                   <span className="tabular-nums break-all">
                     {referenceNumber || "—"}
@@ -641,7 +641,7 @@ export function Step5(props: Props) {
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-700 mb-1">
-                  Invoice To
+                  Accountable to
                 </p>
                 <p className="font-semibold text-base">{guestName}</p>
                 <div className="mt-1 text-xs space-y-0.5 opacity-80">
@@ -653,7 +653,7 @@ export function Step5(props: Props) {
               </div>
               <div className="sm:text-right">
                 <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-700 mb-1">
-                  Invoice From
+                  Remittance to
                 </p>
                 <p className="font-semibold text-base">
                   Marcelino&apos;s Resort &amp; Hotel
@@ -663,8 +663,9 @@ export function Step5(props: Props) {
                     Mabini ST. Easter Barangay Poblacion, Hilongos, Philippines,
                     6524
                   </address>
-                  <p>Phone: ************</p>
-                  <p>Email: ************</p>
+                  <p>Phone: 09063034150</p>
+                  <p>Phone: 09541865049</p>
+                  <p>Email: marcelinosresorthotel@gmail.com</p>
                 </div>
               </div>
             </div>
@@ -820,7 +821,7 @@ export function Step5(props: Props) {
               <div className="text-xs text-gray-600 max-w-xs">
                 <p>
                   Thank you for choosing Marcelino&apos;s Resort &amp; Hotel.
-                  Please present this billing statement upon check-in.
+                  Please present this billing statement with your valid ID upon check-in.
                 </p>
               </div>
               <div className="w-full sm:w-64">
