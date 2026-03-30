@@ -1,4 +1,4 @@
-import { usePageSEO } from "@/hooks/usePageSEO";
+  import { usePageSEO } from "@/hooks/usePageSEO";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 function Terms() {
@@ -84,7 +84,7 @@ function Terms() {
                 valid government-issued ID must be presented upon check-in.
               </li>
               <li>
-                <strong>Check-out:</strong> Check-out time is 9:00 PM. After
+                <strong>Check-out:</strong> Check-out time is 10:00 AM. After
                 check-out, guests must ensure that all personal belongings are
                 secured. The resort shall not be held liable for any items left
                 behind or lost after check-out.
