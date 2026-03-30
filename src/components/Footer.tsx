@@ -1,5 +1,6 @@
-import { Facebook, ArrowRight } from "lucide-react";
+import { Facebook, ArrowRight, Mail, } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { FaPhoneAlt } from "react-icons/fa";
 
 function Footer() {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ function Footer() {
 
   return (
     <footer className="bg-black px-4 py-10 text-white space-y-4">
-      <div className="container mx-auto grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4">
+      <div className="container mx-auto grid grid-cols-12 md:grid-cols-3 gap-x-4 gap-y-8 md:gap-8">
         {/* ---------------------------------- */}
         {/* <section className="col-span-3 md:col-span-1 mb-5 md:mb-0">
           <h3 className="yellow md:text-lg font-bold">
@@ -62,16 +63,27 @@ function Footer() {
 
         {/* ----------------------------------- */}
 
-        <section className="col-span-1 md:col-span-1">
+        <section className="col-span-7 md:col-span-1">
           <h3 className="yellow md:text-lg font-bold">Contact Info</h3>
-          <ul className="mt-4">
-            <li>
-              <p>09********</p>
+          <ul className="mt-4 space-y-2">
+            <li className="flex items-center gap-2">
+              <FaPhoneAlt className="yellow" size={22} />
+              <p className="m-0 text-sm">09063034150</p>
             </li>
-            <li>
-              <p>09********</p>
+            <li className="flex items-center gap-2">
+              <FaPhoneAlt className="yellow" size={24} />
+              <p className="m-0 text-sm">09541865049</p>
             </li>
           </ul>
+            <div className="flex items-center gap-2 my-5">
+            <Mail className="yellow shrink-0" size={24} />
+            <a
+              href="mailto:marcelinosresorthotel@gmail.com"
+              className="hover:underline break-all text-sm"
+            >
+              marcelinosresorthotel@gmail.com
+            </a>
+          </div>
           <p className="my-5">Hilongos, Leyte</p>
           <div className="flex gap-3">
             <Link
@@ -79,7 +91,7 @@ function Footer() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Facebook className="yellow" size={30} />
+              <Facebook className="yellow" size={24} />
             </Link>
             {/* <Link to="https://www.instagram.com/marcelinosplace/">
               <Instagram className="yellow" size={30} />
@@ -92,11 +104,11 @@ function Footer() {
 
         {/* ----------------------------------- */}
 
-        <section>
-          <h3 className="yellow md:text-lg font-bold">Quick Links</h3>
+        <section className="col-span-5 md:col-span-1 sm:mx-auto md:mx-0">
+          <h3 className="yellow md:text-lg font-bold whitespace-nowrap">Quick Links</h3>
           <ul className="mt-4 space-y-2">
             {first_link.map((link) => (
-              <li key={link.name} className="flex items-center gap-2">
+              <li key={link.name} className="flex items-center gap-3">
                 <ArrowRight size={16} className="yellow" />
                 <button
                   type="button"
@@ -112,8 +124,8 @@ function Footer() {
 
         {/* ----------------------------------- */}
 
-        <section>
-          <h3 className="yellow md:text-lg font-bold">Quick Links</h3>
+        <section className="col-span-12 md:col-span-1">
+          <h3 className="yellow md:text-lg font-bold whitespace-nowrap">Quick Links</h3>
           <ul className="mt-4 space-y-2">
             {second_link.map((link) => (
               <li key={link.name} className="flex items-center gap-2">
