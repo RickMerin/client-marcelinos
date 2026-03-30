@@ -54,7 +54,7 @@ export default function PaymentPolicyConfirmContent({
           <div>
             <h3 className="font-bold">Check Out:</h3>
             <p className="text-[11px]">
-              Check-out is at 9:00 PM. After check-out, guests must ensure all
+              Check-out is at 10:00 AM. After check-out, guests must ensure all
               personal belongings are secured. The resort will not be held
               liable for any lost items.
             </p>
