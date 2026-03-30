@@ -1,6 +1,6 @@
-import { Facebook, ArrowRight, Mail, } from "lucide-react";
+import { Facebook, ArrowRight, Mail, Phone, } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { FaPhoneAlt } from "react-icons/fa";
+
 
 function Footer() {
   const navigate = useNavigate();
@@ -67,11 +67,11 @@ function Footer() {
           <h3 className="yellow md:text-lg font-bold">Contact Info</h3>
           <ul className="mt-4 space-y-2">
             <li className="flex items-center gap-2">
-              <FaPhoneAlt className="yellow" size={22} />
+              <Phone className="yellow" size={18} />
               <p className="m-0 text-sm">09063034150</p>
             </li>
             <li className="flex items-center gap-2">
-              <FaPhoneAlt className="yellow" size={24} />
+              <Phone className="yellow" size={18} />
               <p className="m-0 text-sm">09541865049</p>
             </li>
           </ul>
