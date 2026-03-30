@@ -14,6 +14,15 @@ import {
   calculateVenuesLineTotal,
 } from "@/lib/math/calculate";
 import { parseRoomTypeFilters } from "@/lib/utils/booking.utils";
+
+function normalizeStoredVenueEventType(
+  v: string | undefined,
+): FormData["venue_event_type"] {
+  if (!v) return "";
+  if (v === "seminar") return "meeting_staff";
+  return v as FormData["venue_event_type"];
+}
+
 /**
  * Custom hook for managing booking form state and persistence
  */
@@ -59,9 +68,9 @@ export const useBookingForm = () => {
 							storedFormData?.room_type_filters,
 					),
 		venue_event_type: (() => {
-			const v = storedFormData?.venue_event_type as
-				| FormData["venue_event_type"]
-				| undefined;
+			const v = normalizeStoredVenueEventType(
+				storedFormData?.venue_event_type as string | undefined,
+			);
 			if (v) return v;
 			if (
 				Array.isArray(storedFormData?.venues) &&
@@ -82,8 +91,18 @@ export const useBookingForm = () => {
 
   // Autoload from localStorage when mounted (in case user refreshes)
   useEffect(() => {
-    const saved = getFromLocalStorage("reservationDetails");
-    if (saved) setFormData((prev) => ({ ...prev, ...saved }));
+    const saved = getFromLocalStorage("reservationDetails") as
+      | Partial<FormData>
+      | undefined;
+    if (saved) {
+      const merged = { ...saved };
+      if (typeof merged.venue_event_type === "string") {
+        merged.venue_event_type = normalizeStoredVenueEventType(
+          merged.venue_event_type,
+        );
+      }
+      setFormData((prev) => ({ ...prev, ...merged }));
+    }
   }, []);
 
   // Redirect if no reservation date

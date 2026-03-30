@@ -9,7 +9,7 @@ interface VenueCardProps {
   images?: string[];
   capacity: string;
   price: string | number;
-  /** Shown under the amount, e.g. "Full price" vs "Seminar rate" */
+  /** Shown under the amount, e.g. "Wedding rate" vs "Meeting/Seminar rate" */
   priceTierLabel?: string;
   selected?: boolean;
   onSelectVenue: (id: number) => void;

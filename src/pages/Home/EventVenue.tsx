@@ -5,6 +5,10 @@ import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import CardItem from "@/components/cards/CardItem";
 import EventVenueSkeleton from "@/components/skeleton/EventVenueSkeleton";
 import { useNavigate } from "react-router-dom";
+import {
+  venueStartingDisplayPrice,
+  type VenuePriceItem,
+} from "@/lib/math/calculate";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,7 +22,9 @@ interface VenueItem {
   name?: string;
   description?: string;
   capacity?: number;
-  price?: number;
+  wedding_price?: number;
+  birthday_price?: number;
+  meeting_staff_price?: number;
   featured_image?: string | null;
   gallery?: string[];
 }
@@ -133,7 +139,7 @@ function EventVenues() {
                 id={venue.id}
                 name={venue.name}
                 capacity={venue.capacity}
-                price={venue.price}
+                price={venueStartingDisplayPrice(venue as VenuePriceItem)}
                 description={venue.description}
                 featured_image={venue.featured_image}
                 gallery={venue.gallery}

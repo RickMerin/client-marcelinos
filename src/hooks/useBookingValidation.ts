@@ -5,12 +5,13 @@ import { generateReferenceId } from "@/lib/utils/booking.utils";
 const VENUE_EVENT_TYPES = new Set<VenueEventType>([
   "wedding",
   "birthday",
-  "seminar",
+  "meeting_staff",
 ]);
 
 function hasValidVenueEventType(formData: FormData): boolean {
   if (!formData.venues?.length) return true;
-  const t = (formData.venue_event_type || "wedding") as VenueEventType;
+  const raw = (formData.venue_event_type || "wedding") as string;
+  const t = (raw === "seminar" ? "meeting_staff" : raw) as VenueEventType;
   return VENUE_EVENT_TYPES.has(t);
 }
 
