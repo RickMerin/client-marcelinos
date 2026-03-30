@@ -83,8 +83,10 @@ function toBookingReceipt(
     venues: (b.venues ?? []).map((v) => ({
       name: v.name ?? "",
       capacity: v.capacity ?? 0,
-      price: v.price ?? 0,
-      seminar_price: (v as { seminar_price?: number | string }).seminar_price ?? 0,
+      wedding_price: (v as { wedding_price?: number | string }).wedding_price ?? 0,
+      birthday_price: (v as { birthday_price?: number | string }).birthday_price ?? 0,
+      meeting_staff_price:
+        (v as { meeting_staff_price?: number | string }).meeting_staff_price ?? 0,
     })),
     venue_event_type: b.venue_event_type ?? null,
     subtotal: total,

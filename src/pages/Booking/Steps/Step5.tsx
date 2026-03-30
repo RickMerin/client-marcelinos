@@ -470,8 +470,12 @@ export function Step5(props: Props) {
   const venuesFromForm = Array.isArray(form?.venues) ? form.venues : [];
   const venues = isFromApi ? venuesFromApi : venuesFromForm;
 
-  const venueEventTypeRaw =
-    (isFromApi ? receipt?.venue_event_type : form?.venue_event_type) || "wedding";
+  const venueEventTypeRaw = (() => {
+    const raw =
+      (isFromApi ? receipt?.venue_event_type : form?.venue_event_type) ||
+      "wedding";
+    return raw === "seminar" ? "meeting_staff" : raw;
+  })();
   const venueEventLabel =
     VENUE_EVENT_OPTIONS.find((o) => o.value === venueEventTypeRaw)?.label ??
     venueEventTypeRaw;
@@ -497,7 +501,7 @@ export function Step5(props: Props) {
   }, 0);
   const venuesLinePerNight = calculateVenuesLineTotal(
     venues as Parameters<typeof calculateVenuesLineTotal>[0],
-    venueEventTypeRaw as "wedding" | "birthday" | "seminar" | "",
+    venueEventTypeRaw as "wedding" | "birthday" | "meeting_staff" | "",
   );
   const roomsGrandTotal = roomsTotal * nightsForPricing;
   const venuesGrandTotal = venuesLinePerNight * nightsForPricing;
@@ -772,7 +776,7 @@ export function Step5(props: Props) {
                       {venues.map((venue: any, idx: number) => {
                         const unitPrice = venueEffectiveUnitPrice(
                           venue,
-                          venueEventTypeRaw as "wedding" | "birthday" | "seminar" | "",
+                          venueEventTypeRaw as "wedding" | "birthday" | "meeting_staff" | "",
                         );
                         const qty = nightsForPricing;
 

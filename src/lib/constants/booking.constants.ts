@@ -12,9 +12,9 @@ export const VENUE_EVENT_OPTIONS: {
   value: VenueEventType;
   label: string;
 }[] = [
-  { value: "wedding", label: "Wedding (full price)" },
-  { value: "birthday", label: "Birthday (full price)" },
-  { value: "seminar", label: "Seminar (seminar rate)" },
+  { value: "wedding", label: "Wedding" },
+  { value: "birthday", label: "Birthday" },
+  { value: "meeting_staff", label: "Meeting/Seminar" },
 ];
 
 export const ROOM_TYPE_FILTER_OPTIONS: {

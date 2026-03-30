@@ -3,8 +3,8 @@ export type Gender = "male" | "female" | "other";
 /** Drives date rules on the hero form and pricing (room nights vs single-day venue). */
 export type BookingKind = "room" | "venue" | "both";
 
-/** When booking venues, rate tier: full price (wedding/birthday) vs seminar rate. */
-export type VenueEventType = "wedding" | "birthday" | "seminar";
+/** Venue event tier; each venue has separate amounts for wedding, birthday, and Meeting/Seminar. */
+export type VenueEventType = "wedding" | "birthday" | "meeting_staff";
 
 /** Room inventory `type` values (matches backend `rooms.type` enum). */
 export type RoomTypeFilter = "standard" | "family" | "deluxe";
@@ -116,8 +116,10 @@ export interface BookingReceipt {
   venues?: Array<{
     name: string;
     capacity: number;
-    price: number | string;
-    seminar_price?: number | string;
+    price?: number | string;
+    wedding_price?: number | string;
+    birthday_price?: number | string;
+    meeting_staff_price?: number | string;
   }>;
   /** Stored when the booking includes venues */
   venue_event_type?: string | null;

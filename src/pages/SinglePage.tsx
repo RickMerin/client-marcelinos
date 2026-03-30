@@ -17,7 +17,9 @@ import {
   calculateGrandTotalPrice,
   calculateTotalPrice,
   calculateVenuesLineTotal,
+  venueStartingDisplayPrice,
 } from "@/lib/math/calculate";
+import type { VenuePriceItem } from "@/lib/math/calculate";
 import { formatDate } from "@/lib/formatters/formatDate";
 import type { BookingKind } from "@/types/booking.types";
 import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
@@ -149,12 +151,11 @@ const SinglePage = () => {
       (reservationDate?.booking_type as BookingKind | undefined) ||
       (existingDetails?.booking_type as BookingKind | undefined) ||
       "room";
+    const rawEvent =
+      (existingDetails as { venue_event_type?: string }).venue_event_type || "";
     const venueEventType =
-      ((existingDetails as { venue_event_type?: string }).venue_event_type as
-        | "wedding"
-        | "birthday"
-        | "seminar"
-        | "") || "wedding";
+      (rawEvent === "seminar" ? "meeting_staff" : rawEvent) ||
+      "wedding";
 
     const mergedVenueEventDate =
       (existingDetails as { venue_event_date?: string })?.venue_event_date ||
@@ -373,7 +374,19 @@ const SinglePage = () => {
                             ` (${selectedItem.bed_modifiers.join(", ")})`}
                         </div>
                       )}
-                    {selectedItem.price != null && (
+                    {isVenuePage &&
+                      venueStartingDisplayPrice(
+                        selectedItem as unknown as VenuePriceItem,
+                      ) > 0 && (
+                        <div className="rounded-full bg-amber-50 px-3 py-1 font-semibold text-green-900">
+                          {pricingFormat(
+                            venueStartingDisplayPrice(
+                              selectedItem as unknown as VenuePriceItem,
+                            ),
+                          )}
+                        </div>
+                      )}
+                    {!isVenuePage && selectedItem.price != null && (
                       <div className="rounded-full bg-amber-50 px-3 py-1 font-semibold text-green-900">
                         {pricingFormat(selectedItem.price)}
                       </div>
@@ -441,7 +454,13 @@ const SinglePage = () => {
                     name={item.name}
                     description={item.description}
                     capacity={item.capacity}
-                    price={item.price}
+                    price={
+                      isVenuePage
+                        ? venueStartingDisplayPrice(
+                            item as unknown as VenuePriceItem,
+                          )
+                        : item.price
+                    }
                     amenities={item.amenities}
                     featured_image={item.featured_image}
                     gallery={item.gallery}

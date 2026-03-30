@@ -87,6 +87,21 @@ function sameCalendarDay(a: string, b: string): boolean {
   );
 }
 
+function startOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+/** Calendar days between check-in and check-out (check-out − check-in). Same day → 0. */
+function diffDaysBetweenDateStrings(checkIn: string, checkOut: string): number | null {
+  if (!checkIn?.trim() || !checkOut?.trim()) return null;
+  const ci = new Date(checkIn);
+  const co = new Date(checkOut);
+  if (Number.isNaN(ci.getTime()) || Number.isNaN(co.getTime())) return null;
+  return Math.round(
+    (startOfDay(co).getTime() - startOfDay(ci).getTime()) / 86400000,
+  );
+}
+
 function VenueCardSkeleton() {
   return (
     <div className="flex flex-col rounded-xl border border-gray-200/80 bg-white shadow-sm overflow-hidden">
@@ -307,6 +322,11 @@ export function Step1({
   const roomCount = formData.rooms.length;
   const venueCount = formData.venues.length;
   const staySameDay = sameCalendarDay(checkIn, checkOut);
+  const staySpanDaysRaw = diffDaysBetweenDateStrings(checkIn, checkOut);
+  const nightCount =
+    staySpanDaysRaw === null ? null : Math.max(0, staySpanDaysRaw);
+  const dayCountVenueOnly =
+    staySpanDaysRaw === null ? null : Math.max(1, staySpanDaysRaw);
 
   const stepTitle =
     bookingType === "venue"
@@ -323,7 +343,9 @@ export function Step1({
       return `Room & venue stay: ${checkIn} – ${checkOut}. Venue pricing matches your stay length (same check-in and check-out as your room). You can book rooms only, venues only, or both.`;
     }
     if (bookingType === "venue") {
-      return `Single-day venue booking for ${checkIn}. Pick venues below.`;
+      return staySameDay || !checkOut
+        ? `Single-day venue booking for ${checkIn}. Pick venues below.`
+        : `Venue booking for ${checkIn} – ${checkOut}. Pick venues below.`;
     }
     return `Availability for ${checkIn} – ${checkOut}. Choose how many Standard, Family, or Deluxe rooms you need; specific units are assigned by staff at check-in.`;
   })();
@@ -358,7 +380,7 @@ export function Step1({
         >
           {bookingType === "venue" ? (
             <>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
+              <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
                 <div>
                   <p
                     className="text-sm font-medium opacity-80"
@@ -378,13 +400,41 @@ export function Step1({
                     className="text-sm font-medium opacity-80"
                     style={{ color: "var(--color-charcoal)" }}
                   >
-                    Event date
+                    Check-in
                   </p>
                   <p
                     className="mt-1 text-xl font-bold tracking-tight"
                     style={{ color: "var(--color-charcoal)" }}
                   >
                     {formatShortDate(checkIn)}
+                  </p>
+                </div>
+                <div>
+                  <p
+                    className="text-sm font-medium opacity-80"
+                    style={{ color: "var(--color-charcoal)" }}
+                  >
+                    Check-out
+                  </p>
+                  <p
+                    className="mt-1 text-xl font-bold tracking-tight"
+                    style={{ color: "var(--color-charcoal)" }}
+                  >
+                    {formatShortDate(checkOut)}
+                  </p>
+                </div>
+                <div>
+                  <p
+                    className="text-sm font-medium opacity-80"
+                    style={{ color: "var(--color-charcoal)" }}
+                  >
+                    No. of Day(s)
+                  </p>
+                  <p
+                    className="mt-1 text-xl font-bold tracking-tight"
+                    style={{ color: "var(--color-charcoal)" }}
+                  >
+                    {dayCountVenueOnly ?? "—"}
                   </p>
                 </div>
               </div>
@@ -395,15 +445,25 @@ export function Step1({
                   color: "var(--color-charcoal)",
                 }}
               >
-                For venue bookings, check-in and check-out fall on the{" "}
-                <span className="font-semibold">same calendar day</span> (your
-                event window). You are not selecting an overnight room stay
-                here.
+                {staySameDay ? (
+                  <>
+                    For single-day venue bookings, check-in and check-out fall on
+                    the{" "}
+                    <span className="font-semibold">same calendar day</span>{" "}
+                    (your event window). You are not selecting an overnight room
+                    stay here.
+                  </>
+                ) : (
+                  <>
+                    Venue days are counted from check-in through check-out;
+                    times follow property policy unless stated otherwise.
+                  </>
+                )}
               </p>
             </>
           ) : bookingType === "both" ? (
             <>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
+              <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
                 <div>
                   <p
                     className="text-sm font-medium opacity-80"
@@ -432,7 +492,7 @@ export function Step1({
                     {venueCount}
                   </p>
                 </div>
-                <div className="col-span-2 lg:col-span-1">
+                <div>
                   <p
                     className="text-sm font-medium opacity-80"
                     style={{ color: "var(--color-charcoal)" }}
@@ -444,6 +504,20 @@ export function Step1({
                     style={{ color: "var(--color-charcoal)" }}
                   >
                     {formatShortDate(checkIn)} – {formatShortDate(checkOut)}
+                  </p>
+                </div>
+                <div>
+                  <p
+                    className="text-sm font-medium opacity-80"
+                    style={{ color: "var(--color-charcoal)" }}
+                  >
+                    No. of Night(s)
+                  </p>
+                  <p
+                    className="mt-1 text-xl font-bold tracking-tight"
+                    style={{ color: "var(--color-charcoal)" }}
+                  >
+                    {nightCount === null ? "—" : nightCount}
                   </p>
                 </div>
               </div>
@@ -462,7 +536,7 @@ export function Step1({
             </>
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-8">
+              <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
                 <div>
                   <p
                     className="text-sm font-medium opacity-80"
@@ -504,6 +578,20 @@ export function Step1({
                     style={{ color: "var(--color-charcoal)" }}
                   >
                     {formatShortDate(checkOut)}
+                  </p>
+                </div>
+                <div>
+                  <p
+                    className="text-sm font-medium opacity-80"
+                    style={{ color: "var(--color-charcoal)" }}
+                  >
+                    No. of Night(s)
+                  </p>
+                  <p
+                    className="mt-1 text-xl font-bold tracking-tight"
+                    style={{ color: "var(--color-charcoal)" }}
+                  >
+                    {nightCount === null ? "—" : nightCount}
                   </p>
                 </div>
               </div>
@@ -690,9 +778,8 @@ export function Step1({
               className="text-xs opacity-80 mb-4 max-w-2xl"
               style={{ color: "var(--color-charcoal)" }}
             >
-              Venue list prices update based on your choice. Wedding and
-              birthday use the full list price; seminar uses the seminar rate
-              set for each venue.
+              Venue rates depend on event type. Each venue has its own wedding,
+              birthday, and Meeting/Seminar prices (set in admin).
             </p>
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               {VENUE_EVENT_OPTIONS.map((opt) => {
@@ -754,7 +841,11 @@ export function Step1({
                   "wedding") as VenueEventType | "";
                 const displayPrice = venueEffectiveUnitPrice(venue, eventType);
                 const priceTierLabel =
-                  eventType === "seminar" ? "Seminar rate" : "Full price";
+                  eventType === "wedding"
+                    ? "Wedding rate"
+                    : eventType === "birthday"
+                      ? "Birthday rate"
+                      : "Meeting/Seminar rate";
                 return (
                   <VenueCard
                     key={venue.id}
