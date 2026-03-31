@@ -217,10 +217,29 @@ export default function Header() {
     };
     setTimeout(clearScrollingRef, 1600);
 
+    // Capture the mobile menu height immediately before the closing animation starts
+    const collapseOffset =
+      window.innerWidth < 768 && open && mobileDropdownRef.current
+        ? mobileDropdownRef.current.getBoundingClientRect().height
+        : 0;
+
     const scrollToSection = () => {
       const el = document.getElementById(id);
       if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        // h-18 is 4.5rem (72px) usually, add a little padding
+        const headerOffset = 72;
+        let elementPosition = el.getBoundingClientRect().top + window.scrollY;
+
+        // If on the same page, the menu is collapsing while we scroll.
+        // We subtract the menu's height to accurately target the final Y position.
+        if (location.pathname === "/") {
+          elementPosition -= collapseOffset;
+        }
+
+        window.scrollTo({
+          top: elementPosition - headerOffset,
+          behavior: "smooth",
+        });
       } else {
         window.location.hash = hash;
       }
@@ -232,6 +251,7 @@ export default function Header() {
       return;
     }
 
+    // Scroll immediately
     scrollToSection();
   };
 
@@ -240,7 +260,7 @@ export default function Header() {
 
   const activeLinkClass =
     "text-yellow-600 font-semibold border-b-2 border-yellow-500 border-solid";
-  
+
   const isHome = () => {
     return location.pathname === "/";
   };
@@ -248,7 +268,8 @@ export default function Header() {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-1200 w-full border-b bg-white/95 shadow-sm backdrop-blur-sm">
+      className="sticky top-0 z-1200 w-full border-b bg-white/95 shadow-sm backdrop-blur-sm"
+    >
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 md:px-8">
         <button
           ref={logoRef}
@@ -257,14 +278,15 @@ export default function Header() {
               ? window.scrollTo({ top: 0, behavior: "smooth" })
               : navigate("/")
           }
-          className="flex items-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 rounded-md transition-transform active:scale-[0.98]">
+          className="flex items-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 rounded-md transition-transform active:scale-[0.98]"
+        >
           <img
             src="/brand-logo.webp"
             alt="Marcelino's Logo"
             className="h-12 w-12 object-contain"
           />
-          <div className="ml-1 mt-[4px] leading-tight">
-            <div className="text-[17.5px] mb-[-3px] font-extrabold tracking-widest text-green-900 font-serif">
+          <div className="ml-1 mt-1 leading-tight">
+            <div className="text-[17.5px] -mb-0.75 font-extrabold tracking-widest text-green-900 font-serif">
               MARCELINO'S
             </div>
             <div className="text-sm tracking-widest font-medium">
@@ -291,7 +313,8 @@ export default function Header() {
                       }`}
                       aria-current={
                         isActive(item.sectionId) ? "true" : undefined
-                      }>
+                      }
+                    >
                       {item.label}
                     </button>
                   </NavigationMenuLink>
@@ -302,7 +325,8 @@ export default function Header() {
 
           <Button
             className="text-white font-semibold bg-yellow-500 transition-transform active:scale-[0.98]"
-            onClick={bookNowHandler}>
+            onClick={bookNowHandler}
+          >
             Book Now
           </Button>
         </nav>
@@ -314,7 +338,8 @@ export default function Header() {
             className="hover:bg-transparent focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:border-0 rounded-md transition-transform active:scale-95"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            onClick={() => setOpen((o) => !o)}>
+            onClick={() => setOpen((o) => !o)}
+          >
             {open ? <X className="size-7" /> : <Menu className="size-7" />}
           </Button>
         </div>
@@ -325,7 +350,8 @@ export default function Header() {
         ref={mobileDropdownRef}
         className="md:hidden max-h-0 overflow-hidden border-t border-green-100/80 bg-white/98 shadow-sm"
         aria-hidden={!open}
-        data-state={open ? "open" : "closed"}>
+        data-state={open ? "open" : "closed"}
+      >
         <div ref={mobilePanelRef} className="px-4 pb-4">
           <nav className="flex flex-col items-stretch gap-0.5 pt-2 max-h-[70vh] overflow-y-auto">
             {navLinks.map((item, i) => (
@@ -340,14 +366,16 @@ export default function Header() {
                     ? "text-yellow-600 font-semibold bg-green-50/80 border-yellow-500"
                     : "text-black"
                 }`}
-                aria-current={isActive(item.sectionId) ? "true" : undefined}>
+                aria-current={isActive(item.sectionId) ? "true" : undefined}
+              >
                 {item.label}
               </button>
             ))}
             <div className="pt-4 mt-2 border-t border-green-100">
               <Button
                 className="w-full bg-yellow-500 text-white font-semibold hover:bg-yellow-600 py-6 text-base rounded-lg transition-transform active:scale-[0.98]"
-                onClick={bookNowHandler}>
+                onClick={bookNowHandler}
+              >
                 Book Now
               </Button>
             </div>
