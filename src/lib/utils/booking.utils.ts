@@ -66,6 +66,52 @@ export function isRoomInventoryAvailable(room: any): boolean {
   return true;
 }
 
+/** Per layout row from GET /rooms (with dates); includes room_lines + assigned demand. */
+export type InventoryGroupAvailabilityRow = {
+  room_type: string;
+  inventory_group_key: string;
+  capacity: number;
+  committed: number;
+  remaining: number;
+};
+
+export function extractInventoryGroupAvailability(
+  response: unknown,
+): InventoryGroupAvailabilityRow[] | undefined {
+  if (!response || typeof response !== "object") return undefined;
+  const rows = (response as { inventory_group_availability?: unknown })
+    .inventory_group_availability;
+  if (!Array.isArray(rows)) return undefined;
+  return rows as InventoryGroupAvailabilityRow[];
+}
+
+export function getRemainingForInventoryGroup(
+  rows: InventoryGroupAvailabilityRow[] | undefined,
+  roomType: string,
+  inventoryGroupKey: string,
+): number | undefined {
+  if (!rows?.length) return undefined;
+  const t = normalizeRoomTypeSlug(roomType);
+  const hit = rows.find(
+    (r) =>
+      normalizeRoomTypeSlug(r.room_type) === t &&
+      r.inventory_group_key === inventoryGroupKey,
+  );
+  return hit?.remaining;
+}
+
+/** Caps quantity by physical pool and by remaining units from inventory_group_availability. */
+export function effectiveMaxUnitsForSubgroup(
+  poolLength: number,
+  rows: InventoryGroupAvailabilityRow[] | undefined,
+  roomType: string,
+  inventoryGroupKey: string,
+): number {
+  const rem = getRemainingForInventoryGroup(rows, roomType, inventoryGroupKey);
+  if (rem === undefined) return poolLength;
+  return Math.max(0, Math.min(poolLength, rem));
+}
+
 /**
  * Generates a unique reference ID for bookings
  */
