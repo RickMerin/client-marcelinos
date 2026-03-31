@@ -15,27 +15,21 @@ export function roomTypeDisplayLabel(type: string | undefined | null): string {
 /** Bed spec line including optional modifiers (same rules as quantity cards). */
 export function bedSpecificationLine(room: {
   bed_specifications?: string[] | null;
-  bed_modifiers?: string[] | null;
 }): string | null {
   const specs = room?.bed_specifications;
   if (!Array.isArray(specs) || specs.length === 0) return null;
   const base = specs.filter(Boolean).join(", ");
   if (!base) return null;
-  const mods = room?.bed_modifiers;
-  if (Array.isArray(mods) && mods.length > 0) {
-    return `${base} (${mods.join(", ")})`;
-  }
   return base;
 }
 
 /**
  * Stable bucket for inventory grouping (matches {@link roomTypeAndBedTitle}):
- * prefer `bed_specifications` (+ modifiers), else fall back to `description`.
+ * prefer `bed_specifications`, else fall back to `description`.
  */
 export function roomInventoryGroupKey(room: {
   description?: string | null;
   bed_specifications?: string[] | null;
-  bed_modifiers?: string[] | null;
 }): string {
   const bedLine = bedSpecificationLine(room);
   if (bedLine) return `spec:${bedLine}`;
@@ -50,7 +44,6 @@ export function roomTypeAndBedTitle(room: {
   type?: string | null;
   description?: string | null;
   bed_specifications?: string[] | null;
-  bed_modifiers?: string[] | null;
 }): string {
   const typeLabel = roomTypeDisplayLabel(room?.type);
   const bed = bedSpecificationLine(room);
@@ -68,7 +61,6 @@ export function assignedRoomBillingTitle(room: {
   type?: string | null;
   description?: string | null;
   bed_specifications?: string[] | null;
-  bed_modifiers?: string[] | null;
 }): string {
   const inner = roomTypeAndBedTitle(room);
   const name = (room.name ?? "").trim() || "Room";

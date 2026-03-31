@@ -18,7 +18,6 @@ interface CardItemProps {
   onClick?: () => void;
 
   bed_specifications?: string[];
-  bed_modifiers?: string[];
 }
 
 function CardItem(props: CardItemProps) {
@@ -32,7 +31,6 @@ function CardItem(props: CardItemProps) {
     featured_image,
     gallery = [],
     bed_specifications,
-    bed_modifiers,
     images: imagesProp,
     onClick,
   } = props;
@@ -131,9 +129,6 @@ function CardItem(props: CardItemProps) {
                 <span className="font-medium text-green-800">Beds:</span>
                 <span>
                   {bed_specifications.join(", ")}
-                  {bed_modifiers &&
-                    bed_modifiers.length > 0 &&
-                    ` (${bed_modifiers.join(", ")})`}
                 </span>
               </li>
             )}
@@ -202,9 +197,6 @@ function CardItem(props: CardItemProps) {
                   {bed_specifications && bed_specifications.length > 0 && (
                     <p>
                       Beds: {bed_specifications.join(", ")}
-                      {bed_modifiers &&
-                        bed_modifiers.length > 0 &&
-                        ` (${bed_modifiers.join(", ")})`}
                     </p>
                   )}
                 </div>
