@@ -13,6 +13,11 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { BookingKind } from "@/types/booking.types";
+import { toBlockedDateKey } from "@/lib/utils/booking.utils";
+import {
+  stayNightRangeModifiers,
+  BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
+} from "@/lib/calendar/stayRange";
 
 const OTP_RESEND_SECONDS = 60;
 
@@ -92,23 +97,39 @@ export default function RescheduleBookingContent({
     return undefined;
   });
 
-  const { data, isLoading: isDatesLoading } = useApiQuery<{
-    blocked_dates: Array<{ date: string; reason?: string | null }>;
-  }>(["blocked-dates"], "/blocked-dates");
+  type BlockedDatesResponse = {
+    success?: boolean;
+    data?: Array<{ date: string; reason?: string | null }>;
+    blocked_dates?: Array<{ date: string; reason?: string | null }>;
+  };
+
+  const { data, isLoading: isDatesLoading } = useApiQuery<BlockedDatesResponse>(
+    ["blocked-dates"],
+    "/blocked-dates",
+  );
+
+  const blockedDateRows = useMemo(() => {
+    const rows = data?.data ?? data?.blocked_dates ?? [];
+    const list = Array.isArray(rows) ? rows : [];
+    return list
+      .map((row) => ({
+        ...row,
+        date: toBlockedDateKey(row.date),
+      }))
+      .filter((row) => row.date);
+  }, [data]);
 
   const blockedDates = useMemo(() => {
-    return (
-      data?.blocked_dates?.map((d) => new Date(d.date + "T00:00:00")) ?? []
-    );
-  }, [data]);
+    return blockedDateRows.map((d) => new Date(d.date + "T12:00:00"));
+  }, [blockedDateRows]);
 
   const blockedReasons = useMemo(() => {
     const map: Record<string, string> = {};
-    data?.blocked_dates?.forEach((d) => {
+    blockedDateRows.forEach((d) => {
       map[d.date] = d.reason ?? "Unavailable";
     });
     return map;
-  }, [data]);
+  }, [blockedDateRows]);
 
   const todayStart = useMemo(
     () => new Date(new Date().setHours(0, 0, 0, 0)),
@@ -134,6 +155,11 @@ export default function RescheduleBookingContent({
     },
     [todayStart, blockedDates, days],
   );
+
+  const stayRangeModifiers = useMemo(() => {
+    if (!selectedDate) return undefined;
+    return stayNightRangeModifiers(selectedDate, addDays(selectedDate, days));
+  }, [selectedDate, days]);
 
   const otpDigits = otp.replace(/\D/g, "").slice(0, 6);
 
@@ -275,6 +301,13 @@ export default function RescheduleBookingContent({
                 blockedReasons={blockedReasons}
                 isOverlapInvalid={isOverlapInvalid}
                 className="mx-auto"
+                {...(stayRangeModifiers
+                  ? {
+                      modifiers: stayRangeModifiers,
+                      modifiersClassNames:
+                        BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
+                    }
+                  : {})}
               />
             </div>
             {selectedDate &&

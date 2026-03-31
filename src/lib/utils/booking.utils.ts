@@ -40,6 +40,22 @@ export function normalizeRoomDescriptionKey(description: unknown): string {
 }
 
 /**
+ * Normalize an API date (Y-m-d or ISO datetime) to yyyy-MM-dd for calendar `isoDate` keys
+ * and `blockedReasons` lookups.
+ */
+export function toBlockedDateKey(raw: string | null | undefined): string {
+  if (raw == null || raw === "") return "";
+  const rawStr = String(raw).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(rawStr)) return rawStr;
+  const d = new Date(rawStr);
+  if (Number.isNaN(d.getTime())) return rawStr.slice(0, 10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/**
  * Whether the rooms API row can be booked for the requested dates.
  * Honors `available`, `is_block_date`, and explicit `available: false` from the API.
  */
