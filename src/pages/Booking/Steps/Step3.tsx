@@ -24,7 +24,12 @@ import {
 import {
   isRoomInventoryAvailable,
   normalizeRoomTypeSlug,
+  toBlockedDateKey,
 } from "@/lib/utils/booking.utils";
+import {
+  stayNightRangeModifiers,
+  BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
+} from "@/lib/calendar/stayRange";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -168,7 +173,13 @@ export function Step3({
   const blockedDateRows = useMemo(() => {
     const rows =
       blockedDatesData?.data ?? blockedDatesData?.blocked_dates ?? [];
-    return Array.isArray(rows) ? rows : [];
+    const list = Array.isArray(rows) ? rows : [];
+    return list
+      .map((row) => ({
+        ...row,
+        date: toBlockedDateKey(row.date),
+      }))
+      .filter((row) => row.date);
   }, [blockedDatesData]);
 
   const blockedDates = useMemo(() => {
@@ -184,6 +195,13 @@ export function Step3({
     });
     return map;
   }, [blockedDateRows]);
+
+  const stayRangeModifiers = useMemo(() => {
+    if (bookingType === "venue" || !tempCheckIn || !tempCheckOut) {
+      return undefined;
+    }
+    return stayNightRangeModifiers(tempCheckIn, tempCheckOut);
+  }, [bookingType, tempCheckIn, tempCheckOut]);
 
   const todayStart = useMemo(
     () => new Date(new Date().setHours(0, 0, 0, 0)),
@@ -568,6 +586,13 @@ export function Step3({
                             blockedReasons={blockedReasons}
                             overlapInvalidReason="Your stay would include blocked dates. Pick another check-in or fewer days."
                             isOverlapInvalid={isCheckInOverlapInvalid}
+                            {...(stayRangeModifiers
+                              ? {
+                                  modifiers: stayRangeModifiers,
+                                  modifiersClassNames:
+                                    BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
+                                }
+                              : {})}
                           />
                         </PopoverContent>
                       </Popover>
@@ -622,6 +647,13 @@ export function Step3({
                               blockedReasons={blockedReasons}
                               overlapInvalidReason="Your stay would include blocked dates. Pick another check-in or fewer days."
                               isOverlapInvalid={isCheckOutOverlapInvalid}
+                              {...(stayRangeModifiers
+                                ? {
+                                    modifiers: stayRangeModifiers,
+                                    modifiersClassNames:
+                                      BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
+                                  }
+                                : {})}
                             />
                           </PopoverContent>
                         </Popover>
