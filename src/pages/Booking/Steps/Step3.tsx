@@ -10,7 +10,7 @@ import {
   calculateVenuesLineTotal,
   venueEffectiveUnitPrice,
 } from "@/lib/math/calculate";
-import { Calendar, Pencil, Trash2, CheckCircle2, Plus, Minus } from "lucide-react";
+import { Calendar, Pencil, Trash2, CheckCircle2, Plus, Minus, UserCheck, HousePlus } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -225,6 +225,7 @@ export function Step3({
 
   const cardBorder = { borderColor: "var(--color-sage-muted, #e5e7eb)" };
   const labelClass = "font-semibold opacity-90 text-sm";
+  const safeNights = Math.max(1, days ?? 1);
 
   /** Check if a date would be disabled for check-in */
   const isCheckInDisabled = (date: Date): boolean => {
@@ -527,6 +528,63 @@ export function Step3({
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(auto,380px)] gap-8">
         <div className="space-y-6">
+          {/* Guest Details Section */}
+          <div
+            className="rounded-xl border bg-white shadow-sm overflow-hidden"
+            style={cardBorder}
+          >
+            <div
+              className="px-5 py-3.5 font-semibold text-white flex justify-between items-center"
+              style={{ backgroundColor: "var(--color-sage)" }}
+            >
+              <div className="flex items-center gap-2">
+                <UserCheck className="w-5 h-5" />
+                <span>Guest Details</span>
+              </div>
+            </div>
+            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Name</p>
+                <p className="font-sm text-gray-900">
+                  {formData.firstName}{" "}
+                  {formData.middleName ? `${formData.middleName} ` : ""}
+                  {formData.lastName}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Gender</p>
+                <p className="font-sm text-gray-900 capitalize">
+                  {formData.gender || "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Email</p>
+                <p className="font-sm text-gray-900">{formData.email}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Phone</p>
+                <p className="font-sm text-gray-900">{formData.phone}</p>
+              </div>
+              {formData.address && (
+                <div className="sm:col-span-2">
+                  <p className="text-sm font-medium text-gray-500">Address</p>
+                  <p className="font-sm text-gray-900">
+                    {[
+                      formData.address,
+                      formData.street,
+                      formData.city,
+                      formData.state,
+                      formData.region,
+                      formData.zipCode,
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Dates Section */}
           <div
             className="rounded-xl border bg-white shadow-sm overflow-hidden"
@@ -771,9 +829,14 @@ export function Step3({
                 className="px-5 py-3.5 font-semibold text-white flex justify-between items-center"
                 style={{ backgroundColor: "var(--color-sage)" }}
               >
-                <div className="flex items-center gap-3">
-                  <span>Selected Rooms</span>
-                  <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <HousePlus className="w-5 h-5" />
+                    <span className="whitespace-nowrap truncate">
+                      Selected Rooms
+                    </span>
+                  </div>
+                  <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full inline-flex items-center whitespace-nowrap leading-none">
                     {rooms.length} {pluralize(rooms.length, "room")}
                   </span>
                 </div>
@@ -894,6 +957,11 @@ export function Step3({
                 {groupedRoomRows.map((group) => {
                   const rep = group.groupRooms[0];
                   const selectedCount = group.groupRooms.length;
+                  const nightlySelectedSubtotal = calculateTotalPrice(
+                    group.groupRooms,
+                  );
+                  const bookingSubtotal =
+                    nightlySelectedSubtotal * safeNights;
                   const pool = availableRoomsList
                     .filter(
                       (r: any) =>
@@ -950,6 +1018,18 @@ export function Step3({
                             {maxAvailable} available
                           </span>
                         </div>
+
+                        {bookingType !== "venue" && (
+                          <div className="w-fit mt-1 px-3 py-1.5 rounded-md bg-stone-50 border border-stone-200 text-xs text-stone-600 whitespace-nowrap">
+                            <span className="font-semibold text-stone-700">
+                              {safeNights} nights
+                            </span>{" "}
+                            × {pricingFormat(nightlySelectedSubtotal)} ={" "}
+                            <span className="font-semibold text-stone-900">
+                              {pricingFormat(bookingSubtotal)}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex shrink-0 items-center gap-2 border-t sm:border-none pt-3 sm:pt-0">
@@ -1099,7 +1179,7 @@ export function Step3({
           </div>
 
           <div className="border-t border-gray-200 pt-4 flex justify-between items-end">
-            <span className="text-gray-600 font-medium">Grand Total</span>
+            <span className="text-gray-600 font-medium">Total</span>
             <span className="text-2xl font-bold text-green-900">
               {pricingFormat(formData.grandTotalPrice ?? 0)}
             </span>
