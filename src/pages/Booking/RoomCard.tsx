@@ -15,7 +15,6 @@ interface RoomCardProps {
   includes: string;
   price: string | number;
   bed_specifications?: string[];
-  bed_modifiers?: string[];
   selected?: boolean;
   onSelectRoom: (id: number) => void;
   /** Optional list of amenity names for pill tags (e.g. ["WiFi", "AC", "Slippers"]) */
@@ -41,7 +40,6 @@ export const RoomCard: React.FC<RoomCardProps> = ({
   includes,
   price,
   bed_specifications,
-  bed_modifiers,
   selected = false,
   onSelectRoom,
   amenityPills,
@@ -277,9 +275,6 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             Beds:{" "}
             <span className="font-semibold">
               {bed_specifications.join(", ")}
-              {bed_modifiers &&
-                bed_modifiers.length > 0 &&
-                ` (${bed_modifiers.join(", ")})`}
             </span>
           </p>
         )}

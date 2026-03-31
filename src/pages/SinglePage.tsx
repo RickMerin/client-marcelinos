@@ -40,7 +40,6 @@ interface ListingItem {
   featured_image?: string | null;
   gallery?: string[];
   bed_specifications?: string[];
-  bed_modifiers?: string[];
 }
 
 function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
@@ -369,9 +368,6 @@ const SinglePage = () => {
                       selectedItem.bed_specifications.length > 0 && (
                         <div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
                           Beds: {selectedItem.bed_specifications.join(", ")}
-                          {selectedItem.bed_modifiers &&
-                            selectedItem.bed_modifiers.length > 0 &&
-                            ` (${selectedItem.bed_modifiers.join(", ")})`}
                         </div>
                       )}
                     {isVenuePage &&
@@ -465,7 +461,6 @@ const SinglePage = () => {
                     featured_image={item.featured_image}
                     gallery={item.gallery}
                     bed_specifications={item.bed_specifications}
-                    bed_modifiers={item.bed_modifiers}
                     onClick={() => handleCardClick(item.id, item)}
                   />
                 ))}
