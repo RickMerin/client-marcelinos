@@ -46,6 +46,10 @@ function toBookingReceipt(
   const total = b.total_price != null ? String(b.total_price) : "0";
   return {
     reference_number: b.reference_number ?? "",
+    unpaid_expires_at: res.unpaid_expires_at ?? null,
+    unpaid_expiry_days: res.unpaid_expiry_days ?? 3,
+    down_payment_notice_applies: res.down_payment_notice_applies,
+    down_payment_notice_min_lead_days: res.down_payment_notice_min_lead_days,
     created_at: b.created_at ?? "",
     booking_status: b.status ?? "unpaid",
     check_in: b.check_in ?? "",
