@@ -19,6 +19,8 @@ import {
 import {
   isRoomInventoryAvailable,
   normalizeRoomTypeSlug,
+  extractInventoryGroupAvailability,
+  effectiveMaxUnitsForSubgroup,
 } from "@/lib/utils/booking.utils";
 import {
   bedSpecificationLine,
@@ -165,6 +167,11 @@ export function Step1({
     () => extractList<any>(roomsResponse),
     [roomsResponse],
   );
+
+  const inventoryGroupAvailability = useMemo(
+    () => extractInventoryGroupAvailability(roomsResponse),
+    [roomsResponse],
+  );
   const venueList = useMemo(
     () => extractList<any>(venuesResponse),
     [venuesResponse],
@@ -239,7 +246,12 @@ export function Step1({
             isRoomInventoryAvailable(r),
         )
         .sort((a: any, b: any) => a.id - b.id);
-      const max = pool.length;
+      const max = effectiveMaxUnitsForSubgroup(
+        pool.length,
+        inventoryGroupAvailability,
+        type,
+        inventoryGroupKey,
+      );
       const clamped = Math.max(0, Math.min(nextCount, max));
       const selectedOfSubgroup = formData.rooms.filter((r: any) =>
         roomMatchesSubgroup(r, type, inventoryGroupKey),
@@ -268,7 +280,13 @@ export function Step1({
         setSelectedRooms([...formData.rooms, ...toAdd]);
       }
     },
-    [formData.rooms, roomsByType, setSelectedRooms, roomMatchesSubgroup],
+    [
+      formData.rooms,
+      roomsByType,
+      setSelectedRooms,
+      roomMatchesSubgroup,
+      inventoryGroupAvailability,
+    ],
   );
 
   const countForSubgroup = (type: RoomTypeFilter, inventoryGroupKey: string) =>
@@ -284,7 +302,8 @@ export function Step1({
     return rep.description?.trim() || "Room options";
   };
 
-  // Remove pre-selected rooms that are unavailable for the current inventory response
+  // Remove pre-selected rooms that are unavailable for the current inventory response,
+  // and trim counts when room_lines on other bookings consume remaining units.
   useEffect(() => {
     if (!roomList.length || !formData.rooms.length) return;
 
@@ -294,9 +313,40 @@ export function Step1({
         .map((room: any) => room.id),
     );
 
-    const filteredRooms = formData.rooms.filter((r: any) =>
+    let filteredRooms = formData.rooms.filter((r: any) =>
       availableRoomIds.has(r?.id ?? r),
     );
+
+    const igRows = extractInventoryGroupAvailability(roomsResponse);
+    if (igRows?.length) {
+      const byGroup = new Map<string, any[]>();
+      for (const r of filteredRooms) {
+        const t = normalizeRoomTypeSlug(r.type);
+        if (!t) continue;
+        const invk = roomInventoryGroupKey(r);
+        const gk = `${t}\0${invk}`;
+        if (!byGroup.has(gk)) byGroup.set(gk, []);
+        byGroup.get(gk)!.push(r);
+      }
+      filteredRooms = [];
+      for (const [gk, list] of byGroup) {
+        const [t, invk] = gk.split("\0");
+        const pool = roomList.filter(
+          (room: any) =>
+            normalizeRoomTypeSlug(room.type) === t &&
+            roomInventoryGroupKey(room) === invk &&
+            isRoomInventoryAvailable(room),
+        );
+        const max = effectiveMaxUnitsForSubgroup(
+          pool.length,
+          igRows,
+          t,
+          invk,
+        );
+        list.sort((a: any, b: any) => a.id - b.id);
+        filteredRooms.push(...list.slice(0, max));
+      }
+    }
 
     if (filteredRooms.length !== formData.rooms.length) {
       setSelectedRooms(filteredRooms);
@@ -307,7 +357,13 @@ export function Step1({
     if (recentlyUnselectedCount !== 0) {
       setRecentlyUnselectedCount(0);
     }
-  }, [roomList, formData.rooms, setSelectedRooms, recentlyUnselectedCount]);
+  }, [
+    roomList,
+    formData.rooms,
+    roomsResponse,
+    setSelectedRooms,
+    recentlyUnselectedCount,
+  ]);
 
   const onSelectVenue = (venue: any) => {
     const isAlreadySelected = formData.venues.some(
@@ -705,9 +761,15 @@ export function Step1({
                     </div>
                     <div className="grid gap-6 sm:grid-cols-2">
                       {subgroups.map(({ key, rooms: roomsInGroup }) => {
-                        const maxAvailable = roomsInGroup.filter(
+                        const poolLen = roomsInGroup.filter(
                           (r: any) => isRoomInventoryAvailable(r),
                         ).length;
+                        const maxAvailable = effectiveMaxUnitsForSubgroup(
+                          poolLen,
+                          inventoryGroupAvailability,
+                          type,
+                          key,
+                        );
                         const n = countForSubgroup(type, key);
                         const layoutLabel = layoutLabelForSubgroup(
                           key,

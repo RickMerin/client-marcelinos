@@ -25,6 +25,8 @@ import {
   isRoomInventoryAvailable,
   normalizeRoomTypeSlug,
   toBlockedDateKey,
+  extractInventoryGroupAvailability,
+  effectiveMaxUnitsForSubgroup,
 } from "@/lib/utils/booking.utils";
 import {
   stayNightRangeModifiers,
@@ -154,9 +156,22 @@ export function Step3({
   );
 
   const availableRoomsList = extractList(roomsResponse);
+  const inventoryGroupAvailability = useMemo(
+    () => extractInventoryGroupAvailability(roomsResponse),
+    [roomsResponse],
+  );
   const availableRooms = availableRoomsList.filter((r: any) =>
     isRoomInventoryAvailable(r),
   );
+
+  /** Total units left across layouts (room_lines + pivot demand); falls back to API room count. */
+  const totalBookableUnitsHint = useMemo(() => {
+    const rows = inventoryGroupAvailability;
+    if (rows?.length) {
+      return rows.reduce((acc, r) => acc + Math.max(0, r.remaining), 0);
+    }
+    return availableRooms.length;
+  }, [inventoryGroupAvailability, availableRooms.length]);
 
   // ✅ Fetch blocked dates like FormWrapper does
   type BlockedDatesResponse = {
@@ -338,7 +353,12 @@ export function Step3({
             isRoomInventoryAvailable(r),
         )
         .sort((a: any, b: any) => a.id - b.id);
-      const max = pool.length;
+      const max = effectiveMaxUnitsForSubgroup(
+        pool.length,
+        inventoryGroupAvailability,
+        type,
+        inventoryGroupKeyStr,
+      );
       const clamped = Math.max(0, Math.min(nextCount, max));
       const selectedOfSubgroup = rooms.filter((r: any) =>
         roomMatchesSubgroup(r, type, inventoryGroupKeyStr),
@@ -376,6 +396,7 @@ export function Step3({
       roomMatchesSubgroup,
       bookingType,
       venues.length,
+      inventoryGroupAvailability,
     ],
   );
 
@@ -729,8 +750,8 @@ export function Step3({
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 text-sm font-medium text-green-800 bg-green-50 w-fit px-3 py-1.5 rounded-full border border-green-100">
                         <CheckCircle2 className="w-4 h-4" />
-                        {availableRooms.length}{" "}
-                        {pluralize(availableRooms.length, "room")} available for
+                        {totalBookableUnitsHint}{" "}
+                        {pluralize(totalBookableUnitsHint, "room")} available for
                         these dates.
                       </div>
                     </div>
@@ -803,7 +824,12 @@ export function Step3({
                                   g.inventoryGroupKey,
                                 ),
                               ).length;
-                              const maxAdd = g.pool.length;
+                              const maxAdd = effectiveMaxUnitsForSubgroup(
+                                g.pool.length,
+                                inventoryGroupAvailability,
+                                g.type,
+                                g.inventoryGroupKey,
+                              );
                               const canAddMore = selectedInGroup < maxAdd;
 
                               return (
@@ -876,7 +902,12 @@ export function Step3({
                         isRoomInventoryAvailable(r),
                     )
                     .sort((a: any, b: any) => a.id - b.id);
-                  const maxAvailable = pool.length;
+                  const maxAvailable = effectiveMaxUnitsForSubgroup(
+                    pool.length,
+                    inventoryGroupAvailability,
+                    group.type,
+                    group.inventoryGroupKey,
+                  );
                   const prices = pool.map((r: any) => Number(r.price) || 0);
                   const minPrice = prices.length ? Math.min(...prices) : 0;
                   const maxPrice = prices.length ? Math.max(...prices) : 0;
