@@ -6,24 +6,6 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const SCROLL_THRESHOLD = 80;
-const SCROLL_DURATION_MS = 1200;
-const SCROLL_EASING = (t: number) => 1 - (1 - t) ** 3; // smooth ease-out
-
-function smoothScrollTo(targetY: number) {
-  const startY = window.scrollY ?? document.documentElement.scrollTop;
-  const startTime = performance.now();
-
-  const step = (now: number) => {
-    const elapsed = now - startTime;
-    const progress = Math.min(elapsed / SCROLL_DURATION_MS, 1);
-    const eased = SCROLL_EASING(progress);
-    const y = startY + (targetY - startY) * eased;
-    window.scrollTo(0, y);
-    if (progress < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
 const container = {
   hidden: { opacity: 0 },
   show: {
@@ -84,7 +66,7 @@ export default function ScrollNav() {
   }, [updateScrollState]);
 
   const scrollToTop = () => {
-    smoothScrollTo(0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const scrollToBottom = () => {
@@ -93,7 +75,7 @@ export default function ScrollNav() {
       document.documentElement.scrollHeight,
     );
     const maxScroll = Math.max(0, scrollHeight - window.innerHeight);
-    smoothScrollTo(maxScroll);
+    window.scrollTo({ top: maxScroll, behavior: "smooth" });
   };
 
   if (!isScrollable) return null;
