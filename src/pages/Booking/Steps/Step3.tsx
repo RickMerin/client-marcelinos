@@ -652,9 +652,8 @@ export function Step3({
                             }
                             onSelect={(date) => {
                               if (date) {
-                                const dateStr = date
-                                  .toISOString()
-                                  .split("T")[0];
+                                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                                const dateStr = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
                                 setTempCheckIn(dateStr);
                                 if (bookingType === "venue") {
                                   setTempCheckOut(dateStr);
@@ -716,9 +715,8 @@ export function Step3({
                               }
                               onSelect={(date) => {
                                 if (date) {
-                                  const dateStr = date
-                                    .toISOString()
-                                    .split("T")[0];
+                                  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                                  const dateStr = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
                                   setTempCheckOut(dateStr);
                                 }
                               }}
@@ -990,39 +988,35 @@ export function Step3({
                       key={`${group.type}:${group.inventoryGroupKey}`}
                       className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                     >
-                      <div className="space-y-2 flex-1 min-w-0">
-                        <div className="flex flex-wrap gap-2">
-                          <span className="px-2.5 py-1 bg-sage-50 text-sage-700 text-xs font-semibold rounded-md border border-sage-200">
-                            {roomTypeAndBedTitle(rep)}
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600 pt-0.5">
-                          {capLine && <span>{capLine}</span>}
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <h4 className="text-lg font-semibold text-gray-900 truncate">
+                          {roomTypeAndBedTitle(rep)}
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm pt-0.5">
+                          {capLine && (
+                            <span className="text-gray-600 px-1.5 py-[1px] border border-gray-200 rounded bg-gray-50 text-xs font-medium">
+                              {capLine}
+                            </span>
+                          )}
                           <span className="font-medium text-green-800">
-                            From{" "}
                             {samePrice ? (
                               pricingFormat(minPrice)
                             ) : (
                               <>
                                 {pricingFormat(minPrice)}
-                                <span className="font-normal text-gray-600">
-                                  {" "}
-                                  – {pricingFormat(maxPrice)}
+                                <span className="font-normal text-gray-500 hover:text-gray-600">
+                                  {" "}– {pricingFormat(maxPrice)}
                                 </span>
                               </>
                             )}
-                            {" "}
-                            / night
-                          </span>
-                          <span className="text-emerald-800 text-xs font-semibold sm:ml-1">
-                            {maxAvailable} available
+                            <span className="text-gray-500 font-normal"> / night</span>
                           </span>
                         </div>
 
                         {bookingType !== "venue" && (
-                          <div className="w-fit mt-1 px-3 py-1.5 rounded-md bg-stone-50 border border-stone-200 text-xs text-stone-600 whitespace-nowrap">
+                          <div className="w-fit mt-1.5 px-3 py-1.5 rounded-md bg-stone-50 border border-stone-200 text-xs text-stone-600 whitespace-nowrap">
                             <span className="font-semibold text-stone-700">
-                              {safeNights} nights
+                              {safeNights} {pluralize(safeNights, "night")}
                             </span>{" "}
                             × {pricingFormat(nightlySelectedSubtotal)} ={" "}
                             <span className="font-semibold text-stone-900">
