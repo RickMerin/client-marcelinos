@@ -217,12 +217,24 @@ export default function Header() {
     };
     setTimeout(clearScrollingRef, 1600);
 
+    // Capture the mobile menu height immediately before the closing animation starts
+    const collapseOffset =
+      window.innerWidth < 768 && open && mobileDropdownRef.current
+        ? mobileDropdownRef.current.getBoundingClientRect().height
+        : 0;
+
     const scrollToSection = () => {
       const el = document.getElementById(id);
       if (el) {
         // h-18 is 4.5rem (72px) usually, add a little padding
         const headerOffset = 72;
-        const elementPosition = el.getBoundingClientRect().top + window.scrollY;
+        let elementPosition = el.getBoundingClientRect().top + window.scrollY;
+
+        // If on the same page, the menu is collapsing while we scroll.
+        // We subtract the menu's height to accurately target the final Y position.
+        if (location.pathname === "/") {
+          elementPosition -= collapseOffset;
+        }
 
         window.scrollTo({
           top: elementPosition - headerOffset,
@@ -239,12 +251,8 @@ export default function Header() {
       return;
     }
 
-    // On mobile, wait for the menu collapse animation (around 350ms) to finish so the layout stabilizes
-    if (window.innerWidth < 768 && open) {
-      setTimeout(scrollToSection, 350);
-    } else {
-      scrollToSection();
-    }
+    // Scroll immediately
+    scrollToSection();
   };
 
   const isActive = (sectionId: string) =>
@@ -277,8 +285,8 @@ export default function Header() {
             alt="Marcelino's Logo"
             className="h-12 w-12 object-contain"
           />
-          <div className="ml-1 mt-[4px] leading-tight">
-            <div className="text-[17.5px] mb-[-3px] font-extrabold tracking-widest text-green-900 font-serif">
+          <div className="ml-1 mt-1 leading-tight">
+            <div className="text-[17.5px] -mb-0.75 font-extrabold tracking-widest text-green-900 font-serif">
               MARCELINO'S
             </div>
             <div className="text-sm tracking-widest font-medium">
