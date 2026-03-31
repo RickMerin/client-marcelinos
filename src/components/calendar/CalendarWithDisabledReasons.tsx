@@ -29,6 +29,7 @@ type DayWithReasonProps = React.ComponentProps<typeof DayButton> & {
 function DayWithReason({
   day,
   className,
+  modifiers,
   blockedReasons,
   activeTooltipDate,
   setActiveTooltipDate,
@@ -41,6 +42,17 @@ function DayWithReason({
   const isBlocked = !!reason
   const dayDate = new Date(dateKey + "T00:00:00")
   const isOverlap = (isOverlapInvalid?.(dayDate) ?? false) && !isBlocked
+
+  const m = modifiers as Record<string, boolean | undefined>
+  const inStayRangeHighlight =
+    !!(
+      m.booking_stay_single ||
+      m.booking_stay_start ||
+      m.booking_stay_middle ||
+      m.booking_stay_end
+    )
+  const isSelectedDay = !!m.selected
+  const selectedInStayRange = isSelectedDay && inStayRangeHighlight && !isBlocked
 
   const [isHovering, setIsHovering] = React.useState(false)
   const [position, setPosition] = React.useState({
@@ -106,6 +118,7 @@ function DayWithReason({
 			onMouseLeave={() => setIsHovering(false)}>
 			<Button
 				{...dayProps}
+				/* ghost variant is bg-white by default — that hid the stay-range mint behind “white tiles” */
 				variant="ghost"
 				size="icon"
 				onClick={(e) => {
@@ -119,8 +132,22 @@ function DayWithReason({
 				}}
 				className={cn(
 					className,
+					inStayRangeHighlight &&
+						!isBlocked &&
+						!isOverlap && [
+							/* Solid fill over ghost’s bg-white so the whole day reads as colored */
+							"!bg-emerald-100 !text-gray-800 shadow-none",
+							"hover:!bg-emerald-200/95 focus-visible:!bg-emerald-200/95 active:!bg-emerald-200/95",
+							"dark:!bg-emerald-500/35 dark:!text-emerald-50 dark:hover:!bg-emerald-500/45",
+						],
+					selectedInStayRange && [
+						"!bg-emerald-200 !text-emerald-950 font-semibold z-2",
+						"ring-1 ring-inset ring-emerald-600/30",
+						"hover:!bg-emerald-200 focus-visible:!bg-emerald-200",
+						"dark:!bg-emerald-600/55 dark:!text-white dark:ring-emerald-400/40",
+					],
 					isBlocked &&
-						"bg-red-500 mx-[1px] text-white cursor-not-allowed hover:bg-red-600 focus:bg-red-600",
+						"bg-red-500 mx-px text-white cursor-not-allowed hover:bg-red-600 focus:bg-red-600",
 					isOverlap && "line-through opacity-70 cursor-not-allowed",
 				)}
 			/>

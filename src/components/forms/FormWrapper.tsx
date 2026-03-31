@@ -23,6 +23,11 @@ import { CalendarWithDisabledReasons as Calendar } from "@/components/calendar/C
 
 import { CalendarDays, Minus, Plus, RotateCcw } from "lucide-react";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
+import { toBlockedDateKey } from "@/lib/utils/booking.utils";
+import {
+	stayNightRangeModifiers,
+	BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
+} from "@/lib/calendar/stayRange";
 
 /** Local calendar date as YYYY-MM-DD (avoid `toISOString()` shifting the day in non-UTC zones). */
 function toDayKey(d: Date): string {
@@ -207,7 +212,13 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 
 	const blockedDateRows = React.useMemo(() => {
 		const rows = data?.data ?? data?.blocked_dates ?? [];
-		return Array.isArray(rows) ? rows : [];
+		const list = Array.isArray(rows) ? rows : [];
+		return list
+			.map((row) => ({
+				...row,
+				date: toBlockedDateKey(row.date),
+			}))
+			.filter((row) => row.date);
 	}, [data]);
 
 	const blockedDates = React.useMemo(() => {
@@ -544,6 +555,15 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 														blockedDateStayMode,
 													);
 												};
+												const showStayRange =
+													variant === "stay" &&
+													(field.name === "check_in" ||
+														field.name === "check_out") &&
+													checkIn &&
+													checkOut;
+												const stayRangeModifiers = showStayRange
+													? stayNightRangeModifiers(checkIn, checkOut)
+													: undefined;
 												return (
 													<Popover
 														open={openCalendarField === field.name}
@@ -595,6 +615,13 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 																		: "Your stay would include blocked dates. Pick another check-in or fewer days."
 																}
 																isOverlapInvalid={isOverlapInvalidForField}
+																{...(stayRangeModifiers
+																	? {
+																			modifiers: stayRangeModifiers,
+																			modifiersClassNames:
+																				BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
+																		}
+																	: {})}
 															/>
 														</PopoverContent>
 													</Popover>
