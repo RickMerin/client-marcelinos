@@ -344,7 +344,9 @@ export function Step5(props: Props) {
   const checkIn = isFromApi ? receipt?.check_in : form?.check_in;
   const checkOut = isFromApi ? receipt?.check_out : form?.check_out;
   const nights =
-    isFromApi && receipt?.nights != null && !Number.isNaN(Number(receipt.nights))
+    isFromApi &&
+    receipt?.nights != null &&
+    !Number.isNaN(Number(receipt.nights))
       ? Math.max(0, Number(receipt.nights))
       : getNightsFromDates(checkIn, checkOut, receipt?.nights ?? 0);
 
@@ -491,9 +493,7 @@ export function Step5(props: Props) {
 
   const roomsTotal = rooms.reduce((sum: number, r: any) => {
     const p =
-      typeof r.price === "number"
-        ? r.price
-        : parseFloat(String(r.price || 0));
+      typeof r.price === "number" ? r.price : parseFloat(String(r.price || 0));
     if (r.kind === "line") {
       return sum + p * (r.quantity || 1);
     }
@@ -777,7 +777,11 @@ export function Step5(props: Props) {
                       {venues.map((venue: any, idx: number) => {
                         const unitPrice = venueEffectiveUnitPrice(
                           venue,
-                          venueEventTypeRaw as "wedding" | "birthday" | "meeting_staff" | "",
+                          venueEventTypeRaw as
+                            | "wedding"
+                            | "birthday"
+                            | "meeting_staff"
+                            | "",
                         );
                         const qty = nightsForPricing;
 
@@ -821,7 +825,8 @@ export function Step5(props: Props) {
               <div className="text-xs text-gray-600 max-w-xs">
                 <p>
                   Thank you for choosing Marcelino&apos;s Resort &amp; Hotel.
-                  Please present this billing statement with your valid ID upon check-in.
+                  Please present this billing statement with your valid ID upon
+                  check-in.
                 </p>
               </div>
               <div className="w-full sm:w-64">
@@ -883,10 +888,11 @@ export function Step5(props: Props) {
                 <p className="text-[11px] text-gray-600 mb-1">
                   {qrCodeUrl ? "Scan to view your digital receipt" : null}
                 </p>
-                <div className="text-[11px] text-gray-600 space-y-0.5">
-                  {paymentMethod && <p>Payment: {paymentMethod}</p>}
-                  <p>Issued on {formattedIssuedOn}</p>
-                </div>
+                {paymentMethod && (
+                  <div className="text-[11px] text-gray-600 space-y-0.5">
+                    <p>Payment: {paymentMethod}</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
