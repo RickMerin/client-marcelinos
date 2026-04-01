@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Hotel, Umbrella, ConciergeBell, Coffee } from "lucide-react";
+import { Hotel, Umbrella, ConciergeBell, Coffee, CalendarCheck2, SearchCheck, ClipboardList } from "lucide-react";
 
 function Services() {
   // 🟢 Static data for your service cards
@@ -11,22 +11,22 @@ function Services() {
         "Easily browse and reserve hotel rooms online. View room details, availability, and pricing — all in one place.",
     },
     {
-      icon: <Umbrella size={48} />,
-      title: "Resort Packages",
+      icon: <CalendarCheck2 size={48} />,
+      title: "Event Reservation",
       description:
-        "Choose from exclusive resort deals that include accommodations, dining, and leisure activities designed for relaxation.",
+        "Book a space for events such as meetings, celebrations, or gatherings, with real-time availability and complete booking information.",
     },
     {
-      icon: <ConciergeBell size={48} />,
-      title: "24/7 Concierge",
+      icon: <SearchCheck size={48} />,
+      title: "Availability Checking",
       description:
-        "Access round-the-clock assistance for your travel needs — from booking transportation to arranging special requests.",
+        "Check available spaces in real time based on selected dates, ensuring accurate and up-to-date booking options.",
     },
     {
-      icon: <Coffee size={48} />,
-      title: "Dining Experience",
+      icon: <ClipboardList size={48} />,
+      title: "Booking Summary",
       description:
-        "Enjoy fine dining with curated menus from top chefs, available through pre-booked meal packages or on-site restaurants.",
+        "Provides a clear overview of booking details including selected stay, chosen space, and booking total before confirmation.",
     },
   ];
 
