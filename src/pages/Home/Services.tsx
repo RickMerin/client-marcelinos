@@ -1,8 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Hotel, Umbrella, ConciergeBell, Coffee, CalendarCheck2, SearchCheck, ClipboardList } from "lucide-react";
+import { Hotel, CalendarCheck2, SearchCheck, ClipboardList } from "lucide-react";
 
 function Services() {
-  // 🟢 Static data for your service cards
+  
   const services = [
     {
       icon: <Hotel size={48} />,
