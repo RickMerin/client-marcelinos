@@ -139,6 +139,7 @@ export function Step3({
     null,
   );
   const [openAddRoom, setOpenAddRoom] = useState(false);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   useEffect(() => {
     setTempCheckIn(formData.check_in);
@@ -295,13 +296,14 @@ export function Step3({
 
   const handleDateUpdate = (e: React.FormEvent) => {
     e.preventDefault();
+    setDateError(null);
     if (!updateFormData) return;
 
     if (
       bookingType !== "venue" &&
       new Date(tempCheckOut) <= new Date(tempCheckIn)
     ) {
-      alert("Check-out must be after check-in");
+      setDateError("Check-out must be after check-in");
       return;
     }
 
