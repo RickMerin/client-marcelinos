@@ -92,7 +92,7 @@ function DayWithReason({
     (isBlocked || isOverlap) && tooltipReason && showTooltip ? (
       createPortal(
         <div
-          className="fixed rounded-md bg-black/95 px-3 py-2 text-sm text-white leading-normal shadow-lg z-[9999]"
+          className="fixed rounded-md bg-green-700/95 px-3 py-2 text-sm text-white leading-normal shadow-lg z-[9999]"
           style={{
             top: position.top,
             left: position.left,
