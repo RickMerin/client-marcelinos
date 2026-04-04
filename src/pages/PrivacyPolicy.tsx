@@ -4,12 +4,12 @@ import { useScrollToTop } from "@/hooks/useScrollToTop";
 function PrivacyPolicy() {
   useScrollToTop();
   usePageSEO({
-    title: "Privacy Policy | Marcelinos Hotel & Resort",
+    title: "Privacy Policy | Marcelino's Hotel & Resort",
     description:
-      "Privacy Policy for Marcelinos Hotel & Resort in Hilongos, Leyte. How we collect, use, and protect your data when you book rooms, contact us, or leave a review.",
+      "Privacy Policy for Marcelino's Hotel & Resort in Hilongos, Leyte. How we collect, use, and protect your data when you book rooms, contact us, or leave a review.",
     path: "/privacy-policy",
     keywords:
-      "privacy policy, Marcelinos, hotel resort Hilongos Leyte, data protection, booking privacy",
+      "privacy policy, Marcelino's, hotel resort Hilongos Leyte, data protection, booking privacy",
   });
 
   return (
@@ -30,7 +30,7 @@ function PrivacyPolicy() {
               1. Introduction
             </h2>
             <p>
-              Marcelinos Hotel & Resort (“we,” “our,” or “Marcelinos”) operates
+              Marcelino's Hotel & Resort (“we,” “our,” or “Marcelino's”) operates
               this website and related booking and contact services. We are
               committed to protecting your privacy. This Privacy Policy explains
               what information we collect when you use our website (including
@@ -193,7 +193,7 @@ function PrivacyPolicy() {
               If you have questions about this Privacy Policy or our handling of
               your personal data, please contact us through our website’s
               contact form or at the contact details provided on our homepage
-              (Marcelinos Hotel & Resort, Hilongos, Leyte, Philippines).
+              (Marcelino's Hotel & Resort, Hilongos, Leyte, Philippines).
             </p>
           </section>
         </div>
