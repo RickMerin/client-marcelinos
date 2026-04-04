@@ -769,7 +769,7 @@ export function Step5(props: Props) {
 								/>
 								<ReceiptRow label="Check-in" value={formattedCheckIn} />
 								<ReceiptRow label="Check-out" value={formattedCheckOut} />
-								<ReceiptRow label="Nights" value={String(nights)} />
+								<ReceiptRow label={bookingType === "venue" ? "Days" : "Nights"} value={String(nights)} />
 								{venues.length > 0 && (
 									<ReceiptRow label="Event type" value={venueEventLabel} />
 								)}
