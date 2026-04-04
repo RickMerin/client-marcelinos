@@ -30,7 +30,7 @@ function RefundPolicy() {
               1. Introduction
             </h2>
             <p>
-              Marcelinos Hotel & Resort (“we,” “our,” or “Marcelinos”) is
+              Marcelino's Hotel & Resort (“we,” “our,” or “Marcelino's”) is
               committed to clear and fair refund and cancellation practices.
               This Refund Policy explains when and how we handle refunds for
               room and venue bookings at our property in Hilongos, Leyte,
@@ -131,7 +131,7 @@ function RefundPolicy() {
 
           <section>
             <h2 className="font-display text-xl font-semibold text-green-900">
-              8. Changes by Marcelinos
+              8. Changes by Marcelino's
             </h2>
             <p>
               If we are unable to honor your reservation (e.g., due to
@@ -150,7 +150,7 @@ function RefundPolicy() {
               If you have questions about this Refund Policy or need to cancel
               or request a refund, please contact us through our website’s
               contact form or at the contact details provided on our homepage
-              (Marcelinos Hotel & Resort, Hilongos, Leyte, Philippines).
+              (Marcelino's Hotel & Resort, Hilongos, Leyte, Philippines).
             </p>
           </section>
         </div>

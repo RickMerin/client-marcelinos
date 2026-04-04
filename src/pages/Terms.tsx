@@ -4,12 +4,12 @@ import { useScrollToTop } from "@/hooks/useScrollToTop";
 function Terms() {
   useScrollToTop();
   usePageSEO({
-    title: "Terms and Conditions | Marcelinos Hotel & Resort",
+    title: "Terms and Conditions | Marcelino's Hotel & Resort",
     description:
-      "Terms and Conditions for Marcelinos Hotel & Resort in Hilongos, Leyte. Booking policy, check-in and check-out, payment, cancellation, and house rules.",
+      "Terms and Conditions for Marcelino's Hotel & Resort in Hilongos, Leyte. Booking policy, check-in and check-out, payment, cancellation, and house rules.",
     path: "/terms-and-conditions",
     keywords:
-      "terms and conditions, Marcelinos, hotel resort Hilongos Leyte, booking policy, cancellation policy",
+      "terms and conditions, Marcelino's, hotel resort Hilongos Leyte, booking policy, cancellation policy",
   });
 
   return (
@@ -30,11 +30,11 @@ function Terms() {
               1. Introduction
             </h2>
             <p>
-              Welcome to Marcelinos Hotel & Resort. These Terms and Conditions
+              Welcome to Marcelino's Hotel & Resort. These Terms and Conditions
               (“Terms”) govern your use of our website and the booking, stay, and
               related services we provide. By accessing our website, making a
               reservation, or using our services, you agree to be bound by these
-              Terms. Marcelinos Hotel & Resort is located in Hilongos, Leyte,
+              Terms. Marcelino's Hotel & Resort is located in Hilongos, Leyte,
               Philippines. If you do not agree with any part of these Terms,
               please do not use our website or services.
             </p>
@@ -175,7 +175,7 @@ function Terms() {
               8. Liability
             </h2>
             <p>
-              To the fullest extent permitted by law, Marcelinos Hotel & Resort
+              To the fullest extent permitted by law, Marcelino's Hotel & Resort
               shall not be liable for any loss, damage, injury, or expense
               (including loss of belongings after check-out, theft, or
               accidents) except where caused by our gross negligence or willful
@@ -192,7 +192,7 @@ function Terms() {
             </h2>
             <p>
               The content on our website (including text, images, logos, and
-              design) is owned by Marcelinos Hotel & Resort or our licensors and
+              design) is owned by Marcelino's Hotel & Resort or our licensors and
               is protected by copyright and other intellectual property laws.
               You may not copy, modify, distribute, or use our content for
               commercial purposes without our prior written consent. If you
@@ -241,7 +241,7 @@ function Terms() {
             <p>
               These Terms shall be governed by the laws of the Philippines. Any
               dispute arising out of or relating to these Terms or your stay at
-              Marcelinos Hotel & Resort shall be subject to the exclusive
+              Marcelino's Hotel & Resort shall be subject to the exclusive
               jurisdiction of the courts in the Philippines, to the extent
               permitted by law.
             </p>
@@ -254,7 +254,7 @@ function Terms() {
             <p>
               For questions about these Terms and Conditions, your booking, or
               our services, please contact us through our website’s contact form
-              or at the contact details provided on our homepage (Marcelinos
+              or at the contact details provided on our homepage (Marcelino's
               Hotel & Resort, Hilongos, Leyte, Philippines).
             </p>
           </section>
