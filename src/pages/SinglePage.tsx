@@ -22,6 +22,7 @@ import {
 import type { VenuePriceItem } from "@/lib/math/calculate";
 import { formatDate } from "@/lib/formatters/formatDate";
 import type { BookingKind } from "@/types/booking.types";
+import type { VenueEventType } from "@/types/booking.types";
 import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
 
 interface ApiListResponse<T> {
@@ -40,6 +41,9 @@ interface ListingItem {
   featured_image?: string | null;
   gallery?: string[];
   bed_specifications?: string[];
+  wedding_price?: number | string;
+  birthday_price?: number | string;
+  meeting_staff_price?: number | string;
 }
 
 function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
@@ -141,8 +145,8 @@ const SinglePage = () => {
     }
 
     const existingDetails = getFromLocalStorage("reservationDetails") ?? {};
-    const existingVenues = Array.isArray(existingDetails?.venues)
-      ? existingDetails.venues
+    const existingVenues: VenuePriceItem[] = Array.isArray(existingDetails?.venues)
+      ? (existingDetails.venues as VenuePriceItem[])
       : [];
     const reservationDate = getFromLocalStorage("reservationDate") ?? {};
     const days = reservationDate?.days ?? existingDetails?.days ?? 1;
@@ -152,9 +156,12 @@ const SinglePage = () => {
       "room";
     const rawEvent =
       (existingDetails as { venue_event_type?: string }).venue_event_type || "";
-    const venueEventType =
-      (rawEvent === "seminar" ? "meeting_staff" : rawEvent) ||
-      "wedding";
+    const venueEventType: VenueEventType =
+      rawEvent === "birthday"
+        ? "birthday"
+        : rawEvent === "meeting_staff" || rawEvent === "seminar"
+          ? "meeting_staff"
+          : "wedding";
 
     const mergedVenueEventDate =
       (existingDetails as { venue_event_date?: string })?.venue_event_date ||
@@ -167,7 +174,7 @@ const SinglePage = () => {
 
     if (isVenuePage) {
       const rooms: ListingItem[] = [];
-      const venues = [selectedItem];
+      const venues: VenuePriceItem[] = [selectedItem as VenuePriceItem];
       const totalPrice =
         calculateTotalPrice(rooms) + calculateVenuesLineTotal(venues, venueEventType);
       const grandTotalPrice = calculateGrandTotalPrice(
