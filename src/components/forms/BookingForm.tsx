@@ -118,10 +118,12 @@ export default function BookingForm() {
 		const checkOutVal = r.check_out ? new Date(r.check_out as string) : "";
 		let daysStored = 0;
 		if (checkInVal && checkOutVal) {
-			daysStored = Math.max(
-				1,
-				diffDays(startOfDay(checkInVal), startOfDay(checkOutVal)),
-			);
+			const d = diffDays(startOfDay(checkInVal), startOfDay(checkOutVal));
+			if (kind === "venue") {
+				daysStored = d + 1;
+			} else {
+				daysStored = Math.max(1, d);
+			}
 		}
 
 		const minOff = kind === "venue" ? 0 : 1;
@@ -259,7 +261,12 @@ export default function BookingForm() {
 		const checkIn = values.check_in as Date;
 		const checkOut = values.check_out as Date;
 		const d = diffDays(startOfDay(checkIn), startOfDay(checkOut));
-		const days = Math.max(1, d);
+		let days: number;
+		if (kind === "venue") {
+			days = d + 1;
+		} else {
+			days = Math.max(1, d);
+		}
 		let venueEventDate: Date | undefined;
 
 		if (kind === "both") {
@@ -404,8 +411,14 @@ export default function BookingForm() {
 						}
 						return { check_out: addDays(ciD, 1), days: 1 };
 					}
-					const d = Math.max(1, diffDays(ciD, coD));
-					return { days: d };
+					const d = diffDays(ciD, coD);
+					let days: number;
+					if (kind === "venue") {
+						days = d + 1;
+					} else {
+						days = Math.max(1, d);
+					}
+					return { days };
 				}}
 			/>
 
