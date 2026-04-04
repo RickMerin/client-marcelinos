@@ -1,10 +1,10 @@
 # Realtime (WebSocket)
 
-This folder contains the Laravel Echo client and channel helpers for real-time updates from the backend (Laravel Reverb).
+This folder contains the Laravel Echo client and channel helpers for real-time updates from the backend (Pusher / Pusher-compatible websockets).
 
 ## Quick start
 
-1. Ensure the backend has Reverb running (`php artisan reverb:start`) and `.env` has `BROADCAST_CONNECTION=reverb` and Reverb env vars.
+1. Ensure the backend has broadcasting configured for Pusher (`BROADCAST_CONNECTION=pusher`) and your `PUSHER_*` env vars are set.
 2. In the client, set `VITE_WS_*` in `.env` if you need to override defaults (see project root documentation).
 3. In a React component, use the hooks:
 

@@ -50,7 +50,7 @@ export function venueEffectiveUnitPrice(
 
 export function calculateVenuesLineTotal(
   venues: VenuePriceItem[] = [],
-  eventType: VenueEventType | "",
+  eventType: VenueEventType | "" | "seminar",
 ): number {
   if (!Array.isArray(venues) || venues.length === 0) return 0;
   return venues.reduce(
