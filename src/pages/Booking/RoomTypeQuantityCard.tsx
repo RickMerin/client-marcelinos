@@ -131,7 +131,7 @@ export function RoomTypeQuantityCard({
           </div>
         )}
         {hasGallery && !fullyBooked && (
-          <div className="absolute bottom-2 left-2 right-2 flex gap-1.5 overflow-x-auto pb-1 pt-6">
+          <div className="absolute bottom-2 left-2 right-2 pl-2 flex gap-1.5 overflow-x-auto pb-1 pt-6">
             {images.map((img, i) => (
               <button
                 key={i}
