@@ -201,6 +201,23 @@ export default function Header() {
 
   const bookNowHandler = () => {
     setOpen(false);
+
+    if (location.pathname !== "/") {
+      navigate("/", { state: { openCheckIn: true } });
+      return;
+    }
+
+    const bookingSection = document.getElementById("booking-section");
+    if (bookingSection) {
+      const headerOffset = 72;
+      const elementPosition =
+        bookingSection.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({
+        top: Math.max(0, elementPosition - headerOffset),
+        behavior: "smooth",
+      });
+    }
+
     const event = new Event("open-checkin");
     window.dispatchEvent(event);
   };
