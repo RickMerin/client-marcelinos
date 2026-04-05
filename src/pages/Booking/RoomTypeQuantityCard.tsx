@@ -130,11 +130,6 @@ export function RoomTypeQuantityCard({
             </span>
           </div>
         )}
-        <div className="absolute bottom-3 left-3 right-3 z-10">
-          <div className="inline-flex rounded-md border border-white/25 bg-black/35 px-2 py-1 backdrop-blur-sm">
-            <RoomTypeBadge type={typeLabel} isTitle />
-          </div>
-        </div>
         {hasGallery && !fullyBooked && (
           <div className="absolute bottom-2 left-2 right-2 flex gap-1.5 overflow-x-auto pb-1 pt-6">
             {images.map((img, i) => (
@@ -167,6 +162,9 @@ export function RoomTypeQuantityCard({
       </div>
 
       <div className="relative flex flex-1 flex-col bg-[linear-gradient(180deg,#fffefc_0%,#faf8f5_100%)] p-5 pt-4">
+        <div className="mb-4 inline-flex">
+          <RoomTypeBadge type={typeLabel} isTitle />
+        </div>
         <div
           className="mb-4 rounded-xl border border-amber-100/80 bg-gradient-to-br from-stone-50/95 via-white to-amber-50/30 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]"
           style={{ boxShadow: "inset 0 0 0 1px rgba(245, 158, 11, 0.06)" }}
