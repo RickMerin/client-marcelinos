@@ -11,7 +11,9 @@ const MySwal = withReactContent(Swal);
 
 export default function TestimonialPage() {
   const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
   const reference = searchParams.get("reference");
+  const identifier = token ?? reference;
 
   const [booking, setBooking] = useState<BookingReferenceResponse["booking"] | null>(null);
   const [hasTestimonial, setHasTestimonial] = useState(false);
@@ -25,9 +27,9 @@ export default function TestimonialPage() {
   const [formError, setFormError] = useState("");
 
   useEffect(() => {
-    if (!reference) {
+    if (!identifier) {
       setLoading(false);
-      setError("Missing reference. Please use the link from your email.");
+      setError("Missing link. Please use the link from your email.");
       return;
     }
 
@@ -35,7 +37,11 @@ export default function TestimonialPage() {
     setLoading(true);
     setError(null);
 
-    API.get<BookingReferenceResponse>(`bookings/reference/${encodeURIComponent(reference)}`)
+    const bookingPath = token
+      ? `bookings/receipt/${encodeURIComponent(token)}`
+      : `bookings/reference/${encodeURIComponent(reference!)}`;
+
+    API.get<BookingReferenceResponse>(bookingPath)
       .then((data) => {
         if (!cancelled && data.booking) {
           setBooking(data.booking);
@@ -59,7 +65,7 @@ export default function TestimonialPage() {
     return () => {
       cancelled = true;
     };
-  }, [reference]);
+  }, [identifier, token, reference]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,14 +84,18 @@ export default function TestimonialPage() {
       return;
     }
 
-    if (!reference) return;
+    if (!identifier) return;
     setSubmitting(true);
 
     try {
-      await API.post<{ message: string }>(
-        `bookings/reference/${encodeURIComponent(reference)}/review`,
-        { rating, comment: comment.trim() }
-      );
+      const reviewPath = token
+        ? `bookings/receipt/${encodeURIComponent(token)}/review`
+        : `bookings/reference/${encodeURIComponent(reference!)}/review`;
+
+      await API.post<{ message: string }>(reviewPath, {
+        rating,
+        comment: comment.trim(),
+      });
 
       await MySwal.fire({
         icon: "success",

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import {
@@ -14,12 +14,19 @@ import { RealtimeChannels } from "@/lib/realtime/channels";
 import { queryKeys } from "@/lib/api/endpoints";
 
 interface BookingReceiptPageProps {
-  referenceNumber: string;
+  receiptToken: string;
 }
 
 const RECEIPT_STEP = 5;
 
-/** Transform GET /bookings/reference/:ref response into BookingReceipt format for Step5 */
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isReceiptTokenUuid(value: string): boolean {
+  return UUID_RE.test(value);
+}
+
+/** Transform GET /bookings/receipt/:token (or legacy reference) response into BookingReceipt format for Step5 */
 function toBookingReceipt(
   res: BookingReferenceResponse,
 ): BookingReceipt | null {
@@ -100,35 +107,55 @@ function toBookingReceipt(
 }
 
 export function BookingReceiptPage({
-  referenceNumber,
+  receiptToken,
 }: BookingReceiptPageProps) {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const paymentStatus = searchParams.get("payment");
+
+  const useLegacyReferenceLookup = !isReceiptTokenUuid(receiptToken);
+  const receiptApiPath = useLegacyReferenceLookup
+    ? `/bookings/reference/${encodeURIComponent(receiptToken)}`
+    : `/bookings/receipt/${receiptToken}`;
+  const queryKey = useLegacyReferenceLookup
+    ? queryKeys.bookings.byReference(receiptToken)
+    : queryKeys.bookings.byReceiptToken(receiptToken);
 
   useEffect(() => {
     clearBookingStorage();
   }, []);
 
   const { data, isLoading, isError } = useApiQuery<BookingReferenceResponse>(
-    [...queryKeys.bookings.byReference(referenceNumber)],
-    `/bookings/reference/${referenceNumber}`,
+    [...queryKey],
+    receiptApiPath,
     { retry: 1, staleTime: 10_000 },
   );
 
+  useEffect(() => {
+    if (!data?.booking?.receipt_token || !useLegacyReferenceLookup) return;
+    const t = data.booking.receipt_token;
+    if (t && t !== receiptToken) {
+      navigate(`/booking-receipt/${t}`, { replace: true });
+    }
+  }, [data, useLegacyReferenceLookup, receiptToken, navigate]);
+
   const receipt = useMemo(() => (data ? toBookingReceipt(data) : null), [data]);
   const qrCodeUrl = receipt?.qr_code_url ?? data?.qr_code_url ?? null;
+
+  const realtimeChannelId =
+    isReceiptTokenUuid(receiptToken) && receiptToken
+      ? receiptToken
+      : (data?.booking?.receipt_token ?? "");
 
   const refetchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleRealtimeEvent = useCallback(() => {
     if (refetchDebounceRef.current) clearTimeout(refetchDebounceRef.current);
     refetchDebounceRef.current = setTimeout(() => {
       refetchDebounceRef.current = null;
-      queryClient.refetchQueries({
-        queryKey: queryKeys.bookings.byReference(referenceNumber),
-      });
+      queryClient.refetchQueries({ queryKey: [...queryKey] });
     }, 400);
-  }, [queryClient, referenceNumber]);
+  }, [queryClient, queryKey]);
 
   useEffect(
     () => () => {
@@ -138,10 +165,10 @@ export function BookingReceiptPage({
   );
 
   useRealtimeEvent({
-    channel: RealtimeChannels.booking(referenceNumber),
+    channel: RealtimeChannels.booking(realtimeChannelId),
     event: "BookingStatusUpdated",
     isPrivate: false,
-    enabled: !!referenceNumber,
+    enabled: !!realtimeChannelId,
     onEvent: handleRealtimeEvent,
   });
 
@@ -166,7 +193,11 @@ export function BookingReceiptPage({
       <main className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center text-muted-foreground">
           <p className="text-lg">Receipt not found or failed to load.</p>
-          <p className="text-sm mt-2">Reference: {referenceNumber}</p>
+          <p className="text-sm mt-2">
+            {useLegacyReferenceLookup
+              ? `Reference: ${receiptToken}`
+              : `Receipt ID: ${receiptToken}`}
+          </p>
         </div>
       </main>
     );
