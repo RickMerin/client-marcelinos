@@ -71,6 +71,7 @@ export default function RescheduleBookingContent({
       const msg =
         err?.response?.data?.message ||
         err?.response?.data?.errors?.otp?.[0] ||
+        err?.response?.data?.errors?.email?.[0] ||
         err?.response?.data?.errors?.phone?.[0] ||
         "Could not send verification code.";
       toast.error({ content: msg });
@@ -172,7 +173,7 @@ export default function RescheduleBookingContent({
       });
       setOtpSent(true);
       setResendIn(OTP_RESEND_SECONDS);
-      toast.success({ content: "Verification code sent to your mobile number." });
+      toast.success({ content: "Verification code sent to your email." });
     } catch {
       /* toast in onError */
     }
@@ -421,11 +422,11 @@ export default function RescheduleBookingContent({
         <div className="mt-8 space-y-3 pt-6 border-t border-gray-200">
           <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/50 p-4 text-left">
             <p className="text-xs font-bold text-emerald-900 mb-1">
-              SMS verification
+              Email verification
             </p>
             <p className="text-[11px] text-gray-600 mb-2">
-              A code is sent to the mobile number on this booking. Enter it to
-              confirm reschedule.
+              A code is sent to the email on this booking. Enter it to confirm
+              reschedule.
             </p>
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <button
