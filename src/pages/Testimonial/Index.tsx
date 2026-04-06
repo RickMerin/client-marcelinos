@@ -107,7 +107,7 @@ export default function TestimonialPage() {
             Your review has been submitted. We appreciate your feedback.
           </p>
         ),
-        confirmButtonColor: "#1f5d1e",
+        confirmButtonColor: "#2F5D50",
       });
 
       setRating(0);
@@ -126,7 +126,7 @@ export default function TestimonialPage() {
 
   if (loading) {
     return (
-      <section className="bg-[#faf7f2] min-h-[60vh] flex items-center justify-center px-4">
+      <section className="bg-cream min-h-[60vh] flex items-center justify-center px-4">
         <InlineLoader message="Loading..." className="min-h-[40vh]" />
       </section>
     );
@@ -134,10 +134,10 @@ export default function TestimonialPage() {
 
   if (error) {
     return (
-      <section className="bg-[#faf7f2] min-h-[60vh] flex items-center justify-center px-4 py-16">
+      <section className="bg-cream min-h-[60vh] flex items-center justify-center px-4 py-16">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
           <h1 className="text-2xl font-bold green mb-2">Invalid or missing link</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-ink-soft mb-6">{error}</p>
           <Link
             to="/"
             className="inline-flex items-center gap-2 px-5 py-2.5 text-white font-semibold rounded-lg green-bg hover:opacity-90 transition"
@@ -151,10 +151,10 @@ export default function TestimonialPage() {
 
   if (hasTestimonial) {
     return (
-      <section className="bg-[#faf7f2] min-h-[60vh] flex items-center justify-center px-4 py-16">
+      <section className="bg-cream min-h-[60vh] flex items-center justify-center px-4 py-16">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
           <h1 className="text-2xl font-bold green mb-2">Thank you</h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-ink-soft mb-6">
             You have already submitted a review for this stay.
           </p>
           <Link
@@ -177,11 +177,11 @@ export default function TestimonialPage() {
       : "Guest";
 
   return (
-    <section className="bg-[#faf7f2] min-h-[60vh] py-12 px-4">
+    <section className="bg-cream min-h-[60vh] py-12 px-4">
       <div className="max-w-xl mx-auto">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-[#1f5d1e] font-medium hover:underline mb-8"
+          className="inline-flex items-center gap-2 text-forest font-medium hover:underline mb-8"
         >
           <ArrowLeft className="w-4 h-4" /> Back to home
         </Link>
@@ -190,14 +190,14 @@ export default function TestimonialPage() {
           <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2">
             <span className="green">Share your experience</span>
           </h1>
-          <p className="text-center text-gray-600 mb-6">
+          <p className="text-center text-ink-soft mb-6">
             Hi {guestName}, we hope you enjoyed your stay. Your feedback helps us improve.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Star rating */}
             <div className="flex flex-col items-center">
-              <label className="text-sm font-medium text-gray-700 mb-2">
+              <label className="text-sm font-medium text-ink-soft mb-2">
                 Rating <span className="text-red-500">*</span>
               </label>
               <div className="flex justify-center gap-2">
@@ -224,7 +224,7 @@ export default function TestimonialPage() {
 
             {/* Comment */}
             <div>
-              <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="comment" className="block text-sm font-medium text-ink-soft mb-1">
                 Your review <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -233,9 +233,9 @@ export default function TestimonialPage() {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={4}
-                className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-[#1f5d1e] focus:border-transparent resize-y min-h-[120px]"
+                className="w-full border border-sand-dark rounded-lg p-3 outline-none focus:ring-2 focus:ring-forest focus:border-transparent resize-y min-h-[120px]"
               />
-              <p className="text-xs text-gray-500 mt-1">At least 10 characters.</p>
+              <p className="text-xs text-ink-soft/60 mt-1">At least 10 characters.</p>
             </div>
 
             {formError && (
@@ -247,7 +247,7 @@ export default function TestimonialPage() {
             <div className="flex flex-col sm:flex-row gap-3 justify-end pt-2">
               <Link
                 to="/"
-                className="px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-center font-medium"
+                className="px-4 py-2.5 rounded-lg border border-sand-dark text-ink-soft hover:bg-sand text-center font-medium"
               >
                 Cancel
               </Link>

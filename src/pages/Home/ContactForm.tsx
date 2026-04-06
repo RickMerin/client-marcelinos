@@ -57,17 +57,9 @@ const contactSchema = z.object({
     )
     .transform((val) => {
       if (!val) return "";
-
       const normalized = val.replace(/\s|-/g, "");
-
-      if (normalized.startsWith("09")) {
-        return "+63" + normalized.slice(1);
-      }
-
-      if (normalized.startsWith("63")) {
-        return "+" + normalized;
-      }
-
+      if (normalized.startsWith("09")) return "+63" + normalized.slice(1);
+      if (normalized.startsWith("63")) return "+" + normalized;
       return normalized;
     }),
 
@@ -164,15 +156,7 @@ function ContactForm() {
   const contactMutation = useApiMutation("post", {
     onSuccess: () => {
       toast.success({ content: "Message sent! We'll get back to you soon." });
-
-      setFormData({
-        full_name: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: "",
-      });
-
+      setFormData({ full_name: "", email: "", phone: "", subject: "", message: "" });
       setFormErrors({});
       resetCaptcha();
     },
@@ -182,7 +166,6 @@ function ContactForm() {
         error?.response?.data?.error ||
         error?.message ||
         "Oops, something went wrong. Please try again later.";
-
       toast.error({ content: errorMessage });
       resetCaptcha();
     },
@@ -192,17 +175,10 @@ function ContactForm() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
+    setFormData((prev) => ({ ...prev, [name]: value }));
     const fieldSchema = contactSchema.shape[name as keyof FormData];
-
     if (fieldSchema) {
       const result = fieldSchema.safeParse(value);
-
       setFormErrors((prev) => ({
         ...prev,
         [name]: result.success ? "" : result.error.issues[0].message,
@@ -214,12 +190,9 @@ function ContactForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const result = contactSchema.safeParse(formData);
-
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;
-
       setFormErrors({
         full_name: fieldErrors.full_name?.[0],
         email: fieldErrors.email?.[0],
@@ -227,7 +200,6 @@ function ContactForm() {
         subject: fieldErrors.subject?.[0],
         message: fieldErrors.message?.[0],
       });
-
       return;
     }
 
@@ -246,6 +218,9 @@ function ContactForm() {
       },
     });
   };
+
+  const inputClass =
+    "border border-sand-dark rounded-[3px] px-4 py-3.5 text-ink placeholder:text-ink-soft/50 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-transparent transition-shadow w-full bg-white text-base";
 
   return (
     <center>

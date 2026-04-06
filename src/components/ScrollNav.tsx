@@ -82,7 +82,7 @@ export default function ScrollNav() {
 
   const btnBase =
     "flex items-center justify-center rounded-full backdrop-blur-sm" +
-    " focus:outline-none focus:ring-2 focus:ring-green-600/50 focus:ring-offset-2 focus:ring-offset-transparent";
+    " focus:outline-none focus:ring-2 focus:ring-gold/50 focus:ring-offset-2 focus:ring-offset-transparent";
 
   return (
     <motion.div
@@ -101,13 +101,13 @@ export default function ScrollNav() {
         onClick={scrollToTop}
         disabled={!canScrollUp}
         aria-label="Scroll to top"
-        whileHover={canScrollUp ? { scale: 1.08, y: -2, boxShadow: "0 6px 20px rgba(21, 128, 61, 0.35)" } : {}}
+        whileHover={canScrollUp ? { scale: 1.08, y: -2, boxShadow: "0 6px 20px rgba(184, 149, 90, 0.35)" } : {}}
         whileTap={canScrollUp ? { scale: 0.96, y: 0 } : {}}
         transition={{ type: "spring", stiffness: 400, damping: 22 }}
         className={cn(
           btnBase,
           "group h-9 w-9 sm:h-10 sm:w-10",
-          "bg-green-700/80 text-white shadow-md hover:bg-green-700/95",
+          "bg-dark/80 text-cream shadow-md hover:bg-dark/95",
           !canScrollUp && "cursor-not-allowed opacity-35",
         )}>
         <span
@@ -124,13 +124,13 @@ export default function ScrollNav() {
         onClick={scrollToBottom}
         disabled={!canScrollDown}
         aria-label="Scroll to bottom"
-        whileHover={canScrollDown ? { scale: 1.08, y: 2, boxShadow: "0 6px 20px rgba(21, 128, 61, 0.35)" } : {}}
+        whileHover={canScrollDown ? { scale: 1.08, y: 2, boxShadow: "0 6px 20px rgba(184, 149, 90, 0.35)" } : {}}
         whileTap={canScrollDown ? { scale: 0.96, y: 0 } : {}}
         transition={{ type: "spring", stiffness: 400, damping: 22 }}
         className={cn(
           btnBase,
           "group h-9 w-9 sm:h-10 sm:w-10",
-          "bg-green-700/80 text-white shadow-md hover:bg-green-700/95",
+          "bg-dark/80 text-cream shadow-md hover:bg-dark/95",
           !canScrollDown && "cursor-not-allowed opacity-35",
         )}>
         <span

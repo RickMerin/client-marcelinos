@@ -13,14 +13,14 @@ export const ROOM_TYPE_BADGE_THEME: Record<
   }
 > = {
   standard: {
-    background: "#385638",
-    iconBackground: "#4E6B4E",
+    background: "#2F5D50",
+    iconBackground: "#3F7A6B",
     boxShadow:
       "0 1px 4px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.18)",
   },
   family: {
-    background: "#385139",
-    iconBackground: "#5b735c",
+    background: "#2B5246",
+    iconBackground: "#3F7A6B",
     boxShadow:
       "0 1px 4px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.18)",
   },
