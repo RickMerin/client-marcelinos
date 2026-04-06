@@ -240,6 +240,20 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 		[],
 	);
 
+	// Calculate the earliest available booking date based on current time
+	const earliestAvailableDate = React.useMemo(() => {
+		const now = new Date();
+		const currentHour = now.getHours();
+		// If current time is 9 PM (21:00) or later, bookings start from tomorrow
+		if (currentHour >= 21) {
+			const tomorrow = new Date(todayStart);
+			tomorrow.setDate(tomorrow.getDate() + 1);
+			return tomorrow;
+		}
+		// Otherwise, bookings can start from today
+		return todayStart;
+	}, [todayStart]);
+
 	const overlapNights = React.useMemo(() => {
 		if (!checkIn || !checkOut) return null;
 		const checkInDate =
@@ -412,7 +426,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 														date.getMonth(),
 														date.getDate(),
 													);
-													if (d < todayStart) return true;
+													if (d < earliestAvailableDate) return true;
 													if (
 														blockedDates.some(
 															(b) => toDayKey(b) === toDayKey(d),
@@ -497,7 +511,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 														date.getMonth(),
 														date.getDate(),
 													);
-													if (d < todayStart) return false;
+													if (d < earliestAvailableDate) return false;
 													if (
 														blockedDates.some(
 															(b) => toDayKey(b) === toDayKey(d),
