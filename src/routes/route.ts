@@ -27,7 +27,7 @@ export const routes = [
   { path: "/blog/:slug", component: BlogPost },
   { path: "/create-booking", component: Booking },
   {
-    path: "/booking-receipt/:reference_number",
+    path: "/booking-receipt/:receipt_token",
     component: Booking,
     current_step: 5,
   },

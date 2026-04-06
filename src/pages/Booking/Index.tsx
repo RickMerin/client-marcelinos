@@ -13,15 +13,15 @@ const CREATE_BOOKING_SEO = {
 };
 
 export default function BookingIndex() {
-  const { reference_number } = useParams<{ reference_number: string }>();
+  const { receipt_token } = useParams<{ receipt_token: string }>();
   const location = useLocation();
   const isReceiptRoute = location.pathname.startsWith("/booking-receipt/");
   const isCreateBooking = location.pathname === "/create-booking";
 
   usePageSEO(isCreateBooking ? CREATE_BOOKING_SEO : null);
 
-  if (isReceiptRoute && reference_number) {
-    return <BookingReceiptPage referenceNumber={reference_number} />;
+  if (isReceiptRoute && receipt_token) {
+    return <BookingReceiptPage receiptToken={receipt_token} />;
   }
 
   return (

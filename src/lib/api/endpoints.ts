@@ -8,6 +8,7 @@
 export const endpoints = {
   bookings: "/bookings",
   bookingByReference: (reference: string) => `/bookings/reference/${reference}`,
+  bookingByReceiptToken: (token: string) => `/bookings/receipt/${token}`,
   cancelBooking: (reference: string) => `/bookings/ ${reference} /cancel`,
   rooms: "/rooms",
   roomById: (id: string | number) => `/rooms/${id}`,
@@ -17,6 +18,8 @@ export const endpoints = {
   contact: "/contact",
   testimonialByReference: (reference: string) =>
     `/bookings/reference/${reference}/review`,
+  testimonialByReceiptToken: (token: string) =>
+    `/bookings/receipt/${token}/review`,
   galleries: "/galleries",
   blogPosts: "/blog-posts",
   blogPostBySlug: (slug: string) => `/blog-posts/${encodeURIComponent(slug)}`,
@@ -47,8 +50,9 @@ export const queryKeys = {
     detail: (id: string | number) => ["bookings", String(id)] as const,
     byReference: (reference: string) =>
       ["bookings", "reference", reference] as const,
-    receipt: (reference: string) =>
-      ["booking-receipt", reference] as const,
+    byReceiptToken: (token: string) =>
+      ["bookings", "receipt", token] as const,
+    receipt: (token: string) => ["booking-receipt", token] as const,
   },
   galleries: {
     all: ["galleries"] as const,

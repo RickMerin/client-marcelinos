@@ -69,11 +69,17 @@ export function MultiStepForm() {
         window.location.href = response.payment_url;
         return;
       }
+      const receiptToken =
+        response?.booking?.receipt_token ??
+        (response?.bookings?.[0] as { receipt_token?: string } | undefined)
+          ?.receipt_token;
       const referenceNumber =
         response?.booking?.reference_number ??
         response?.bookings?.[0]?.reference_number ??
         formData.reference_number;
-      if (referenceNumber) {
+      if (receiptToken) {
+        navigate(`/booking-receipt/${receiptToken}`);
+      } else if (referenceNumber) {
         navigate(`/booking-receipt/${referenceNumber}`);
       } else {
         goToStep(5);

@@ -12,7 +12,11 @@ export type RoomTypeFilter = "standard" | "family" | "deluxe";
 export interface BookingResponse {
   message: string;
   guest?: unknown;
-  booking?: { reference_number: string; [key: string]: unknown };
+  booking?: {
+    reference_number: string;
+    receipt_token?: string;
+    [key: string]: unknown;
+  };
   /** @deprecated use booking instead */
   bookings?: Array<{ reference_number: string; [key: string]: unknown }>;
   total_price?: number;
@@ -36,7 +40,7 @@ export interface BookingConflictResponse {
   };
 }
 
-/** API response shape for GET /bookings/reference/:reference */
+/** API response shape for GET /bookings/receipt/:token or GET /bookings/reference/:reference */
 export interface BookingReferenceResponse {
   /** ISO 8601 — unpaid bookings must be settled by this time (matches Booking::unpaidExpiresAt). */
   unpaid_expires_at?: string | null;
@@ -46,6 +50,8 @@ export interface BookingReferenceResponse {
   down_payment_notice_min_lead_days?: number;
   booking?: {
     reference_number: string;
+    /** Opaque public id for receipt URL (UUID). */
+    receipt_token?: string;
     status?: string;
     check_in?: string;
     check_out?: string;
@@ -86,7 +92,7 @@ export interface BookingReferenceResponse {
   has_testimonial?: boolean;
 }
 
-/** API response shape for GET /booking-receipt/:reference */
+/** Receipt view model for Step5 (from booking API payload). */
 export interface BookingReceipt {
   /** QR code image URL for check-in */
   qr_code_url?: string | null;
