@@ -1,163 +1,139 @@
 import { useState, useRef, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+	type CarouselApi,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { WritingText } from "@/components/ui/shadcn-io/writing-text";
 import { motion } from "framer-motion";
 
-/** LCP image: same URL as preload in index.html so request is discoverable from initial document */
 const LCP_BANNER_SRC = "/img/banner-1.webp";
 
 export function BannerCarousel() {
-  const [api, setApi] = useState<CarouselApi | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const plugin = useRef(Autoplay({ delay: 5000 }));
+	const [api, setApi] = useState<CarouselApi | null>(null);
+	const [activeIndex, setActiveIndex] = useState(0);
+	const plugin = useRef(Autoplay({ delay: 5000 }));
 
-  useEffect(() => {
-    if (!api) return;
+	useEffect(() => {
+		if (!api) return;
+		const onSelect = () => setActiveIndex(api.selectedScrollSnap());
+		api.on("select", onSelect);
+		onSelect();
+		return () => {
+			api.off("select", onSelect);
+		};
+	}, [api]);
 
-    const onSelect = () => setActiveIndex(api.selectedScrollSnap());
-    api.on("select", onSelect);
-    onSelect();
+	const fadeUp = {
+		initial: { opacity: 0, y: 30 },
+		animate: { opacity: 1, y: 0 },
+	};
 
-    return () => {
-      api.off("select", onSelect);
-    };
-  }, [api]);
+	return (
+		<Carousel
+			id="home"
+			opts={{ align: "start", loop: true }}
+			plugins={[plugin.current]}
+			setApi={setApi}>
+			<CarouselContent className="ml-0 gap-0 *:pl-0 *:mr-0">
+				{Array.from({ length: 5 }).map((_, index) => {
+					const isActive = index === activeIndex;
 
-  // Motion variants (clean and DRY)
-  const fadeUp = {
-    initial: { opacity: 0, y: 30 },
-    animate: { opacity: 1, y: 0 },
-  };
+					return (
+						<CarouselItem
+							key={index}
+							className="basis-full shrink-0 grow-0 pl-0 mr-0">
+							<div className="relative w-full h-[90vh] min-h-[600px] overflow-hidden">
+								<img
+									src={LCP_BANNER_SRC}
+									alt="Marcelino's Resort"
+									loading="eager"
+									fetchPriority="high"
+									className="absolute inset-0 w-full h-full object-cover object-center"
+								/>
 
-  return (
-    <Carousel
-      id="home"
-      opts={{ align: "start", loop: true }}
-      plugins={[plugin.current]}
-      setApi={setApi}>
-      <CarouselContent className="ml-0 gap-0 *:pl-0 *:mr-0">
-        {Array.from({ length: 5 }).map((_, index) => {
-          const isActive = index === activeIndex;
+								{/* Hero depth: multi-stop gradient + subtle blur for premium blend */}
+								<div
+									className="absolute inset-0 z-1 backdrop-blur-[1.5px]"
+									style={{
+										background:
+											"linear-gradient(to top, rgba(15,31,26,0.85) 0%, rgba(15,31,26,0.4) 50%, rgba(15,31,26,0.2) 100%)",
+									}}
+								/>
 
-          return (
-            <CarouselItem
-              key={index}
-              className="basis-full shrink-0 grow-0 pl-0 mr-0">
-              <Card className="w-full px-0 py-0 cursor-grab rounded-none border-0">
-                <CardContent className="relative p-0 overflow-hidden">
-                  <img
-                    src={LCP_BANNER_SRC}
-                    alt="Banner 1"
-                    loading="eager"
-                    fetchPriority="high"
-                    className="w-full h-[88vh] object-cover object-center"
-                  />
-                  {/* Premium overlay: gradient for depth and readability */}
-                  <div
-                    className="absolute inset-0 z-10"
-                    style={{
-                      background:
-                        "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(44,44,44,0.65) 50%, rgba(0,0,0,0.7) 100%)",
-                    }}
-                  />
+								{/* Bottom-aligned hero content */}
+								{isActive && (
+									<motion.div
+										key={index}
+										className="absolute inset-0 z-5 flex items-end px-6 lg:px-16 xl:px-20 pb-24 md:pb-28"
+										initial="initial"
+										animate="animate"
+										transition={{ staggerChildren: 0.2 }}>
+										<div className="max-w-[720px]">
+											{/* Eyebrow */}
+											<motion.p
+												variants={fadeUp}
+												transition={{ duration: 0.8, ease: "easeOut" }}
+												className="flex items-center gap-3.5 text-[13px] tracking-[0.25em] uppercase text-gold-light mb-5 font-medium">
+												<span className="block w-9 h-[1.5px] bg-gold-light shrink-0" />
+												Hilongos, Leyte, Philippines
+											</motion.p>
 
-                  {/* Animate all content inside - premium typography */}
-                  {isActive && (
-                    <motion.section
-                      key={index}
-                      className="absolute inset-0 z-20 flex flex-col space-y-5 items-center justify-center select-none px-4"
-                      initial="initial"
-                      animate="animate"
-                      transition={{ staggerChildren: 0.2 }}>
-                      {/* Header text - display font, sage accent */}
-                      <motion.div
-                        variants={fadeUp}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
-                        className="flex items-center justify-center">
-                        <div
-                          className="block w-12 h-0.5 mr-4 md:mr-5"
-                          style={{ backgroundColor: "var(--color-sage-light)" }}
-                        />
-                        <h4 className="font-display text-white text-sm md:text-base font-semibold uppercase tracking-[0.25em]">
-                          Elegant Venue
-                        </h4>
-                        <div
-                          className="block w-12 h-0.5 ml-4 md:ml-5"
-                          style={{ backgroundColor: "var(--color-sage-light)" }}
-                        />
-                      </motion.div>
+											{/* Title */}
+											<motion.h1
+												variants={fadeUp}
+												transition={{ duration: 1, delay: 0.2 }}
+												className="font-display text-[clamp(48px,8vw,100px)] font-light leading-[0.95] text-cream mb-7">
+												Where{" "}
+												<em className="italic text-gold-light">Paradise</em>
+												<br />
+												Meets Comfort
+											</motion.h1>
 
-                      {/* Main headline - display font */}
-                      <motion.div
-                        variants={fadeUp}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        className="flex justify-center items-center w-full px-2">
-                        <WritingText
-                          text="MAKE YOUR STAY COMFORTABLE"
-                          inView={true}
-                          style={{
-                            fontFamily: "var(--font-display)",
-                            fontSize: "clamp(2rem, 6vw, 3rem)",
-                            lineHeight: "1.2",
-                            fontWeight: "700",
-                            color: "white",
-                            textAlign: "center",
-                            textTransform: "uppercase",
-                            width: "100%",
-                            display: "flex",
-                            gap: "0.7rem",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            flexWrap: "wrap",
-                            wordBreak: "break-word",
-                            letterSpacing: "0.02em",
-                          }}
-                          transition={{
-                            type: "spring",
-                            bounce: 0,
-                            duration: 2,
-                            delay: 0.3,
-                          }}
-                        />
-                      </motion.div>
+											{/* Subtitle */}
+											<motion.p
+												variants={fadeUp}
+												transition={{ duration: 0.8, delay: 0.4 }}
+												className="text-base md:text-lg leading-relaxed text-cream/85 max-w-[480px] mb-12">
+												A sanctuary nestled on the shores of Leyte — offering
+												world-class accommodations, event venues, and resort
+												living at the heart of the Philippines.
+											</motion.p>
 
-                      {/* Tagline - refined body */}
-                      <motion.div
-                        variants={fadeUp}
-                        transition={{ duration: 0.7, delay: 0.4 }}
-                        className="flex justify-center items-center w-full max-w-xl">
-                        <p className="font-display text-white/95 text-center text-sm md:text-base font-light tracking-wide leading-relaxed italic">
-                          Experience refined comfort in thoughtfully designed
-                          rooms, complemented by quality amenities and warm
-                          hospitality.
-                        </p>
-                      </motion.div>
-                    </motion.section>
-                  )}
-                </CardContent>
-              </Card>
-            </CarouselItem>
-          );
-        })}
-      </CarouselContent>
+											{/* Actions */}
+											<motion.div
+												variants={fadeUp}
+												transition={{ duration: 0.7, delay: 0.6 }}
+												className="flex items-center flex-wrap gap-6 max-md:flex-col max-md:items-start max-md:gap-5">
+												<a
+													href="#rooms"
+													className="btn-primary-mockup max-md:w-full max-md:text-center flex items-center justify-center">
+													Explore Rooms
+												</a>
+												<a href="#venues" className="btn-ghost-mockup">
+													View Venues
+												</a>
+											</motion.div>
+										</div>
+									</motion.div>
+								)}
 
-      <CarouselPrevious
-        variant="secondary"
-        className="absolute left-2 md:left-10 z-30"
-      />
-      <CarouselNext
-        variant="secondary"
-        className="absolute right-2 md:right-10 z-30"
-      />
-    </Carousel>
-  );
+								{/* Scroll hint — desktop only */}
+								<p
+									className="hidden lg:flex absolute right-6 lg:right-16 xl:right-20 bottom-24 z-5 items-center gap-3.5 text-[11px] tracking-[0.25em] uppercase text-cream/45"
+									style={{
+										writingMode: "vertical-rl",
+										animation: "fadeIn 1.5s ease 1.2s both",
+									}}>
+									Scroll to discover
+									<span className="block w-px h-14 bg-linear-to-b from-cream/35 to-transparent" />
+								</p>
+							</div>
+						</CarouselItem>
+					);
+				})}
+			</CarouselContent>
+		</Carousel>
+	);
 }

@@ -1,13 +1,13 @@
 import { useRef, useState, useCallback, useLayoutEffect, useMemo } from "react";
 import gsap from "gsap";
-// Use "gsap/Flip": "gsap/flip" points to flip.d.ts (global declarations, not a module). Capital F avoids that.
-// @ts-ignore - flip.d.ts vs Flip.d.ts path casing in gsap package
+// @ts-ignore
 import { Flip } from "gsap/Flip";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
-import CardItem from "@/components/cards/CardItem";
 import CarouselSkeleton from "@/components/skeleton/RoomCarouselSkeleton";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
+import { pricingFormat } from "@/lib/formatters/pricingFormat";
 
 gsap.registerPlugin(Flip);
 
@@ -105,139 +105,177 @@ function RoomCard() {
     const leaveToX = isSmallScreen ? -direction * SLIDE_OFFSET : 0;
 
     const tl = Flip.from(state, {
-      targets: selector,
-      duration: DURATION_FLIP,
-      ease: EASE_SMOOTH,
-      absolute: true,
-      onEnter: (elements: Element[]) =>
-        gsap.fromTo(
-          elements,
-          {
-            opacity: 0,
-            x: enterFromX,
-            scale: ENTER_SCALE,
-          },
-          {
-            opacity: 1,
-            x: 0,
-            scale: 1,
-            duration: DURATION_ENTER_LEAVE,
-            ease: EASE_SMOOTH,
-            overwrite: "auto",
-          },
-        ),
-      onLeave: (elements: Element[]) =>
-        gsap.to(elements, {
-          opacity: 0,
-          x: leaveToX,
-          scale: ENTER_SCALE,
-          duration: DURATION_ENTER_LEAVE,
-          ease: EASE_SMOOTH,
-          overwrite: "auto",
-        }),
-      onComplete: () => {
-        isAnimatingRef.current = false;
-      },
-    });
+			targets: selector,
+			duration: DURATION_FLIP,
+			ease: EASE_SMOOTH,
+			absolute: true,
+			onEnter: (elements: Element[]) =>
+				gsap.fromTo(
+					elements,
+					{ opacity: 0, x: enterFromX, scale: ENTER_SCALE },
+					{
+						opacity: 1,
+						x: 0,
+						scale: 1,
+						duration: DURATION_ENTER_LEAVE,
+						ease: EASE_SMOOTH,
+						overwrite: "auto",
+					},
+				),
+			onLeave: (elements: Element[]) =>
+				gsap.to(elements, {
+					opacity: 0,
+					x: leaveToX,
+					scale: ENTER_SCALE,
+					duration: DURATION_ENTER_LEAVE,
+					ease: EASE_SMOOTH,
+					overwrite: "auto",
+				}),
+			onComplete: () => {
+				isAnimatingRef.current = false;
+			},
+		});
     return () => {
-      tl.kill();
-      isAnimatingRef.current = false;
-    };
+			tl.kill();
+			isAnimatingRef.current = false;
+		};
   }, [startIndex, slidesPerView]);
 
   if (error) {
     return (
-      <section className="w-full" aria-labelledby="rooms-heading">
-        <h2
-          id="rooms-heading"
-          className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)"
-        >
-          <span className="text-green-900">OUR</span>{" "}
-          <span className="text-yellow-500">ROOMS</span>
-        </h2>
-        <p className="text-sm text-red-600 text-center font-medium">
-          Error loading rooms.
-        </p>
-      </section>
-    );
+			<div>
+				<div className="flex justify-between items-end mb-14 flex-wrap gap-5">
+					<div>
+						<div
+							className="section-eyebrow"
+							style={{ color: "var(--color-gold-light)" }}>
+							Accommodations
+						</div>
+						<h2 className="font-display text-[clamp(36px,4vw,54px)] font-light text-cream leading-[1.1]">
+							Sleep in <em className="italic text-gold-light">Refined</em>{" "}
+							Comfort
+						</h2>
+					</div>
+				</div>
+				<p className="text-base text-red-400 text-center font-medium">
+					Error loading rooms.
+				</p>
+			</div>
+		);
   }
 
   return (
-    <section className="w-full" aria-labelledby="rooms-heading">
-      <h2
-        id="rooms-heading"
-        className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)"
-      >
-        <span className="text-green-900">OUR</span>{" "}
-        <span className="text-yellow-500">ROOMS</span>
-      </h2>
+		<div>
+			{/* Header */}
+			<div className="flex justify-between items-end mb-16 flex-wrap gap-5 max-md:flex-col max-md:items-start">
+				<div>
+					<div
+						className="section-eyebrow"
+						style={{ color: "var(--color-gold-light)" }}>
+						Accommodations
+					</div>
+					<h2 className="font-display text-[clamp(36px,4vw,56px)] font-light text-cream leading-[1.1]">
+						Sleep in <em className="italic text-gold-light">Refined</em> Comfort
+					</h2>
+				</div>
+				<a
+					href="/rooms"
+					className="btn-ghost-mockup"
+					style={{ color: "rgba(250,250,249,0.7)" }}>
+					View All Rooms
+				</a>
+			</div>
 
-      {isLoading ? (
-        <CarouselSkeleton />
-      ) : roomList.length === 0 ? (
-        <p className="text-sm text-center text-(--color-charcoal) opacity-80">
-          No rooms available.
-        </p>
-      ) : (
-        <div
-          className="relative w-[90%] max-w-[1200px] mx-auto pb-12 min-h-[495px]"
-          ref={containerRef}
-        >
-          {/* Fixed track height prevents layout shift when FLIP uses absolute positioning */}
-          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-rows-[minmax(420px,1fr)] min-h-[420px]">
-            {visibleRooms.map(
-              (room: Record<string, unknown> & { _index?: number }) => (
-                <div
-                  key={String(room.id)}
-                  data-flip-id={String(room.id)}
-                  className="flex justify-center"
-                >
-                  <CardItem
-                    id={room.id as number}
-                    type={room.type as string}
-                    name={room.name as string}
-                    description={room.description as string}
-                    capacity={room.capacity as number}
-                    price={room.price as number}
-                    amenities={room.amenities as unknown[]}
-                    featured_image={room.featured_image as string | null}
-                    gallery={room.gallery as string[]}
-                    bed_specifications={room.bed_specifications as string[]}
-                    onClick={() =>
-                      navigate(`/rooms/${room.id}`, {
-                        state: { room },
-                      })
-                    }
-                  />
-                </div>
-              ),
-            )}
-          </div>
+			{isLoading ? (
+				<CarouselSkeleton />
+			) : roomList.length === 0 ? (
+				<p className="text-base text-center text-cream/80">
+					No rooms available.
+				</p>
+			) : (
+				<div
+					className="relative w-full max-w-[1200px] mx-auto min-h-[495px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] transition-shadow duration-400 ease-out"
+					ref={containerRef}>
+					<div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr] min-h-[420px]">
+						{visibleRooms.map(
+							(room: Record<string, unknown> & { _index?: number }, idx) => (
+								<div
+									key={String(room.id)}
+									data-flip-id={String(room.id)}
+									className="group bg-dark overflow-hidden relative cursor-pointer border border-white/[0.06] shadow-lg"
+									onClick={() =>
+										navigate(`/rooms/${room.id}`, { state: { room } })
+									}
+									role="button"
+									tabIndex={0}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											navigate(`/rooms/${room.id}`, { state: { room } });
+										}
+									}}>
+									{/* Image */}
+									<div
+										className={`relative overflow-hidden ${idx === 0 && slidesPerView >= 3 ? "h-[420px]" : "h-[340px] max-md:h-[280px]"}`}>
+										<OptimizedImage
+											src={
+												(room.featured_image as string) ??
+												"/placeholder-room.jpg"
+											}
+											alt={(room.name as string) ?? "Room"}
+											containerClassName="w-full h-full"
+											className="object-center transition-transform duration-650 ease-out group-hover:scale-105"
+										/>
+										<div className="absolute inset-0 bg-gold/12 opacity-0 transition-opacity duration-400 group-hover:opacity-100" />
+									</div>
 
-          {roomList.length > 1 && (
-            <>
-              <button
-                type="button"
-                onClick={() => go(-1)}
-                className="absolute left-0 lg:-left-16 top-1/2 -translate-y-1/2 -translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-(--color-sage-muted) flex items-center justify-center text-green-800 hover:bg-sage-muted hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
-                aria-label="Previous rooms"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => go(1)}
-                className="absolute right-0 lg:-right-16 top-1/2 -translate-y-1/2 translate-x-2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-(--color-sage-muted) flex items-center justify-center text-green-800 hover:bg-sage-muted hover:text-green-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
-                aria-label="Next rooms"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </>
-          )}
-        </div>
-      )}
-    </section>
-  );
+									{/* Info */}
+									<div className="p-6 pt-5">
+										<p className="text-[13px] tracking-[0.2em] uppercase text-gold-light mb-2 font-medium">
+											{(room.type as string) ?? "Room"}
+										</p>
+										<h3 className="font-display text-[clamp(24px,2.5vw,30px)] font-normal text-cream mb-3">
+											{(room.name as string) ?? "—"}
+										</h3>
+										<p className="text-base leading-relaxed text-cream/70 mb-5 line-clamp-2">
+											{(room.description as string) ?? ""}
+										</p>
+										<div className="flex items-baseline gap-2">
+											<span className="font-display text-[clamp(26px,3vw,34px)] font-light text-cream">
+												{room.price != null
+													? pricingFormat(String(room.price))
+													: "—"}
+											</span>
+											<span className="text-sm text-cream/55">/ night</span>
+										</div>
+									</div>
+								</div>
+							),
+						)}
+					</div>
+
+					{roomList.length > 1 && (
+						<>
+							<button
+								type="button"
+								onClick={() => go(-1)}
+								className="absolute left-2 lg:-left-14 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-cream/10 backdrop-blur-sm border border-cream/10 flex items-center justify-center text-cream hover:bg-cream/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+								aria-label="Previous rooms">
+								<ChevronLeft className="w-5 h-5" />
+							</button>
+							<button
+								type="button"
+								onClick={() => go(1)}
+								className="absolute right-2 lg:-right-14 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-cream/10 backdrop-blur-sm border border-cream/10 flex items-center justify-center text-cream hover:bg-cream/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+								aria-label="Next rooms">
+								<ChevronRight className="w-5 h-5" />
+							</button>
+						</>
+					)}
+				</div>
+			)}
+		</div>
+	);
 }
 
 export default RoomCard;

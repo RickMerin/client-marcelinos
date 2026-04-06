@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useLayoutEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
 import { BannerCarousel } from "@/components/carousels/BannerCarousel";
 import BookingForm from "@/components/forms/BookingForm";
 import { SectionReveal } from "@/components/SectionReveal";
+import Section from "@/components/Section";
 import WelcomeModal from "@/components/modals/WelcomeModal";
 import BubbleChat from "@/components/BubbleChat";
 
@@ -25,10 +26,8 @@ function Home() {
 
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
-
     const hash = window.location.hash;
     if (!hash) return;
-
     const id = hash.slice(1);
     const el = document.getElementById(id);
     if (el) {
@@ -39,120 +38,104 @@ function Home() {
   useEffect(() => {
     const navState = location.state as { openCheckIn?: boolean } | null;
     if (!navState?.openCheckIn) return;
-
     const timer = window.setTimeout(() => {
-      window.dispatchEvent(new Event("open-checkin"));
-      navigate(location.pathname + location.search + location.hash, {
-        replace: true,
-        state: null,
-      });
-    }, 200);
-
+			window.dispatchEvent(new Event("open-checkin"));
+			navigate(location.pathname + location.search + location.hash, {
+				replace: true,
+				state: null,
+			});
+		}, 200);
     return () => window.clearTimeout(timer);
   }, [location, navigate]);
 
   return (
 		<>
-			{/* Welcome Popup */}
 			<WelcomeModal />
 
-			{/* Hero Section */}
+			{/* ── HERO ── */}
 			<section className="relative w-full">
 				<BannerCarousel />
-
-				{/* Booking Form */}
-				<div
-					id="booking-section"
-					className="first-fold-booking relative mx-4 md:mx-auto md:max-w-4xl
-                     -mt-10 md:-mt-24
-                     rounded-2xl border border-green-700/50
-                     px-4 py-6 md:px-8 md:py-8
-                     shadow-xl shadow-black/20
-                     bg-green-800 text-white">
-					{/* Background */}
-					<div
-						className="absolute inset-0 bg-cover bg-center opacity-50 pointer-events-none rounded-2xl"
-						style={{ backgroundImage: "url('green-leaves-extended.png')" }}
-					/>
-
-					<div className="relative z-10">
-						<BookingForm />
-					</div>
-				</div>
 			</section>
 
-			{/* About */}
-			<section
-				id="about"
-				className="landing-section px-4 md:px-6 max-w-7xl mx-auto">
+			{/* ── BOOKING BAR ── */}
+			<div
+				id="booking-section"
+				className="first-fold-booking relative z-10 bg-gradient-forest-bar">
+				<BookingForm />
+			</div>
+
+			{/* ── ABOUT ── */}
+			<Section id="about" className="section-depth-light">
 				<SectionReveal>
 					<About />
 				</SectionReveal>
-			</section>
+			</Section>
 
-			{/* Rooms */}
-			<section
-				id="rooms"
-				className="landing-section landing-section-alt px-4 md:px-6">
-				<SectionReveal>
-					<RoomCard />
-				</SectionReveal>
-			</section>
+			{/* ── ROOMS (dark) ── */}
+			<Section id="rooms" className="section-depth-forest" fullWidth>
+				<div className="max-w-[1400px] mx-auto px-6 lg:px-16 xl:px-20">
+					<SectionReveal>
+						<RoomCard />
+					</SectionReveal>
+				</div>
+			</Section>
 
-			{/* Venues */}
-			<section id="venues" className="landing-section mx-auto bg-white">
+			{/* ── VENUES (sand bg) ── */}
+			<Section id="venues" className="section-depth-sand">
 				<SectionReveal>
 					<EventVenues />
 				</SectionReveal>
-			</section>
+			</Section>
 
-			{/* Services */}
-			<section
-				id="services"
-				className="landing-section landing-section-alt px-4 md:px-6">
+			{/* ── AMENITIES / SERVICES ── */}
+			<Section id="services" className="section-depth-light">
 				<SectionReveal>
 					<Services />
 				</SectionReveal>
-			</section>
+			</Section>
 
-			{/* Gallery */}
-			<section
-				id="gallery"
-				className="landing-section px-4 md:px-6 max-w-7xl mx-auto bg-white">
+			{/* ── GALLERY ── */}
+			<Section id="gallery" className="section-depth-light">
 				<SectionReveal>
 					<OurGallery />
 				</SectionReveal>
-			</section>
+			</Section>
 
-			{/* Reviews */}
-			<section
-				id="reviews"
-				className="landing-section landing-section-alt px-4 md:px-6">
+			{/* ── REVIEWS (sea bg) ── */}
+			<Section id="reviews" className="section-depth-sea text-cream">
 				<SectionReveal>
 					<ClientReviews />
 				</SectionReveal>
-			</section>
+			</Section>
 
-			{/* FAQ */}
-			<section
-				id="faq"
-				className="landing-section px-4 md:px-6 max-w-7xl mx-auto bg-white">
+			{/* ── CTA STRIP ── */}
+			<div className="cta-strip-luxury py-16 md:py-20 lg:py-24 px-6 lg:px-16 xl:px-20 flex items-center justify-between gap-10 flex-wrap max-md:flex-col max-md:items-start max-md:gap-8">
+				<h2
+					className="cta-strip-inner font-display text-[clamp(32px,4vw,56px)] font-light leading-[1.15] text-cream">
+					Ready to{" "}
+					<em className="italic text-gold">Escape</em> to Paradise?
+				</h2>
+				<Link
+					to="/create-booking"
+					className="cta-strip-inner btn-primary-mockup max-md:w-full max-md:text-center flex items-center justify-center">
+					Book Your Stay Today
+				</Link>
+			</div>
+
+			{/* ── CONTACT ── */}
+			<Section id="contact" className="section-depth-light">
 				<SectionReveal>
 					<FAQ />
 				</SectionReveal>
-			</section>
+			</Section>
 
-			{/* Location */}
-			<section
-				id="location"
-				className="landing-section landing-section-alt px-4 md:px-6 mx-auto"
-				aria-labelledby="location-heading">
+			{/* ── LOCATION ── */}
+			<Section id="location" className="section-depth-sand">
 				<SectionReveal>
 					<LocationMap />
 				</SectionReveal>
-			</section>
+			</Section>
 
-			{/* 🔵 Floating Chat Bubble */}
 			<BubbleChat />
 		</>
 	);

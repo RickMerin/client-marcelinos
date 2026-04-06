@@ -27,11 +27,15 @@ const ImageCarousel: React.FC = () => {
   const galleries = galleriesResponse?.data ?? [];
 
   const galleryHeading = (
-    <h2
-      id="gallery-heading"
-      className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
-      <span className="green">OUR</span> <span className="yellow">GALLERY</span>
-    </h2>
+    <div className="text-center mb-12">
+      <div className="section-eyebrow justify-center">Our Gallery</div>
+      <h2
+        id="gallery-heading"
+        className="font-display text-[clamp(36px,4vw,56px)] font-light text-ink"
+      >
+        Capture the <em className="italic text-forest">Moments</em>
+      </h2>
+    </div>
   );
 
   if (isLoading) {
@@ -47,7 +51,7 @@ const ImageCarousel: React.FC = () => {
     return (
       <section className="w-full text-center" aria-labelledby="gallery-heading">
         {galleryHeading}
-        <p className="text-sm text-red-600 font-medium">
+        <p className="text-base text-red-600 font-medium">
           Failed to load gallery.
         </p>
       </section>
@@ -58,7 +62,7 @@ const ImageCarousel: React.FC = () => {
     return (
       <section className="w-full text-center" aria-labelledby="gallery-heading">
         {galleryHeading}
-        <p className="text-sm text-center text-(--color-charcoal) opacity-80">
+        <p className="text-base text-center text-ink-soft opacity-80">
           No gallery available.
         </p>
       </section>
@@ -70,7 +74,7 @@ const ImageCarousel: React.FC = () => {
       {galleryHeading}
 
       <Swiper
-        spaceBetween={20}
+        spaceBetween={8}
         slidesPerView={3}
         pagination={{ clickable: true }}
         loop={false}
@@ -81,31 +85,20 @@ const ImageCarousel: React.FC = () => {
         }}
         modules={[Pagination]}
         style={{
-          width: "90%",
+          width: "100%",
           maxWidth: "1200px",
           margin: "0 auto",
           paddingBottom: "50px",
-        }}>
+        }}
+      >
         {galleries.map((item) => (
           <SwiperSlide key={item.id}>
-            <div
-              style={{
-                width: "100%",
-                height: "350px",
-                overflow: "hidden",
-                borderRadius: "15px",
-                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-              }}>
+            <div className="w-full h-[350px] overflow-hidden rounded-[4px] group">
               <img
                 src={item.image}
                 alt={`Gallery ${item.id}`}
                 loading="lazy"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  display: "block",
-                }}
+                className="w-full h-full object-cover block transition-transform duration-500 group-hover:scale-105"
               />
             </div>
           </SwiperSlide>

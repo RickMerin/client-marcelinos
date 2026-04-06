@@ -25,32 +25,21 @@ const contactSchema = z.object({
     .or(z.literal(""))
     .refine((val) => {
       if (!val) return true;
-
       const normalized = val.replace(/\s|-/g, "");
       const phPhoneRegex = /^(?:\+63|63|0)9\d{9}$/;
-
       return phPhoneRegex.test(normalized);
     }, {
       message: "Invalid phone number (Use 09171234567 or +639171234567)",
     })
     .transform((val) => {
       if (!val) return "";
-
       const normalized = val.replace(/\s|-/g, "");
-
-      if (normalized.startsWith("09")) {
-        return "+63" + normalized.slice(1);
-      }
-
-      if (normalized.startsWith("63")) {
-        return "+" + normalized;
-      }
-
+      if (normalized.startsWith("09")) return "+63" + normalized.slice(1);
+      if (normalized.startsWith("63")) return "+" + normalized;
       return normalized;
     }),
 
   subject: z.string().trim().min(1, "Please select a subject"),
-
   message: z.string().trim().min(1, "Message cannot be empty"),
 });
 
@@ -71,15 +60,7 @@ function ContactForm() {
   const contactMutation = useApiMutation("post", {
     onSuccess: () => {
       toast.success({ content: "Message sent! We'll get back to you soon." });
-
-      setFormData({
-        full_name: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: "",
-      });
-
+      setFormData({ full_name: "", email: "", phone: "", subject: "", message: "" });
       setFormErrors({});
     },
     onError: (error: any) => {
@@ -88,7 +69,6 @@ function ContactForm() {
         error?.response?.data?.error ||
         error?.message ||
         "Oops, something went wrong. Please try again later.";
-
       toast.error({ content: errorMessage });
     },
   });
@@ -97,17 +77,10 @@ function ContactForm() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
+    setFormData((prev) => ({ ...prev, [name]: value }));
     const fieldSchema = contactSchema.shape[name as keyof FormData];
-
     if (fieldSchema) {
       const result = fieldSchema.safeParse(value);
-
       setFormErrors((prev) => ({
         ...prev,
         [name]: result.success ? "" : result.error.issues[0].message,
@@ -119,12 +92,9 @@ function ContactForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const result = contactSchema.safeParse(formData);
-
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;
-
       setFormErrors({
         full_name: fieldErrors.full_name?.[0],
         email: fieldErrors.email?.[0],
@@ -132,126 +102,111 @@ function ContactForm() {
         subject: fieldErrors.subject?.[0],
         message: fieldErrors.message?.[0],
       });
-
       return;
     }
-
-    contactMutation.mutate({
-      url: endpoints.contact,
-      body: result.data,
-    });
+    contactMutation.mutate({ url: endpoints.contact, body: result.data });
   };
 
+  const inputClass =
+    "border border-sand-dark rounded-[3px] px-4 py-3.5 text-ink placeholder:text-ink-soft/50 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-transparent transition-shadow w-full bg-white text-base";
+
   return (
-    <center>
-      <div id="contact" className="w-full max-w-2xl bg-white shadow-lg rounded-2xl border border-(--color-sage-muted) overflow-hidden">
+    <div className="w-full max-w-2xl mx-auto">
+      <div className="section-eyebrow justify-center">Get in Touch</div>
+      <h2
+        id="contact-heading"
+        className="font-display text-[clamp(36px,4vw,56px)] font-light text-center mb-12 text-ink"
+      >
+        Contact <em className="italic text-gold">Us</em>
+      </h2>
 
-        <h2
-          id="contact-heading"
-          className="font-display text-3xl font-bold tracking-tight flex justify-center gap-2 text-center mb-6 pt-6 text-(--color-charcoal)"
-        >
-          <span className="green">CONTACT</span>
-          <span className="yellow">US</span>
-        </h2>
+      <div className="bg-white rounded-[4px] border border-sand-dark overflow-hidden p-6 md:p-10">
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-5" noValidate>
+          <div>
+            <input
+              type="text"
+              name="full_name"
+              placeholder="Full Name"
+              value={formData.full_name}
+              onChange={handleChange}
+              className={inputClass}
+            />
+            {formErrors.full_name && (
+              <p className="text-left w-full text-sm ml-1 text-red-600 mt-1.5">{formErrors.full_name}</p>
+            )}
+          </div>
 
-        <div className="p-6 pt-0">
-          <form onSubmit={handleSubmit} className="flex flex-col space-y-4" noValidate>
+          <div>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              value={formData.email}
+              onChange={handleChange}
+              className={inputClass}
+            />
+            {formErrors.email && (
+              <p className="text-left w-full text-sm ml-1 text-red-600 mt-1.5">{formErrors.email}</p>
+            )}
+          </div>
 
-            {/* Full Name */}
-            <div>
-              <input
-                type="text"
-                name="full_name"
-                placeholder="Full Name"
-                value={formData.full_name}
-                onChange={handleChange}
-                className="border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow w-full"
-              />
-              {formErrors.full_name && (
-                <p className=" text-left w-full text-sm ml-2 text-red-600 mt-1">{formErrors.full_name}</p>
-              )}
-            </div>
+          <div>
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone Number (Optional)"
+              value={formData.phone}
+              onChange={handleChange}
+              className={inputClass}
+            />
+            {formErrors.phone && (
+              <p className="text-left w-full text-sm ml-1 text-red-600 mt-1.5">{formErrors.phone}</p>
+            )}
+          </div>
 
-            {/* Email */}
-            <div>
-              <input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={formData.email}
-                onChange={handleChange}
-                className="border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow w-full"
-              />
-              {formErrors.email && (
-                <p className=" text-left w-full text-sm ml-2 text-red-600 mt-1">{formErrors.email}</p>
-              )}
-            </div>
-
-            {/* Phone */}
-            <div>
-              <input
-                type="tel"
-                name="phone"
-                placeholder="Phone Number (Optional)"
-                value={formData.phone}
-                onChange={handleChange}
-                className="border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow w-full"
-              />
-              {formErrors.phone && (
-                <p className=" text-left w-full text-sm ml-2 text-red-600 mt-1">{formErrors.phone}</p>
-              )}
-            </div>
-
-            {/* Subject */}
-            <div>
-              <select
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                className="border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow bg-white w-full"
-              >
-                <option value="">Subject</option>
-                <option value="Booking Inquiry">Booking Inquiry</option>
-                <option value="Event Request">Event Request</option>
-                <option value="Other">Other</option>
-              </select>
-              {formErrors.subject && (
-                <p className=" text-left w-full text-sm text-red-600 mt-1">{formErrors.subject}</p>
-              )}
-            </div>
-
-            {/* Message */}
-            <div>
-              <textarea
-                name="message"
-                placeholder="Your Message"
-                rows={4}
-                value={formData.message}
-                onChange={handleChange}
-                className="border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow resize-y min-h-[100px] w-full"
-              />
-              {formErrors.message && (
-                <p className=" text-left w-full text-sm ml-2 text-red-600 mt-1">{formErrors.message}</p>
-              )}
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={!isFormValid || contactMutation.isPending}
-              className={`inline-flex items-center justify-center gap-2 font-semibold py-3 px-6 rounded-xl transition-colors min-h-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
-                isFormValid
-                  ? "bg-[#829F6E] hover:bg-[#AFBE9C] text-white cursor-pointer"
-                  : "bg-[#AFBE9C] cursor-not-allowed text-white"
-              }`}
+          <div>
+            <select
+              name="subject"
+              value={formData.subject}
+              onChange={handleChange}
+              className={inputClass}
             >
-              {contactMutation.isPending ? <ButtonLoader /> : "Send Message"}
-            </button>
+              <option value="">Subject</option>
+              <option value="Booking Inquiry">Booking Inquiry</option>
+              <option value="Event Request">Event Request</option>
+              <option value="Other">Other</option>
+            </select>
+            {formErrors.subject && (
+              <p className="text-left w-full text-sm text-red-600 mt-1.5">{formErrors.subject}</p>
+            )}
+          </div>
 
-          </form>
-        </div>
+          <div>
+            <textarea
+              name="message"
+              placeholder="Your Message"
+              rows={5}
+              value={formData.message}
+              onChange={handleChange}
+              className={`${inputClass} resize-y min-h-[120px]`}
+            />
+            {formErrors.message && (
+              <p className="text-left w-full text-sm ml-1 text-red-600 mt-1.5">{formErrors.message}</p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={!isFormValid || contactMutation.isPending}
+            className={`btn-primary-mockup w-full text-center min-h-[48px] inline-flex items-center justify-center gap-2 ${
+              !isFormValid ? "opacity-60 cursor-not-allowed" : ""
+            }`}
+          >
+            {contactMutation.isPending ? <ButtonLoader /> : "Send Message"}
+          </button>
+        </form>
       </div>
-    </center>
+    </div>
   );
 }
 

@@ -748,14 +748,14 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 						)}
 					/>
 				))}
-				<div className="col-span-full flex justify-center pt-2">
-					<Button
-						type="submit"
-						disabled={submitDisabled}
-						className="w-full max-w-lg text-white text-lg py-6 yellow-bg cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed">
-						{submitLabel}
-					</Button>
-				</div>
+			<div className="booking-bar-submit col-span-full flex justify-center pt-2 lg:pt-0">
+				<Button
+					type="submit"
+					disabled={submitDisabled}
+					className="w-full lg:w-auto lg:h-full bg-gold hover:bg-gold-light text-ink font-semibold text-[14px] tracking-[0.15em] uppercase whitespace-nowrap px-8 lg:px-12 py-4 lg:py-0 rounded-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 min-h-[52px]">
+					{submitLabel}
+				</Button>
+			</div>
 			</form>
 		</Form>
 	);
