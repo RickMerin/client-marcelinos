@@ -30,6 +30,7 @@ export default function CancelBookingContent({
       const msg =
         err?.response?.data?.message ||
         err?.response?.data?.errors?.otp?.[0] ||
+        err?.response?.data?.errors?.email?.[0] ||
         err?.response?.data?.errors?.phone?.[0] ||
         "Could not send verification code.";
       toast.error({ content: msg });
@@ -67,7 +68,7 @@ export default function CancelBookingContent({
       });
       setOtpSent(true);
       setResendIn(OTP_RESEND_SECONDS);
-      toast.success({ content: "Verification code sent to your mobile number." });
+      toast.success({ content: "Verification code sent to your email." });
     } catch {
       /* toast in onError */
     }
@@ -99,9 +100,9 @@ export default function CancelBookingContent({
       </div>
 
       <div className="mb-4 space-y-2 rounded-md bg-white/10 p-3 text-[11px]">
-        <p className="font-semibold text-amber-200">SMS verification</p>
+        <p className="font-semibold text-amber-200">Email verification</p>
         <p className="text-white/85">
-          We will send a one-time code to the mobile number on this booking.
+          We will send a one-time code to the email address on this booking.
         </p>
         <div className="flex flex-wrap items-center gap-2 pt-1">
           <button
