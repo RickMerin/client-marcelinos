@@ -139,7 +139,7 @@ export function Step3({
     null,
   );
   const [openAddRoom, setOpenAddRoom] = useState(false);
-  const [dateError, setDateError] = useState<string | null>(null);
+  const [ setDateError] = useState<string | null>(null);
 
   useEffect(() => {
     setTempCheckIn(formData.check_in);
