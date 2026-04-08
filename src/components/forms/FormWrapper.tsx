@@ -153,7 +153,6 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 	onChangeFields,
 	isSubmitDisabled,
 	blockedDateStayMode = "nights",
-	captcha,
 }: FormWrapperProps<T>) {
 	/** Which calendar popover is open (field name), so multiple calendars do not share one `open` flag. */
 	const [openCalendarField, setOpenCalendarField] = React.useState<
