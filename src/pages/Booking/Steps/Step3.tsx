@@ -139,7 +139,7 @@ export function Step3({
     null,
   );
   const [openAddRoom, setOpenAddRoom] = useState(false);
-  const [ setDateError] = useState<string | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   useEffect(() => {
     setTempCheckIn(formData.check_in);
@@ -615,18 +615,89 @@ export function Step3({
             </div>
 
             <div className="p-5">
-              {editingDates ? (
-                <form onSubmit={handleDateUpdate} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Check-in Calendar */}
+            {editingDates ? (
+              <form onSubmit={handleDateUpdate} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Check-in Calendar */}
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-gray-700">
+                      Check-in
+                    </label>
+                    <Popover
+                      open={openCalendarField === "check_in"}
+                      onOpenChange={(o) =>
+                        setOpenCalendarField(o ? "check_in" : null)
+                      }
+                    >
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none text-sm text-left"
+                        >
+                          {tempCheckIn
+                            ? new Date(tempCheckIn).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })
+                            : "Select date"}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="p-0 w-auto">
+                        <CalendarWithDisabledReasons
+                          mode="single"
+                          selected={tempCheckIn ? new Date(tempCheckIn) : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              const months = [
+                                "Jan",
+                                "Feb",
+                                "Mar",
+                                "Apr",
+                                "May",
+                                "Jun",
+                                "Jul",
+                                "Aug",
+                                "Sep",
+                                "Oct",
+                                "Nov",
+                                "Dec",
+                              ];
+                              const dateStr = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+                              setTempCheckIn(dateStr);
+                              setDateError(null);
+
+                              if (bookingType === "venue") {
+                                setTempCheckOut(dateStr);
+                              }
+                            }
+                          }}
+                          disabled={isCheckInDisabled}
+                          blockedReasons={blockedReasons}
+                          overlapInvalidReason="Your stay would include blocked dates. Pick another check-in or fewer days."
+                          isOverlapInvalid={isCheckInOverlapInvalid}
+                          {...(stayRangeModifiers
+                            ? {
+                                modifiers: stayRangeModifiers,
+                                modifiersClassNames:
+                                  BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
+                              }
+                            : {})}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* Check-out Calendar */}
+                  {bookingType !== "venue" && (
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium text-gray-700">
-                        Check-in
+                        Check-out
                       </label>
                       <Popover
-                        open={openCalendarField === "check_in"}
+                        open={openCalendarField === "check_out"}
                         onOpenChange={(o) =>
-                          setOpenCalendarField(o ? "check_in" : null)
+                          setOpenCalendarField(o ? "check_out" : null)
                         }
                       >
                         <PopoverTrigger asChild>
@@ -634,38 +705,44 @@ export function Step3({
                             type="button"
                             className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none text-sm text-left"
                           >
-                            {tempCheckIn
-                              ? new Date(tempCheckIn).toLocaleDateString(
-                                  "en-US",
-                                  {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  },
-                                )
+                            {tempCheckOut
+                              ? new Date(tempCheckOut).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })
                               : "Select date"}
                           </button>
                         </PopoverTrigger>
                         <PopoverContent align="start" className="p-0 w-auto">
                           <CalendarWithDisabledReasons
                             mode="single"
-                            selected={
-                              tempCheckIn ? new Date(tempCheckIn) : undefined
-                            }
+                            selected={tempCheckOut ? new Date(tempCheckOut) : undefined}
                             onSelect={(date) => {
                               if (date) {
-                                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                                const months = [
+                                  "Jan",
+                                  "Feb",
+                                  "Mar",
+                                  "Apr",
+                                  "May",
+                                  "Jun",
+                                  "Jul",
+                                  "Aug",
+                                  "Sep",
+                                  "Oct",
+                                  "Nov",
+                                  "Dec",
+                                ];
                                 const dateStr = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-                                setTempCheckIn(dateStr);
-                                if (bookingType === "venue") {
-                                  setTempCheckOut(dateStr);
-                                }
+                                setTempCheckOut(dateStr);
+                                setDateError(null);
                               }
                             }}
-                            disabled={isCheckInDisabled}
+                            disabled={isCheckOutDisabled}
                             blockedReasons={blockedReasons}
                             overlapInvalidReason="Your stay would include blocked dates. Pick another check-in or fewer days."
-                            isOverlapInvalid={isCheckInOverlapInvalid}
+                            isOverlapInvalid={isCheckOutOverlapInvalid}
                             {...(stayRangeModifiers
                               ? {
                                   modifiers: stayRangeModifiers,
@@ -677,91 +754,38 @@ export function Step3({
                         </PopoverContent>
                       </Popover>
                     </div>
+                  )}
+                </div>
 
-                    {/* Check-out Calendar */}
-                    {bookingType !== "venue" && (
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-gray-700">
-                          Check-out
-                        </label>
-                        <Popover
-                          open={openCalendarField === "check_out"}
-                          onOpenChange={(o) =>
-                            setOpenCalendarField(o ? "check_out" : null)
-                          }
-                        >
-                          <PopoverTrigger asChild>
-                            <button
-                              type="button"
-                              className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none text-sm text-left"
-                            >
-                              {tempCheckOut
-                                ? new Date(tempCheckOut).toLocaleDateString(
-                                    "en-US",
-                                    {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    },
-                                  )
-                                : "Select date"}
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent align="start" className="p-0 w-auto">
-                            <CalendarWithDisabledReasons
-                              mode="single"
-                              selected={
-                                tempCheckOut
-                                  ? new Date(tempCheckOut)
-                                  : undefined
-                              }
-                              onSelect={(date) => {
-                                if (date) {
-                                  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                                  const dateStr = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-                                  setTempCheckOut(dateStr);
-                                }
-                              }}
-                              disabled={isCheckOutDisabled}
-                              blockedReasons={blockedReasons}
-                              overlapInvalidReason="Your stay would include blocked dates. Pick another check-in or fewer days."
-                              isOverlapInvalid={isCheckOutOverlapInvalid}
-                              {...(stayRangeModifiers
-                                ? {
-                                    modifiers: stayRangeModifiers,
-                                    modifiersClassNames:
-                                      BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
-                                  }
-                                : {})}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                    )}
+                {dateError && (
+                  <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                    {dateError}
                   </div>
+                )}
 
-                  <div className="flex gap-2 justify-end pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingDates(false);
-                        setTempCheckIn(check_in);
-                        setTempCheckOut(check_out);
-                        setOpenCalendarField(null);
-                      }}
-                      className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 text-sm text-white rounded-md transition-colors bg-green-700 hover:bg-green-800"
-                    >
-                      Save Dates
-                    </button>
-                  </div>
-                </form>
-              ) : (
+                <div className="flex gap-2 justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingDates(false);
+                      setTempCheckIn(check_in);
+                      setTempCheckOut(check_out);
+                      setOpenCalendarField(null);
+                      setDateError(null);
+                    }}
+                    className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 text-sm text-white rounded-md transition-colors bg-green-700 hover:bg-green-800"
+                  >
+                    Save Dates
+                  </button>
+                </div>
+              </form>
+            ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {bookingType !== "venue" && (
                     <div>
