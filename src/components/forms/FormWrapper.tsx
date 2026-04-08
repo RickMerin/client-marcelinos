@@ -117,12 +117,22 @@ type Field = {
 
 export type BlockedDateStayMode = "nights" | "single_calendar";
 
+type CaptchaConfig = {
+  enabled: boolean;
+  siteKey: string;
+  theme?: "light" | "dark" | "auto";
+  size?: "normal" | "compact";
+  className?: string;
+  errorMessage?: string;
+};
+
 interface FormWrapperProps<T extends z.ZodType<any, any>> {
   schema: T;
   fields: Field[];
   onSubmit: SubmitHandler<z.infer<T>>;
   submitLabel?: string;
   className?: string;
+  captcha?: CaptchaConfig;
   onChangeFields?: (values: Partial<z.infer<T>>) => Partial<z.infer<T>>;
   /** When true, submit button is disabled (visually and functionally) */
   isSubmitDisabled?: (values: z.infer<T>) => boolean;
@@ -143,6 +153,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 	onChangeFields,
 	isSubmitDisabled,
 	blockedDateStayMode = "nights",
+	captcha,
 }: FormWrapperProps<T>) {
 	/** Which calendar popover is open (field name), so multiple calendars do not share one `open` flag. */
 	const [openCalendarField, setOpenCalendarField] = React.useState<
