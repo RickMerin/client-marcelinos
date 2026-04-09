@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { roomInventoryGroupKey } from "@/lib/formatters/roomDisplayName";
 
 gsap.registerPlugin(Flip);
 
@@ -67,20 +68,53 @@ function RoomCard() {
   );
 
   const roomList = useMemo(() => extractList(roomsResponse), [roomsResponse]);
+
+  const groupedRooms = useMemo(() => {
+    if (!roomList.length) return [];
+    
+    const map = new Map<string, any[]>();
+    for (const r of roomList) {
+      const type = (r.type as string)?.toLowerCase() || "standard";
+      const key = roomInventoryGroupKey(r as any);
+      const id = `${type}|${key}`;
+      if (!map.has(id)) {
+        map.set(id, []);
+      }
+      map.get(id)!.push(r);
+    }
+
+    const standardGroups: any[][] = [];
+    const otherGroupsMap = new Map<string, any[]>();
+
+    for (const [id, rooms] of map.entries()) {
+      const type = id.split('|')[0];
+      if (type === "standard") {
+        standardGroups.push(rooms);
+      } else {
+        if (!otherGroupsMap.has(type)) {
+          otherGroupsMap.set(type, rooms);
+        }
+      }
+    }
+
+    const finals = [...standardGroups.slice(0, 2), ...Array.from(otherGroupsMap.values())];
+    return finals.map((grp) => ({ ...grp[0], _available_count: grp.length }));
+  }, [roomList]);
+
   const [startIndex, setStartIndex] = useState(0);
 
   const visibleRooms = useMemo(() => {
-    if (!roomList.length) return [];
-    const n = Math.min(slidesPerView, roomList.length);
+    if (!groupedRooms.length) return [];
+    const n = Math.min(slidesPerView, groupedRooms.length);
     return Array.from({ length: n }, (_, i) => {
-      const idx = (startIndex + i) % roomList.length;
-      return { ...roomList[idx], _index: idx };
+      const idx = (startIndex + i) % groupedRooms.length;
+      return { ...groupedRooms[idx], _index: idx };
     });
-  }, [roomList, startIndex, slidesPerView]);
+  }, [groupedRooms, startIndex, slidesPerView]);
 
   const go = useCallback(
     (delta: number) => {
-      if (!roomList.length || !containerRef.current || isAnimatingRef.current)
+      if (!groupedRooms.length || !containerRef.current || isAnimatingRef.current)
         return;
       const selector = "[data-flip-id]";
       const targets = containerRef.current.querySelectorAll(selector);
@@ -88,9 +122,9 @@ function RoomCard() {
         directionRef.current = delta;
         flipStateRef.current = Flip.getState(targets);
       }
-      setStartIndex((i) => (i + delta + roomList.length) % roomList.length);
+      setStartIndex((i) => (i + delta + groupedRooms.length) % groupedRooms.length);
     },
-    [roomList.length],
+    [groupedRooms.length],
   );
 
   useLayoutEffect(() => {
@@ -188,7 +222,7 @@ function RoomCard() {
 
 			{isLoading ? (
 				<CarouselSkeleton />
-			) : roomList.length === 0 ? (
+			) : groupedRooms.length === 0 ? (
 				<p className="text-base text-center text-cream/80">
 					No rooms available.
 				</p>
@@ -198,7 +232,7 @@ function RoomCard() {
 					ref={containerRef}>
 					<div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr] min-h-[420px]">
 						{visibleRooms.map(
-							(room: Record<string, unknown> & { _index?: number }, idx) => (
+							(room: Record<string, unknown> & { _index?: number; _available_count?: number }, idx) => (
 								<div
 									key={String(room.id)}
 									data-flip-id={String(room.id)}
@@ -254,7 +288,7 @@ function RoomCard() {
 						)}
 					</div>
 
-					{roomList.length > 1 && (
+					{groupedRooms.length > 1 && (
 						<>
 							<button
 								type="button"
