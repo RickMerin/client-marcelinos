@@ -57,6 +57,7 @@ function toBookingReceipt(
     unpaid_expiry_days: res.unpaid_expiry_days ?? 3,
     down_payment_notice_applies: res.down_payment_notice_applies,
     down_payment_notice_min_lead_days: res.down_payment_notice_min_lead_days,
+    use_messenger_deposit_instructions: res.use_messenger_deposit_instructions,
     created_at: b.created_at ?? "",
     booking_status: b.status ?? "unpaid",
     check_in: b.check_in ?? "",
