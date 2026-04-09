@@ -977,7 +977,9 @@ export function Step5(props: Props) {
 											{DOWN_PAYMENT_PERCENT_LABEL} down payment, please message
 											us on Facebook Messenger. Click the button below to open
 											the chat. Please attach your proof of payment in the
-											message so we can verify your deposit.
+											message so we can verify your deposit. Unpaid bookings may
+											be cancelled after 12:00 PM (Philippine time) on your
+											check-in date if not settled.
 										</p>
 										<a
 											href={MESSENGER_CHAT_URL}
