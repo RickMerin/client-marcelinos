@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { useMemo, useState } from "react";
+import { useTurnstile } from "@/hooks/useTurnstile";
 import { FormWrapper } from "./FormWrapper";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
@@ -75,6 +76,13 @@ function buildSchema(kind: BookingKind) {
 
 export default function BookingForm() {
   const navigate = useNavigate();
+  const {
+		containerRef: captchaRef,
+		token: captchaToken,
+		error: captchaError,
+		reset: resetCaptcha,
+	} = useTurnstile({ theme: "dark", size: "compact" });
+
   const reservationDate = getFromLocalStorage("reservationDate") ?? {};
 
   const [kind, setKind] = useState<BookingKind>(
@@ -105,82 +113,83 @@ export default function BookingForm() {
   const schema = useMemo(() => buildSchema(kind), [kind]);
 
   const fields = useMemo(() => {
-    const r = reservationDate as Record<string, unknown>;
+		const r = reservationDate as Record<string, unknown>;
 
-    let checkInVal: Date | "" = "";
-    let checkOutVal: Date | "" = "";
+		let checkInVal: Date | "" = "";
+		let checkOutVal: Date | "" = "";
 
-    if (r.check_in) {
-      checkInVal = new Date(r.check_in as string);
-      checkOutVal = r.check_out ? new Date(r.check_out as string) : "";
-    } else {
-      let ci = startOfDay(new Date());
-      while (blockedSet.has(toBlockedDateKey(ci.toISOString()))) {
-        ci = addDays(ci, 1);
-      }
-      checkInVal = ci;
-      checkOutVal = addDays(ci, 1);
-    }
+		if (r.check_in) {
+			checkInVal = new Date(r.check_in as string);
+			checkOutVal = r.check_out ? new Date(r.check_out as string) : "";
+		} else {
+			let ci = startOfDay(new Date());
+			while (blockedSet.has(toBlockedDateKey(ci.toISOString()))) {
+				ci = addDays(ci, 1);
+			}
+			checkInVal = ci;
+			checkOutVal = addDays(ci, 1);
+		}
 
-    let daysStored = 0;
-    if (checkInVal && checkOutVal) {
-      const d = diffDays(startOfDay(checkInVal), startOfDay(checkOutVal));
-      if (kind === "venue") {
-        daysStored = d + 1;
-      } else {
-        daysStored = Math.max(1, d);
-      }
-    }
+		let daysStored = 0;
+		if (checkInVal && checkOutVal) {
+			const d = diffDays(startOfDay(checkInVal), startOfDay(checkOutVal));
+			if (kind === "venue") {
+				daysStored = d + 1;
+			} else {
+				daysStored = Math.max(1, d);
+			}
+		}
 
-    const minOff = kind === "venue" ? 0 : 1;
-    const daysLabel = kind === "venue" ? "Day(s)" : "Night(s)";
-    const ciLabel = kind === "both" ? "Check-in" : "Check-in";
-    const coLabel = kind === "both" ? "Check-out" : "Check-out";
+		const minOff = kind === "venue" ? 0 : 1;
+		const daysLabel = kind === "venue" ? "Day(s)" : "Night(s)";
+		const ciLabel = kind === "both" ? "Check-in" : "Check-in";
+		const coLabel = kind === "both" ? "Check-out" : "Check-out";
 
-    return [
-      {
-        name: "check_in",
-        type: "calendar" as const,
-        calendarVariant: "stay" as const,
-        minCheckOutOffsetDays: minOff,
-        label: ciLabel,
-        placeholder: "Select Date",
-        value: checkInVal,
-        itemClassName: "booking-bar-field",
-      },
-      {
-        name: "date_reset",
-        type: "reset" as const,
-        itemClassName: "booking-bar-reset",
-        className:
-          "text-gold-light/60 hover:text-gold-light hover:bg-cream/5 border-cream/10 bg-transparent",
-        label: "",
-        onClick: (form: any) => {
-          form.setValue("check_in" as any, "");
-          form.setValue("check_out" as any, "");
-          form.setValue("days" as any, 0);
-          form.clearErrors(["check_in" as any, "check_out" as any]);
-        },
-      },
-      {
-        name: "check_out",
-        type: "calendar" as const,
-        calendarVariant: "stay" as const,
-        minCheckOutOffsetDays: minOff,
-        label: coLabel,
-        placeholder: "Select Date",
-        value: checkOutVal,
-        itemClassName: "booking-bar-field",
-      },
-      {
-        name: "days",
-        type: "display" as const,
-        label: daysLabel,
-        value: daysStored,
-        itemClassName: "booking-bar-field",
-      },
-    ];
-  }, [kind, reservationDate, blockedSet]);
+		return [
+			{
+				name: "check_in",
+				type: "calendar" as const,
+				calendarVariant: "stay" as const,
+				minCheckOutOffsetDays: minOff,
+				label: ciLabel,
+				placeholder: "Select Date",
+				value: checkInVal,
+				itemClassName: "booking-bar-field",
+			},
+			{
+				name: "date_reset",
+				type: "reset" as const,
+				itemClassName: "booking-bar-reset",
+				className:
+					"text-gold-light/60 hover:text-gold-light hover:bg-cream/5 border-cream/10 bg-transparent",
+				label: "",
+				onClick: (form: any) => {
+					form.setValue("check_in" as any, "");
+					form.setValue("check_out" as any, "");
+					form.setValue("days" as any, 0);
+					form.clearErrors(["check_in" as any, "check_out" as any]);
+					resetCaptcha();
+				},
+			},
+			{
+				name: "check_out",
+				type: "calendar" as const,
+				calendarVariant: "stay" as const,
+				minCheckOutOffsetDays: minOff,
+				label: coLabel,
+				placeholder: "Select Date",
+				value: checkOutVal,
+				itemClassName: "booking-bar-field",
+			},
+			{
+				name: "days",
+				type: "display" as const,
+				label: daysLabel,
+				value: daysStored,
+				itemClassName: "booking-bar-field",
+			},
+		];
+	}, [kind, reservationDate, blockedSet, resetCaptcha]);
 
   const handleSubmit = (values: z.infer<typeof schema>) => {
     const checkIn = values.check_in as Date;
@@ -215,6 +224,7 @@ export default function BookingForm() {
       BOOKING_EXPIRATION,
     );
 
+    resetCaptcha();
     navigate("/create-booking");
   };
 
@@ -225,77 +235,88 @@ export default function BookingForm() {
   );
 
   return (
-    <div className="relative z-10 flex flex-col lg:flex-row lg:items-stretch">
-      {/* Booking type dropdown — first field in the bar */}
-      <div className="flex flex-col gap-1.5 px-5 py-5 lg:py-6 border-b lg:border-b-0 lg:border-r border-cream/[0.07] min-w-0">
-        <span className="text-gold-light text-[13px] tracking-[0.2em] uppercase font-medium">
-          Booking Type
-        </span>
-        <div className="relative">
-          <select
-            value={kind}
-            onChange={(e) => setKind(e.target.value as BookingKind)}
-            className="bg-transparent border-none outline-none font-display text-lg text-cream w-full min-w-0 cursor-pointer appearance-none pr-6"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            {KIND_OPTIONS.map((opt) => (
-              <option
-                key={opt.value}
-                value={opt.value}
-                className="bg-ink text-cream"
-              >
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 size-4 text-cream/40 pointer-events-none" />
-        </div>
-      </div>
+		<div className="relative z-10 flex flex-col lg:flex-row lg:items-stretch">
+			{/* Booking type dropdown — first field in the bar */}
+			<div className="flex flex-col gap-1.5 px-5 py-5 lg:py-6 border-b lg:border-b-0 lg:border-r border-cream/[0.07] min-w-0">
+				<span className="text-gold-light text-[13px] tracking-[0.2em] uppercase font-medium">
+					Booking Type
+				</span>
+				<div className="relative">
+					<select
+						value={kind}
+						onChange={(e) => setKind(e.target.value as BookingKind)}
+						className="bg-transparent border-none outline-none font-display text-lg text-cream w-full min-w-0 cursor-pointer appearance-none pr-6"
+						style={{ fontFamily: "var(--font-display)" }}>
+						{KIND_OPTIONS.map((opt) => (
+							<option
+								key={opt.value}
+								value={opt.value}
+								className="bg-ink text-cream">
+								{opt.label}
+							</option>
+						))}
+					</select>
+					<ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 size-4 text-cream/40 pointer-events-none" />
+				</div>
+			</div>
 
-      {/* Form fields */}
-      {!reservationDate.check_in && isLoadingBlocked ? (
-        <div className="flex flex-1 items-center justify-center p-4">
-          <span className="text-cream/50 text-sm">Loading availability...</span>
-        </div>
-      ) : (
-        <FormWrapper
-          key={kind}
-          schema={schema}
-          fields={fields}
-          onSubmit={handleSubmit}
-          submitLabel="Check Availability"
-          blockedDateStayMode={kind === "venue" ? "single_calendar" : "nights"}
-          isSubmitDisabled={(values) => {
-            if (!values.check_in || !values.check_out) return true;
-            return false;
-          }}
-          className={formGridClass}
-          onChangeFields={(values) => {
-            const ci = values.check_in as Date | undefined;
-            const co = values.check_out as Date | undefined;
-            if (!ci) return {};
-            if (!co) {
-              return { days: 0 };
-            }
-            const ciD = startOfDay(new Date(ci));
-            const coD = startOfDay(new Date(co));
-            if (coD < ciD) {
-              if (kind === "venue") {
-                return { check_out: ciD, days: 1 };
-              }
-              return { check_out: addDays(ciD, 1), days: 1 };
-            }
-            const d = diffDays(ciD, coD);
-            let days: number;
-            if (kind === "venue") {
-              days = d + 1;
-            } else {
-              days = Math.max(1, d);
-            }
-            return { days };
-          }}
-        />
-      )}
-    </div>
-  );
+			{/* Form fields */}
+			{!reservationDate.check_in && isLoadingBlocked ? (
+				<div className="flex flex-1 items-center justify-center p-4">
+					<span className="text-cream/50 text-sm">Loading availability...</span>
+				</div>
+			) : (
+				<div className="flex flex-col flex-1 min-w-0">
+					<div className="hidden">
+						<div ref={captchaRef} />
+					</div>
+					{captchaError ? (
+						<p className="text-center text-xs text-red-400 px-4 pb-1">
+							{captchaError}
+						</p>
+					) : null}
+					<FormWrapper
+						key={kind}
+						schema={schema}
+						fields={fields}
+						onSubmit={handleSubmit}
+						submitLabel="Check Availability"
+						blockedDateStayMode={
+							kind === "venue" ? "single_calendar" : "nights"
+						}
+						isSubmitDisabled={(values) => {
+							if (!values.check_in || !values.check_out) return true;
+							if (!captchaToken) return true;
+							return false;
+						}}
+						className={formGridClass}
+						onChangeFields={(values) => {
+							const ci = values.check_in as Date | undefined;
+							const co = values.check_out as Date | undefined;
+							if (!ci) return {};
+							if (!co) {
+								return { days: 0 };
+							}
+							const ciD = startOfDay(new Date(ci));
+							const coD = startOfDay(new Date(co));
+							if (coD < ciD) {
+								if (kind === "venue") {
+									return { check_out: ciD, days: 1 };
+								}
+								return { check_out: addDays(ciD, 1), days: 1 };
+							}
+							const d = diffDays(ciD, coD);
+							let days: number;
+							if (kind === "venue") {
+								days = d + 1;
+							} else {
+								days = Math.max(1, d);
+							}
+							return { days };
+						}}
+					/>
+				</div>
+			)}
+		</div>
+	);
 }

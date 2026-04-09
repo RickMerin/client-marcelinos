@@ -1,29 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { ButtonLoader } from "@/components/ui/loader";
+import { useTurnstile } from "@/hooks/useTurnstile";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import { endpoints } from "@/lib/api/endpoints";
 import { toast } from "@/lib/logger/toast";
-
-console.log("origin", window.location.origin);declare global {
-  interface Window {
-    turnstile?: {
-      render: (
-        container: HTMLElement,
-        options: {
-          sitekey: string;
-          callback?: (token: string) => void;
-          "expired-callback"?: () => void;
-          "error-callback"?: () => void;
-          theme?: "light" | "dark" | "auto";
-          size?: "normal" | "compact" | "flexible";
-        }
-      ) => string;
-      reset: (widgetId?: string) => void;
-      remove?: (widgetId?: string) => void;
-    };
-  }
-}
 
 const contactSchema = z.object({
   full_name: z.string().trim()
@@ -74,8 +55,13 @@ const contactSchema = z.object({
 type FormData = z.infer<typeof contactSchema>;
 
 function ContactForm() {
-  const captchaRef = useRef<HTMLDivElement | null>(null);
-  const widgetIdRef = useRef<string | null>(null);
+  const {
+    containerRef: captchaRef,
+    token: captchaToken,
+    error: captchaError,
+    setError: setCaptchaError,
+    reset: resetCaptcha,
+  } = useTurnstile();
 
   const [formData, setFormData] = useState<FormData>({
     full_name: "",
@@ -88,86 +74,22 @@ function ContactForm() {
   const [formErrors, setFormErrors] =
     useState<Partial<Record<keyof FormData, string>>>({});
 
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [captchaError, setCaptchaError] = useState<string>("");
-
-  const resetCaptcha = () => {
-    setCaptchaToken(null);
-    setCaptchaError("");
-
-    if (window.turnstile && widgetIdRef.current) {
-      window.turnstile.reset(widgetIdRef.current);
-    }
-  };
-
-  useEffect(() => {
-    let mounted = true;
-    let retryTimer: number | null = null;
-
-    const initTurnstile = () => {
-      if (!mounted) return;
-
-      if (!captchaRef.current) {
-        retryTimer = window.setTimeout(initTurnstile, 300);
-        return;
-      }
-
-      if (!window.turnstile) {
-        retryTimer = window.setTimeout(initTurnstile, 300);
-        return;
-      }
-
-      if (widgetIdRef.current) return;
-
-      widgetIdRef.current = window.turnstile.render(captchaRef.current, {
-        sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY,
-        theme: "light",
-        size: "normal",
-        callback: (token: string) => {
-          setCaptchaToken(token);
-          setCaptchaError("");
-        },
-        "expired-callback": () => {
-          setCaptchaToken(null);
-          setCaptchaError("Captcha expired. Please verify again.");
-        },
-        "error-callback": () => {
-          setCaptchaToken(null);
-          setCaptchaError("Captcha failed. Please try again.");
-        },
-      });
-    };
-
-    initTurnstile();
-
-    return () => {
-      mounted = false;
-
-      if (retryTimer) {
-        window.clearTimeout(retryTimer);
-      }
-
-      if (window.turnstile && widgetIdRef.current && window.turnstile.remove) {
-        window.turnstile.remove(widgetIdRef.current);
-      }
-
-      widgetIdRef.current = null;
-    };
-  }, []);
-
   const contactMutation = useApiMutation("post", {
     onSuccess: () => {
       toast.success({ content: "Message sent! We'll get back to you soon." });
       setFormData({ full_name: "", email: "", phone: "", subject: "", message: "" });
-      setFormData({ full_name: "", email: "", phone: "", subject: "", message: "" });
       setFormErrors({});
       resetCaptcha();
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
+      const err = error as {
+        response?: { data?: { message?: string; error?: string } };
+        message?: string;
+      };
       const errorMessage =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error?.message ||
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
         "Oops, something went wrong. Please try again later.";
       toast.error({ content: errorMessage });
       resetCaptcha();
@@ -178,7 +100,6 @@ function ContactForm() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
     setFormData((prev) => ({ ...prev, [name]: value }));
     const fieldSchema = contactSchema.shape[name as keyof FormData];
     if (fieldSchema) {
@@ -222,9 +143,6 @@ function ContactForm() {
       },
     });
   };
-
-  const inputClass =
-    "border border-sand-dark rounded-[3px] px-4 py-3.5 text-ink placeholder:text-ink-soft/50 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-transparent transition-shadow w-full bg-white text-base";
 
   return (
     <center>
