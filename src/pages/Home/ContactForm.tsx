@@ -60,6 +60,8 @@ const contactSchema = z.object({
       const normalized = val.replace(/\s|-/g, "");
       if (normalized.startsWith("09")) return "+63" + normalized.slice(1);
       if (normalized.startsWith("63")) return "+" + normalized;
+      if (normalized.startsWith("09")) return "+63" + normalized.slice(1);
+      if (normalized.startsWith("63")) return "+" + normalized;
       return normalized;
     }),
 
@@ -157,6 +159,7 @@ function ContactForm() {
     onSuccess: () => {
       toast.success({ content: "Message sent! We'll get back to you soon." });
       setFormData({ full_name: "", email: "", phone: "", subject: "", message: "" });
+      setFormData({ full_name: "", email: "", phone: "", subject: "", message: "" });
       setFormErrors({});
       resetCaptcha();
     },
@@ -175,6 +178,7 @@ function ContactForm() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setFormData((prev) => ({ ...prev, [name]: value }));
     const fieldSchema = contactSchema.shape[name as keyof FormData];
     if (fieldSchema) {
@@ -353,3 +357,4 @@ function ContactForm() {
 }
 
 export default ContactForm;
+
