@@ -152,10 +152,10 @@ function ContactForm() {
       >
         <h2
           id="contact-heading"
-          className="font-display text-3xl font-bold tracking-tight flex justify-center gap-2 text-center mb-6 pt-6 text-(--color-charcoal)"
+          className="section-eyebrow text-3xl font-bold tracking-tight flex justify-center gap-2 text-center mb-6 pt-6 text-(--color-charcoal)"
         >
-          <span className="green">CONTACT</span>
-          <span className="yellow">US</span>
+          <span className="text-gold">CONTACT</span>
+          <span className="text-gold">US</span>
         </h2>
 
         <div className="p-6 pt-0">
@@ -259,10 +259,10 @@ function ContactForm() {
               disabled={
                 !isFormValid || !captchaToken || contactMutation.isPending
               }
-              className={`inline-flex items-center justify-center gap-2 font-semibold py-3 px-6 rounded-xl transition-colors min-h-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+              className={`inline-flex items-center justify-center gap-2 font-semibold py-3 px-6 rounded-sm transition-colors min-h-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
                 isFormValid && captchaToken
-                  ? "bg-[#829F6E] hover:bg-[#AFBE9C] text-white cursor-pointer"
-                  : "bg-[#AFBE9C] cursor-not-allowed text-white"
+                  ? "bg-gold hover:bg-gold-light text-dark uppercase cursor-pointer"
+                  : "bg-gold-light cursor-not-allowed uppercase text-dark"
               }`}
             >
               {contactMutation.isPending ? <ButtonLoader /> : "Send Message"}
