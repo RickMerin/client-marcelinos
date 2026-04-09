@@ -73,6 +73,7 @@ const BOOKING_KEYS = [
   "reservationDate",
   "reservationDetails",
   "reservationDetails.personal",
+  "reservationDetails.personal.phAddress",
 ] as const;
 
 /**

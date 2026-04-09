@@ -13,7 +13,10 @@ import {
   calculateGrandTotalPrice,
   calculateVenuesLineTotal,
 } from "@/lib/math/calculate";
-import { parseRoomTypeFilters } from "@/lib/utils/booking.utils";
+import {
+  alignFormDataToBookingType,
+  parseRoomTypeFilters,
+} from "@/lib/utils/booking.utils";
 
 function normalizeStoredVenueEventType(
   v: string | undefined,
@@ -82,7 +85,9 @@ export const useBookingForm = () => {
 		})(),
 	};
 
-  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [formData, setFormData] = useState<FormData>(
+    alignFormDataToBookingType(initialFormData, bookingTypeInit),
+  );
 
   // Keep localStorage synced with formData
   useEffect(() => {
@@ -101,8 +106,14 @@ export const useBookingForm = () => {
           merged.venue_event_type,
         );
       }
-      setFormData((prev) => ({ ...prev, ...merged }));
+      setFormData((prev) =>
+        alignFormDataToBookingType(
+          { ...prev, ...merged, booking_type: bookingTypeInit },
+          bookingTypeInit,
+        ),
+      );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- align once on mount; bookingTypeInit is from initial reservationDate
   }, []);
 
   // Redirect if no reservation date
