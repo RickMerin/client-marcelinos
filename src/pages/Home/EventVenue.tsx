@@ -101,16 +101,21 @@ function EventVenues() {
     <section
       ref={sectionRef}
       className="w-full"
-      aria-labelledby="venues-heading">
-      <h2
-        id="venues-heading"
-        className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
-        <span className="text-green-900">EVENT </span>
-        <span className="text-yellow-500">VENUES</span>
-      </h2>
+      aria-labelledby="venues-heading"
+    >
+      {/* Header */}
+      <div className="mb-12">
+        <div className="section-eyebrow">Event Spaces</div>
+        <h2
+          id="venues-heading"
+          className="font-display text-[clamp(36px,4vw,56px)] font-light leading-[1.1] text-ink"
+        >
+          Host Your <em className="italic text-gold">Perfect</em> Event
+        </h2>
+      </div>
 
       {error && (
-        <p className="text-sm text-red-600 text-center mb-6 font-medium">
+        <p className="text-base text-red-600 text-center mb-6 font-medium">
           Error loading venues.
         </p>
       )}
@@ -118,39 +123,68 @@ function EventVenues() {
       {isLoading ? (
         <EventVenueSkeleton />
       ) : venueList.length === 0 ? (
-        <p className="text-sm text-center text-(--color-charcoal) opacity-80">
+        <p className="text-base text-center text-ink-soft opacity-80">
           No venues available.
         </p>
       ) : (
-        <div
-          className={`mx-auto grid gap-8 px-6
-            ${
-              venueList.length === 1
-                ? "max-w-md grid-cols-1"
-                : venueList.length === 2
-                ? "max-w-3xl grid-cols-1 sm:grid-cols-2"
-                : "max-w-7xl grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-            }
-          `}
-        >
-            {venueList.map((venue) => (
-            <div key={venue.id} className="venue-card-wrap">
-              <CardItem
-                id={venue.id}
-                name={venue.name}
-                capacity={venue.capacity}
-                price={venueStartingDisplayPrice(venue as VenuePriceItem)}
-                description={venue.description}
-                featured_image={venue.featured_image}
-                gallery={venue.gallery}
-                onClick={() =>
-                  navigate(`/venues/${venue.id}`, {
-                    state: { venue },
-                  })
-                }
-              />
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[1fr_1.25fr] gap-12 lg:gap-18 items-start">
+          {/* Left: venue text + features */}
+          <div>
+            <p className="text-base md:text-lg leading-relaxed text-ink-soft mb-10 max-w-[65ch]">
+              From intimate weddings to grand corporate gatherings, our versatile
+              venues transform your vision into an unforgettable experience in the
+              heart of Leyte.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-12">
+              {[
+                { icon: "🌿", title: "Garden Pavilion", text: "Up to 200 guests, open-air" },
+                { icon: "🏛️", title: "Grand Function Hall", text: "Air-conditioned, 300 pax" },
+                { icon: "🌊", title: "Poolside Terrace", text: "Cocktail receptions, 80 pax" },
+                { icon: "🍽️", title: "Catering Included", text: "Full in-house catering" },
+              ].map((feat) => (
+                <div key={feat.title} className="flex items-start gap-3.5">
+                  <div className="w-[36px] h-[36px] shrink-0 bg-gold rounded-full flex items-center justify-center text-base text-ink">
+                    {feat.icon}
+                  </div>
+                  <div className="text-base leading-relaxed text-ink-soft">
+                    <strong className="block font-medium text-ink mb-0.5">{feat.title}</strong>
+                    {feat.text}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+
+            <a href="/venues" className="btn-primary-mockup">
+              Inquire About Venues
+            </a>
+          </div>
+
+          {/* Right: venue cards */}
+          <div
+            className={`grid gap-6 ${
+              venueList.length === 1
+                ? "grid-cols-1 max-w-md"
+                : "grid-cols-1 sm:grid-cols-2"
+            }`}
+          >
+            {venueList.map((venue) => (
+              <div key={venue.id} className="venue-card-wrap">
+                <CardItem
+                  id={venue.id}
+                  name={venue.name}
+                  capacity={venue.capacity}
+                  price={venueStartingDisplayPrice(venue as VenuePriceItem)}
+                  description={venue.description}
+                  featured_image={venue.featured_image}
+                  gallery={venue.gallery}
+                  onClick={() =>
+                    navigate(`/venues/${venue.id}`, { state: { venue } })
+                  }
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </section>

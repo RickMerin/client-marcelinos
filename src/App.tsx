@@ -13,7 +13,7 @@ import { ToastContainer } from "react-toastify";
 // Layout component to wrap pages with consistent structure
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-cream">
       <Header />
       <main className="w-full h-full grow">{children}</main>
       <Footer />

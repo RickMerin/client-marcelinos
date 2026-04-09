@@ -1,11 +1,6 @@
-import { Card } from "@/components/ui/card";
+import { useState, useEffect, useCallback } from "react";
 import ReviewSectionSkeleton from "@/components/skeleton/ReviewSectionSkeleton";
-
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
-
-import logo from "../../assets/img/marcelinos-logo.svg";
-
-/* ---------------- TYPES ---------------- */
 
 interface Review {
   guest_name: string | null;
@@ -26,9 +21,7 @@ type ReviewApiResponse =
   | undefined;
 
 function pickString(value: unknown): string | null {
-  return typeof value === "string" && value.trim().length > 0
-    ? value
-    : null;
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
 }
 
 function pickNumber(value: unknown): number {
@@ -71,9 +64,7 @@ function extractReviews(response: ReviewApiResponse): Review[] {
   }
 
   const nestedData =
-    response &&
-    typeof response === "object" &&
-    "data" in response
+    response && typeof response === "object" && "data" in response
       ? response.data
       : undefined;
   if (Array.isArray(nestedData)) return nestedData.map(normalizeReview);
@@ -92,10 +83,7 @@ function extractReviews(response: ReviewApiResponse): Review[] {
   return [];
 }
 
-/* ---------------- COMPONENT ---------------- */
-
 function ClientReviews() {
-  /* ---------------- FETCH ---------------- */
   const { data, isLoading, isError } = useApiQuery<ReviewApiResponse>(
     ["reviews"],
     "/reviews",
@@ -105,106 +93,80 @@ function ClientReviews() {
     (review) => review.comment.trim().length > 0,
   );
 
-  /* ---------------- FORMAT DATE ---------------- */
+  const [currentIdx, setCurrentIdx] = useState(0);
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Recently";
+  const nextReview = useCallback(() => {
+    if (reviews.length === 0) return;
+    setCurrentIdx((i) => (i + 1) % reviews.length);
+  }, [reviews.length]);
 
-    const date = new Date(dateString);
+  useEffect(() => {
+    if (reviews.length <= 1) return;
+    const interval = setInterval(nextReview, 5000);
+    return () => clearInterval(interval);
+  }, [nextReview, reviews.length]);
 
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  /* ---------------- RENDER ---------------- */
+  const current = reviews[currentIdx];
 
   return (
-    <section
-      className="w-full flex flex-col items-center"
-      aria-labelledby="reviews-heading">
-      <h2
-        id="reviews-heading"
-        className="font-display text-3xl font-bold tracking-tight text-center mb-12 text-(--color-charcoal)">
-        <span className="green">CLIENT</span>{" "}
-        <span className="yellow">REVIEWS</span>
-      </h2>
-
-      <div className="w-full max-w-6xl px-4 sm:px-8">
-        {/* STATES */}
-
-        {isLoading && <ReviewSectionSkeleton />}
-
-        {isError && (
-          <p className="text-center text-red-600 font-medium">
-            Failed to load reviews.
-          </p>
-        )}
-
-        {!isLoading && !isError && reviews.length === 0 && (
-          <p className="text-center text-(--color-charcoal) opacity-80">
-            No reviews yet.
-          </p>
-        )}
-
-        {/* Masonry-style grid: CSS columns, varying card heights */}
-        {!isLoading && !isError && reviews.length > 0 && (
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-6">
-            {reviews.map((review, index) => (
-              <Card
-                key={index}
-                className="break-inside-avoid mb-6 bg-white rounded-2xl p-6 shadow-md border border-(--color-sage-muted) flex flex-col">
-                {/* Quote */}
-                <blockquote className="text-(--color-charcoal) text-sm leading-relaxed mb-4 italic">
-                  &ldquo;{review.comment}&rdquo;
-                </blockquote>
-
-                {/* Rating stars */}
-                <div className="flex items-center mb-4">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <svg
-                      key={i}
-                      className={`h-4 w-4 mr-0.5 ${i < review.rating ? "text-yellow-400" : "text-gray-300"}`}
-                      fill={i < review.rating ? "currentColor" : "none"}
-                      viewBox="0 0 20 20"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      aria-hidden="true">
-                      <polygon points="10 15.27 16.18 18 14.54 11.97 19 7.24 12.81 6.63 10 1.5 7.19 6.63 1 7.24 5.46 11.97 3.82 18 10 15.27" />
-                    </svg>
-                  ))}
-                  <span className="ml-2 text-xs text-gray-500">
-                    {review.rating}/5
-                  </span>
-                </div>
-
-                {/* Author: avatar, name, date, logo */}
-                <div className="flex items-center gap-3 mt-auto pt-4 border-t border-sage-muted/60">
-                  <div className="w-10 h-10 rounded-full bg-(--color-sage-muted) flex items-center justify-center font-semibold text-(--color-charcoal) shrink-0 text-sm">
-                    {(review.guest_name ?? "A").charAt(0)}
-                  </div>
-                  <div className="min-w-0 flex-1 leading-tight">
-                    <p className="font-semibold text-(--color-charcoal) truncate">
-                      {review.guest_name ?? "Anonymous Guest"}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {formatDate(review.date)}
-                    </p>
-                  </div>
-                  <img
-                    src={logo}
-                    alt=""
-                    className="w-9 h-9 shrink-0 opacity-80"
-                  />
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
+    <div
+      className="max-w-[760px] mx-auto text-center"
+      aria-labelledby="reviews-heading"
+    >
+      <div
+        className="section-eyebrow justify-center"
+        style={{ color: "rgba(250,250,249,0.65)" }}
+      >
+        Guest Stories
       </div>
-    </section>
+
+      {isLoading && <ReviewSectionSkeleton />}
+
+      {isError && (
+        <p className="text-center text-base text-red-300 font-medium">
+          Failed to load reviews.
+        </p>
+      )}
+
+      {!isLoading && !isError && reviews.length === 0 && (
+        <p className="text-center text-base text-cream/80">No reviews yet.</p>
+      )}
+
+      {!isLoading && !isError && current && (
+        <>
+          <blockquote
+            className="font-display text-[clamp(22px,3vw,36px)] font-light italic leading-normal text-cream my-8 transition-all duration-600"
+            key={currentIdx}
+            style={{
+              animation: "fadeUp 0.6s ease both",
+            }}
+          >
+            &ldquo;{current.comment}&rdquo;
+          </blockquote>
+          <p className="text-[13px] tracking-[0.2em] uppercase text-cream/60 font-medium">
+            {current.guest_name ?? "Anonymous Guest"}
+            {current.date && ` — ${current.date}`}
+          </p>
+
+          {reviews.length > 1 && (
+            <div className="flex justify-center gap-2.5 mt-12">
+              {reviews.slice(0, Math.min(reviews.length, 5)).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentIdx(i)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 border-none cursor-pointer ${
+                    i === currentIdx
+                      ? "bg-gold-light scale-[1.3]"
+                      : "bg-cream/25 hover:bg-cream/40"
+                  }`}
+                  aria-label={`Go to review ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
   );
 }
 

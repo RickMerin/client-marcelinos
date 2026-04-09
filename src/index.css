@@ -57,15 +57,31 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  /* Premium booking funnel palette (sage, cream, charcoal) */
-  --color-sage: #7d9b69;
-  --color-sage-light: #9cb88a;
-  --color-sage-muted: #e8efe4;
-  --color-cream: #faf8f5;
-  --color-cream-dark: #f5f2eb;
-  --color-charcoal: #2c2c2c;
-  --font-display: "Playfair Display", serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Tropical luxury palette */
+  --color-sand: #F6F7F5;
+  --color-sand-dark: #DDE3D9;
+  --color-ink: #1F2937;
+  --color-ink-soft: #4B5563;
+  --color-gold: #C6A15B;
+  --color-gold-light: #E6D3A3;
+  --color-sea: #2F5D50;
+  --color-sea-light: #3F7A6B;
+  --color-cream: #F6F7F5;
+  --color-dark: #0F1F1A;
+  --color-forest: #2F5D50;
+  --color-forest-soft: #3F7A6B;
+  --color-leaf: #7FAF9B;
+
+  /* Kept for booking funnel compatibility */
+  --color-sage: #7FAF9B;
+  --color-sage-light: #9cc5b5;
+  --color-sage-muted: #e4efe9;
+  --color-charcoal: #1F2937;
+
+  --font-display: "Cormorant Garamond", "Playfair Display", serif;
+  --font-body: "Jost", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Jost", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -143,19 +159,485 @@
   }
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 5rem; /* Offset for sticky header */
+    scroll-padding-top: 5rem;
+    overflow-x: hidden;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-sans);
-    line-height: 1.6;
+    @apply bg-cream text-ink;
+    font-family: var(--font-body);
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Display font (Playfair) for headings - site-wide and in booking funnel */
 .font-display {
   font-family: var(--font-display);
 }
+
+/* ============================================================
+   MOCKUP DESIGN SYSTEM — SHARED UTILITIES
+   ============================================================ */
+
+.section-eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 500;
+}
+.section-eyebrow::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 1.5px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* Luxury home — forest & soft gradients + restrained depth */
+.section-depth-light {
+  position: relative;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #F6F7F5 0%, #EEF1EC 100%);
+}
+.section-depth-light::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 70% 40%,
+    rgba(47, 93, 80, 0.12),
+    transparent 60%
+  );
+}
+/* Decorative leaves — kept soft on the text side (mask) + no vw sizing (avoids layout quirks) */
+.section-depth-light::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.14;
+  mix-blend-mode: multiply;
+  background-image: url("/green-leaves-extended.png");
+  background-repeat: no-repeat;
+  background-size: min(100%, 1100px) auto;
+  background-position: right top 38%;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.12) 0%,
+    rgba(0, 0, 0, 0.35) 28%,
+    rgba(0, 0, 0, 0.75) 52%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.12) 0%,
+    rgba(0, 0, 0, 0.35) 28%,
+    rgba(0, 0, 0, 0.75) 52%,
+    #000 100%
+  );
+}
+
+.section-depth-sand {
+  position: relative;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #F6F7F5 0%, #E6E9E3 100%);
+}
+.section-depth-sand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 25% 55%,
+    rgba(47, 93, 80, 0.1),
+    transparent 58%
+  );
+}
+.section-depth-sand::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.12;
+  mix-blend-mode: multiply;
+  background-image: url("/green-leaves-extended.png");
+  background-repeat: no-repeat;
+  background-size: min(100%, 1000px) auto;
+  background-position: left bottom 32%;
+  -webkit-mask-image: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.38) 30%,
+    rgba(0, 0, 0, 0.78) 55%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.38) 30%,
+    rgba(0, 0, 0, 0.78) 55%,
+    #000 100%
+  );
+}
+
+.section-depth-forest {
+  position: relative;
+  background: linear-gradient(135deg, #0F1F1A 0%, #12352D 40%, #0F1F1A 100%);
+}
+.section-depth-forest::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 70% 40%,
+    rgba(47, 93, 80, 0.15),
+    transparent 60%
+  );
+}
+.section-depth-forest::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.62;
+  mix-blend-mode: overlay;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 45px,
+      rgba(255, 255, 255, 0.14) 45px,
+      rgba(255, 255, 255, 0.14) 46px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 45px,
+      rgba(255, 255, 255, 0.14) 45px,
+      rgba(255, 255, 255, 0.14) 46px
+    );
+  background-size: 46px 46px;
+  animation: dark-wavy-grid-drift 22s linear infinite,
+    dark-wavy-grid-sway 16s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-depth-forest::after {
+    animation: none;
+  }
+}
+
+.section-depth-sea {
+  position: relative;
+  background: linear-gradient(135deg, #264a40 0%, #2F5D50 45%, #264a40 100%);
+}
+.section-depth-sea::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 70% 35%,
+    rgba(230, 211, 163, 0.08),
+    transparent 55%
+  );
+}
+.section-depth-sea::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: overlay;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 45px,
+      rgba(255, 255, 255, 0.12) 45px,
+      rgba(255, 255, 255, 0.12) 46px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 45px,
+      rgba(255, 255, 255, 0.12) 45px,
+      rgba(255, 255, 255, 0.12) 46px
+    );
+  background-size: 46px 46px;
+  animation: dark-wavy-grid-drift 26s linear infinite reverse,
+    dark-wavy-grid-sway 18s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-depth-sea::after {
+    animation: none;
+  }
+}
+
+.bg-gradient-forest-bar {
+  background: linear-gradient(135deg, #0F1F1A 0%, #12352D 40%, #0F1F1A 100%);
+}
+
+/* Wavy white grid motion — drift + subtle sway (motion-graphics feel) */
+@keyframes dark-wavy-grid-drift {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 48px 26px, -26px 48px;
+  }
+}
+@keyframes dark-wavy-grid-sway {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate3d(0.4%, -0.25%, 0) rotate(0.12deg);
+  }
+  66% {
+    transform: translate3d(-0.35%, 0.3%, 0) rotate(-0.1deg);
+  }
+}
+
+.cta-strip-luxury {
+  position: relative;
+  overflow: hidden;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 45px,
+      rgba(255, 255, 255, 0.1) 45px,
+      rgba(255, 255, 255, 0.1) 46px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 45px,
+      rgba(255, 255, 255, 0.1) 45px,
+      rgba(255, 255, 255, 0.1) 46px
+    ),
+    linear-gradient(
+      135deg,
+      #0F1F1A 0%,
+      #152920 38%,
+      #12352D 62%,
+      #0F1F1A 100%
+    );
+  background-size: 46px 46px, 46px 46px, 100% 100%;
+  background-repeat: repeat, repeat, no-repeat;
+  animation: cta-wavy-grid-drift 28s linear infinite;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+@keyframes cta-wavy-grid-drift {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 48px 22px, -22px 48px, 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-strip-luxury {
+    animation: none;
+  }
+}
+.cta-strip-luxury::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 80% 120% at 50% -20%,
+    rgba(198, 161, 91, 0.18),
+    transparent 55%
+  );
+}
+.cta-strip-luxury::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(198, 161, 91, 0.45) 50%,
+    transparent
+  );
+}
+.cta-strip-luxury .btn-primary-mockup {
+  box-shadow: 0 4px 24px rgba(198, 161, 91, 0.35);
+  transition: all 0.4s ease;
+}
+.cta-strip-luxury .btn-primary-mockup:hover {
+  box-shadow: 0 8px 32px rgba(198, 161, 91, 0.45);
+}
+
+.btn-primary-mockup {
+  background: var(--color-gold);
+  color: var(--color-ink);
+  padding: 16px 40px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 3px;
+  display: inline-block;
+  transition: all 0.4s ease;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  min-height: 52px;
+  line-height: 1;
+}
+.btn-primary-mockup:hover {
+  background: var(--color-gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(198,161,91,0.35);
+}
+
+.btn-ghost-mockup {
+  color: var(--color-cream);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.4s ease;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+.btn-ghost-mockup::after {
+  content: '→';
+  font-size: 18px;
+}
+.btn-ghost-mockup:hover {
+  color: var(--color-gold-light);
+  gap: 16px;
+}
+
+.btn-dark-mockup {
+  background: var(--color-dark);
+  color: var(--color-cream);
+  padding: 18px 48px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 3px;
+  display: inline-block;
+  transition: background 0.3s, transform 0.25s, box-shadow 0.3s;
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+  min-height: 56px;
+  line-height: 1;
+}
+.btn-dark-mockup:hover {
+  background: var(--color-forest);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(15,31,26,0.35);
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================================
+   BOOKING BAR — horizontal row layout (mockup)
+   ============================================================ */
+.booking-bar-field {
+  flex: 1 1 0%;
+  min-width: 0;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(253, 250, 245, 0.07);
+  gap: 4px !important;
+}
+@media (min-width: 1024px) {
+  .booking-bar-field {
+    padding: 18px 24px;
+    border-bottom: none;
+    border-right: 1px solid rgba(253, 250, 245, 0.07);
+  }
+}
+
+.booking-bar-reset {
+  flex: 0 0 auto;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+}
+@media (min-width: 1024px) {
+  .booking-bar-reset {
+    padding: 0 6px;
+    border-right: 1px solid rgba(253, 250, 245, 0.07);
+  }
+}
+
+.booking-bar-submit {
+  flex: 0 0 auto;
+}
+
+/* Booking bar typography overrides */
+.first-fold-booking .booking-bar-field button[type="button"],
+.first-fold-booking .booking-bar-field input {
+  font-family: var(--font-display) !important;
+  font-size: 18px !important;
+  color: var(--color-cream) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  height: auto !important;
+  box-shadow: none !important;
+  justify-content: flex-start !important;
+  font-weight: 400;
+}
+.first-fold-booking .booking-bar-field button[type="button"]:hover {
+  background: transparent !important;
+}
+
+/* ============================================================
+   BOOKING FUNNEL — preserved styles
+   ============================================================ */
 .booking-funnel h1,
 .booking-funnel h2,
 .booking-funnel h3,
@@ -163,48 +645,21 @@
   font-family: var(--font-display);
 }
 
-/* Premium first fold: homepage hero booking card (green bg + leaves, white text) */
 .first-fold-booking label {
-  font-family: var(--font-display);
-  font-weight: 600;
-  color: white;
-}
-.first-fold-booking button[type="submit"] {
-  background: var(--color-sage-light) !important;
-  color: white !important;
-  font-family: var(--font-display);
-  font-weight: 600;
-}
-.first-fold-booking button[type="submit"]:hover {
-  background: var(--color-sage) !important;
-  color: white !important;
-}
-.first-fold-booking input,
-.first-fold-booking button[type="button"] {
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-}
-.first-fold-booking input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--color-gold-light);
 }
 .first-fold-booking input[readonly] {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* About Us: premium cards with gradient shine animation */
-@keyframes about-card-shine {
-  0% {
-    transform: translateX(-100%) skewX(-12deg);
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateX(200%) skewX(-12deg);
-    opacity: 0.5;
-  }
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--color-cream);
+  padding: 0;
+  height: auto;
+  cursor: default;
 }
 
 /* Room type badge: diagonal sweeping shine */
@@ -239,21 +694,79 @@
   transform: translateX(-100%) skewX(-12deg);
   animation: badge-shine 2.8s ease-in-out infinite;
   pointer-events: none;
-  /* Keep animation on its own layer, contained to badge only */
   will-change: transform;
   contain: layout paint;
 }
 
-/* Services & About feature cards: dark green, animated shine, cream hover */
+/* ============================================================
+   LANDING SECTION — kept for booking/misc pages compatibility
+   ============================================================ */
+.landing-section {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+@media (min-width: 768px) {
+  .landing-section {
+    padding-top: 7rem;
+    padding-bottom: 7rem;
+  }
+}
+
+.landing-section-alt {
+  position: relative;
+  background-color: #F6F7F5;
+  z-index: 0;
+}
+
+.landing-section-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--color-ink);
+}
+
+.landing-section p,
+.landing-section li {
+  line-height: 1.75;
+  font-size: 16px;
+}
+
+.landing-section button:focus-visible,
+.landing-section a:focus-visible,
+.landing-section input:focus-visible,
+.landing-section select:focus-visible,
+.landing-section textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(184, 149, 90, 0.4);
+}
+
+.landing-card-interactive {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.landing-card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(26, 22, 18, 0.15);
+}
+.landing-card-interactive:focus-within {
+  box-shadow: 0 0 0 2px var(--color-sand-dark);
+}
+
+/* Landing premium card — updated to match mockup palette */
+@keyframes about-card-shine {
+  0% { transform: translateX(-100%) skewX(-12deg); opacity: 0.5; }
+  50% { opacity: 0.8; }
+  100% { transform: translateX(200%) skewX(-12deg); opacity: 0.5; }
+}
+
 .landing-premium-card {
   position: relative;
   overflow: hidden;
-  background: #1f5d1e;
+  background: var(--color-dark);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.15),
-    0 10px 20px -5px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 10px 20px -5px rgba(0, 0, 0, 0.12);
 }
 .landing-premium-card::before {
   content: "";
@@ -264,9 +777,9 @@
     105deg,
     transparent 0%,
     transparent 35%,
-    rgba(255, 255, 255, 0.2) 45%,
-    rgba(244, 201, 93, 0.35) 50%,
-    rgba(255, 255, 255, 0.2) 55%,
+    rgba(255, 255, 255, 0.1) 45%,
+    rgba(184, 149, 90, 0.25) 50%,
+    rgba(255, 255, 255, 0.1) 55%,
     transparent 65%,
     transparent 100%
   );
@@ -275,98 +788,10 @@
   pointer-events: none;
 }
 .landing-premium-card:hover {
-  border-color: rgba(245, 158, 11, 0.4);
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.08),
-    0 20px 40px -10px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(125, 155, 105, 0.2);
+  border-color: rgba(184, 149, 90, 0.4);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 20px 40px -10px rgba(0, 0, 0, 0.1);
 }
 .landing-premium-card > * {
   position: relative;
   z-index: 1;
-}
-
-/* ========== Landing page: premium sections, readability, interactivity ========== */
-.landing-section {
-  padding-top: 3.5rem;
-  padding-bottom: 3.5rem;
-}
-@media (min-width: 768px) {
-  .landing-section {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
-  }
-}
-
-.landing-section-alt {
-  position: relative;
-  background-color: #e9f8e4c3;
-  /* Overlay for resort feel */
-  z-index: 0;
-}
-
-/* Overlay: SVG waves and fine grain, background only, does not affect content */
-.landing-section-alt::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  /* Layer 1: abstract SVG waves – transparent base, no white; waves tint the section */
-  background:
-    url("data:image/svg+xml;utf8,<svg width='400' height='200' viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'><rect width='400' height='200' fill='none'/><path d='M0 60 Q100 100 200 60 T400 60 V200 H0 V60 Z' fill='%23ffd184' opacity='0.14'/><path d='M0 100 Q100 140 200 100 T400 100 V200 H0 V100 Z' fill='%239eb18d' opacity='0.12'/><path d='M0 140 Q100 180 200 140 T400 140 V200 H0 V140 Z' fill='%239ebe9d' opacity='0.15'/></svg>"),
-    /* Layer 2: subtle grain */
-    url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAX0lEQVR42u3QsREAIAwEwZw/lpkHJi5E3kM+CJ3M/kMtLAAAgxRDAEBQgAhRjBACFGMIAEUYwQAhRjBACFGMEAIUYwAAUKUVG+uVP3DqQaWc/9EBU9DP04FX/gP85y4AJOINSlV8nyRgAAAABJRU5ErkJggg==");
-  background-size: cover, 170px;
-  background-repeat: no-repeat, repeat;
-  background-position:
-    center center,
-    0 0;
-  opacity: 1;
-  mix-blend-mode: multiply;
-}
-
-.landing-section-alt > * {
-  position: relative;
-  z-index: 1;
-}
-.landing-section-title {
-  font-family: var(--font-display);
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.2;
-  color: var(--color-charcoal);
-}
-/* Readability: body text on landing */
-.landing-section p,
-.landing-section li {
-  line-height: 1.65;
-  /* color: var(--color-charcoal); */
-}
-/* Focus visible for keyboard and a11y (theme green) */
-.landing-section button:focus-visible,
-.landing-section a:focus-visible,
-.landing-section input:focus-visible,
-.landing-section select:focus-visible,
-.landing-section textarea:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(31, 93, 30, 0.4);
-}
-.landing-section button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(31, 93, 30, 0.5);
-}
-/* Interactive cards: hover lift and theme border */
-.landing-card-interactive {
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
-}
-.landing-card-interactive:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px -8px rgba(31, 93, 30, 0.15);
-}
-.landing-card-interactive:focus-within {
-  box-shadow: 0 0 0 2px var(--color-sage-muted);
 }
