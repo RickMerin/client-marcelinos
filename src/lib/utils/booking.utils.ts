@@ -1,6 +1,7 @@
 import {
   FormData,
   BookingPayload,
+  BookingKind,
   type RoomLinePayload,
   type RoomTypeFilter,
 } from "@/types/booking.types";
@@ -8,6 +9,11 @@ import { roomInventoryGroupKey } from "@/lib/formatters/roomDisplayName";
 import { getFromLocalStorage } from "@/lib/storage/localStorage";
 import { COUNTRIES } from "@/lib/constants/countries";
 import { DEFAULT_ROOM_TYPE_FILTERS } from "@/lib/constants/booking.constants";
+import {
+  calculateTotalPrice,
+  calculateGrandTotalPrice,
+  calculateVenuesLineTotal,
+} from "@/lib/math/calculate";
 
 const ROOM_TYPE_SLUGS = new Set<RoomTypeFilter>([
   "standard",
@@ -22,6 +28,47 @@ export function parseRoomTypeFilters(raw: unknown): RoomTypeFilter[] {
     typeof x === "string" && ROOM_TYPE_SLUGS.has(x as RoomTypeFilter),
   );
   return next.length > 0 ? next : [...DEFAULT_ROOM_TYPE_FILTERS];
+}
+
+/**
+ * Strips room vs venue selections that do not apply to the active booking kind and
+ * recomputes line totals. For `both`, does not require rooms or venues.
+ */
+export function alignFormDataToBookingType(
+  data: FormData,
+  kind: BookingKind,
+): FormData {
+  let next: FormData = { ...data, booking_type: kind };
+
+  if (kind === "room") {
+    next = {
+      ...next,
+      venues: [],
+      venue_event_date: "",
+      venue_event_type: "",
+    };
+  } else if (kind === "venue") {
+    next = {
+      ...next,
+      rooms: [],
+      room_type_filters: [],
+    };
+  }
+
+  const rooms = next.rooms ?? [];
+  const venues = next.venues ?? [];
+  const venueEventType = next.venue_event_type || "wedding";
+  const totalPrice =
+    calculateTotalPrice(rooms) + calculateVenuesLineTotal(venues, venueEventType);
+  const grandTotalPrice = calculateGrandTotalPrice(
+    rooms,
+    next.days,
+    venues,
+    kind,
+    venueEventType,
+  );
+
+  return { ...next, totalPrice, grandTotalPrice };
 }
 
 /** Map API `room.type` to a known slug, or null if unknown. */
