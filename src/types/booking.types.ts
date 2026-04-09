@@ -48,6 +48,8 @@ export interface BookingReferenceResponse {
   /** True when check-in is far enough ahead to show the 3-day / down-payment policy on the receipt. */
   down_payment_notice_applies?: boolean;
   down_payment_notice_min_lead_days?: number;
+  /** True when check-in is strictly after today (Manila): Messenger settlement, no 3-day deadline line. */
+  use_messenger_deposit_instructions?: boolean;
   booking?: {
     reference_number: string;
     /** Opaque public id for receipt URL (UUID). */
@@ -149,6 +151,7 @@ export interface BookingReceipt {
   unpaid_expiry_days?: number;
   down_payment_notice_applies?: boolean;
   down_payment_notice_min_lead_days?: number;
+  use_messenger_deposit_instructions?: boolean;
 }
 
 export interface FormData {
