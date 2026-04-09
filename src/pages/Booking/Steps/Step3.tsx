@@ -757,11 +757,11 @@ export function Step3({
 										)}
 									</div>
 
-									{/* {dateError && (
+									{dateError && (
                   <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
                     {dateError}
                   </div>
-                )} */}
+                )}
 
 									<div className="flex gap-2 justify-end pt-2">
 										<button
