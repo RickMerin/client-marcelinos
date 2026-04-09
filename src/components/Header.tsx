@@ -36,18 +36,16 @@ export default function Header() {
     label: string;
     href: string;
     sectionId: string;
-    Icon: LucideIcon;
   }[] = [
-    { label: "Rooms", href: "#rooms", sectionId: "rooms", Icon: Bed },
-    { label: "Venues", href: "#venues", sectionId: "venues", Icon: Landmark },
+    { label: "Rooms", href: "#rooms", sectionId: "rooms" },
+    { label: "Venues", href: "#venues", sectionId: "venues" },
     {
       label: "Amenities",
       href: "#services",
-      sectionId: "services",
-      Icon: Armchair,
+      sectionId: "services"
     },
-    { label: "Gallery", href: "#gallery", sectionId: "gallery", Icon: Images },
-    { label: "Contact", href: "#contact", sectionId: "contact", Icon: Mail },
+    { label: "Gallery", href: "#gallery", sectionId: "gallery"},
+    { label: "Contact", href: "#contact", sectionId: "contact"},
   ];
 
   useEffect(() => {
@@ -194,52 +192,53 @@ export default function Header() {
             alt="Marcelino's Logo"
             className="h-10 w-10 object-contain"
           />
-          <span className="font-display text-xl font-normal text-cream tracking-[0.04em]">
-            Marcelino's <span className="text-gold-light italic">Resort Hotel</span>
-          </span>
+          <div className="ml-1   mt-1 leading-tight">
+            <div className="text-[17.5px] -mb-0.75 font-extrabold tracking-widest text-cream font-serif">
+              MARCELINO'S
+            </div>
+            <div className="text-sm text-gold-light tracking-widest font-medium">
+              RESORT AND HOTEL
+            </div>
+          </div>
+
         </button>
 
         {/* Desktop links */}
         <ul className="hidden lg:flex items-center gap-9 list-none">
-          {navLinks.map((item) => {
-            const NavIcon = item.Icon;
-            return (
-              <li key={item.label}>
-                <button
-                  type="button"
-                  onClick={() => handleNavClick(item.href)}
-                  className={`relative flex items-center gap-2 text-[13px] font-medium tracking-[0.15em] uppercase transition-colors duration-300 whitespace-nowrap bg-transparent border-none cursor-pointer ${
-                    isActive(item.sectionId)
-                      ? "text-gold-light"
-                      : "text-cream/90 hover:text-gold-light"
-                  }`}
-                  aria-current={isActive(item.sectionId) ? "true" : undefined}
-                >
-                  <NavIcon
-                    className="h-[15px] w-[15px] shrink-0 opacity-90"
-                    strokeWidth={1.75}
-                    aria-hidden
-                  />
-                  {item.label}
-                  <span
-                    className={`absolute bottom-[-5px] left-0 h-[1.5px] bg-gold-light transition-all duration-300 ease-out ${
-                      isActive(item.sectionId) ? "right-0" : "right-full"
-                    }`}
-                  />
-                </button>
-              </li>
-            );
-          })}
-          <li>
-            <button
-              onClick={bookNowHandler}
-              className="bg-gold text-ink px-6 py-2.5 rounded-[3px] text-[13px] font-semibold tracking-widest uppercase transition-colors duration-300 hover:bg-gold-light border-none cursor-pointer min-h-[44px]"
-            >
-              Book Now
-            </button>
-          </li>
-        </ul>
+        {navLinks.map((item) => {
+          return (
+            <li key={item.label}>
+              <button
+                type="button"
+                onClick={() => handleNavClick(item.href)}
+                className={`relative flex items-center text-[13px] font-medium tracking-[0.15em] uppercase transition-colors duration-300 whitespace-nowrap bg-transparent border-none cursor-pointer ${
+                  isActive(item.sectionId)
+                    ? "text-gold-light"
+                    : "text-cream/90 hover:text-gold-light"
+                }`}
+                aria-current={isActive(item.sectionId) ? "true" : undefined}
+              >
+                {item.label}
 
+                <span
+                  className={`absolute bottom-[-5px] left-0 h-[1.5px] bg-gold-light transition-all duration-300 ease-out ${
+                    isActive(item.sectionId) ? "right-0" : "right-full"
+                  }`}
+                />
+              </button>
+            </li>
+          );
+        })}
+
+        <li>
+          <button
+            onClick={bookNowHandler}
+            className="bg-gold text-ink px-6 py-2.5 rounded-[3px] text-[13px] font-semibold tracking-widest uppercase transition-colors duration-300 hover:bg-gold-light border-none cursor-pointer min-h-[44px]"
+          >
+            Book Now
+          </button>
+        </li>
+      </ul>
         {/* Hamburger */}
         <button
           className="lg:hidden flex flex-col justify-center gap-[5px] w-8 h-8 bg-transparent border-none p-1 cursor-pointer z-210"
@@ -263,41 +262,36 @@ export default function Header() {
             }`}
           />
         </button>
-      </nav>
+        </nav>
 
-      {/* Mobile overlay */}
-      <div
-        className={`fixed inset-0 z-190 bg-dark/98 flex flex-col items-center justify-center transition-opacity duration-350 lg:hidden ${
-          open
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
-        }`}
-      >
-        {navLinks.map((item) => {
-          const NavIcon = item.Icon;
-          return (
-            <button
-              key={item.label}
-              type="button"
-              onClick={() => handleNavClick(item.href)}
-              className="font-display text-[clamp(28px,7vw,44px)] font-light text-cream/80 py-4 tracking-[0.04em] transition-all duration-300 hover:text-gold-light hover:translate-x-1.5 bg-transparent border-none cursor-pointer flex items-center justify-center gap-4 text-center w-full max-w-sm"
-            >
-              <NavIcon
-                className="h-8 w-8 shrink-0 text-gold-light/70"
-                strokeWidth={1.5}
-                aria-hidden
-              />
-              {item.label}
-            </button>
-          );
-        })}
-        <button
-          onClick={bookNowHandler}
-          className="mt-8 bg-gold text-ink px-10 py-4 rounded-[3px] text-sm font-semibold tracking-[0.15em] uppercase cursor-pointer border-none transition-colors hover:bg-gold-light min-h-[52px]"
+        {/* Mobile overlay */}
+        <div
+          className={`fixed inset-0 z-190 bg-dark/98 flex flex-col items-center justify-center transition-opacity duration-350 lg:hidden ${
+            open
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          }`}
         >
-          Book Now
-        </button>
-      </div>
+          {navLinks.map((item) => {
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => handleNavClick(item.href)}
+                className="font-display text-[clamp(28px,7vw,44px)] font-light text-cream/80 py-4 tracking-[0.04em] transition-all duration-300 hover:text-gold-light hover:translate-x-1.5 bg-transparent border-none cursor-pointer flex items-center justify-center text-center w-full max-w-sm"
+              >
+                {item.label}
+              </button>
+            );
+          })}
+
+          <button
+            onClick={bookNowHandler}
+            className="mt-8 bg-gold text-ink px-10 py-4 rounded-[3px] text-sm font-semibold tracking-[0.15em] uppercase cursor-pointer border-none transition-colors hover:bg-gold-light min-h-[52px]"
+          >
+            Book Now
+          </button>
+        </div>
     </>
   );
 }

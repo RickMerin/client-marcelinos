@@ -10,40 +10,37 @@ function About() {
     >
       {/* Text */}
       <div className="about-text">
-        <div className="section-eyebrow">Our Story</div>
+        <div className="section-eyebrow text-[clamp(24px,4vw,40px)]">About Us</div>
         <h2
           id="about-heading"
           className="font-display text-[clamp(36px,4vw,60px)] font-light leading-[1.12] mb-7 text-ink"
           itemProp="headline"
         >
-          A Legacy of <em className="italic text-forest">Philippine Hospitality</em>
+          Welcome To <em className="italic text-forest">Marcelino’s Resort!</em>
         </h2>
         <p
-          className="text-base md:text-lg leading-relaxed text-ink-soft mb-5 max-w-[65ch]"
+          className="text-base md:text-lg leading-relaxed text-gray-1000 mb-5 max-w-[65ch]"
           itemProp="description"
         >
-          Nestled along the serene coastline of Hilongos, Leyte, Marcelino's Resort &amp;
-          Hotel has been a cherished destination for families, couples, and groups seeking
-          genuine Filipino warmth paired with modern comfort.
-        </p>
-        <p className="text-base md:text-lg leading-relaxed text-ink-soft mb-5 max-w-[65ch]">
-          From the swaying palms along the shoreline to lovingly prepared local cuisine,
-          every detail immerses you in the natural beauty of the Visayas.
-        </p>
+          Where elegance meets celebration. Stay with us in comfortable rooms and suites,
+           or gather in our venues for weddings, parties, and life’s most cherished 
+           moments—Marcelino’s Resort brings together restful accommodations, stunning event spaces, 
+           and unforgettable experiences.
+        </p>  
 
         {/* Stats */}
         <div className="flex flex-wrap gap-12 mt-12">
           <div className="flex flex-col gap-1.5">
             <span className="font-display text-[clamp(36px,5vw,52px)] font-light leading-none text-gold">
-              24
+              14
             </span>
             <span className="text-[13px] tracking-[0.15em] uppercase text-ink-soft font-medium">
-              Rooms &amp; Suites
+              Rooms 
             </span>
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="font-display text-[clamp(36px,5vw,52px)] font-light leading-none text-gold">
-              3
+              2
             </span>
             <span className="text-[13px] tracking-[0.15em] uppercase text-ink-soft font-medium">
               Event Venues
