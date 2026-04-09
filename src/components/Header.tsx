@@ -195,7 +195,7 @@ export default function Header() {
             className="h-10 w-10 object-contain"
           />
           <span className="font-display text-xl font-normal text-cream tracking-[0.04em]">
-            Marcelino's <span className="text-gold-light italic">Resort</span>
+            Marcelino's <span className="text-gold-light italic">Resort Hotel</span>
           </span>
         </button>
 

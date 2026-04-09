@@ -8,7 +8,7 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import { motion } from "framer-motion";
 
-const LCP_BANNER_SRC = "/img/banner-1.webp";
+const LCP_BANNER_SRC = "/img/banner2.jpg";
 
 export function BannerCarousel() {
 	const [api, setApi] = useState<CarouselApi | null>(null);
@@ -55,7 +55,7 @@ export function BannerCarousel() {
 
 								{/* Hero depth: multi-stop gradient + subtle blur for premium blend */}
 								<div
-									className="absolute inset-0 z-1 backdrop-blur-[1.5px]"
+									className="absolute inset-0 z-1"
 									style={{
 										background:
 											"linear-gradient(to top, rgba(15,31,26,0.85) 0%, rgba(15,31,26,0.4) 50%, rgba(15,31,26,0.2) 100%)",
@@ -75,7 +75,7 @@ export function BannerCarousel() {
 											<motion.p
 												variants={fadeUp}
 												transition={{ duration: 0.8, ease: "easeOut" }}
-												className="flex items-center gap-3.5 text-[13px] tracking-[0.25em] uppercase text-gold-light mb-5 font-medium">
+												className="flex items-center gap-3.5 text-[13px] tracking-[0.25em] uppercase text-gold-light  font-medium mb-4">
 												<span className="block w-9 h-[1.5px] bg-gold-light shrink-0" />
 												Hilongos, Leyte, Philippines
 											</motion.p>
@@ -84,28 +84,25 @@ export function BannerCarousel() {
 											<motion.h1
 												variants={fadeUp}
 												transition={{ duration: 1, delay: 0.2 }}
-												className="font-display text-[clamp(48px,8vw,100px)] font-light leading-[0.95] text-cream mb-7">
-												Where{" "}
-												<em className="italic text-gold-light">Paradise</em>
-												<br />
-												Meets Comfort
+											className="font-display text-[clamp(48px,8vw,80px)] font-semibold uppercase leading-[0.95] tracking-[-0.02em] text-cream mb-2">
+											MAKE YOUR {" "}
+											<span className="text-gold-light">STAY</span>
+											<br />
+											COMFORTABLE
 											</motion.h1>
-
-											{/* Subtitle */}
 											<motion.p
 												variants={fadeUp}
 												transition={{ duration: 0.8, delay: 0.4 }}
-												className="text-base md:text-lg leading-relaxed text-cream/85 max-w-[480px] mb-12">
-												A sanctuary nestled on the shores of Leyte — offering
-												world-class accommodations, event venues, and resort
-												living at the heart of the Philippines.
+												className="text-base md:text-lg leading-relaxed text-cream/85 max-w-[480px] mb-5 italic">
+												Experience refined comfort in thoughtfully designed rooms, 
+												complemented by quality amenities and warm hospitality.
 											</motion.p>
 
 											{/* Actions */}
 											<motion.div
 												variants={fadeUp}
 												transition={{ duration: 0.7, delay: 0.6 }}
-												className="flex items-center flex-wrap gap-6 max-md:flex-col max-md:items-start max-md:gap-5">
+												className="flex items-center flex-wrap gap-6 max-md:flex-col max-md:items-start max-md:gap-5 mt-2">
 												<a
 													href="#rooms"
 													className="btn-primary-mockup max-md:w-full max-md:text-center flex items-center justify-center">
