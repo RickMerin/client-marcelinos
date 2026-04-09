@@ -11,6 +11,8 @@ import {
 import type { BookingKind } from "@/types/booking.types";
 import { DEFAULT_ROOM_TYPE_FILTERS } from "@/lib/constants/booking.constants";
 import { cn } from "@/lib/utils";
+import { useApiQuery } from "@/lib/api/queries/useApiQuery";
+import { toBlockedDateKey } from "@/lib/utils/booking.utils";
 
 const KIND_OPTIONS: { value: BookingKind; label: string }[] = [
   { value: "room", label: "Room Stay" },
@@ -85,13 +87,41 @@ export default function BookingForm() {
     return d;
   };
 
+  const { data: blockedData, isLoading: isLoadingBlocked } = useApiQuery<any>(
+    ["blocked-dates"],
+    "/blocked-dates",
+  );
+
+  const blockedSet = useMemo(() => {
+    const rows = blockedData?.data ?? blockedData?.blocked_dates ?? [];
+    const list = Array.isArray(rows) ? rows : [];
+    return new Set(
+      list
+        .map((row: any) => (row.date ? toBlockedDateKey(row.date) : null))
+        .filter(Boolean),
+    );
+  }, [blockedData]);
+
   const schema = useMemo(() => buildSchema(kind), [kind]);
 
   const fields = useMemo(() => {
     const r = reservationDate as Record<string, unknown>;
 
-    const checkInVal = r.check_in ? new Date(r.check_in as string) : "";
-    const checkOutVal = r.check_out ? new Date(r.check_out as string) : "";
+    let checkInVal: Date | "" = "";
+    let checkOutVal: Date | "" = "";
+
+    if (r.check_in) {
+      checkInVal = new Date(r.check_in as string);
+      checkOutVal = r.check_out ? new Date(r.check_out as string) : "";
+    } else {
+      let ci = startOfDay(new Date());
+      while (blockedSet.has(toBlockedDateKey(ci.toISOString()))) {
+        ci = addDays(ci, 1);
+      }
+      checkInVal = ci;
+      checkOutVal = addDays(ci, 1);
+    }
+
     let daysStored = 0;
     if (checkInVal && checkOutVal) {
       const d = diffDays(startOfDay(checkInVal), startOfDay(checkOutVal));
@@ -150,7 +180,7 @@ export default function BookingForm() {
         itemClassName: "booking-bar-field",
       },
     ];
-  }, [kind, reservationDate]);
+  }, [kind, reservationDate, blockedSet]);
 
   const handleSubmit = (values: z.infer<typeof schema>) => {
     const checkIn = values.check_in as Date;
@@ -223,43 +253,49 @@ export default function BookingForm() {
       </div>
 
       {/* Form fields */}
-      <FormWrapper
-        key={kind}
-        schema={schema}
-        fields={fields}
-        onSubmit={handleSubmit}
-        submitLabel="Check Availability"
-        blockedDateStayMode={kind === "venue" ? "single_calendar" : "nights"}
-        isSubmitDisabled={(values) => {
-          if (!values.check_in || !values.check_out) return true;
-          return false;
-        }}
-        className={formGridClass}
-        onChangeFields={(values) => {
-          const ci = values.check_in as Date | undefined;
-          const co = values.check_out as Date | undefined;
-          if (!ci) return {};
-          if (!co) {
-            return { days: 0 };
-          }
-          const ciD = startOfDay(new Date(ci));
-          const coD = startOfDay(new Date(co));
-          if (coD < ciD) {
-            if (kind === "venue") {
-              return { check_out: ciD, days: 1 };
+      {!reservationDate.check_in && isLoadingBlocked ? (
+        <div className="flex flex-1 items-center justify-center p-4">
+          <span className="text-cream/50 text-sm">Loading availability...</span>
+        </div>
+      ) : (
+        <FormWrapper
+          key={kind}
+          schema={schema}
+          fields={fields}
+          onSubmit={handleSubmit}
+          submitLabel="Check Availability"
+          blockedDateStayMode={kind === "venue" ? "single_calendar" : "nights"}
+          isSubmitDisabled={(values) => {
+            if (!values.check_in || !values.check_out) return true;
+            return false;
+          }}
+          className={formGridClass}
+          onChangeFields={(values) => {
+            const ci = values.check_in as Date | undefined;
+            const co = values.check_out as Date | undefined;
+            if (!ci) return {};
+            if (!co) {
+              return { days: 0 };
             }
-            return { check_out: addDays(ciD, 1), days: 1 };
-          }
-          const d = diffDays(ciD, coD);
-          let days: number;
-          if (kind === "venue") {
-            days = d + 1;
-          } else {
-            days = Math.max(1, d);
-          }
-          return { days };
-        }}
-      />
+            const ciD = startOfDay(new Date(ci));
+            const coD = startOfDay(new Date(co));
+            if (coD < ciD) {
+              if (kind === "venue") {
+                return { check_out: ciD, days: 1 };
+              }
+              return { check_out: addDays(ciD, 1), days: 1 };
+            }
+            const d = diffDays(ciD, coD);
+            let days: number;
+            if (kind === "venue") {
+              days = d + 1;
+            } else {
+              days = Math.max(1, d);
+            }
+            return { days };
+          }}
+        />
+      )}
     </div>
   );
 }
