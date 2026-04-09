@@ -9,7 +9,10 @@ import {
   calculateVenuesLineTotal,
   venueEffectiveUnitPrice,
 } from "@/lib/math/calculate";
-import { VENUE_EVENT_OPTIONS } from "@/lib/constants/booking.constants";
+import {
+  MESSENGER_CHAT_URL,
+  VENUE_EVENT_OPTIONS,
+} from "@/lib/constants/booking.constants";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import {
@@ -254,6 +257,20 @@ function ReceiptRow({
       <span className="opacity-80 shrink-0">{label}</span>
       <span className={`${valueClassName} text-right`}>{display}</span>
     </div>
+  );
+}
+
+/** Facebook Messenger mark (single-color for use on branded button). */
+function MessengerGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden>
+      <path d="M12 2C6.477 2 2 5.973 2 10.889c0 2.096.698 4.04 1.876 5.644L2 22l6.131-1.59A8.93 8.93 0 0 0 12 20.778c5.523 0 10-3.973 10-8.889S17.523 2 12 2zm1.193 12.462-2.95-3.14-4.6 2.47 5.48-5.81 2.95 3.14 4.57-2.47-5.45 5.81z" />
+    </svg>
   );
 }
 
@@ -584,12 +601,25 @@ export function Step5(props: Props) {
 			: downPaymentNoticeAppliesFromSchedule;
 
 	const statusLower = String(bookingStatus ?? "").toLowerCase();
-	const showDownPaymentNotice =
+	const useMessengerFromApi =
+		isFromApi && receipt?.use_messenger_deposit_instructions === true;
+
+	const showMessengerDepositBlock =
+		isFromApi &&
+		!isCancelled &&
+		statusLower === "unpaid" &&
+		useMessengerFromApi;
+
+	const showLegacyThreeDayDepositBlock =
 		isFromApi &&
 		!isCancelled &&
 		statusLower === "unpaid" &&
 		unpaidExpiresIso != null &&
-		downPaymentNoticeApplies;
+		downPaymentNoticeApplies &&
+		!useMessengerFromApi;
+
+	const showDepositSplit =
+		showMessengerDepositBlock || showLegacyThreeDayDepositBlock;
 	const downPaymentAmount = displayGrandTotal * DOWN_PAYMENT_RATE;
 	const balanceAfterDownPayment = Math.max(
 		0,
@@ -786,7 +816,7 @@ export function Step5(props: Props) {
 											: "font-semibold"
 									}
 								/>
-								{showDownPaymentNotice && (
+								{showLegacyThreeDayDepositBlock && (
 									<>
 										<ReceiptRow
 											label="Deposit due by"
@@ -799,6 +829,13 @@ export function Step5(props: Props) {
 											valueClassName={AMOUNT_PRIMARY}
 										/>
 									</>
+								)}
+								{showMessengerDepositBlock && (
+									<ReceiptRow
+										label={`Deposit (${DOWN_PAYMENT_PERCENT_LABEL} of total)`}
+										value={pricingFormat(downPaymentAmount)}
+										valueClassName={AMOUNT_PRIMARY}
+									/>
 								)}
 								{paymentMethod && (
 									<ReceiptRow label="Payment method" value={paymentMethod} />
@@ -923,7 +960,7 @@ export function Step5(props: Props) {
 									Thank you for choosing Marcelino&apos;s Resort &amp; Hotel.
 									Please bring a valid ID at check-in.
 								</p>
-								{showDownPaymentNotice && (
+								{showLegacyThreeDayDepositBlock && (
 									<p className="text-amber-900/90 border-l-2 border-amber-500 pl-2 leading-relaxed">
 										<strong>Next step:</strong> Pay your deposit by{" "}
 										<strong>{formattedDownPaymentDue}</strong> (within{" "}
@@ -933,10 +970,29 @@ export function Step5(props: Props) {
 										deadline.
 									</p>
 								)}
+								{showMessengerDepositBlock && (
+									<div className="text-emerald-900/95 border-l-2 border-emerald-500 pl-2 space-y-3 leading-relaxed">
+										<p>
+											<strong>Next step:</strong> To settle your{" "}
+											{DOWN_PAYMENT_PERCENT_LABEL} down payment, please message
+											us on Facebook Messenger. Click the button below to open
+											the chat. Please attach your proof of payment in the
+											message so we can verify your deposit.
+										</p>
+										<a
+											href={MESSENGER_CHAT_URL}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="inline-flex items-center gap-2 rounded-lg bg-[#0084FF] px-3 py-2 text-white text-xs font-semibold shadow-sm hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0084FF]">
+											<MessengerGlyph className="size-5 shrink-0" aria-hidden />
+											<span>Open Messenger</span>
+										</a>
+									</div>
+								)}
 							</div>
 							<div className="w-full sm:w-72 shrink-0">
 								<div className="space-y-1 text-sm">
-									{showDownPaymentNotice ? (
+									{showDepositSplit ? (
 										<>
 											<div className="flex justify-between items-baseline gap-2 border-b border-emerald-100 pb-2 mb-1">
 												<span className="font-semibold text-emerald-900">
