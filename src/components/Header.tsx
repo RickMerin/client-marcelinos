@@ -234,21 +234,21 @@ export default function Header() {
               ? window.scrollTo({ top: 0, behavior: "smooth" })
               : navigate("/")
           }
-          className="flex items-center gap-2 cursor-pointer focus:outline-none z-210"
+          className="flex items-center gap-1 cursor-pointer focus:outline-none z-210"
         >
           <img
             src="/brand-logo.webp"
             alt="Marcelino's Logo"
-            className="h-10 w-10 object-contain"
+            className="h-12 w-12 object-contain"
           />
-          <div className="ml-1   mt-1 leading-tight">
-            <div className="text-[17.5px] -mb-0.75 font-extrabold tracking-widest text-cream font-serif">
-              MARCELINO'S
+            <div className="ml-1 mt-1 leading-tight inline-block">
+              <div className="text-xs -mb-0.75 font-extrabold tracking-widest text-cream font-serif">
+                MARCELINO'S
+              </div>
+              <div className="text-xs text-gold-light tracking-[0.15em] font-medium w-full text-center">
+                RESORT HOTEL
+              </div>
             </div>
-            <div className="text-sm text-gold-light tracking-widest font-medium">
-              RESORT AND HOTEL
-            </div>
-          </div>
 
         </button>
 
