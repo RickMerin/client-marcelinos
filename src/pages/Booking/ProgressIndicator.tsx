@@ -16,12 +16,12 @@ export function ProgressIndicator({
 
   return (
     <div
-      className="w-full py-6 sm:py-8 px-4 border-b"
+      className="w-full py-6 sm:py-8 px-6 lg:px-12 border-b"
       style={{
         backgroundColor: "var(--color-cream)",
         borderColor: "var(--color-sage-muted, #e5e7eb)",
       }}>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1200px] mx-auto">
         <div className="flex items-center justify-center gap-2 sm:gap-4 relative">
           {/* Connector lines */}
           {steps.map((_, index) => {
@@ -33,8 +33,8 @@ export function ProgressIndicator({
                   className={cn(
                     "absolute top-6 h-0.5 transition-colors duration-300",
                     isComplete
-                      ? "bg-(--color-sage)"
-                      : "bg-(--color-sage-muted)",
+                      ? "bg-sea"
+                      : "bg-sage-muted",
                   )}
                   style={{
                     left: `calc(${(index + 0.5) * (100 / steps.length)}% + 1.5rem)`,
@@ -58,10 +58,10 @@ export function ProgressIndicator({
                   className={cn(
                     "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-2 transition-all duration-300 shadow-sm",
                     isComplete
-                      ? "bg-(--color-sage) text-white"
+                      ? "bg-sea text-cream"
                       : isActive
-                        ? "bg-(--color-sage) text-white ring-4 ring-sage/20"
-                        : "bg-(--color-sage-muted) text-charcoal/50",
+                        ? "bg-sea text-cream ring-4 ring-gold/50"
+                        : "bg-sage-muted text-ink-soft",
                   )}>
                   {isComplete ? (
                     <Check className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.5} />
@@ -75,8 +75,8 @@ export function ProgressIndicator({
                   className={cn(
                     "text-xs text-center font-medium hidden sm:block whitespace-nowrap",
                     isActive || isComplete
-                      ? "text-(--color-charcoal) font-semibold"
-                      : "text-charcoal/50",
+                      ? "text-ink font-semibold"
+                      : "text-ink-soft",
                   )}>
                   {step.label}
                 </span>

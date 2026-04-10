@@ -31,27 +31,26 @@ export const NavigationButtons = ({
       <Button
         variant="ghost"
         onClick={onPrevious}
-        className="px-5 py-2.5 text-(--color-charcoal) hover:bg-(--color-sage-muted) font-medium">
+        className="px-5 py-2.5 text-ink hover:bg-sage-muted font-medium">
         {currentStep === 3 ? "← Edit Personal Info" : "← Back"}
       </Button>
       <div className="flex items-center gap-4">
         {showEstimatedTotal && (
-          <div
-            className="text-right"
-            style={{ color: "var(--color-charcoal)" }}>
+          <div className="text-right text-ink">
             <p className="text-sm font-medium opacity-90">Estimated total</p>
             <p className="text-xl font-bold tracking-tight">
               {pricingFormat(estimatedTotal)}
             </p>
           </div>
         )}
-        <Button
+        <button
+          type="button"
           onClick={onNext}
           disabled={isNextDisabled}
-          className="px-8 py-3 font-semibold text-white transition-all shadow-sm hover:opacity-95 disabled:opacity-50"
-          style={{ backgroundColor: "var(--color-sage)" }}>
+          className="btn-primary-mockup min-w-40 text-center"
+        >
           Continue
-        </Button>
+        </button>
       </div>
     </div>
   );

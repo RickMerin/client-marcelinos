@@ -176,9 +176,9 @@ export function BookingReceiptPage({
   if (isLoading) {
     return (
 			<main
-				className="min-h-screen flex flex-col items-center p-4 pb-10 landing-section-alt"
+				className="booking-funnel min-h-screen flex flex-col items-center pb-10 landing-section-alt"
 				style={{ backgroundColor: "var(--color-cream)" }}>
-				<div className="w-full max-w-6xl mx-auto pt-15">
+				<div className="w-full max-w-[1200px] mx-auto px-6 lg:px-12 pt-15">
 					<ProgressIndicator currentStep={RECEIPT_STEP} />
 					<div className="mt-6 mb-8">
 						<Step5Skeleton />
@@ -228,9 +228,9 @@ export function BookingReceiptPage({
 
   return (
 		<main
-			className="min-h-screen flex flex-col items-center p-4 pb-10 landing-section-alt"
+			className="booking-funnel min-h-screen flex flex-col items-center pb-10 landing-section-alt"
 			style={{ backgroundColor: "var(--color-cream)" }}>
-			<div className="w-full max-w-6xl mx-auto pt-15">
+			<div className="w-full max-w-[1200px] mx-auto px-6 lg:px-12 pt-15">
 				<ProgressIndicator currentStep={RECEIPT_STEP} />
 				{PaymentStatusBanner}
 				<div className="mt-6 mb-8">

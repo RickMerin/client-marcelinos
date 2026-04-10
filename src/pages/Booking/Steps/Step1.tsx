@@ -51,27 +51,27 @@ interface Props {
 
 function RoomCardSkeleton() {
   return (
-    <div className="flex flex-col rounded-xl border border-gray-200/80 bg-white shadow-sm overflow-hidden">
-      <Skeleton className="w-full h-[250px]" />
-      <div className="p-5 space-y-3">
-        <Skeleton className="h-6 w-28" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-24" />
-        <div className="flex gap-2">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-6 w-14 rounded-full" />
-          ))}
-        </div>
-        <div className="pt-4 flex items-end justify-between">
-          <div className="space-y-1">
-            <Skeleton className="h-3 w-8" />
-            <Skeleton className="h-5 w-20" />
-          </div>
-          <Skeleton className="h-10 w-24 rounded-lg" />
-        </div>
-      </div>
-    </div>
-  );
+		<div className="flex flex-col rounded-xl border border-sand-dark/50 bg-white shadow-sm overflow-hidden">
+			<Skeleton className="w-full h-[250px]" />
+			<div className="p-5 space-y-3">
+				<Skeleton className="h-6 w-28" />
+				<Skeleton className="h-4 w-full" />
+				<Skeleton className="h-4 w-24" />
+				<div className="flex gap-2">
+					{[1, 2, 3, 4].map((i) => (
+						<Skeleton key={i} className="h-6 w-14 rounded-full" />
+					))}
+				</div>
+				<div className="pt-4 flex items-end justify-between">
+					<div className="space-y-1">
+						<Skeleton className="h-3 w-8" />
+						<Skeleton className="h-5 w-20" />
+					</div>
+					<Skeleton className="h-10 w-24 rounded-lg" />
+				</div>
+			</div>
+		</div>
+	);
 }
 
 /** True when check-in and check-out strings refer to the same local calendar day */
@@ -106,21 +106,21 @@ function diffDaysBetweenDateStrings(checkIn: string, checkOut: string): number |
 
 function VenueCardSkeleton() {
   return (
-    <div className="flex flex-col rounded-xl border border-gray-200/80 bg-white shadow-sm overflow-hidden">
-      <Skeleton className="w-full h-[200px] md:h-[150px]" />
-      <div className="p-5 space-y-3">
-        <Skeleton className="h-6 w-36" />
-        <Skeleton className="h-4 w-24" />
-        <div className="pt-4 flex items-end justify-between">
-          <div className="space-y-1">
-            <Skeleton className="h-3 w-8" />
-            <Skeleton className="h-5 w-24" />
-          </div>
-          <Skeleton className="h-10 w-16 rounded-lg" />
-        </div>
-      </div>
-    </div>
-  );
+		<div className="flex flex-col rounded-xl border border-sand-dark/50 bg-white shadow-sm overflow-hidden">
+			<Skeleton className="w-full h-[200px] md:h-[150px]" />
+			<div className="p-5 space-y-3">
+				<Skeleton className="h-6 w-36" />
+				<Skeleton className="h-4 w-24" />
+				<div className="pt-4 flex items-end justify-between">
+					<div className="space-y-1">
+						<Skeleton className="h-3 w-8" />
+						<Skeleton className="h-5 w-24" />
+					</div>
+					<Skeleton className="h-10 w-16 rounded-lg" />
+				</div>
+			</div>
+		</div>
+	);
 }
 
 export function Step1({
@@ -407,530 +407,393 @@ export function Step1({
   })();
 
   return (
-    <div className="space-y-10">
-      <div className="space-y-2">
-        <p
-          className="text-xs font-semibold uppercase tracking-wide"
-          style={{ color: "var(--color-sage, #4a6741)" }}
-        >
-          {bookingType === "room" && "Rooms only"}
-          {bookingType === "venue" && "Venue only"}
-          {bookingType === "both" && "Room + venue"}
-        </p>
-        <h2
-          className="font-display text-3xl font-bold tracking-tight"
-          style={{ color: "var(--color-charcoal)" }}
-        >
-          {stepTitle}
-        </h2>
-        <p className="max-w-3xl" style={{ color: "var(--color-charcoal)" }}>
-          {stepIntro}
-        </p>
+		<div className="space-y-10">
+			<div className="space-y-2">
+				<p className="booking-funnel-eyebrow">
+					{bookingType === "room" && "Rooms only"}
+					{bookingType === "venue" && "Venue only"}
+					{bookingType === "both" && "Room + venue"}
+				</p>
+				<h2 className="landing-section-title">{stepTitle}</h2>
+				<p className="max-w-3xl text-ink-soft">{stepIntro}</p>
 
-        <br />
+				<br />
 
-        {/* Booking summary — labels match room vs venue vs combined */}
-        <div
-          className="rounded-md border bg-white p-5 shadow-sm md:p-6"
-          style={{ borderColor: "var(--color-sage-muted, #e5e7eb)" }}
-        >
-          {bookingType === "venue" ? (
-            <>
-              <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    Venues selected
-                  </p>
-                  <p
-                    className="mt-1 text-xl font-bold tracking-tight"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {venueCount}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    Check-in
-                  </p>
-                  <p
-                    className="mt-1 text-xl font-bold tracking-tight"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {formatShortDate(checkIn)}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    Check-out
-                  </p>
-                  <p
-                    className="mt-1 text-xl font-bold tracking-tight"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {formatShortDate(checkOut)}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    No. of Day(s)
-                  </p>
-                  <p
-                    className="mt-1 text-xl font-bold tracking-tight"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {dayCountVenueOnly ?? "—"}
-                  </p>
-                </div>
-              </div>
-              <p
-                className="mt-4 border-t pt-3 text-xs leading-relaxed opacity-85"
-                style={{
-                  borderColor: "var(--color-sage-muted, #e5e7eb)",
-                  color: "var(--color-charcoal)",
-                }}
-              >
-                {staySameDay ? (
-                  <>
-                    For single-day venue bookings, check-in and check-out fall on
-                    the{" "}
-                    <span className="font-semibold">same calendar day</span>{" "}
-                    (your event window). You are not selecting an overnight room
-                    stay here.
-                  </>
-                ) : (
-                  <>
-                    Venue days are counted from check-in through check-out;
-                    times follow property policy unless stated otherwise.
-                  </>
-                )}
-              </p>
-            </>
-          ) : bookingType === "both" ? (
-            <>
-              <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    Rooms selected
-                  </p>
-                  <p
-                    className="mt-1 text-xl font-bold tracking-tight"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {roomCount}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    Venues selected
-                  </p>
-                  <p
-                    className="mt-1 text-xl font-bold tracking-tight"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {venueCount}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    Room & venue dates
-                  </p>
-                  <p
-                    className="mt-1 text-lg font-bold tracking-tight sm:text-xl"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {formatShortDate(checkIn)} – {formatShortDate(checkOut)}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    No. of Night(s)
-                  </p>
-                  <p
-                    className="mt-1 text-xl font-bold tracking-tight"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {nightCount === null ? "—" : nightCount}
-                  </p>
-                </div>
-              </div>
-              <p
-                className="mt-4 border-t pt-3 text-xs leading-relaxed opacity-85"
-                style={{
-                  borderColor: "var(--color-sage-muted, #e5e7eb)",
-                  color: "var(--color-charcoal)",
-                }}
-              >
-                <span className="font-semibold">Room and venue</span> share the
-                same check-in and check-out; venue line items are priced for the
-                full length of your stay (e.g. 6 nights → 6 days of venue
-                pricing).
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    Rooms selected
-                  </p>
-                  <p
-                    className="mt-1 text-xl font-bold tracking-tight"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {roomCount}
-                  </p>
-                </div>
+				{/* Booking summary — labels match room vs venue vs combined */}
+				<div className="booking-form-panel">
+					{bookingType === "venue" ? (
+						<>
+							<div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
+								<div>
+									<p className="text-sm font-medium opacity-80">
+										Venues selected
+									</p>
+									<p className="mt-1 text-xl font-bold tracking-tight">
+										{venueCount}
+									</p>
+								</div>
+								<div>
+									<p className="text-sm font-medium opacity-80">Check-in</p>
+									<p className="mt-1 text-xl font-bold tracking-tight">
+										{formatShortDate(checkIn)}
+									</p>
+								</div>
+								<div>
+									<p className="text-sm font-medium opacity-80">Check-out</p>
+									<p className="mt-1 text-xl font-bold tracking-tight">
+										{formatShortDate(checkOut)}
+									</p>
+								</div>
+								<div>
+									<p className="text-sm font-medium opacity-80">
+										No. of Day(s)
+									</p>
+									<p className="mt-1 text-xl font-bold tracking-tight">
+										{dayCountVenueOnly ?? "—"}
+									</p>
+								</div>
+							</div>
+							<p
+								className="mt-4 border-t pt-3 text-xs leading-relaxed opacity-85 text-ink-soft"
+								style={{
+									borderColor: "var(--color-sage-muted, #e5e7eb)",
+								}}>
+								{staySameDay ? (
+									<>
+										For single-day venue bookings, check-in and check-out fall
+										on the{" "}
+										<span className="font-semibold">same calendar day</span>{" "}
+										(your event window). You are not selecting an overnight room
+										stay here.
+									</>
+								) : (
+									<>
+										Venue days are counted from check-in through check-out;
+										times follow property policy unless stated otherwise.
+									</>
+								)}
+							</p>
+						</>
+					) : bookingType === "both" ? (
+						<>
+							<div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
+								<div>
+									<p className="text-sm font-medium opacity-80">
+										Rooms selected
+									</p>
+									<p className="mt-1 text-xl font-bold tracking-tight">
+										{roomCount}
+									</p>
+								</div>
+								<div>
+									<p className="text-sm font-medium opacity-80">
+										Venues selected
+									</p>
+									<p className="mt-1 text-xl font-bold tracking-tight">
+										{venueCount}
+									</p>
+								</div>
+								<div>
+									<p className="text-sm font-medium opacity-80">
+										Room & venue dates
+									</p>
+									<p className="mt-1 text-lg font-bold tracking-tight sm:text-xl">
+										{formatShortDate(checkIn)} – {formatShortDate(checkOut)}
+									</p>
+								</div>
+								<div>
+									<p className="text-sm font-medium opacity-80">
+										No. of Night(s)
+									</p>
+									<p className="mt-1 text-xl font-bold tracking-tight">
+										{nightCount === null ? "—" : nightCount}
+									</p>
+								</div>
+							</div>
+							<p
+								className="mt-4 border-t pt-3 text-xs leading-relaxed opacity-85 text-ink-soft"
+								style={{
+									borderColor: "var(--color-sage-muted, #e5e7eb)",
+								}}>
+								<span className="font-semibold">Room and venue</span> share the
+								same check-in and check-out; venue line items are priced for the
+								full length of your stay (e.g. 6 nights → 6 days of venue
+								pricing).
+							</p>
+						</>
+					) : (
+						<>
+							<div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
+								<div>
+									<p className="text-sm font-medium opacity-80">
+										Rooms selected
+									</p>
+									<p className="mt-1 text-xl font-bold tracking-tight">
+										{roomCount}
+									</p>
+								</div>
 
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    Check-in
-                  </p>
-                  <p
-                    className="mt-1 text-xl font-bold tracking-tight"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {formatShortDate(checkIn)}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    Check-out
-                  </p>
-                  <p
-                    className="mt-1 text-xl font-bold tracking-tight"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {formatShortDate(checkOut)}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className="text-sm font-medium opacity-80"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    No. of Night(s)
-                  </p>
-                  <p
-                    className="mt-1 text-xl font-bold tracking-tight"
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    {nightCount === null ? "—" : nightCount}
-                  </p>
-                </div>
-              </div>
-              {staySameDay ? (
-                <p
-                  className="mt-4 border-t pt-3 text-xs leading-relaxed opacity-85"
-                  style={{
-                    borderColor: "var(--color-sage-muted, #e5e7eb)",
-                    color: "var(--color-charcoal)",
-                  }}
-                >
-                  Check-in and check-out show the same date because this stay is
-                  a single calendar day; actual times follow property policy
-                  (e.g. 12:00 PM in / 10:00 AM out).
-                </p>
-              ) : (
-                <p
-                  className="mt-4 border-t pt-3 text-xs leading-relaxed opacity-85"
-                  style={{
-                    borderColor: "var(--color-sage-muted, #e5e7eb)",
-                    color: "var(--color-charcoal)",
-                  }}
-                >
-                  Nights are between check-in and check-out dates. Times follow
-                  property policy unless stated otherwise.
-                </p>
-              )}
-            </>
-          )}
-        </div>
-      </div>
+								<div>
+									<p className="text-sm font-medium opacity-80">Check-in</p>
+									<p className="mt-1 text-xl font-bold tracking-tight">
+										{formatShortDate(checkIn)}
+									</p>
+								</div>
+								<div>
+									<p className="text-sm font-medium opacity-80">Check-out</p>
+									<p className="mt-1 text-xl font-bold tracking-tight">
+										{formatShortDate(checkOut)}
+									</p>
+								</div>
+								<div>
+									<p className="text-sm font-medium opacity-80">
+										No. of Night(s)
+									</p>
+									<p className="mt-1 text-xl font-bold tracking-tight">
+										{nightCount === null ? "—" : nightCount}
+									</p>
+								</div>
+							</div>
+							{staySameDay ? (
+								<p
+									className="mt-4 border-t pt-3 text-xs leading-relaxed opacity-85 text-ink-soft"
+									style={{
+										borderColor: "var(--color-sage-muted, #e5e7eb)",
+									}}>
+									Check-in and check-out show the same date because this stay is
+									a single calendar day; actual times follow property policy
+									(e.g. 12:00 PM in / 10:00 AM out).
+								</p>
+							) : (
+								<p
+									className="mt-4 border-t pt-3 text-xs leading-relaxed opacity-85 text-ink-soft"
+									style={{
+										borderColor: "var(--color-sage-muted, #e5e7eb)",
+									}}>
+									Nights are between check-in and check-out dates. Times follow
+									property policy unless stated otherwise.
+								</p>
+							)}
+						</>
+					)}
+				</div>
+			</div>
 
-      {showRooms && (
-        <section className="space-y-4">
-          <div>
-            <h3
-              className="font-display text-xl font-semibold"
-              style={{ color: "var(--color-charcoal)" }}
-            >
-              Where you&apos;ll stay
-            </h3>
-            <p
-              className="text-sm mt-0.5 opacity-80"
-              style={{ color: "var(--color-charcoal)" }}
-            >
-              {bookingType === "both"
-                ? "Standard, Family, and Deluxe appear below by layout. Use +/− for each—up to what’s available—or skip rooms if you only need a venue."
-                : "Browse Standard, Family, and Deluxe by layout. Use +/− to choose how many rooms you need; you can’t exceed availability for your dates."}
-            </p>
-          </div>
-          {roomsError && (
-            <p className="text-red-600 text-sm py-2">
-              Error loading rooms. Please try again.
-            </p>
-          )}
-          {roomsLoading ? (
-            <div className="grid gap-6 sm:grid-cols-2">
-              {[1, 2, 3].map((i) => (
-                <RoomCardSkeleton key={i} />
-              ))}
-            </div>
-          ) : roomList.length === 0 ? (
-            <div
-              className="rounded-xl border-2 border-dashed py-12 text-center"
-              style={{
-                borderColor: "var(--color-sage-muted)",
-                backgroundColor: "var(--color-cream)",
-                color: "var(--color-charcoal)",
-              }}
-            >
-              No rooms available for the selected dates.
-            </div>
-          ) : typesWithInventory.length === 0 ? (
-            <div
-              className="rounded-xl border-2 border-dashed py-12 text-center"
-              style={{
-                borderColor: "var(--color-sage-muted)",
-                backgroundColor: "var(--color-cream)",
-                color: "var(--color-charcoal)",
-              }}
-            >
-              No bookable rooms in Standard, Family, or Deluxe for these dates.
-              Try different dates on the home page.
-            </div>
-          ) : (
-            <div className="space-y-12">
-              {typesWithInventory.map((type) => {
-                const subgroups = subgroupsByType.get(type) ?? [];
-                const opt = ROOM_TYPE_FILTER_OPTIONS.find((o) => o.value === type);
-                const typeLabel = opt?.label ?? type;
-                return (
-                  <section key={type} className="space-y-5">
-                    <div
-                      className="border-b pb-3"
-                      style={{ borderColor: "var(--color-sage-muted, #e5e7eb)" }}
-                    >
-                      <h4
-                        className="font-display text-lg font-semibold tracking-tight sm:text-xl"
-                        style={{ color: "var(--color-charcoal)" }}
-                      >
-                        {typeLabel}
-                      </h4>
-                      <p
-                        className="mt-1 max-w-2xl text-sm opacity-80"
-                        style={{ color: "var(--color-charcoal)" }}
-                      >
-                        {subgroups.length > 1
-                          ? "Each layout is booked separately. Use +/− up to availability for that layout."
-                          : "Use +/− to choose how many rooms you need, up to availability."}
-                      </p>
-                    </div>
-                    <div className="grid gap-6 sm:grid-cols-2">
-                      {subgroups.map(({ key, rooms: roomsInGroup }) => {
-                        const poolLen = roomsInGroup.filter(
-                          (r: any) => isRoomInventoryAvailable(r),
-                        ).length;
-                        const maxAvailable = effectiveMaxUnitsForSubgroup(
-                          poolLen,
-                          inventoryGroupAvailability,
-                          type,
-                          key,
-                        );
-                        const n = countForSubgroup(type, key);
-                        const layoutLabel = layoutLabelForSubgroup(
-                          key,
-                          roomsInGroup,
-                        );
-                        return (
-                          <RoomTypeQuantityCard
-                            key={`${type}-${key}`}
-                            roomType={type}
-                            typeLabel={typeLabel}
-                            layoutLabel={layoutLabel}
-                            roomsInGroup={roomsInGroup}
-                            selectedCount={n}
-                            maxAvailable={maxAvailable}
-                            onIncrement={() =>
-                              setQuantityForSubgroup(type, key, n + 1)
-                            }
-                            onDecrement={() =>
-                              setQuantityForSubgroup(type, key, n - 1)
-                            }
-                          />
-                        );
-                      })}
-                    </div>
-                  </section>
-                );
-              })}
-            </div>
-          )}
-        </section>
-      )}
+			{showRooms && (
+				<section className="space-y-4">
+					<div>
+						<h3 className="font-display text-xl font-semibold">
+							Where you&apos;ll stay
+						</h3>
+						<p className="text-sm mt-0.5 opacity-80">
+							{bookingType === "both"
+								? "Standard, Family, and Deluxe appear below by layout. Use +/− for each—up to what’s available—or skip rooms if you only need a venue."
+								: "Browse Standard, Family, and Deluxe by layout. Use +/− to choose how many rooms you need; you can’t exceed availability for your dates."}
+						</p>
+					</div>
+					{roomsError && (
+						<p className="text-red-600 text-sm py-2">
+							Error loading rooms. Please try again.
+						</p>
+					)}
+					{roomsLoading ? (
+						<div className="grid gap-6 sm:grid-cols-2">
+							{[1, 2, 3].map((i) => (
+								<RoomCardSkeleton key={i} />
+							))}
+						</div>
+					) : roomList.length === 0 ? (
+						<div
+							className="rounded-xl border-2 border-dashed py-12 text-center text-ink bg-cream"
+							style={{
+								borderColor: "var(--color-sage-muted)",
+							}}>
+							No rooms available for the selected dates.
+						</div>
+					) : typesWithInventory.length === 0 ? (
+						<div
+							className="rounded-xl border-2 border-dashed py-12 text-center text-ink bg-cream"
+							style={{
+								borderColor: "var(--color-sage-muted)",
+							}}>
+							No bookable rooms in Standard, Family, or Deluxe for these dates.
+							Try different dates on the home page.
+						</div>
+					) : (
+						<div className="space-y-12">
+							{typesWithInventory.map((type) => {
+								const subgroups = subgroupsByType.get(type) ?? [];
+								const opt = ROOM_TYPE_FILTER_OPTIONS.find(
+									(o) => o.value === type,
+								);
+								const typeLabel = opt?.label ?? type;
+								return (
+									<section key={type} className="space-y-5">
+										<div
+											className="border-b pb-3"
+											style={{
+												borderColor: "var(--color-sage-muted, #e5e7eb)",
+											}}>
+											<h4 className="font-display text-lg font-semibold tracking-tight sm:text-xl">
+												{typeLabel}
+											</h4>
+											<p className="mt-1 max-w-2xl text-sm opacity-80">
+												{subgroups.length > 1
+													? "Each layout is booked separately. Use +/− up to availability for that layout."
+													: "Use +/− to choose how many rooms you need, up to availability."}
+											</p>
+										</div>
+										<div className="grid gap-6 sm:grid-cols-2">
+											{subgroups.map(({ key, rooms: roomsInGroup }) => {
+												const poolLen = roomsInGroup.filter((r: any) =>
+													isRoomInventoryAvailable(r),
+												).length;
+												const maxAvailable = effectiveMaxUnitsForSubgroup(
+													poolLen,
+													inventoryGroupAvailability,
+													type,
+													key,
+												);
+												const n = countForSubgroup(type, key);
+												const layoutLabel = layoutLabelForSubgroup(
+													key,
+													roomsInGroup,
+												);
+												return (
+													<RoomTypeQuantityCard
+														key={`${type}-${key}`}
+														roomType={type}
+														typeLabel={typeLabel}
+														layoutLabel={layoutLabel}
+														roomsInGroup={roomsInGroup}
+														selectedCount={n}
+														maxAvailable={maxAvailable}
+														onIncrement={() =>
+															setQuantityForSubgroup(type, key, n + 1)
+														}
+														onDecrement={() =>
+															setQuantityForSubgroup(type, key, n - 1)
+														}
+													/>
+												);
+											})}
+										</div>
+									</section>
+								);
+							})}
+						</div>
+					)}
+				</section>
+			)}
 
-      {showVenues && (
-        <section className="space-y-4">
-          <div>
-            <h3
-              className="font-display text-xl font-semibold"
-              style={{ color: "var(--color-charcoal)" }}
-            >
-              Event spaces{" "}
-              {bookingType === "both" && (
-                <span className="font-normal opacity-80">(optional)</span>
-              )}
-            </h3>
-            <p
-              className="text-sm mt-0.5 opacity-80"
-              style={{ color: "var(--color-charcoal)" }}
-            >
-              {bookingType === "venue"
-                ? "Select one or more venues for your event date."
-                : bookingType === "both"
-                  ? "Optional if you only need rooms: add one or more venues for your event day."
-                  : "Add a venue if you need a dedicated space for events (e.g. meetings, celebrations)."}
-            </p>
-          </div>
+			{showVenues && (
+				<section className="space-y-4">
+					<div>
+						<h3 className="font-display text-xl font-semibold">
+							Event spaces{" "}
+							{bookingType === "both" && (
+								<span className="font-normal opacity-80">(optional)</span>
+							)}
+						</h3>
+						<p className="text-sm mt-0.5 opacity-80">
+							{bookingType === "venue"
+								? "Select one or more venues for your event date."
+								: bookingType === "both"
+									? "Optional if you only need rooms: add one or more venues for your event day."
+									: "Add a venue if you need a dedicated space for events (e.g. meetings, celebrations)."}
+						</p>
+					</div>
 
-          <div
-            className="rounded-md border bg-white p-5 shadow-sm md:p-6"
-            style={{ borderColor: "var(--color-sage-muted, #e5e7eb)" }}
-          >
-            <p
-              className="text-sm font-semibold mb-3"
-              style={{ color: "var(--color-charcoal)" }}
-            >
-              Event type
-            </p>
-            <p
-              className="text-xs opacity-80 mb-4 max-w-2xl"
-              style={{ color: "var(--color-charcoal)" }}
-            >
-              Venue rates depend on event type. Each venue has its own wedding,
-              birthday, and Meeting/Seminar prices (set in admin).
-            </p>
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              {VENUE_EVENT_OPTIONS.map((opt) => {
-                const selected =
-                  (formData.venue_event_type || "wedding") === opt.value;
-                return (
-                  <label
-                    key={opt.value}
-                    className={`flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2.5 text-sm transition ${
-                      selected
-                        ? "border-emerald-700 bg-emerald-50/80 font-medium"
-                        : "border-gray-200 hover:border-emerald-300"
-                    }`}
-                    style={{ color: "var(--color-charcoal)" }}
-                  >
-                    <input
-                      type="radio"
-                      name="venue_event_type"
-                      value={opt.value}
-                      checked={selected}
-                      onChange={() =>
-                        updateFormData({ venue_event_type: opt.value })
-                      }
-                      className="accent-emerald-700"
-                    />
-                    {opt.label}
-                  </label>
-                );
-              })}
-            </div>
-          </div>
+					<div className="booking-form-panel">
+						<p className="text-sm font-semibold mb-3">Event type</p>
+						<p className="text-xs opacity-80 mb-4 max-w-2xl">
+							Venue rates depend on event type. Each venue has its own wedding,
+							birthday, and Meeting/Seminar prices (set in admin).
+						</p>
+						<div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+							{VENUE_EVENT_OPTIONS.map((opt) => {
+								const selected =
+									(formData.venue_event_type || "wedding") === opt.value;
+								return (
+									<label
+										key={opt.value}
+										className={`flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2.5 text-sm transition ${
+											selected
+												? "border-sea bg-sage-muted font-medium"
+												: "border-sand-dark/50 hover:border-sea/40"
+										}`}>
+										<input
+											type="radio"
+											name="venue_event_type"
+											value={opt.value}
+											checked={selected}
+											onChange={() =>
+												updateFormData({ venue_event_type: opt.value })
+											}
+											className="accent-sea"
+										/>
+										{opt.label}
+									</label>
+								);
+							})}
+						</div>
+					</div>
 
-          {venuesError && (
-            <p className="text-red-600 text-sm py-2">
-              Error loading venues. Please try again.
-            </p>
-          )}
-          {venuesLoading ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {[1, 2, 3].map((i) => (
-                <VenueCardSkeleton key={i} />
-              ))}
-            </div>
-          ) : venueList.length === 0 ? (
-            <div
-              className="rounded-xl border-2 border-dashed py-12 text-center"
-              style={{
-                borderColor: "var(--color-sage-muted)",
-                backgroundColor: "var(--color-cream)",
-                color: "var(--color-charcoal)",
-              }}
-            >
-              No venues available for the selected dates.
-            </div>
-          ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {venueList.map((venue: any) => {
-                const eventType = (formData.venue_event_type ||
-                  "wedding") as VenueEventType | "";
-                const displayPrice = venueEffectiveUnitPrice(venue, eventType);
-                const priceTierLabel =
-                  eventType === "wedding"
-                    ? "Wedding rate"
-                    : eventType === "birthday"
-                      ? "Birthday rate"
-                      : "Meeting/Seminar rate";
-                return (
-                  <VenueCard
-                    key={venue.id}
-                    id={venue.id}
-                    name={venue.name ?? "Venue"}
-                    images={venueImages(venue)}
-                    capacity={String(venue.capacity ?? "—")}
-                    price={displayPrice}
-                    priceTierLabel={priceTierLabel}
-                    availability={venue.available ?? false}
-                    unavailabilityTitle={venue.unavailability_title}
-                    unavailabilityDetail={venue.unavailability_detail}
-                    selected={formData.venues.some(
-                      (v: any) => (v?.id ?? v) === venue.id,
-                    )}
-                    onSelectVenue={() => onSelectVenue(venue)}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </section>
-      )}
-    </div>
-  );
+					{venuesError && (
+						<p className="text-red-600 text-sm py-2">
+							Error loading venues. Please try again.
+						</p>
+					)}
+					{venuesLoading ? (
+						<div className="grid gap-6 sm:grid-cols-2">
+							{[1, 2, 3].map((i) => (
+								<VenueCardSkeleton key={i} />
+							))}
+						</div>
+					) : venueList.length === 0 ? (
+						<div
+							className="rounded-xl border-2 border-dashed py-12 text-center text-ink bg-cream"
+							style={{
+								borderColor: "var(--color-sage-muted)",
+							}}>
+							No venues available for the selected dates.
+						</div>
+					) : (
+						<div className="grid gap-6 sm:grid-cols-2">
+							{venueList.map((venue: any) => {
+								const eventType = (formData.venue_event_type || "wedding") as
+									| VenueEventType
+									| "";
+								const displayPrice = venueEffectiveUnitPrice(venue, eventType);
+								const priceTierLabel =
+									eventType === "wedding"
+										? "Wedding rate"
+										: eventType === "birthday"
+											? "Birthday rate"
+											: "Meeting/Seminar rate";
+								return (
+									<VenueCard
+										key={venue.id}
+										id={venue.id}
+										name={venue.name ?? "Venue"}
+										images={venueImages(venue)}
+										capacity={String(venue.capacity ?? "—")}
+										price={displayPrice}
+										priceTierLabel={priceTierLabel}
+										availability={venue.available ?? false}
+										unavailabilityTitle={venue.unavailability_title}
+										unavailabilityDetail={venue.unavailability_detail}
+										selected={formData.venues.some(
+											(v: any) => (v?.id ?? v) === venue.id,
+										)}
+										onSelectVenue={() => onSelectVenue(venue)}
+									/>
+								);
+							})}
+						</div>
+					)}
+				</section>
+			)}
+		</div>
+	);
 }

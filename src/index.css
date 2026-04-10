@@ -111,11 +111,17 @@
   --color-sage: #7FAF9B;
   --color-sage-light: #9cc5b5;
   --color-sage-muted: #e4efe9;
-  --color-charcoal: #1F2937;
+  --color-charcoal: #000000;
 
   --font-display: "Cormorant Garamond", "Playfair Display", serif;
   --font-body: "Jost", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Jost", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --text-xs: 0.95rem;
+  --text-sm: 1.1rem;
+  --text-base: 1.2rem;
+  --text-md: 1.2rem;  
+  --text-lg: 1.3rem;
+  --text-xl: 1.4rem;
 }
 
 :root {
@@ -689,6 +695,51 @@
 .booking-funnel h3,
 .booking-funnel .font-display {
   font-family: var(--font-display);
+}
+
+/* Match .landing-section focus rings without extra vertical section padding */
+.booking-funnel button:focus-visible,
+.booking-funnel a:focus-visible,
+.booking-funnel input:focus-visible,
+.booking-funnel select:focus-visible,
+.booking-funnel textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(184, 149, 90, 0.4);
+}
+
+/* Shared white panels in the booking funnel (Step 1–2 summaries, etc.) */
+.booking-form-panel {
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-sage-muted, #e5e7eb);
+  background: #fff;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  padding: 1.25rem;
+}
+@media (min-width: 768px) {
+  .booking-form-panel {
+    padding: 1.5rem;
+  }
+}
+
+button.btn-primary-mockup:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+button.btn-primary-mockup:disabled:hover {
+  background: var(--color-gold);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Landing-aligned typography accents inside the booking funnel */
+.booking-funnel-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
 }
 
 .first-fold-booking label {

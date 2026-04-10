@@ -102,8 +102,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
   }, [form, onUpdate, onValuesChange]);
 
   const labelClass =
-    "text-sm font-medium [&>.text-muted]:opacity-70";
-  const labelStyle = { color: "var(--color-charcoal)" } as const;
+    "text-sm font-medium text-ink-soft [&>.text-muted]:opacity-70";
   const requiredMark = (
     <span className="text-red-500" aria-hidden>
       *
@@ -114,28 +113,19 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
     <Form {...form}>
       <form className="space-y-8">
         <div className="space-y-2">
-          <h2
-            className="font-display text-3xl font-bold tracking-tight"
-            style={{ color: "var(--color-charcoal)" }}>
-            Personal Information
-          </h2>
-          <p
-            className="text-sm opacity-80 max-w-2xl"
-            style={{ color: "var(--color-charcoal)" }}>
+          <p className="booking-funnel-eyebrow">Guest details</p>
+          <h2 className="landing-section-title">Personal Information</h2>
+          <p className="text-sm opacity-80 max-w-2xl text-ink-soft">
             We&apos;ll use this to confirm your booking and get in touch. All
             fields marked with * are required.
           </p>
         </div>
 
-        <div
-          className="rounded-md border bg-white p-5 shadow-sm md:p-6"
-          style={{ borderColor: "var(--color-sage-muted, #e5e7eb)" }}>
+        <div className="booking-form-panel">
           <div className="space-y-6">
             {/* Name */}
             <div>
-              <h3
-                className="font-display text-lg font-semibold mb-4"
-                style={{ color: "var(--color-charcoal)" }}>
+              <h3 className="font-display text-lg font-semibold mb-4 text-ink">
                 Your name
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -144,7 +134,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className={labelClass} style={labelStyle}>
+                      <FormLabel className={labelClass}>
                         First Name {requiredMark}
                       </FormLabel>
                       <FormControl>
@@ -166,7 +156,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className={labelClass} style={labelStyle}>
+                      <FormLabel className={labelClass}>
                         Last Name {requiredMark}
                       </FormLabel>
                       <FormControl>
@@ -188,7 +178,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                   name="middleName"
                   render={({ field }) => (
                     <FormItem className="sm:col-span-2">
-                      <FormLabel className={labelClass} style={labelStyle}>
+                      <FormLabel className={labelClass}>
                         Middle Name{" "}
                         <span className="text-muted-foreground font-normal">
                           (optional)
@@ -217,7 +207,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                 name="gender"
                 render={({ field }) => (
                   <FormItem className="max-w-xs">
-                    <FormLabel className={labelClass} style={labelStyle}>
+                    <FormLabel className={labelClass}>
                       Gender {requiredMark}
                     </FormLabel>
                     <FormControl>
@@ -229,10 +219,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                         }
                         onBlur={field.onBlur}
                         aria-invalid={!!form.formState.errors.gender}
-                        className="h-12 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&>option]:bg-background"
-                        style={{
-                          color: "var(--color-charcoal)",
-                        }}>
+                        className="h-12 w-full rounded-md border border-input bg-transparent px-3 text-sm text-ink shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&>option]:bg-background">
                         <option value="">Select gender</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
@@ -247,9 +234,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
 
             {/* Contact */}
             <div>
-              <h3
-                className="font-display text-lg font-semibold mb-4"
-                style={{ color: "var(--color-charcoal)" }}>
+              <h3 className="font-display text-lg font-semibold mb-4 text-ink">
                 Contact details
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -258,7 +243,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className={labelClass} style={labelStyle}>
+                      <FormLabel className={labelClass}>
                         Phone Number {requiredMark}
                       </FormLabel>
                       <FormControl>
@@ -281,7 +266,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className={labelClass} style={labelStyle}>
+                      <FormLabel className={labelClass}>
                         Email Address {requiredMark}
                       </FormLabel>
                       <FormControl>
@@ -302,9 +287,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
 
             {/* Address */}
             <div>
-              <h3
-                className="font-display text-lg font-semibold mb-4"
-                style={{ color: "var(--color-charcoal)" }}>
+              <h3 className="font-display text-lg font-semibold mb-4 text-ink">
                 Address
               </h3>
               <FormField<PersonalDetailsFormValues, "address">
@@ -312,7 +295,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={labelClass} style={labelStyle}>
+                    <FormLabel className={labelClass}>
                       Full address / Country {requiredMark}
                     </FormLabel>
                     <FormControl>
