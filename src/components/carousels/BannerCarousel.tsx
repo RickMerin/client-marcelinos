@@ -108,7 +108,9 @@ export function BannerCarousel() {
 													className="btn-primary-mockup max-md:w-full max-md:text-center flex items-center justify-center">
 													Explore Rooms
 												</a>
-												<a href="#venues" className="btn-ghost-mockup max-md:w-full max-md:text-center">
+												<a
+													href="#venues"
+													className="btn-outline-hero-secondary max-md:w-full max-md:text-center">
 													View Venues
 												</a>
 											</motion.div>

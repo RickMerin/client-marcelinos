@@ -599,6 +599,9 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 																variant="outline"
 																className={cn(
 																	" font-normal h-12",
+																	field.itemClassName?.includes(
+																		"booking-bar-field",
+																	) && "w-full",
 																	!inputField.value && "text-muted-foreground",
 																	field.className,
 																)}>
@@ -652,24 +655,30 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 												);
 											}
 												//reset button//
-											case "reset": 
-									return (
-										<div className="flex justify-center mt-5">
-											<Button
-												type="button" 
-												variant="outline"
-												className={cn(
-													"h-12 w-12 rounded-full p-0",
-													field.className,
-												)}
-												onClick={() => field.onClick?.(form)}>
-												<RotateCcw className="size-5" />
-												<span className="sr-only">
-													{field.label || "Reset dates"}
-												</span>
-											</Button>
-										</div>
-									);
+											case "reset":
+												return (
+													<div
+														className={cn(
+															"flex justify-center items-center",
+															field.itemClassName?.includes("booking-bar-reset")
+																? "mt-0 w-full min-h-[48px] lg:min-h-[52px] lg:flex-1"
+																: "mt-5",
+														)}>
+														<Button
+															type="button"
+															variant="outline"
+															className={cn(
+																"h-12 w-12 rounded-full p-0",
+																field.className,
+															)}
+															onClick={() => field.onClick?.(form)}>
+															<RotateCcw className="size-5" />
+															<span className="sr-only">
+																{field.label || "Reset dates"}
+															</span>
+														</Button>
+													</div>
+												);
 
 								case "radio":
 												return (
@@ -725,7 +734,9 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 														readOnly
 														tabIndex={-1}
 														className={cn(
-															"cursor-default bg-muted/50 text-center font-medium",
+															field.itemClassName?.includes("booking-bar-field")
+																? "cursor-default border-0 bg-transparent text-center font-normal shadow-none select-none !h-auto min-h-0"
+																: "cursor-default bg-muted/50 text-center font-medium",
 															field.className,
 														)}
 														value={
@@ -758,11 +769,11 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
 						)}
 					/>
 				))}
-			<div className="booking-bar-submit col-span-full flex justify-center pt-2 lg:pt-0">
+			<div className="booking-bar-submit col-span-full flex items-center justify-center pt-2 lg:pt-0">
 				<Button
 					type="submit"
 					disabled={submitDisabled}
-					className="w-full lg:w-auto lg:h-full bg-gold hover:bg-gold-light text-ink font-semibold text-[14px] tracking-[0.15em] uppercase whitespace-nowrap px-8 lg:px-12 py-4 lg:py-0 rounded-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 min-h-[52px]">
+					className="w-full sm:w-auto max-w-full bg-gold hover:bg-gold-light text-ink font-semibold text-[14px] tracking-[0.15em] uppercase whitespace-nowrap px-8 py-3.5 rounded-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 min-h-[52px]">
 					{submitLabel}
 				</Button>
 			</div>
