@@ -69,8 +69,8 @@ function CardItem(props: CardItemProps) {
 
   return (
     <motion.div
-      className="group relative w-full overflow-hidden rounded-[4px] bg-white border border-sand-dark/60 transition-shadow duration-300 hover:shadow-lg hover:shadow-ink/10"
-      whileHover={{ y: -4 }}
+      className="group relative w-full overflow-hidden rounded-[4px] bg-white border border-sand-dark/60 transition-shadow transition-transform duration-300 hover:shadow-lg hover:shadow-ink/10 hover:z-50"
+      whileHover={{ y: -4, scale: 1.05 }}
       transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -112,7 +112,9 @@ function CardItem(props: CardItemProps) {
             {capacity != null && (
               <li className="flex items-center gap-2">
                 <span className="font-medium text-sea">Capacity:</span>
-                <span>{capacity} {capacity === 1 ? "person" : "people"}</span>
+                <span>
+                  {capacity} {capacity === 1 ? "person" : "people"}
+                </span>
               </li>
             )}
             {bed_specifications && bed_specifications.length > 0 && (
@@ -162,7 +164,10 @@ function CardItem(props: CardItemProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              onClick={(event) => { event.stopPropagation(); setExpanded(false); }}
+              onClick={(event) => {
+                event.stopPropagation();
+                setExpanded(false);
+              }}
             />
 
             <motion.div
@@ -188,12 +193,16 @@ function CardItem(props: CardItemProps) {
               <div className="flex-1 overflow-y-auto text-cream text-base pr-2 custom-scroll leading-relaxed">
                 {amenityList.length > 0 && (
                   <div className="mb-4">
-                    <div className="font-medium text-gold-light text-[13px] tracking-[0.15em] uppercase mb-1.5">Amenities</div>
+                    <div className="font-medium text-gold-light text-[13px] tracking-[0.15em] uppercase mb-1.5">
+                      Amenities
+                    </div>
                     <div>{amenityList.join(", ")}</div>
                   </div>
                 )}
                 <div>
-                  <div className="font-medium text-gold-light text-[13px] tracking-[0.15em] uppercase mb-1.5">Description</div>
+                  <div className="font-medium text-gold-light text-[13px] tracking-[0.15em] uppercase mb-1.5">
+                    Description
+                  </div>
                   <div className="mt-1">{description}</div>
                 </div>
               </div>
@@ -205,7 +214,10 @@ function CardItem(props: CardItemProps) {
                   </div>
                 )}
                 <button
-                  onClick={(event) => { event.stopPropagation(); setExpanded(false); }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setExpanded(false);
+                  }}
                   className="self-end text-base font-medium text-gold-light hover:underline bg-transparent border-none cursor-pointer"
                 >
                   Close

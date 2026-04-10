@@ -67,7 +67,13 @@ export default function RescheduleBookingContent({
 
   const rescheduleBooking = useApiMutation("patch");
   const sendOtp = useApiMutation<{ message?: string }>("post", {
-    onError: (err: Error & { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) => {
+    onError: (
+      err: Error & {
+        response?: {
+          data?: { message?: string; errors?: Record<string, string[]> };
+        };
+      },
+    ) => {
       const msg =
         err?.response?.data?.message ||
         err?.response?.data?.errors?.otp?.[0] ||
@@ -286,11 +292,24 @@ export default function RescheduleBookingContent({
             <div className="border border-emerald-900/10 rounded-xl p-2 sm:p-4 shadow-sm bg-white/80 backdrop-blur-sm min-h-[350px] relative w-full overflow-hidden flex justify-center">
               {isDatesLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-10 backdrop-blur-[1px] rounded-xl">
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="spinner-border spinner-border-sm text-emerald-600" />
-                    <span className="text-sm font-medium text-emerald-700">
-                      Loading availability...
-                    </span>
+                  <div className="w-full h-full p-4 flex flex-col gap-4 animate-pulse pt-12">
+                    <div className="h-6 bg-slate-200/50 rounded w-1/3 mx-auto mb-4"></div>
+                    <div className="grid grid-cols-7 gap-2 mb-4">
+                      {Array.from({ length: 7 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="h-4 bg-slate-200/50 rounded mx-1"
+                        ></div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-2 flex-1">
+                      {Array.from({ length: 35 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="h-full bg-slate-200/50 rounded m-0.5"
+                        ></div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
