@@ -67,7 +67,13 @@ export default function RescheduleBookingContent({
 
   const rescheduleBooking = useApiMutation("patch");
   const sendOtp = useApiMutation<{ message?: string }>("post", {
-    onError: (err: Error & { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) => {
+    onError: (
+      err: Error & {
+        response?: {
+          data?: { message?: string; errors?: Record<string, string[]> };
+        };
+      },
+    ) => {
       const msg =
         err?.response?.data?.message ||
         err?.response?.data?.errors?.otp?.[0] ||
@@ -290,12 +296,18 @@ export default function RescheduleBookingContent({
                     <div className="h-6 bg-slate-200/50 rounded w-1/3 mx-auto mb-4"></div>
                     <div className="grid grid-cols-7 gap-2 mb-4">
                       {Array.from({ length: 7 }).map((_, i) => (
-                        <div key={i} className="h-4 bg-slate-200/50 rounded mx-1"></div>
+                        <div
+                          key={i}
+                          className="h-4 bg-slate-200/50 rounded mx-1"
+                        ></div>
                       ))}
                     </div>
                     <div className="grid grid-cols-7 gap-2 flex-1">
                       {Array.from({ length: 35 }).map((_, i) => (
-                        <div key={i} className="h-full bg-slate-200/50 rounded m-0.5"></div>
+                        <div
+                          key={i}
+                          className="h-full bg-slate-200/50 rounded m-0.5"
+                        ></div>
                       ))}
                     </div>
                   </div>
