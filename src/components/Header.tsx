@@ -4,7 +4,7 @@ import gsap from "gsap";
 import {
   ShoppingCart,
   Trash2,
-  ArrowLeft,
+  X,
 } from "lucide-react";
 import {
   Sheet,
@@ -183,7 +183,7 @@ export default function Header() {
 
   const proceedToBookNow = () => {
     setIsCartOpen(false);
-    navigate("/create-booking");
+    bookNowHandler();
   };
 
   const handleNavClick = (hash: string) => {
@@ -297,18 +297,18 @@ export default function Header() {
 
               <SheetContent side="right" className="w-full max-w-[100vw] sm:max-w-md bg-stone-50 overflow-y-auto z-[9999] flex flex-col p-0">
                 <SheetHeader className="px-6 py-4 border-b border-stone-200 sticky top-0 bg-stone-50 z-10 text-left gap-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <SheetTitle className="font-display text-2xl font-semibold text-stone-900 m-0">Your Cart</SheetTitle>
                     <button
                       type="button"
                       onClick={() => setIsCartOpen(false)}
-                      className="p-1.5 -ml-1.5 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-200 transition-all cursor-pointer flex-shrink-0"
-                      aria-label="Back"
+                      className="p-1.5 -mr-1.5 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-200 transition-all cursor-pointer flex-shrink-0"
+                      aria-label="Close cart"
                     >
-                      <ArrowLeft className="w-5 h-5" />
+                      <X className="w-5 h-5" />
                     </button>
-                    <SheetTitle className="font-display text-2xl font-semibold text-stone-900 m-0">Your Cart</SheetTitle>
                   </div>
-                  <p className="text-sm text-stone-500">{cartCount} items</p>
+                  <p className="text-sm text-stone-500 m-0">{cartCount} items</p>
                   
                   {cartDates?.checkIn && cartDates?.checkOut && cartCount > 0 && (
                     <div className="mt-2 text-xs font-medium text-emerald-800 bg-emerald-100 py-1.5 px-3 rounded-full inline-block border border-emerald-200 self-start">
