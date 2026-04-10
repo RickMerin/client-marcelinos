@@ -86,7 +86,7 @@ const MaintenanceMode = ({
                 <span className="block h-[1.5px] w-9 bg-gold-light" />
               </div>
 
-              <h1 className="mt-5 font-display text-[clamp(38px,6.3vw,70px)] font-semibold uppercase leading-[0.95] tracking-[-0.02em] text-cream">
+              <h1 className="mt-5 font-display text-fluid-h1 font-semibold uppercase leading-[0.95] tracking-[-0.02em] text-cream">
                 {title}
               </h1>
 

@@ -44,7 +44,7 @@ function Services() {
 
 			<h2
 				id="services-heading"
-				className="font-display text-[clamp(36px,4vw,56px)] font-light mb-4 text-ink">
+				className="font-display text-fluid-h2 font-light mb-4 text-ink">
 				Everything You <em className="italic text-forest">Need</em>
 			</h2>
 
@@ -62,7 +62,7 @@ function Services() {
 						<service.Icon className="w-10 h-10 mb-5 mx-auto text-forest group-hover:text-cream transition-colors duration-300" />
 
 						{/* Title */}
-						<h3 className="font-display text-[clamp(20px,2vw,24px)] font-normal text-ink mb-3 transition-colors duration-300 group-hover:text-cream">
+						<h3 className="font-display text-fluid-subtitle font-normal text-ink mb-3 transition-colors duration-300 group-hover:text-cream">
 							{service.title}
 						</h3>
 

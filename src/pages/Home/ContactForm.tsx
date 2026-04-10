@@ -152,7 +152,7 @@ function ContactForm() {
       >
         <h2
           id="contact-heading"
-          className="section-eyebrow text-3xl font-bold tracking-tight flex justify-center gap-2 text-center mb-6 pt-6 text-(--color-charcoal)"
+          className="section-eyebrow font-bold tracking-tight flex justify-center gap-2 text-center mb-6 pt-6 text-(--color-charcoal)"
         >
           <span className="text-gold">CONTACT</span>
           <span className="text-gold">US</span>

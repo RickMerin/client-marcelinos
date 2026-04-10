@@ -23,9 +23,9 @@ export const spacing = {
 } as const;
 
 export const typography = {
-  h1: 'text-[clamp(42px,6vw,84px)] leading-tight tracking-tight font-display',
-  h2: 'text-[clamp(32px,4vw,56px)] leading-tight font-display',
-  h3: 'text-[clamp(22px,2.5vw,28px)] font-display',
+  h1: 'text-fluid-h1 leading-tight tracking-tight font-display',
+  h2: 'text-fluid-h2 leading-tight font-display',
+  h3: 'text-fluid-h3 font-display',
   display: 'font-display tracking-tight',
   body: 'text-base md:text-lg leading-relaxed text-ink-soft',
   eyebrow: 'text-[13px] tracking-[0.25em] uppercase font-medium',

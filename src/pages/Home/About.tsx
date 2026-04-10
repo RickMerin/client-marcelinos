@@ -9,12 +9,12 @@ function About() {
 			aria-labelledby="about-heading">
 			{/* Text */}
 			<div className="about-text">
-				<div className="section-eyebrow text-[clamp(24px,4vw,40px)]">
+				<div className="section-eyebrow">
 					About Us
 				</div>
 				<h2
 					id="about-heading"
-					className="font-display text-[clamp(36px,4vw,60px)] font-light leading-[1.12] mb-7 text-ink"
+					className="font-display text-fluid-h2 font-light leading-[1.12] mb-7 text-ink"
 					itemProp="headline">
 					Welcome To <em className="italic text-forest">Marcelino’s Resort!</em>
 				</h2>
@@ -30,7 +30,7 @@ function About() {
 				{/* Stats */}
 				<div className="flex flex-wrap gap-12 mt-12">
 					<div className="flex flex-col gap-1.5">
-						<span className="font-display text-[clamp(36px,5vw,52px)] font-light leading-none text-gold">
+						<span className="font-display text-fluid-stat font-light leading-none text-gold">
 							14
 						</span>
 						<span className="text-[13px] tracking-[0.15em] uppercase text-ink-soft font-medium">
@@ -38,7 +38,7 @@ function About() {
 						</span>
 					</div>
 					<div className="flex flex-col gap-1.5">
-						<span className="font-display text-[clamp(36px,5vw,52px)] font-light leading-none text-gold">
+						<span className="font-display text-fluid-stat font-light leading-none text-gold">
 							2
 						</span>
 						<span className="text-[13px] tracking-[0.15em] uppercase text-ink-soft font-medium">
@@ -46,7 +46,7 @@ function About() {
 						</span>
 					</div>
 					<div className="flex flex-col gap-1.5">
-						<span className="font-display text-[clamp(36px,5vw,52px)] font-light leading-none text-gold">
+						<span className="font-display text-fluid-stat font-light leading-none text-gold">
 							★4.8
 						</span>
 						<span className="text-[13px] tracking-[0.15em] uppercase text-ink-soft font-medium">

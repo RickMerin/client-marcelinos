@@ -31,7 +31,7 @@ const ImageCarousel: React.FC = () => {
       <div className="section-eyebrow justify-center">Our Gallery</div>
       <h2
         id="gallery-heading"
-        className="font-display text-[clamp(36px,4vw,56px)] font-light text-ink"
+        className="font-display text-fluid-h2 font-light text-ink"
       >
         Capture the <em className="italic text-forest">Moments</em>
       </h2>

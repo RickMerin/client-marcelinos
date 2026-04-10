@@ -124,6 +124,17 @@
   --text-xl: 1.4rem;
 }
 
+@media (max-width: 640px) {
+  @theme inline {
+    --text-xs: 0.8125rem;
+    --text-sm: 0.9375rem;
+    --text-base: 1rem;
+    --text-md: 1rem;
+    --text-lg: 1.0625rem;
+    --text-xl: 1.125rem;
+  }
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -201,12 +212,13 @@
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
     overflow-x: hidden;
+    font-size: clamp(14px, 0.2rem + 2.5vw, 16px);
   }
   body {
     @apply bg-cream text-ink;
     font-family: var(--font-body);
     font-weight: 300;
-    font-size: 16px;
+    font-size: 1rem;
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -215,6 +227,51 @@
 
 .font-display {
   font-family: var(--font-display);
+}
+
+/* Fluid display / headings — rem + vw so narrow viewports scale instead of sticking on a high px floor */
+:root {
+  --font-size-fluid-display: clamp(1.625rem, 0.5rem + 6vw, 5rem);
+  --font-size-fluid-h1: clamp(1.625rem, 0.65rem + 5vw, 4.375rem);
+  --font-size-fluid-h2: clamp(1.375rem, 0.65rem + 3.2vw, 3.5rem);
+  --font-size-fluid-h3: clamp(1.125rem, 0.55rem + 2.2vw, 1.75rem);
+  --font-size-fluid-card-title: clamp(1.25rem, 0.6rem + 2.8vw, 2.125rem);
+  --font-size-fluid-price: clamp(1.2rem, 0.65rem + 2.5vw, 2.125rem);
+  --font-size-fluid-stat: clamp(1.75rem, 1rem + 4.5vw, 3.25rem);
+  --font-size-fluid-quote: clamp(1.125rem, 0.65rem + 2.8vw, 2.25rem);
+  --font-size-fluid-nav: clamp(1.125rem, 0.75rem + 2.8vw, 2.75rem);
+  --font-size-fluid-subtitle: clamp(1.0625rem, 0.9rem + 0.7vw, 1.5rem);
+}
+
+.text-fluid-display {
+  font-size: var(--font-size-fluid-display);
+}
+.text-fluid-h1 {
+  font-size: var(--font-size-fluid-h1);
+}
+.text-fluid-h2 {
+  font-size: var(--font-size-fluid-h2);
+}
+.text-fluid-h3 {
+  font-size: var(--font-size-fluid-h3);
+}
+.text-fluid-card-title {
+  font-size: var(--font-size-fluid-card-title);
+}
+.text-fluid-price {
+  font-size: var(--font-size-fluid-price);
+}
+.text-fluid-stat {
+  font-size: var(--font-size-fluid-stat);
+}
+.text-fluid-quote {
+  font-size: var(--font-size-fluid-quote);
+}
+.text-fluid-nav {
+  font-size: var(--font-size-fluid-nav);
+}
+.text-fluid-subtitle {
+  font-size: var(--font-size-fluid-subtitle);
 }
 
 /* ============================================================
@@ -549,15 +606,17 @@
 .btn-primary-mockup {
   background: var(--color-gold);
   color: var(--color-ink);
-  padding: 16px 40px;
+  padding: 0 clamp(28px, 6vw, 40px);
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: clamp(12px, 1.13vw, 16px);
   font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   text-decoration: none;
   border-radius: 3px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.4s ease;
   border: none;
   outline: none;
@@ -956,7 +1015,7 @@ button.btn-primary-mockup:disabled:hover {
 
 .landing-section-title {
   font-family: var(--font-display);
-  font-size: clamp(32px, 4vw, 56px);
+  font-size: var(--font-size-fluid-h2);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.15;

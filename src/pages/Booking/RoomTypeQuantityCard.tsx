@@ -13,6 +13,10 @@ import {
 import type { RoomTypeFilter } from "@/types/booking.types";
 import { bedSpecificationLine } from "@/lib/formatters/roomDisplayName";
 import { isRoomInventoryAvailable } from "@/lib/utils/booking.utils";
+import {
+	ROOM_TYPE_CARD_PANEL,
+	ROOM_TYPE_CARD_PANEL_TEXT,
+} from "@/lib/constants/roomTypeTheme";
 
 const EMPTY_FIELD = "—";
 
@@ -96,6 +100,9 @@ export function RoomTypeQuantityCard({
   const canDec = selectedCount > 0;
   const unavailableInGroup = roomsInGroup.length - maxAvailable;
 
+  const panelTheme = ROOM_TYPE_CARD_PANEL[roomType];
+	const panelText = ROOM_TYPE_CARD_PANEL_TEXT[roomType];
+
   return (
 		<section
 			className={cn(
@@ -103,13 +110,13 @@ export function RoomTypeQuantityCard({
 				selectedCount > 0 &&
 					"border-gold/50 ring-1 ring-gold/30 shadow-[0_0_0_1px_rgba(198,161,91,0.2)]",
 			)}>
-			<div className="relative h-[200px] w-full bg-gradient-to-b from-sand to-sand-dark/50 sm:h-[230px]">
+			<div className="relative h-[200px] w-full bg-linear-to-b from-sand to-sand-dark/50 sm:h-[230px]">
 				<div
 					className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover/card:scale-[1.02]"
 					style={{ backgroundImage: `url(${mainImage})` }}
 				/>
 				<div
-					className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent"
+					className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/45 via-black/10 to-transparent"
 					aria-hidden
 				/>
 				{fullyBooked && (
@@ -157,12 +164,14 @@ export function RoomTypeQuantityCard({
 				)}
 			</div>
 
-			<div className="relative flex flex-1 flex-col bg-[linear-gradient(180deg,#fffefc_0%,#faf8f5_100%)] p-5 pt-4">
+			<div
+				className="relative flex flex-1 flex-col p-5 pt-4"
+				style={{ background: panelTheme.background }}>
 				<div className="mb-4 inline-flex">
 					<RoomTypeBadge type={typeLabel} isTitle />
 				</div>
 				<div
-					className="mb-4 rounded-xl border border-amber-100/80 bg-gradient-to-br from-stone-50/95 via-white to-amber-50/30 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]"
+					className="mb-4 rounded-xl border border-amber-100/80 bg-linear-to-br from-stone-50/95 via-white to-amber-50/30 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]"
 					style={{ boxShadow: "inset 0 0 0 1px rgba(245, 158, 11, 0.06)" }}>
 					<div className="flex gap-3.5">
 						<div
@@ -228,31 +237,47 @@ export function RoomTypeQuantityCard({
 						{pills.map((pill, i) => (
 							<span
 								key={i}
-								className="inline-flex items-center rounded-full border border-sand-dark/40 bg-white/80 px-3 py-1 text-xs font-medium text-ink-soft shadow-sm">
+								className={cn(
+									"inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium",
+									panelText.pillClass,
+								)}>
 								{pill}
 							</span>
 						))}
 					</div>
 				)}
 
-				<div className="mt-auto flex flex-col gap-3 border-t border-sand-dark/40 pt-4 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+				<div
+					className={cn(
+						"mt-auto flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-end sm:justify-between sm:gap-4",
+						panelText.borderClass,
+					)}>
 					<div>
-						<p className="text-[0.65rem] font-semibold uppercase tracking-wider text-ink-soft">
+						<p
+							className={cn(
+								"text-[0.65rem] font-semibold uppercase tracking-wider",
+								panelText.labelClass,
+							)}>
 							From
 						</p>
-						<p className="font-display text-xl font-bold text-ink">
+						<p
+							className={cn(
+								"font-display text-xl font-bold",
+								panelText.emphasisClass,
+							)}>
 							{samePrice ? (
 								pricingFormat(minPrice)
 							) : (
 								<>
 									{pricingFormat(minPrice)}
-									<span className="text-sm font-normal text-ink-soft">
+									<span
+										className={cn("text-sm font-normal", panelText.labelClass)}>
 										{" "}
 										– {pricingFormat(maxPrice)}
 									</span>
 								</>
 							)}
-							<span className="text-sm font-normal text-ink-soft">
+							<span className={cn("text-sm font-normal", panelText.labelClass)}>
 								{" "}
 								/night
 							</span>
@@ -271,7 +296,10 @@ export function RoomTypeQuantityCard({
 							<Minus className="size-4" />
 						</Button>
 						<span
-							className="min-w-10 text-center font-display text-xl font-semibold tabular-nums text-ink"
+							className={cn(
+								"min-w-10 text-center font-display text-xl font-semibold tabular-nums",
+								panelText.emphasisClass,
+							)}
 							aria-live="polite">
 							{selectedCount}
 						</span>

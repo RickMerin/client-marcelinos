@@ -218,235 +218,237 @@ export default function Header() {
   const isHome = () => location.pathname === "/";
 
   return (
-    <>
-      <nav
-        ref={headerRef}
-        className={`fixed top-0 left-0 right-0 z-200 flex items-center justify-between transition-all duration-400 ${
-          scrolled
-            ? "bg-dark/96 backdrop-blur-md py-3.5 px-6 lg:px-16 xl:px-20"
-            : "bg-linear-to-b from-dark/70 to-transparent py-5 px-6 lg:px-16 xl:px-20"
-        }`}
-      >
-        {/* Logo */}
-        <button
-          onClick={() =>
-            isHome()
-              ? window.scrollTo({ top: 0, behavior: "smooth" })
-              : navigate("/")
-          }
-          className="flex items-center gap-1 cursor-pointer focus:outline-none z-210"
-        >
-          <img
-            src="/brand-logo.webp"
-            alt="Marcelino's Logo"
-            className="h-12 w-12 object-contain"
-          />
-            <div className="ml-1 mt-1 leading-tight inline-block">
-              <div className="text-xs -mb-0.75 font-extrabold tracking-widest text-cream font-serif">
-                MARCELINO'S
-              </div>
-              <div className="text-xs text-gold-light tracking-[0.15em] font-medium w-full text-center">
-                RESORT HOTEL
-              </div>
-            </div>
+		<>
+			<nav
+				ref={headerRef}
+				className={`fixed top-0 left-0 right-0 z-200 flex items-center justify-between transition-all duration-400 ${
+					scrolled
+						? "bg-dark/96 backdrop-blur-md py-3.5 px-6 lg:px-16 xl:px-20"
+						: "bg-linear-to-b from-dark/70 to-transparent py-5 px-6 lg:px-16 xl:px-20"
+				}`}>
+				{/* Logo */}
+				<button
+					onClick={() =>
+						isHome()
+							? window.scrollTo({ top: 0, behavior: "smooth" })
+							: navigate("/")
+					}
+					className="flex items-center gap-1 cursor-pointer focus:outline-none z-210">
+					<img
+						src="/brand-logo.webp"
+						alt="Marcelino's Logo"
+						className="h-12 w-12 object-contain"
+					/>
+					<div className="ml-1 mt-1 leading-tight inline-block">
+						<div className="text-xs -mb-0.75 font-extrabold tracking-widest text-cream font-serif">
+							MARCELINO'S
+						</div>
+						<div className="text-xs text-gold-light tracking-[0.15em] font-medium w-full text-center">
+							RESORT HOTEL
+						</div>
+					</div>
+				</button>
 
-        </button>
+				{/* Desktop links */}
+				<ul className="hidden lg:flex items-center gap-9 list-none">
+					{navLinks.map((item) => {
+						return (
+							<li key={item.label}>
+								<button
+									type="button"
+									onClick={() => handleNavClick(item.href)}
+									className={`relative flex items-center text-[13px] font-medium tracking-[0.15em] uppercase transition-colors duration-300 whitespace-nowrap bg-transparent border-none cursor-pointer ${
+										isActive(item.sectionId)
+											? "text-gold-light"
+											: "text-cream/90 hover:text-gold-light"
+									}`}
+									aria-current={isActive(item.sectionId) ? "true" : undefined}>
+									{item.label}
 
-        {/* Desktop links */}
-        <ul className="hidden lg:flex items-center gap-9 list-none">
-        {navLinks.map((item) => {
-          return (
-            <li key={item.label}>
-              <button
-                type="button"
-                onClick={() => handleNavClick(item.href)}
-                className={`relative flex items-center text-[13px] font-medium tracking-[0.15em] uppercase transition-colors duration-300 whitespace-nowrap bg-transparent border-none cursor-pointer ${
-                  isActive(item.sectionId)
-                    ? "text-gold-light"
-                    : "text-cream/90 hover:text-gold-light"
-                }`}
-                aria-current={isActive(item.sectionId) ? "true" : undefined}
-              >
-                {item.label}
+									<span
+										className={`absolute bottom-[-5px] left-0 h-[1.5px] bg-gold-light transition-all duration-300 ease-out ${
+											isActive(item.sectionId) ? "right-0" : "right-full"
+										}`}
+									/>
+								</button>
+							</li>
+						);
+					})}
+					<li className="relative flex items-center">
+						<Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
+							<SheetTrigger asChild>
+								<button
+									type="button"
+									className="relative text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
+									aria-label="View Cart">
+									<ShoppingCart className="w-5 h-5" />
+									{cartCount > 0 && (
+										<span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
+											{cartCount}
+										</span>
+									)}
+								</button>
+							</SheetTrigger>
 
-                <span
-                  className={`absolute bottom-[-5px] left-0 h-[1.5px] bg-gold-light transition-all duration-300 ease-out ${
-                    isActive(item.sectionId) ? "right-0" : "right-full"
-                  }`}
-                />
-              </button>
-            </li>
-          );
-        })}
-          <li className="relative flex items-center">
-            <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-              <SheetTrigger asChild>
-                <button
-                  type="button"
-                  className="relative text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
-                  aria-label="View Cart"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
-                      {cartCount}
-                    </span>
-                  )}
-                </button>
-              </SheetTrigger>
+							<SheetContent
+								side="right"
+								className="w-full max-w-[100vw] sm:max-w-md bg-stone-50 overflow-y-auto z-[9999] flex flex-col p-0">
+								<SheetHeader className="px-6 py-4 border-b border-stone-200 sticky top-0 bg-stone-50 z-10 text-left gap-1">
+									<div className="flex items-center justify-between gap-2">
+										<SheetTitle className="font-display text-2xl font-semibold text-stone-900 m-0">
+											Your Cart
+										</SheetTitle>
+										<button
+											type="button"
+											onClick={() => setIsCartOpen(false)}
+											className="p-1.5 -mr-1.5 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-200 transition-all cursor-pointer flex-shrink-0"
+											aria-label="Close cart">
+											<X className="w-5 h-5" />
+										</button>
+									</div>
+									<p className="text-sm text-stone-500 m-0">
+										{cartCount} items
+									</p>
 
-              <SheetContent side="right" className="w-full max-w-[100vw] sm:max-w-md bg-stone-50 overflow-y-auto z-[9999] flex flex-col p-0">
-                <SheetHeader className="px-6 py-4 border-b border-stone-200 sticky top-0 bg-stone-50 z-10 text-left gap-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <SheetTitle className="font-display text-2xl font-semibold text-stone-900 m-0">Your Cart</SheetTitle>
-                    <button
-                      type="button"
-                      onClick={() => setIsCartOpen(false)}
-                      className="p-1.5 -mr-1.5 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-200 transition-all cursor-pointer flex-shrink-0"
-                      aria-label="Close cart"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <p className="text-sm text-stone-500 m-0">{cartCount} items</p>
-                  
-                  {cartDates?.checkIn && cartDates?.checkOut && cartCount > 0 && (
-                    <div className="mt-2 text-xs font-medium text-emerald-800 bg-emerald-100 py-1.5 px-3 rounded-full inline-block border border-emerald-200 self-start">
-                      Dates: {new Date(cartDates.checkIn).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} &mdash; {new Date(cartDates.checkOut).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                    </div>
-                  )}
-                </SheetHeader>
+									{cartDates?.checkIn &&
+										cartDates?.checkOut &&
+										cartCount > 0 && (
+											<div className="mt-2 text-xs font-medium text-emerald-800 bg-emerald-100 py-1.5 px-3 rounded-full inline-block border border-emerald-200 self-start">
+												Dates:{" "}
+												{new Date(cartDates.checkIn).toLocaleDateString(
+													"en-US",
+													{ month: "short", day: "numeric", year: "numeric" },
+												)}{" "}
+												&mdash;{" "}
+												{new Date(cartDates.checkOut).toLocaleDateString(
+													"en-US",
+													{ month: "short", day: "numeric", year: "numeric" },
+												)}
+											</div>
+										)}
+								</SheetHeader>
 
-                <div className="flex-1 p-6 space-y-4">
-                  {cartItems.length === 0 ? (
-                    <div className="text-center py-10 flex flex-col items-center gap-3">
-                      <ShoppingCart className="w-12 h-12 text-stone-300" />
-                      <p className="text-stone-500 font-medium">Your cart is currently empty</p>
-                    </div>
-                  ) : (
-                    cartItems.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-4 p-4 bg-white rounded-xl border border-stone-200 shadow-sm relative">
-                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-stone-100 flex-shrink-0">
-                          {item.featured_image ? (
-                            <img src={item.featured_image} alt={item.name || item.type} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full bg-stone-200" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0 pr-4">
-                          <h4 className="font-display font-medium text-stone-900 truncate">
-                            {item.name || item.type || "Listing"}
-                          </h4>
-                          <p className="text-sm text-stone-500">{item.itemType === "venue" ? "Venue" : "Room"} &times; {item.quantity}</p>
-                          <div className="mt-1 font-semibold text-emerald-700">
-                            {item.price ? `₱${(Number(item.price) * item.quantity).toLocaleString()}` : "Price varies"}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="absolute top-4 right-4 text-stone-400 hover:text-red-500 transition-colors cursor-pointer"
-                          onClick={() => removeItem(item.id, item.itemType)}
-                          aria-label="Remove item"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
+								<div className="flex-1 p-6 space-y-4">
+									{cartItems.length === 0 ? (
+										<div className="text-center py-10 flex flex-col items-center gap-3">
+											<ShoppingCart className="w-12 h-12 text-stone-300" />
+											<p className="text-stone-500 font-medium">
+												Your cart is currently empty
+											</p>
+										</div>
+									) : (
+										cartItems.map((item, idx) => (
+											<div
+												key={idx}
+												className="flex items-start gap-4 p-4 bg-white rounded-xl border border-stone-200 shadow-sm relative">
+												<div className="w-16 h-16 rounded-lg overflow-hidden bg-stone-100 flex-shrink-0">
+													{item.featured_image ? (
+														<img
+															src={item.featured_image}
+															alt={item.name || item.type}
+															className="w-full h-full object-cover"
+														/>
+													) : (
+														<div className="w-full h-full bg-stone-200" />
+													)}
+												</div>
+												<div className="flex-1 min-w-0 pr-4">
+													<h4 className="font-display font-medium text-stone-900 truncate">
+														{item.name || item.type || "Listing"}
+													</h4>
+													<p className="text-sm text-stone-500">
+														{item.itemType === "venue" ? "Venue" : "Room"}{" "}
+														&times; {item.quantity}
+													</p>
+													<div className="mt-1 font-semibold text-emerald-700">
+														{item.price
+															? `₱${(Number(item.price) * item.quantity).toLocaleString()}`
+															: "Price varies"}
+													</div>
+												</div>
+												<button
+													type="button"
+													className="absolute top-4 right-4 text-stone-400 hover:text-red-500 transition-colors cursor-pointer"
+													onClick={() => removeItem(item.id, item.itemType)}
+													aria-label="Remove item">
+													<Trash2 className="w-4 h-4" />
+												</button>
+											</div>
+										))
+									)}
+								</div>
 
-                <div className="px-6 py-5 border-t border-stone-200 bg-white sticky bottom-0 z-10 w-full mb-0">
-                  <Button
-                    onClick={proceedToBookNow}
-                    className="w-full py-6 text-base font-semibold cursor-pointer"
-                    disabled={cartItems.length === 0}
-                  >
-                    Proceed to Book Now
-                  </Button>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </li>
+								<div className="px-6 py-5 border-t border-stone-200 bg-white sticky bottom-0 z-10 w-full mb-0">
+									<Button
+										onClick={proceedToBookNow}
+										className="w-full py-6 text-base font-semibold cursor-pointer"
+										disabled={cartItems.length === 0}>
+										Proceed to Book Now
+									</Button>
+								</div>
+							</SheetContent>
+						</Sheet>
+					</li>
+				</ul>
 
-        <li>
-          <button
-            onClick={bookNowHandler}
-            className="bg-gold text-ink px-6 py-2.5 rounded-[3px] text-[13px] font-semibold tracking-widest uppercase transition-colors duration-300 hover:bg-gold-light border-none cursor-pointer min-h-[44px]"
-          >
-            Book Now
-          </button>
-        </li>
-      </ul>
+				{/* Mobile quick actions */}
+				<div className="lg:hidden flex items-center gap-5 z-210">
+					<button
+						type="button"
+						onClick={() => setIsCartOpen(true)}
+						className="relative text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
+						aria-label="View Cart">
+						<ShoppingCart className="w-5 h-5" />
+						{cartCount > 0 && (
+							<span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
+								{cartCount}
+							</span>
+						)}
+					</button>
+					{/* Hamburger */}
+					<button
+						className="flex flex-col justify-center gap-[5px] w-8 h-8 bg-transparent border-none p-1 cursor-pointer z-210"
+						onClick={() => setOpen((o) => !o)}
+						aria-label={open ? "Close menu" : "Open menu"}
+						aria-expanded={open}>
+						<span
+							className={`block w-full h-[1.5px] bg-cream transition-transform duration-350 ease-out origin-center ${
+								open ? "translate-y-[6.5px] rotate-45" : ""
+							}`}
+						/>
+						<span
+							className={`block w-full h-[1.5px] bg-cream transition-all duration-300 ${
+								open ? "opacity-0 scale-x-0" : ""
+							}`}
+						/>
+						<span
+							className={`block w-full h-[1.5px] bg-cream transition-transform duration-350 ease-out origin-center ${
+								open ? "-translate-y-[6.5px] -rotate-45" : ""
+							}`}
+						/>
+					</button>
+				</div>
+			</nav>
 
-        {/* Mobile quick actions */}
-        <div className="lg:hidden flex items-center gap-5 z-210">
-          <button
-            type="button"
-            onClick={() => setIsCartOpen(true)}
-            className="relative text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
-            aria-label="View Cart"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
-                {cartCount}
-              </span>
-            )}
-          </button>
-          {/* Hamburger */}
-          <button
-            className="flex flex-col justify-center gap-[5px] w-8 h-8 bg-transparent border-none p-1 cursor-pointer z-210"
-            onClick={() => setOpen((o) => !o)}
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-          >
-            <span
-              className={`block w-full h-[1.5px] bg-cream transition-transform duration-350 ease-out origin-center ${
-                open ? "translate-y-[6.5px] rotate-45" : ""
-              }`}
-            />
-            <span
-              className={`block w-full h-[1.5px] bg-cream transition-all duration-300 ${
-                open ? "opacity-0 scale-x-0" : ""
-              }`}
-            />
-            <span
-              className={`block w-full h-[1.5px] bg-cream transition-transform duration-350 ease-out origin-center ${
-                open ? "-translate-y-[6.5px] -rotate-45" : ""
-              }`}
-            />
-          </button>
-        </div>
-        </nav>
-
-        {/* Mobile overlay */}
-        <div
-          className={`fixed inset-0 z-190 bg-dark/98 flex flex-col items-center justify-center transition-opacity duration-350 lg:hidden ${
-            open
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          }`}
-        >
-          {navLinks.map((item) => {
-            return (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => handleNavClick(item.href)}
-                className="font-display text-[clamp(28px,7vw,44px)] font-light text-cream/80 py-4 tracking-[0.04em] transition-all duration-300 hover:text-gold-light hover:translate-x-1.5 bg-transparent border-none cursor-pointer flex items-center justify-center text-center w-full max-w-sm"
-              >
-                {item.label}
-              </button>
-            );
-          })}
-
-          <button
-            onClick={bookNowHandler}
-            className="mt-8 bg-gold text-ink px-10 py-4 rounded-[3px] text-sm font-semibold tracking-[0.15em] uppercase cursor-pointer border-none transition-colors hover:bg-gold-light min-h-[52px]"
-          >
-            Book Now
-          </button>
-        </div>
-    </>
-  );
+			{/* Mobile overlay */}
+			<div
+				className={`fixed inset-0 z-190 bg-dark/98 flex flex-col items-center justify-center transition-opacity duration-350 lg:hidden ${
+					open
+						? "opacity-100 pointer-events-auto"
+						: "opacity-0 pointer-events-none"
+				}`}>
+				{navLinks.map((item) => {
+					return (
+						<button
+							key={item.label}
+							type="button"
+							onClick={() => handleNavClick(item.href)}
+							className="font-display text-fluid-nav font-light text-cream/80 py-4 tracking-[0.04em] transition-all duration-300 hover:text-gold-light hover:translate-x-1.5 bg-transparent border-none cursor-pointer flex items-center justify-center text-center w-full max-w-sm">
+							{item.label}
+						</button>
+					);
+				})}
+			</div>
+		</>
+	);
 }

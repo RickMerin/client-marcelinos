@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { roomInventoryGroupKey } from "@/lib/formatters/roomDisplayName";
+import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
 
 gsap.registerPlugin(Flip);
 
@@ -195,7 +196,7 @@ function RoomCard() {
             >
               Accommodations
             </div>
-            <h2 className="font-display text-[clamp(36px,4vw,54px)] font-light text-cream leading-[1.1]">
+            <h2 className="font-display text-fluid-h2 font-light text-cream leading-[1.1]">
               Sleep in <em className="italic text-gold-light">Refined</em>{" "}
               Comfort
             </h2>
@@ -209,127 +210,121 @@ function RoomCard() {
   }
 
   return (
-    <div>
-      {/* Header */}
-      <div className="flex justify-between items-end mb-16 flex-wrap gap-5 max-md:flex-col max-md:items-start">
-        <div>
-          <div
-            className="section-eyebrow"
-            style={{ color: "var(--color-gold-light)" }}
-          >
-            Accommodations
-          </div>
-          <h2 className="font-display text-[clamp(36px,4vw,56px)] font-light text-cream leading-[1.1]">
-            Sleep in <em className="italic text-gold-light">Refined</em> Comfort
-          </h2>
-        </div>
-        <a
-          href="/rooms"
-          className="btn-ghost-mockup"
-          style={{ color: "rgba(250,250,249,0.7)" }}
-        >
-          View All Rooms
-        </a>
-      </div>
+		<div>
+			{/* Header */}
+			<div className="flex justify-between items-end mb-16 flex-wrap gap-5 max-md:flex-col max-md:items-start">
+				<div>
+					<div
+						className="section-eyebrow"
+						style={{ color: "var(--color-gold-light)" }}>
+						Accommodations
+					</div>
+					<h2 className="font-display text-fluid-h2 font-light text-cream leading-[1.1]">
+						Sleep in <em className="italic text-gold-light">Refined</em> Comfort
+					</h2>
+				</div>
+				<a
+					href="/rooms"
+					className="btn-ghost-mockup"
+					style={{ color: "rgba(250,250,249,0.7)" }}>
+					View All Rooms
+				</a>
+			</div>
 
-      {isLoading ? (
-        <CarouselSkeleton />
-      ) : groupedRooms.length === 0 ? (
-        <p className="text-base text-center text-cream/80">
-          No rooms available.
-        </p>
-      ) : (
-        <div
-          className="relative w-full max-w-[1200px] mx-auto min-h-[495px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] transition-shadow duration-400 ease-out"
-          ref={containerRef}
-        >
-          <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-h-[420px]">
-            {visibleRooms.map(
-              (
-                room: Record<string, unknown> & {
-                  _index?: number;
-                  _available_count?: number;
-                },
-              ) => (
-                <div
-                  key={String(room.id)}
-                  data-flip-id={String(room.id)}
-                  className="group bg-dark overflow-hidden relative cursor-pointer border border-white/[0.06] shadow-lg transition-transform duration-300 hover:scale-105 hover:z-50"
-                  onClick={() =>
-                    navigate(`/rooms/${room.id}`, { state: { room } })
-                  }
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      navigate(`/rooms/${room.id}`, { state: { room } });
-                    }
-                  }}
-                >
-                  {/* Image */}
-                  <div className="relative overflow-hidden h-[340px] max-md:h-[280px]">
-                    <OptimizedImage
-                      src={
-                        (room.featured_image as string) ??
-                        "/placeholder-room.jpg"
-                      }
-                      alt={(room.name as string) ?? "Room"}
-                      containerClassName="w-full h-full"
-                      className="object-center transition-transform duration-650 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gold/12 opacity-0 transition-opacity duration-400 group-hover:opacity-100" />
-                  </div>
+			{isLoading ? (
+				<CarouselSkeleton />
+			) : groupedRooms.length === 0 ? (
+				<p className="text-base text-center text-cream/80">
+					No rooms available.
+				</p>
+			) : (
+				<div
+					className="relative w-full max-w-[1200px] mx-auto min-h-[495px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] transition-shadow duration-400 ease-out"
+					ref={containerRef}>
+					<div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-h-[420px]">
+						{visibleRooms.map(
+							(
+								room: Record<string, unknown> & {
+									_index?: number;
+									_available_count?: number;
+								},
+							) => (
+								<div
+									key={String(room.id)}
+									data-flip-id={String(room.id)}
+									className="group bg-dark overflow-hidden relative cursor-pointer border border-white/6 shadow-lg transition-transform duration-300 hover:scale-105 hover:z-50"
+									onClick={() =>
+										navigate(`/rooms/${room.id}`, { state: { room } })
+									}
+									role="button"
+									tabIndex={0}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											navigate(`/rooms/${room.id}`, { state: { room } });
+										}
+									}}>
+									{/* Image */}
+									<div className="relative overflow-hidden h-[340px] max-md:h-[280px]">
+										<OptimizedImage
+											src={
+												(room.featured_image as string) ??
+												"/placeholder-room.jpg"
+											}
+											alt={(room.name as string) ?? "Room"}
+											containerClassName="w-full h-full"
+											className="object-center transition-transform duration-650 ease-out group-hover:scale-105"
+										/>
+										<div className="absolute inset-0 bg-gold/12 opacity-0 transition-opacity duration-400 group-hover:opacity-100" />
+									</div>
 
-                  {/* Info */}
-                  <div className="p-6 pt-5">
-                    <p className="text-[13px] tracking-[0.2em] uppercase text-gold-light mb-2 font-medium">
-                      {(room.type as string) ?? "Room"}
-                    </p>
-                    <h3 className="font-display text-[clamp(24px,2.5vw,30px)] font-normal text-cream mb-3">
-                      {(room.name as string) ?? "—"}
-                    </h3>
-                    <p className="text-base leading-relaxed text-cream/70 mb-5 line-clamp-2">
-                      {(room.description as string) ?? ""}
-                    </p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-display text-[clamp(26px,3vw,34px)] font-light text-cream">
-                        {room.price != null
-                          ? pricingFormat(String(room.price))
-                          : "—"}
-                      </span>
-                      <span className="text-sm text-cream/55">/ night</span>
-                    </div>
-                  </div>
-                </div>
-              ),
-            )}
-          </div>
+									{/* Info */}
+									<div className="p-6 pt-5">
+										<h3 className="font-display text-fluid-card-title font-normal text-cream mb-3">
+											<RoomTypeBadge
+												type={(room.type as string) ?? "Room"}
+												isTitle
+											/>
+										</h3>
+										<p className="text-base leading-relaxed text-cream/70 mb-5 line-clamp-2">
+											{(room.bed_specifications as string) ?? ""}
+										</p>
+										<div className="flex items-baseline gap-2">
+											<span className="font-display text-fluid-price font-light text-cream">
+												{room.price != null
+													? pricingFormat(String(room.price))
+													: "—"}
+											</span>
+											<span className="text-sm text-cream/55">/ night</span>
+										</div>
+									</div>
+								</div>
+							),
+						)}
+					</div>
 
-          {groupedRooms.length > 1 && (
-            <>
-              <button
-                type="button"
-                onClick={() => go(-1)}
-                className="absolute left-2 lg:-left-14 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-cream/10 backdrop-blur-sm border border-cream/10 flex items-center justify-center text-cream hover:bg-cream/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                aria-label="Previous rooms"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => go(1)}
-                className="absolute right-2 lg:-right-14 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-cream/10 backdrop-blur-sm border border-cream/10 flex items-center justify-center text-cream hover:bg-cream/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                aria-label="Next rooms"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
+					{groupedRooms.length > 1 && (
+						<>
+							<button
+								type="button"
+								onClick={() => go(-1)}
+								className="absolute left-2 lg:-left-14 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-cream/10 backdrop-blur-sm border border-cream/10 flex items-center justify-center text-cream hover:bg-cream/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+								aria-label="Previous rooms">
+								<ChevronLeft className="w-5 h-5" />
+							</button>
+							<button
+								type="button"
+								onClick={() => go(1)}
+								className="absolute right-2 lg:-right-14 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-cream/10 backdrop-blur-sm border border-cream/10 flex items-center justify-center text-cream hover:bg-cream/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+								aria-label="Next rooms">
+								<ChevronRight className="w-5 h-5" />
+							</button>
+						</>
+					)}
+				</div>
+			)}
+		</div>
+	);
 }
 
 export default RoomCard;
