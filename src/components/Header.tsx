@@ -4,6 +4,7 @@ import gsap from "gsap";
 import {
   ShoppingCart,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 import {
   Sheet,
@@ -294,9 +295,19 @@ export default function Header() {
                 </button>
               </SheetTrigger>
 
-              <SheetContent side="right" className="w-[400px] sm:max-w-md bg-stone-50 overflow-y-auto z-[9999] flex flex-col p-0">
-                <SheetHeader className="px-6 py-4 border-b border-stone-200 sticky top-0 bg-stone-50 z-10 text-left">
-                  <SheetTitle className="font-display text-2xl font-semibold text-stone-900">Your Cart</SheetTitle>
+              <SheetContent side="right" className="w-full max-w-[100vw] sm:max-w-md bg-stone-50 overflow-y-auto z-[9999] flex flex-col p-0">
+                <SheetHeader className="px-6 py-4 border-b border-stone-200 sticky top-0 bg-stone-50 z-10 text-left gap-1">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsCartOpen(false)}
+                      className="p-1.5 -ml-1.5 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-200 transition-all cursor-pointer flex-shrink-0"
+                      aria-label="Back"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <SheetTitle className="font-display text-2xl font-semibold text-stone-900 m-0">Your Cart</SheetTitle>
+                  </div>
                   <p className="text-sm text-stone-500">{cartCount} items</p>
                   
                   {cartDates?.checkIn && cartDates?.checkOut && cartCount > 0 && (
