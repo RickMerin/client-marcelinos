@@ -171,8 +171,56 @@ export const generateReferenceId = (): string => {
 const toId = (item: { id?: number } | number): number =>
   typeof item === "number" ? item : Number((item as { id: number }).id) || 0;
 
+/** Per-night rate key for line items (2 dp, avoids float map key drift). */
+function normalizeUnitPrice(raw: unknown): number {
+  const n = Number(raw);
+  if (Number.isNaN(n)) return 0;
+  return Math.round(n * 100) / 100;
+}
+
+/**
+ * Replace selected room snapshots with the latest rows from GET /rooms (same `id`),
+ * preserving selection order. Drops ids missing from `freshList`.
+ */
+export function reconcileRoomsWithInventory(
+  selectedRooms: unknown[],
+  freshList: unknown[],
+): unknown[] {
+  if (!Array.isArray(selectedRooms) || selectedRooms.length === 0) return [];
+  const byId = new Map<number, unknown>();
+  for (const row of freshList) {
+    const id = Number((row as { id?: number }).id);
+    if (id && !Number.isNaN(id)) byId.set(id, row);
+  }
+  const out: unknown[] = [];
+  for (const r of selectedRooms) {
+    const id = Number((r as { id?: number }).id);
+    if (!id || Number.isNaN(id)) continue;
+    const fresh = byId.get(id);
+    if (fresh !== undefined) out.push(fresh);
+  }
+  return out;
+}
+
+/** True if selection length, room ids, or any per-night price differs. */
+export function roomSelectionsDiffer(
+  prev: unknown[] | undefined,
+  next: unknown[],
+): boolean {
+  const a = prev ?? [];
+  if (a.length !== next.length) return true;
+  for (let i = 0; i < next.length; i++) {
+    const p = a[i] as { id?: number; price?: number | string };
+    const n = next[i] as { id?: number; price?: number | string };
+    if (Number(p?.id) !== Number(n?.id)) return true;
+    if (normalizeUnitPrice(p?.price) !== normalizeUnitPrice(n?.price)) return true;
+  }
+  return false;
+}
+
 /**
  * Collapse selected inventory rows into API room_lines (type + bed-spec group + qty + rate).
+ * One line per distinct per-night rate within the same layout group (multiple DB prices supported).
  * Matches backend {@link RoomInventoryGroupKey}.
  */
 export function collapseRoomsToLines(rooms: unknown[]): RoomLinePayload[] {
@@ -188,17 +236,17 @@ export function collapseRoomsToLines(rooms: unknown[]): RoomLinePayload[] {
     };
     const type = normalizeRoomTypeSlug(room.type) ?? "standard";
     const key = roomInventoryGroupKey(r as Parameters<typeof roomInventoryGroupKey>[0]);
-    const id = `${type}|${key}`;
-    const price = Number(room.price) || 0;
-    const existing = map.get(id);
+    const unit = normalizeUnitPrice(room.price);
+    const lineKey = `${type}|${key}|${unit}`;
+    const existing = map.get(lineKey);
     if (existing) {
       existing.quantity += 1;
     } else {
-      map.set(id, {
+      map.set(lineKey, {
         room_type: type,
         inventory_group_key: key,
         quantity: 1,
-        unit_price: price,
+        unit_price: unit,
       });
     }
   }

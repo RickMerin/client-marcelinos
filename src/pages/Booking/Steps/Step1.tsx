@@ -21,6 +21,8 @@ import {
   normalizeRoomTypeSlug,
   extractInventoryGroupAvailability,
   effectiveMaxUnitsForSubgroup,
+  reconcileRoomsWithInventory,
+  roomSelectionsDiffer,
 } from "@/lib/utils/booking.utils";
 import {
   bedSpecificationLine,
@@ -303,9 +305,12 @@ export function Step1({
   };
 
   // Remove pre-selected rooms that are unavailable for the current inventory response,
-  // and trim counts when room_lines on other bookings consume remaining units.
+  // trim counts when room_lines on other bookings consume remaining units,
+  // and refresh each selected row from the latest GET /rooms payload (rates stay in sync).
   useEffect(() => {
     if (!roomList.length || !formData.rooms.length) return;
+
+    const reconciled = reconcileRoomsWithInventory(formData.rooms, roomList);
 
     const availableRoomIds = new Set(
       roomList
@@ -313,17 +318,19 @@ export function Step1({
         .map((room: any) => room.id),
     );
 
-    let filteredRooms = formData.rooms.filter((r: any) =>
-      availableRoomIds.has(r?.id ?? r),
-    );
+    let filteredRooms = reconciled.filter((r: unknown) =>
+      availableRoomIds.has((r as { id?: number })?.id ?? r),
+    ) as any[];
 
     const igRows = extractInventoryGroupAvailability(roomsResponse);
     if (igRows?.length) {
       const byGroup = new Map<string, any[]>();
       for (const r of filteredRooms) {
-        const t = normalizeRoomTypeSlug(r.type);
+        const t = normalizeRoomTypeSlug((r as { type?: string }).type);
         if (!t) continue;
-        const invk = roomInventoryGroupKey(r);
+        const invk = roomInventoryGroupKey(
+          r as Parameters<typeof roomInventoryGroupKey>[0],
+        );
         const gk = `${t}\0${invk}`;
         if (!byGroup.has(gk)) byGroup.set(gk, []);
         byGroup.get(gk)!.push(r);
@@ -348,9 +355,11 @@ export function Step1({
       }
     }
 
-    if (filteredRooms.length !== formData.rooms.length) {
+    if (roomSelectionsDiffer(formData.rooms, filteredRooms)) {
       setSelectedRooms(filteredRooms);
-      setRecentlyUnselectedCount(formData.rooms.length - filteredRooms.length);
+      if (filteredRooms.length < formData.rooms.length) {
+        setRecentlyUnselectedCount(formData.rooms.length - filteredRooms.length);
+      }
       return;
     }
 

@@ -27,6 +27,8 @@ import {
   toBlockedDateKey,
   extractInventoryGroupAvailability,
   effectiveMaxUnitsForSubgroup,
+  reconcileRoomsWithInventory,
+  roomSelectionsDiffer,
 } from "@/lib/utils/booking.utils";
 import {
   stayNightRangeModifiers,
@@ -156,7 +158,21 @@ export function Step3({
     roomsUrl,
   );
 
-  const availableRoomsList = extractList(roomsResponse);
+  const availableRoomsList = useMemo(
+    () => extractList(roomsResponse),
+    [roomsResponse],
+  );
+
+  /** Keep `price` and other fields aligned with the latest GET /rooms for the active dates. */
+  useEffect(() => {
+    if (!setSelectedRooms || !rooms.length || !roomsResponse) return;
+    const freshList = extractList(roomsResponse);
+    if (!freshList.length) return;
+    const next = reconcileRoomsWithInventory(rooms, freshList);
+    if (!roomSelectionsDiffer(rooms, next)) return;
+    setSelectedRooms(next);
+  }, [roomsResponse, rooms, setSelectedRooms]);
+
   const inventoryGroupAvailability = useMemo(
     () => extractInventoryGroupAvailability(roomsResponse),
     [roomsResponse],

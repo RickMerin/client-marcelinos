@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Download, House, CircleX } from "lucide-react";
+import { CalendarClock, CircleX, Download, House } from "lucide-react";
 import domtoimage from "dom-to-image";
 import { BookingReceipt } from "@/types/booking.types";
 import {
@@ -1125,20 +1125,19 @@ export function Step5(props: Props) {
 				</div>
 			</div>
 
-			{/* Existing action buttons + modal stay the same */}
-			<div>
-				<div className="flex flex-col md:flex-row justify-center gap-3 mt-6">
+			{/* Receipt actions: primary / secondary / destructive hierarchy */}
+			<div className="mt-6 flex flex-col gap-3">
+				<div className="flex flex-col sm:flex-row justify-center gap-3">
 					{!isCancel && (
 						<button
 							type="button"
 							onClick={downloadReceipt}
 							disabled={isDownloading}
-							className={`text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto ${
+							className={`min-h-11 px-5 py-2.5 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full sm:w-auto text-ink bg-gold hover:bg-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/80 focus-visible:ring-offset-2 ${
 								isDownloading
 									? "opacity-80 cursor-not-allowed"
-									: "cursor-pointer hover:opacity-95"
-							}`}
-							style={{ backgroundColor: "var(--color-sage)" }}>
+									: "cursor-pointer"
+							}`}>
 							{isDownloading ? (
 								<>
 									<ButtonLoader size="sm" />
@@ -1146,71 +1145,76 @@ export function Step5(props: Props) {
 								</>
 							) : (
 								<>
-									<Download className="w-4 h-4" />
+									<Download className="w-4 h-4 shrink-0" />
 									Download Receipt
 								</>
 							)}
 						</button>
 					)}
 					<button
+						type="button"
 						onClick={handleBookAnother}
-						className="cursor-pointer text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto hover:opacity-95"
-						style={{
-							backgroundColor: "var(--color-sage)",
-							borderColor: "var(--color-sage)",
-						}}>
-						<House className="w-4 h-4" />
+						className="cursor-pointer min-h-11 px-5 py-2.5 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-2 w-full sm:w-auto border-2 border-sea text-sea bg-white hover:bg-sage-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sea/50 focus-visible:ring-offset-2">
+						<House className="w-4 h-4 shrink-0" />
 						Book Another Room
 					</button>
-					{!isCancelled && (
+				</div>
+				{!isCancelled && (
+					<div className="flex flex-col sm:flex-row justify-center gap-3">
+						{!isRescheduled && (
+							<button
+								type="button"
+								onClick={() => setIsRescheduleModalOpen(true)}
+								disabled={isProcessingReschedule}
+								className={`min-h-11 px-5 py-2.5 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-2 w-full sm:w-auto border-2 border-sea text-sea bg-white hover:bg-sage-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sea/50 focus-visible:ring-offset-2 ${
+									isProcessingReschedule
+										? "opacity-50 cursor-not-allowed"
+										: "cursor-pointer"
+								}`}>
+								{isProcessingReschedule ? (
+									<>
+										<span
+											className="inline-block w-4 h-4 border-2 border-sea border-t-transparent rounded-full animate-spin shrink-0"
+											role="status"
+											aria-label="Processing"
+										/>
+										Rescheduling...
+									</>
+								) : (
+									<>
+										<CalendarClock className="w-4 h-4 shrink-0" />
+										Reschedule Booking
+									</>
+								)}
+							</button>
+						)}
 						<button
+							type="button"
 							onClick={handleCancel}
 							disabled={isProcessingCancel || cancelBooking.isPending}
-							className={`text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto ${
+							className={`min-h-11 px-5 py-2.5 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-2 w-full sm:w-auto border-2 border-red-600 text-red-700 bg-white hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 ${
 								isProcessingCancel || cancelBooking.isPending
 									? "opacity-50 cursor-not-allowed"
-									: "hover:opacity-95"
-							}`}
-							style={{ backgroundColor: "var(--color-sage)" }}>
+									: "cursor-pointer"
+							}`}>
 							{isProcessingCancel || cancelBooking.isPending ? (
 								<>
 									<span
-										className="spinner-border spinner-border-sm"
-										role="status"></span>
+										className="inline-block w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin shrink-0"
+										role="status"
+										aria-label="Cancelling"
+									/>
 									Cancelling...
 								</>
 							) : (
 								<>
-									<CircleX className="w-4 h-4" />
+									<CircleX className="w-4 h-4 shrink-0" />
 									Cancel Booking
 								</>
 							)}
 						</button>
-					)}
-					{!isCancelled && !isRescheduled && (
-						<button
-							onClick={() => setIsRescheduleModalOpen(true)}
-							disabled={isProcessingReschedule}
-							className={`text-white px-5 py-2 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full md:w-auto ${
-								isProcessingReschedule
-									? "opacity-50 cursor-not-allowed"
-									: "hover:opacity-95"
-							}`}
-							style={{ backgroundColor: "var(--color-sage)" }}>
-							{isProcessingReschedule ? (
-								<>
-									<span
-										className="spinner-border spinner-border-sm inline-block w-4 h-4 border-2 border-current border-t-transparent text-white rounded-full animate-spin"
-										role="status"
-										aria-label="Processing"></span>
-									Rescheduling...
-								</>
-							) : (
-								"Reschedule Booking"
-							)}
-						</button>
-					)}
-				</div>
+					</div>
+				)}
 			</div>
 
 			<Modal
