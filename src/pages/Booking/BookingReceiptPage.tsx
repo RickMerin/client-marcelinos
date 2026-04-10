@@ -124,7 +124,7 @@ export function BookingReceiptPage({
     : queryKeys.bookings.byReceiptToken(receiptToken);
 
   useEffect(() => {
-    clearBookingStorage();
+    clearBookingStorage({ keepReceiptStep: true });
   }, []);
 
   const { data, isLoading, isError } = useApiQuery<BookingReferenceResponse>(
