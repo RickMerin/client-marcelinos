@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { useMemo, useState } from "react";
-import { useTurnstile } from "@/hooks/useTurnstile";
 import { FormWrapper } from "./FormWrapper";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
@@ -82,12 +81,6 @@ function buildSchema(kind: BookingKind) {
 
 export default function BookingForm() {
   const navigate = useNavigate();
-  const {
-		containerRef: captchaRef,
-		token: captchaToken,
-		error: captchaError,
-		reset: resetCaptcha,
-	} = useTurnstile({ theme: "dark", size: "compact" });
 
   const reservationDate = getFromLocalStorage("reservationDate") ?? {};
 
@@ -174,7 +167,6 @@ export default function BookingForm() {
 					form.setValue("check_out" as any, "");
 					form.setValue("days" as any, 0);
 					form.clearErrors(["check_in" as any, "check_out" as any]);
-					resetCaptcha();
 				},
 			},
 			{
@@ -195,7 +187,7 @@ export default function BookingForm() {
 				itemClassName: "booking-bar-field",
 			},
 		];
-	}, [kind, reservationDate, blockedSet, resetCaptcha]);
+	}, [kind, reservationDate, blockedSet]);
 
   const handleSubmit = (values: z.infer<typeof schema>) => {
     const checkIn = values.check_in as Date;
@@ -234,14 +226,12 @@ export default function BookingForm() {
       | Partial<FormData>
       | null;
     if (storedDetails) {
-      const aligned = alignFormDataToBookingType(
-        { ...defaultFormData, ...storedDetails } as FormData,
-        kind,
-      );
-      saveToLocalStorage("reservationDetails", aligned, BOOKING_EXPIRATION);
-    }
-
-    resetCaptcha();
+			const aligned = alignFormDataToBookingType(
+				{ ...defaultFormData, ...storedDetails } as FormData,
+				kind,
+			);
+			saveToLocalStorage("reservationDetails", aligned, BOOKING_EXPIRATION);
+		}
     navigate("/create-booking");
   };
 
@@ -284,14 +274,6 @@ export default function BookingForm() {
 				</div>
 			) : (
 				<div className="flex flex-col flex-1 min-w-0">
-					<div className="hidden">
-						<div ref={captchaRef} />
-					</div>
-					{captchaError ? (
-						<p className="text-center text-xs text-red-400 px-4 pb-1">
-							{captchaError}
-						</p>
-					) : null}
 					<FormWrapper
 						key={kind}
 						schema={schema}
@@ -303,7 +285,6 @@ export default function BookingForm() {
 						}
 						isSubmitDisabled={(values) => {
 							if (!values.check_in || !values.check_out) return true;
-							if (!captchaToken) return true;
 							return false;
 						}}
 						className={formGridClass}
