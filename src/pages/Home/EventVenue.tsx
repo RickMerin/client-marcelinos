@@ -138,10 +138,8 @@ function EventVenues() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-12">
               {[
-                { icon: "🌿", title: "Garden Pavilion", text: "Up to 200 guests, open-air" },
-                { icon: "🏛️", title: "Grand Function Hall", text: "Air-conditioned, 300 pax" },
-                { icon: "🌊", title: "Poolside Terrace", text: "Cocktail receptions, 80 pax" },
-                { icon: "🍽️", title: "Catering Included", text: "Full in-house catering" },
+                { icon: "🌿", title: "Garden Pavilion", text: "Up to 50 guests, open-air" },
+                { icon: "🏛️", title: "Grand Function Hall", text: "Air-conditioned 50 pax, Non Air-conditioned 80 pax" },
               ].map((feat) => (
                 <div key={feat.title} className="flex items-start gap-3.5">
                   <div className="w-[36px] h-[36px] shrink-0 bg-gold rounded-full flex items-center justify-center text-base text-ink">
