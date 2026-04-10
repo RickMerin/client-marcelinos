@@ -105,9 +105,9 @@ export function Step5Skeleton() {
 			<div
 				role="status"
 				aria-label="Loading receipt"
-				className="w-full max-w-3xl shadow-lg border border-emerald-100/70 rounded-lg overflow-hidden bg-white">
+				className="w-full max-w-3xl shadow-lg border border-gold-light/50 rounded-lg overflow-hidden bg-white">
 				{/* Header skeleton */}
-				<div className="bg-emerald-800 text-white px-4 py-3 sm:px-8 sm:py-5 flex flex-col gap-4 md:flex-row items-stretch md:items-center justify-between w-full">
+				<div className="bg-sea text-white px-4 py-3 sm:px-8 sm:py-5 flex flex-col gap-4 md:flex-row items-stretch md:items-center justify-between w-full">
 					<div className="flex flex-row items-center gap-3 min-w-0">
 						<Skeleton className="w-12 h-12 sm:w-16 sm:h-16 rounded-full shrink-0 bg-white/20" />
 						<div className="min-w-0 space-y-2">
@@ -142,7 +142,7 @@ export function Step5Skeleton() {
 						</div>
 					</div>
 
-					<div className="border-t border-dashed my-4 border-gray-200" />
+					<div className="border-t border-dashed my-4 border-sand-dark/35" />
 
 					{/* Booking summary */}
 					<div className="grid sm:grid-cols-2 gap-8">
@@ -164,11 +164,11 @@ export function Step5Skeleton() {
 						</div>
 					</div>
 
-					<div className="border-t border-dashed my-4 border-gray-200" />
+					<div className="border-t border-dashed my-4 border-sand-dark/35" />
 
 					{/* Line items table skeleton */}
-					<div className="overflow-hidden border border-gray-200 rounded-md">
-						<div className="bg-emerald-50 px-4 py-2.5 flex gap-4">
+					<div className="overflow-hidden border border-sand-dark/35 rounded-md">
+						<div className="bg-sage-muted px-4 py-2.5 flex gap-4">
 							<Skeleton className="h-4 w-8" />
 							<Skeleton className="h-4 flex-1" />
 							<Skeleton className="h-4 w-12" />
@@ -177,7 +177,7 @@ export function Step5Skeleton() {
 						{[1, 2, 3].map((i) => (
 							<div
 								key={i}
-								className={`flex gap-4 px-4 py-2.5 ${i % 2 === 0 ? "bg-white" : "bg-emerald-50/30"}`}>
+								className={`flex gap-4 px-4 py-2.5 ${i % 2 === 0 ? "bg-white" : "bg-sage-muted/30"}`}>
 								<Skeleton className="h-4 w-6" />
 								<Skeleton className="h-4 flex-1 max-w-[200px]" />
 								<Skeleton className="h-4 w-16" />
@@ -188,7 +188,7 @@ export function Step5Skeleton() {
 
 					{/* Totals section */}
 					<div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-8 items-start mt-1">
-						<div className="text-xs text-gray-600 max-w-xs space-y-2">
+						<div className="text-xs text-ink-soft max-w-xs space-y-2">
 							<Skeleton className="h-3 w-full" />
 							<Skeleton className="h-3 w-48" />
 						</div>
@@ -197,14 +197,14 @@ export function Step5Skeleton() {
 								<Skeleton className="h-4 w-12" />
 								<Skeleton className="h-4 w-12" />
 							</div>
-							<div className="flex justify-between pt-2 border-t border-gray-200">
+							<div className="flex justify-between pt-2 border-t border-sand-dark/35">
 								<Skeleton className="h-5 w-12" />
 								<Skeleton className="h-5 w-24" />
 							</div>
 						</div>
 					</div>
 
-					<div className="border-t border-dashed my-4 border-gray-200" />
+					<div className="border-t border-dashed my-4 border-sand-dark/35" />
 
 					{/* Footer skeleton */}
 					<div className="grid sm:grid-cols-[1.5fr,1fr] gap-4 items-center">
@@ -323,10 +323,8 @@ const DOWN_PAYMENT_PERCENT_LABEL = `${Math.round(DOWN_PAYMENT_RATE * 100)}%`;
 const REMAINING_AFTER_DOWN_PERCENT_LABEL = `${Math.round((1 - DOWN_PAYMENT_RATE) * 100)}%`;
 
 /** Bold emphasis for key peso amounts. */
-const AMOUNT_PRIMARY =
-	"font-bold tabular-nums text-emerald-900";
-const AMOUNT_SECONDARY =
-	"font-bold tabular-nums text-emerald-800";
+const AMOUNT_PRIMARY = "font-bold tabular-nums text-ink";
+const AMOUNT_SECONDARY = "font-bold tabular-nums text-sea";
 
 /** Align with Booking::DOWN_PAYMENT_NOTICE_MIN_LEAD_DAYS when API omits it. */
 const DEFAULT_DOWN_PAYMENT_NOTICE_MIN_LEAD_DAYS = 4;
@@ -673,13 +671,13 @@ export function Step5(props: Props) {
       case "pending":
         return "bg-yellow-100 text-yellow-800";
       case "confirmed":
-        return "bg-emerald-100 text-emerald-800";
+        return "bg-sage-muted text-sea";
       case "occupied":
         return "bg-green-100 text-green-800";
       case "rescheduled":
         return "bg-purple-100 text-purple-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-sand text-ink";
     }
   };
 
@@ -697,22 +695,13 @@ export function Step5(props: Props) {
 				id="receipt"
 				role="document"
 				aria-label="Billing Statement"
-				className="w-full max-w-3xl shadow-lg border border-emerald-100/70 rounded-lg overflow-hidden bg-white print:shadow-none relative"
+				className="w-full max-w-3xl shadow-lg border border-gold-light/50 rounded-lg overflow-hidden bg-white print:shadow-none relative"
 				style={{
 					borderColor: receiptBorder || "var(--color-sage-muted, #d1e7dd)",
 				}}>
-				{/* Background watermark logo */}
-				<div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none">
-					<img
-						src="/brand-logo.webp"
-						alt=""
-						className="max-w-[80%] sm:max-w-[70%] lg:max-w-[70%] opacity-10 object-contain"
-					/>
-				</div>
-
 				<div className="relative z-10">
 					{/* Responsive Top Header Bar */}
-					<div className="bg-emerald-800 text-white px-4 py-3 sm:px-8 sm:py-5 flex flex-col gap-4 md:gap-0 md:flex-row items-stretch md:items-center justify-between w-full">
+					<div className="bg-sea text-white px-4 py-3 sm:px-8 sm:py-5 flex flex-col gap-4 md:gap-0 md:flex-row items-stretch md:items-center justify-between w-full">
 						{/* Logo and Title */}
 						<div className="flex flex-row items-center gap-3 min-w-0">
 							<img
@@ -722,7 +711,7 @@ export function Step5(props: Props) {
 							/>
 							<div className="min-w-0">
 								<p className="text-xs uppercase tracking-[0.18em] opacity-80 truncate">
-									Marcelino&apos;s Resort &amp; Hotel
+									Marcelino&apos;s Resort Hotel
 								</p>
 								<p className="text-sm opacity-80 truncate">Billing Statement</p>
 							</div>
@@ -758,7 +747,7 @@ export function Step5(props: Props) {
 						{/* Invoice to / from */}
 						<div className="grid sm:grid-cols-2 gap-6">
 							<div>
-								<p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-700 mb-1">
+								<p className="text-xs font-semibold uppercase tracking-[0.25em] text-sea mb-1">
 									Accountable to
 								</p>
 								<p className="font-semibold text-base">{guestName}</p>
@@ -770,11 +759,11 @@ export function Step5(props: Props) {
 								</div>
 							</div>
 							<div className="sm:text-right">
-								<p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-700 mb-1">
+								<p className="text-xs font-semibold uppercase tracking-[0.25em] text-sea mb-1">
 									Remittance to
 								</p>
 								<p className="font-semibold text-base">
-									Marcelino&apos;s Resort &amp; Hotel
+									Marcelino&apos;s Resort Hotel
 								</p>
 								<div className="mt-1 text-xs space-y-0.5 opacity-80">
 									<address>
@@ -846,10 +835,10 @@ export function Step5(props: Props) {
 
 						{/* Rooms items table */}
 						{rooms.length > 0 && (
-							<div className="overflow-hidden border border-gray-200 rounded-md">
+							<div className="overflow-hidden border border-sand-dark/35 rounded-md">
 								<table className="w-full text-xs sm:text-sm">
-									<thead className="bg-emerald-50">
-										<tr className="text-left">
+									<thead className="bg-sage-muted">
+										<tr className="text-left bg-sea text-white">
 											<th className="px-3 py-2 sm:px-4 sm:py-2.5 w-10">No.</th>
 											<th className="px-3 py-2 sm:px-4 sm:py-2.5">Room</th>
 											<th className="px-3 py-2 sm:px-4 sm:py-2.5 text-right whitespace-nowrap">
@@ -865,7 +854,7 @@ export function Step5(props: Props) {
 											<tr>
 												<td
 													colSpan={5}
-													className="px-4 py-4 text-center text-xs italic text-gray-500">
+													className="px-4 py-4 text-center text-xs italic text-ink-soft">
 													No rooms or venues selected
 												</td>
 											</tr>
@@ -889,7 +878,7 @@ export function Step5(props: Props) {
 														<tr
 															key={`room-${idx}`}
 															className={
-																idx % 2 === 0 ? "bg-white" : "bg-emerald-50/30"
+																idx % 2 === 0 ? "bg-white" : "bg-sage-muted/30"
 															}>
 															<td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
 																#{String(idx + 1)}
@@ -915,10 +904,10 @@ export function Step5(props: Props) {
 
 						{/* Venues items table */}
 						{venues.length > 0 && (
-							<div className="overflow-hidden border border-gray-200 rounded-md">
+							<div className="overflow-hidden border border-sand-dark/35 rounded-md">
 								<table className="w-full text-xs sm:text-sm">
-									<thead className="bg-emerald-50">
-										<tr className="text-left">
+									<thead className="bg-sage-muted">
+										<tr className="text-left bg-sea text-white">
 											<th className="px-3 py-2 sm:px-4 sm:py-2.5 w-10">No.</th>
 											<th className="px-3 py-2 sm:px-4 sm:py-2.5">Venue</th>
 											<th className="px-3 py-2 sm:px-4 sm:py-2.5 text-right whitespace-nowrap">
@@ -934,7 +923,7 @@ export function Step5(props: Props) {
 											<tr>
 												<td
 													colSpan={5}
-													className="px-4 py-4 text-center text-xs italic text-gray-500">
+													className="px-4 py-4 text-center text-xs italic text-ink-soft">
 													No venues selected
 												</td>
 											</tr>
@@ -957,9 +946,10 @@ export function Step5(props: Props) {
 															className={
 																(rooms.length + idx) % 2 === 0
 																	? "bg-white"
-																	: "bg-emerald-50/30"
+																	: "bg-sage-muted/30"
 															}>
 															<td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
+																#
 																{String(rooms.length + idx + 1).padStart(
 																	2,
 																	"0",
@@ -969,7 +959,7 @@ export function Step5(props: Props) {
 																<div className="font-medium">
 																	{venue.name ?? "Venue"}
 																</div>
-																<div className="text-[11px] sm:text-xs text-gray-600 mt-0.5">
+																<div className="sm:text-xs text-ink-soft mt-0.5">
 																	Capacity: {venue.capacity ?? "—"}
 																</div>
 															</td>
@@ -991,10 +981,10 @@ export function Step5(props: Props) {
 
 						{/* Totals section */}
 						<div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-8 items-start mt-1">
-							<div className="text-xs text-gray-600 max-w-xs space-y-2">
+							<div className="text-xs text-ink-soft max-w-xs space-y-2">
 								<p>
-									Thank you for choosing Marcelino&apos;s Resort &amp; Hotel.
-									Please bring a valid ID at check-in.
+									Thank you for choosing Marcelino&apos;s Resort Hotel. Please
+									bring a valid ID at check-in.
 								</p>
 								{showLegacyThreeDayDepositBlock && (
 									<p className="text-amber-900/90 border-l-2 border-amber-500 pl-2 leading-relaxed">
@@ -1007,7 +997,7 @@ export function Step5(props: Props) {
 									</p>
 								)}
 								{showMessengerDepositBlock && (
-									<div className="text-emerald-900/95 border-l-2 border-emerald-500 pl-2 space-y-3 leading-relaxed">
+									<div className="text-ink border-l-2 border-gold pl-2 space-y-3 leading-relaxed">
 										<p>
 											<strong>Next step:</strong> To settle your{" "}
 											{DOWN_PAYMENT_PERCENT_LABEL} down payment, please message
@@ -1032,18 +1022,18 @@ export function Step5(props: Props) {
 								<div className="space-y-1 text-sm">
 									{showDepositSplit ? (
 										<>
-											<div className="flex justify-between items-baseline gap-2 border-b border-emerald-100 pb-2 mb-1">
-												<span className="font-semibold text-emerald-900">
+											<div className="flex justify-between items-baseline gap-2 border-b border-gold-light/40 pb-2 mb-1">
+												<span className="font-semibold text-ink">
 													Reservation total
 												</span>
-												<span className="tabular-nums font-semibold text-emerald-800 text-base">
+												<span className="tabular-nums font-semibold text-sea text-base">
 													{pricingFormat(displayGrandTotal)}
 												</span>
 											</div>
-											<p className="text-[11px] text-gray-500 mb-1">
+											<p className="text-ink-soft mb-1">
 												How this total is split:
 											</p>
-											<div className="flex justify-between items-center gap-2 text-emerald-900">
+											<div className="flex justify-between items-center gap-2 text-ink">
 												<span className="opacity-90">
 													Due now — deposit ({DOWN_PAYMENT_PERCENT_LABEL})
 												</span>
@@ -1051,7 +1041,7 @@ export function Step5(props: Props) {
 													{pricingFormat(downPaymentAmount)}
 												</span>
 											</div>
-											<div className="flex justify-between items-center gap-2 text-gray-700">
+											<div className="flex justify-between items-center gap-2 text-ink-soft">
 												<span className="opacity-90">
 													Due later — balance (
 													{REMAINING_AFTER_DOWN_PERCENT_LABEL})
@@ -1060,13 +1050,13 @@ export function Step5(props: Props) {
 													{pricingFormat(balanceAfterDownPayment)}
 												</span>
 											</div>
-											<div className="flex justify-between pt-1 text-xs text-gray-500">
+											<div className="flex justify-between pt-1 text-xs text-ink-soft">
 												<span>Deposit + balance</span>
 												<span className="tabular-nums">
 													= {pricingFormat(displayGrandTotal)}
 												</span>
 											</div>
-											<div className="flex justify-between pt-2 border-t border-gray-200">
+											<div className="flex justify-between pt-2 border-t border-sand-dark/35">
 												<span className="opacity-80">Tax (0%)</span>
 												<span className="tabular-nums">{pricingFormat(0)}</span>
 											</div>
@@ -1077,9 +1067,9 @@ export function Step5(props: Props) {
 												<span className="opacity-80">Tax (0%)</span>
 												<span className="tabular-nums">{pricingFormat(0)}</span>
 											</div>
-											<div className="flex justify-between border-t border-gray-200 pt-2 mt-1 font-semibold text-base">
+											<div className="flex justify-between border-t border-sand-dark/35 pt-2 mt-1 font-semibold text-base">
 												<span>Total</span>
-												<span className="tabular-nums text-emerald-700">
+												<span className="tabular-nums text-sea">
 													{pricingFormat(displayGrandTotal)}
 												</span>
 											</div>
@@ -1095,13 +1085,13 @@ export function Step5(props: Props) {
 						<div className="grid sm:grid-cols-[1.5fr,1fr] gap-4 items-center">
 							<div className="flex items-center justify-center gap-3">
 								<div className="text-center">
-									<p className="font-display text-base tracking-[0.3em] font-bold text-emerald-800">
+									<p className="font-display text-base tracking-[0.3em] font-bold text-sea">
 										MARCELINO&apos;S
 									</p>
-									<p className="text-[11px] tracking-[0.25em] font-medium text-gray-600">
+									<p className="tracking-[0.25em] font-medium text-ink-soft">
 										RESORT AND HOTEL
 									</p>
-									<p className="text-[11px] text-gray-500 mt-1">
+									<p className="text-ink-soft mt-1">
 										This document is system-generated and does not require a
 										physical signature.
 									</p>
@@ -1110,7 +1100,7 @@ export function Step5(props: Props) {
 
 							<div className="text-center">
 								{qrCodeUrl ? (
-									<div className="inline-block p-2 bg-white rounded-lg border mb-2 border-emerald-100">
+									<div className="inline-block p-2 bg-white rounded-lg border mb-2 border-gold-light/50">
 										{isQrLoading || !qrBase64 ? (
 											<Skeleton className="h-40 w-40 rounded-md" />
 										) : (
@@ -1123,10 +1113,10 @@ export function Step5(props: Props) {
 										)}
 									</div>
 								) : null}
-								<p className="text-[11px] text-gray-600 mb-1">
+								<p className="text-ink-soft mb-1">
 									{qrCodeUrl ? "Scan to view your digital receipt" : null}
 								</p>
-								<div className="text-[11px] text-gray-600 space-y-0.5">
+								<div className="text-ink-soft space-y-0.5">
 									{paymentMethod && <p>Payment: {paymentMethod}</p>}
 								</div>
 							</div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import Modal from "@/components/modals/Modal";
 import PaymentConfirmContent from "@/components/modals/PolicyDisclaimer";
 
@@ -52,21 +51,16 @@ export function Step4({
 
   return (
     <div className="space-y-8">
-      <h2
-        className="font-display text-3xl font-bold text-center"
-        style={{ color: "var(--color-charcoal)" }}>
-        Payment
-      </h2>
+      <div className="space-y-2 text-center">
+        <p className="booking-funnel-eyebrow">Checkout</p>
+        <h2 className="landing-section-title">Payment</h2>
+      </div>
 
       <div className="text-center space-y-2">
-        <h3
-          className="font-display text-lg font-semibold text-[color:var(--color-sea)]"
-          style={{ color: "var(--color-charcoal)" }}>
+        <h3 className="font-display text-lg font-semibold text-sea">
           Online Payment Awareness
         </h3>
-        <p
-          className="max-w-2xl mx-auto text-sm leading-relaxed opacity-85"
-          style={{ color: "var(--color-charcoal)" }}>
+        <p className="max-w-2xl mx-auto text-sm leading-relaxed opacity-85 text-ink-soft">
           Guests are encouraged to pay online through secure methods such as
           GCash, PayMaya, PayPal, or bank transfer for a fast and convenient
           transaction. Please double-check all payment details before sending,
@@ -82,26 +76,20 @@ export function Step4({
           className={`cursor-pointer border rounded-lg p-4 flex items-start gap-3 shadow-sm transition relative
             ${
               paymentMethod === PAYMENT_METHODS.CASH
-                ? "ring-2 ring-(--color-sea) bg-(--color-sage-muted) border-(--color-sea)"
-                : "bg-(--color-cream) border-(--color-sage-muted) hover:bg-(--color-cream-dark) hover:border-(--color-leaf)"
+                ? "ring-2 ring-gold/60 bg-sage-muted border-gold"
+                : "bg-cream border-sage-muted hover:bg-sand hover:border-sea/35"
             }`}>
           <input
             type="checkbox"
             checked={paymentMethod === PAYMENT_METHODS.CASH}
             onChange={() => handleSelect(PAYMENT_METHODS.CASH)}
             className="absolute top-3 right-3 w-5 h-5 cursor-pointer"
-            style={{ accentColor: "var(--color-sage)" }}
+            style={{ accentColor: "var(--color-gold)" }}
           />
           <img src={cash} alt="Cash" loading="lazy" className="w-13 h-13" />
           <div className="space-y-1">
-            <h4
-              className="font-semibold text-[color:var(--color-sea)]"
-              style={{ color: "var(--color-charcoal)" }}>
-              Pay in Cash
-            </h4>
-            <p
-              className="text-sm leading-relaxed opacity-85"
-              style={{ color: "var(--color-charcoal)" }}>
+            <h4 className="font-semibold text-sea">Pay in Cash</h4>
+            <p className="text-sm leading-relaxed opacity-85 text-ink-soft">
               You can also pay directly at the resort upon check-in. Please
               present your booking confirmation at the front desk.
             </p>
@@ -111,11 +99,11 @@ export function Step4({
         {/* Pay Online (Xendit) */}
         <label
           className={`cursor-not-allowed border rounded-lg p-4 flex items-start gap-3 shadow-sm relative opacity-55
-    bg-(--color-cream) border-(--color-sage-muted)
+    bg-cream border-sage-muted
             ${
               paymentMethod === PAYMENT_METHODS.ONLINE
-                ? "ring-2 ring-(--color-sage) bg-(--color-sage-muted) border-(--color-sage)"
-                : "bg-(--color-cream) border-(--color-sage-muted) hover:bg-(--color-cream-dark)"
+                ? "ring-2 ring-gold/50 bg-sage-muted border-sea"
+                : "bg-cream border-sage-muted hover:bg-sand"
             }`}>
           <input
             type="checkbox"
@@ -123,7 +111,7 @@ export function Step4({
             onChange={() => handleSelect(PAYMENT_METHODS.ONLINE)}
             disabled
             className="absolute top-3 right-3 w-5 h-5 cursor-not-allowed"
-            style={{ accentColor: "var(--color-sage)" }}
+            style={{ accentColor: "var(--color-gold)" }}
           />
           <img
             src={cashless}
@@ -132,14 +120,8 @@ export function Step4({
             className="w-15 h-15"
           />
           <div className="space-y-1">
-            <h4
-              className="font-semibold text-[color:var(--color-sea)]"
-              style={{ color: "var(--color-charcoal)" }}>
-              Pay Online
-            </h4>
-            <p
-              className="text-sm leading-relaxed opacity-85"
-              style={{ color: "var(--color-charcoal)" }}>
+            <h4 className="font-semibold text-sea">Pay Online</h4>
+            <p className="text-sm leading-relaxed opacity-85 text-ink-soft">
               Pay securely via GCash, PayMaya, debit/credit card, or bank
               transfer. You will be redirected to our payment partner Xendit.
             </p>
@@ -148,23 +130,21 @@ export function Step4({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between items-center mt-8">
+      <div className="flex justify-between items-center mt-8 gap-4 flex-wrap">
         <button
+          type="button"
           onClick={onBack}
-          className="text-sm underline text-gray-600 hover:text-gray-800">
+          className="px-5 py-2.5 text-sm font-medium text-ink hover:bg-sage-muted rounded-md transition-colors">
           ← Back
         </button>
 
-        <Button
+        <button
+          type="button"
           onClick={handleProceed}
           disabled={!paymentMethod}
-          className={`px-6 py-3 rounded-md ${
-            paymentMethod
-              ? "bg-yellow-600 hover:bg-yellow-800 text-white"
-              : "bg-gray-300 text-gray-600 cursor-not-allowed"
-          }`}>
+          className="btn-primary-mockup">
           Proceed to Payment
-        </Button>
+        </button>
       </div>
 
       {/* Proceed Confirmation Modal – stay open during submit so loader is visible */}

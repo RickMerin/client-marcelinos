@@ -502,24 +502,14 @@ export function Step3({
   return (
 		<div className="space-y-8">
 			<div className="space-y-2">
-				<p
-					className="text-xs font-semibold uppercase tracking-wide"
-					style={{ color: "var(--color-sage, #4a6741)" }}>
-					{bookingKindLabel(bookingType)}
-				</p>
-				<h2
-					className="font-display text-3xl sm:text-4xl font-bold tracking-tight"
-					style={{ color: "var(--color-charcoal)" }}>
-					Review Booking Details
-				</h2>
-				<p
-					className="text-sm opacity-80 max-w-2xl"
-					style={{ color: "var(--color-charcoal)" }}>
+				<p className="booking-funnel-eyebrow">{bookingKindLabel(bookingType)}</p>
+				<h2 className="landing-section-title">Review Booking Details</h2>
+				<p className="text-sm opacity-80 max-w-2xl text-ink-soft">
 					{stepIntro} Modify your dates or rooms directly below if necessary.
 				</p>
 
 				{!hasRooms && bookingType !== "venue" && (
-					<div className="p-3 bg-red-50 text-red-700 text-sm font-semibold rounded-md border border-red-200 mt-4">
+					<div className="p-3 bg-red-50 text-red-700 text-sm font-semibold border border-red-200 mt-4">
 						You currently have no rooms selected. Please add a room to proceed.
 					</div>
 				)}
@@ -529,11 +519,9 @@ export function Step3({
 				<div className="space-y-6">
 					{/* Guest Details Section */}
 					<div
-						className="rounded-xl border bg-white shadow-sm overflow-hidden"
+						className="border bg-white shadow-sm overflow-hidden"
 						style={cardBorder}>
-						<div
-							className="px-5 py-3.5 font-semibold text-white flex justify-between items-center"
-							style={{ backgroundColor: "var(--color-sage)" }}>
+						<div className="px-5 py-3.5 font-semibold text-cream flex justify-between items-center bg-sea">
 							<div className="flex items-center gap-2">
 								<UserCheck className="w-5 h-5" />
 								<span>Guest Details</span>
@@ -541,31 +529,31 @@ export function Step3({
 						</div>
 						<div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
 							<div>
-								<p className="text-sm font-medium text-gray-500">Name</p>
-								<p className="font-sm text-gray-900">
+								<p className="text-sm font-medium text-ink-soft">Name</p>
+								<p className="font-sm text-ink">
 									{formData.firstName}{" "}
 									{formData.middleName ? `${formData.middleName} ` : ""}
 									{formData.lastName}
 								</p>
 							</div>
 							<div>
-								<p className="text-sm font-medium text-gray-500">Gender</p>
-								<p className="font-sm text-gray-900 capitalize">
+								<p className="text-sm font-medium text-ink-soft">Gender</p>
+								<p className="font-sm text-ink capitalize">
 									{formData.gender || "—"}
 								</p>
 							</div>
 							<div>
-								<p className="text-sm font-medium text-gray-500">Email</p>
-								<p className="font-sm text-gray-900">{formData.email}</p>
+								<p className="text-sm font-medium text-ink-soft">Email</p>
+								<p className="font-sm text-ink">{formData.email}</p>
 							</div>
 							<div>
-								<p className="text-sm font-medium text-gray-500">Phone</p>
-								<p className="font-sm text-gray-900">{formData.phone}</p>
+								<p className="text-sm font-medium text-ink-soft">Phone</p>
+								<p className="font-sm text-ink">{formData.phone}</p>
 							</div>
 							{formData.address && (
 								<div className="sm:col-span-2">
-									<p className="text-sm font-medium text-gray-500">Address</p>
-									<p className="font-sm text-gray-900">
+									<p className="text-sm font-medium text-ink-soft">Address</p>
+									<p className="font-sm text-ink">
 										{[
 											formData.address,
 											formData.street,
@@ -584,11 +572,9 @@ export function Step3({
 
 					{/* Dates Section */}
 					<div
-						className="rounded-xl border bg-white shadow-sm overflow-hidden"
+						className="border bg-white shadow-sm overflow-hidden"
 						style={cardBorder}>
-						<div
-							className="px-5 py-3.5 font-semibold flex justify-between items-center text-white"
-							style={{ backgroundColor: "var(--color-sage)" }}>
+						<div className="px-5 py-3.5 font-semibold flex justify-between items-center text-cream bg-sea">
 							<div className="flex items-center gap-2">
 								<Calendar className="w-5 h-5" />
 								{bookingType === "venue"
@@ -612,7 +598,7 @@ export function Step3({
 									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 										{/* Check-in Calendar */}
 										<div className="space-y-1.5">
-											<label className="text-sm font-medium text-gray-700">
+											<label className="text-sm font-medium text-ink-soft">
 												Check-in
 											</label>
 											<Popover
@@ -623,7 +609,7 @@ export function Step3({
 												<PopoverTrigger asChild>
 													<button
 														type="button"
-														className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none text-sm text-left">
+														className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-sea/40 outline-none text-sm text-left">
 														{tempCheckIn
 															? new Date(tempCheckIn).toLocaleDateString(
 																	"en-US",
@@ -686,7 +672,7 @@ export function Step3({
 										{/* Check-out Calendar */}
 										{bookingType !== "venue" && (
 											<div className="space-y-1.5">
-												<label className="text-sm font-medium text-gray-700">
+												<label className="text-sm font-medium text-ink-soft">
 													Check-out
 												</label>
 												<Popover
@@ -697,7 +683,7 @@ export function Step3({
 													<PopoverTrigger asChild>
 														<button
 															type="button"
-															className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none text-sm text-left">
+															className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-sea/40 outline-none text-sm text-left">
 															{tempCheckOut
 																? new Date(tempCheckOut).toLocaleDateString(
 																		"en-US",
@@ -773,12 +759,12 @@ export function Step3({
 												setOpenCalendarField(null);
 												setDateError(null);
 											}}
-											className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+											className="px-4 py-2 text-sm text-ink-soft hover:bg-sage-muted rounded-md transition-colors">
 											Cancel
 										</button>
 										<button
 											type="submit"
-											className="px-4 py-2 text-sm text-white rounded-md transition-colors bg-green-700 hover:bg-green-800">
+											className="px-4 py-2 text-sm text-cream rounded-md transition-colors bg-sea hover:bg-forest">
 											Save Dates
 										</button>
 									</div>
@@ -797,20 +783,20 @@ export function Step3({
 										<p className={labelClass}>
 											{bookingType === "venue" ? "Event Day" : "Check-in"}
 										</p>
-										<p className="mt-1 font-medium text-green-800">
+										<p className="mt-1 font-medium text-sea">
 											{check_in ? `${check_in}` : "—"}
 										</p>
-										<p className="text-xs text-gray-500 mt-0.5">
+										<p className="text-xs text-ink-soft mt-0.5">
 											{ROOM_CHECK_IN}
 										</p>
 									</div>
 									{bookingType !== "venue" && (
 										<div>
 											<p className={labelClass}>Check-out</p>
-											<p className="mt-1 font-medium text-green-800">
+											<p className="mt-1 font-medium text-sea">
 												{check_out ? `${check_out}` : "—"}
 											</p>
-											<p className="text-xs text-gray-500 mt-0.5">
+											<p className="text-xs text-ink-soft mt-0.5">
 												{ROOM_CHECK_OUT}
 											</p>
 										</div>
@@ -820,15 +806,15 @@ export function Step3({
 
 							{/* Show availability for the selected dates! */}
 							{editingDates && bookingType !== "venue" && (
-								<div className="mt-6 pt-4 border-t border-gray-100">
+								<div className="mt-6 pt-4 border-t border-sand-dark/25">
 									{roomsLoading ? (
-										<div className="text-sm text-gray-500 flex items-center gap-2">
-											<span className="w-4 h-4 rounded-full border-2 border-green-700 border-t-transparent animate-spin" />{" "}
+										<div className="text-sm text-ink-soft flex items-center gap-2">
+											<span className="w-4 h-4 rounded-full border-2 border-sea border-t-transparent animate-spin" />{" "}
 											Gathering availability...
 										</div>
 									) : (
 										<div className="space-y-3">
-											<div className="flex items-center gap-2 text-sm font-medium text-green-800 bg-green-50 w-fit px-3 py-1.5 rounded-full border border-green-100">
+											<div className="flex items-center gap-2 text-sm font-medium text-sea bg-sage-muted w-fit px-3 py-1.5 rounded-full border border-sage-muted">
 												<CheckCircle2 className="w-4 h-4" />
 												{totalBookableUnitsHint}{" "}
 												{pluralize(totalBookableUnitsHint, "room")} available
@@ -844,11 +830,9 @@ export function Step3({
 					{/* Rooms Section */}
 					{hasRooms && (
 						<div
-							className="rounded-xl border bg-white shadow-sm overflow-hidden"
+							className="border bg-white shadow-sm overflow-hidden"
 							style={cardBorder}>
-							<div
-								className="px-5 py-3.5 font-semibold text-white flex justify-between items-center"
-								style={{ backgroundColor: "var(--color-sage)" }}>
+							<div className="px-5 py-3.5 font-semibold text-cream flex justify-between items-center bg-sea">
 								<div className="flex items-center gap-3 min-w-0">
 									<div className="flex items-center gap-2 min-w-0">
 										<HousePlus className="w-5 h-5" />
@@ -870,7 +854,7 @@ export function Step3({
 										</PopoverTrigger>
 										<PopoverContent align="end" className="p-3 w-80">
 											<div className="space-y-3">
-												<p className="text-sm font-semibold text-gray-900">
+												<p className="text-sm font-semibold text-ink">
 													Add a room:
 												</p>
 												<div className="space-y-2 max-h-80 overflow-y-auto">
@@ -933,13 +917,13 @@ export function Step3({
 																		);
 																		setOpenAddRoom(false);
 																	}}
-																	className="w-full text-left p-2 rounded-md border border-gray-200 transition enabled:hover:bg-sage-50 enabled:hover:border-sage-300 disabled:cursor-not-allowed disabled:opacity-50">
-																	<p className="text-sm font-semibold text-gray-900 leading-snug">
+																	className="w-full text-left p-2 rounded-md border border-sand-dark/35 transition enabled:hover:bg-sage-50 enabled:hover:border-sage-300 disabled:cursor-not-allowed disabled:opacity-50">
+																	<p className="text-sm font-semibold text-ink leading-snug">
 																		{roomTypeAndBedTitle(rep)}
 																	</p>
-																	<p className="text-xs text-gray-600 mt-1">
+																	<p className="text-xs text-ink-soft mt-1">
 																		{capLine && <span>{capLine} • </span>}
-																		<span className="font-medium text-green-800">
+																		<span className="font-medium text-sea">
 																			{sameP ? (
 																				<>
 																					{pricingFormat(minP)}
@@ -957,7 +941,7 @@ export function Step3({
 															);
 														})
 													) : (
-														<p className="text-sm text-gray-500">
+														<p className="text-sm text-ink-soft">
 															{roomsLoading
 																? "Loading…"
 																: addRoomInventoryGroups.length === 0
@@ -972,7 +956,7 @@ export function Step3({
 								)}
 							</div>
 
-							<div className="divide-y divide-gray-100">
+							<div className="divide-y divide-sand-dark/25">
 								{groupedRoomRows.map((group) => {
 									const rep = group.groupRooms[0];
 									const selectedCount = group.groupRooms.length;
@@ -1008,28 +992,28 @@ export function Step3({
 											key={`${group.type}:${group.inventoryGroupKey}`}
 											className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 											<div className="space-y-1.5 flex-1 min-w-0">
-												<h4 className="text-lg font-semibold text-gray-900 truncate">
+												<h4 className="text-lg font-semibold text-ink truncate">
 													{roomTypeAndBedTitle(rep)}
 												</h4>
 												<div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm pt-0.5">
 													{capLine && (
-														<span className="text-gray-600 px-1.5 py-[1px] border border-gray-200 rounded bg-gray-50 text-xs font-medium">
+														<span className="text-ink-soft px-1.5 py-[1px] border border-sand-dark/35 rounded bg-sand text-xs font-medium">
 															{capLine}
 														</span>
 													)}
-													<span className="font-medium text-green-800">
+													<span className="font-medium text-sea">
 														{samePrice ? (
 															pricingFormat(minPrice)
 														) : (
 															<>
 																{pricingFormat(minPrice)}
-																<span className="font-normal text-gray-500 hover:text-gray-600">
+																<span className="font-normal text-ink-soft hover:text-ink-soft">
 																	{" "}
 																	– {pricingFormat(maxPrice)}
 																</span>
 															</>
 														)}
-														<span className="text-gray-500 font-normal">
+														<span className="text-ink-soft font-normal">
 															{" "}
 															/ night
 														</span>
@@ -1037,12 +1021,12 @@ export function Step3({
 												</div>
 
 												{bookingType !== "venue" && (
-													<div className="w-fit mt-1.5 px-3 py-1.5 rounded-md bg-stone-50 border border-stone-200 text-xs text-stone-600 whitespace-nowrap">
-														<span className="font-semibold text-stone-700">
+													<div className="w-fit mt-1.5 px-3 py-1.5 rounded-md bg-sand border border-sand-dark/35 text-xs text-ink-soft whitespace-nowrap">
+														<span className="font-semibold text-ink">
 															{safeNights} {pluralize(safeNights, "night")}
 														</span>{" "}
 														× {pricingFormat(nightlySelectedSubtotal)} ={" "}
-														<span className="font-semibold text-stone-900">
+														<span className="font-semibold text-ink">
 															{pricingFormat(bookingSubtotal)}
 														</span>
 													</div>
@@ -1054,7 +1038,7 @@ export function Step3({
 													type="button"
 													variant="outline"
 													size="icon"
-													className="border-stone-200 bg-white shadow-sm hover:bg-stone-50 h-9 w-9"
+													className="border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted h-9 w-9"
 													disabled={!canDec}
 													onClick={() =>
 														setQuantityForSubgroup(
@@ -1067,7 +1051,7 @@ export function Step3({
 													<Minus className="size-4" />
 												</Button>
 												<span
-													className="min-w-10 text-center font-display text-lg font-semibold tabular-nums text-stone-900"
+													className="min-w-10 text-center font-display text-lg font-semibold tabular-nums text-ink"
 													aria-live="polite">
 													{selectedCount}
 												</span>
@@ -1076,9 +1060,9 @@ export function Step3({
 													variant="outline"
 													size="icon"
 													className={cn(
-														"border-stone-200 bg-white shadow-sm hover:bg-stone-50 h-9 w-9",
+														"border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted h-9 w-9",
 														canInc &&
-															"border-emerald-300/90 hover:border-emerald-400 hover:bg-emerald-50/90",
+															"border-sea/40 hover:border-sea/60 hover:bg-sage-muted",
 													)}
 													disabled={!canInc}
 													onClick={() =>
@@ -1089,7 +1073,7 @@ export function Step3({
 														)
 													}
 													aria-label={`Add one ${roomTypeAndBedTitle(rep)}`}>
-													<Plus className="size-4 text-emerald-700" />
+													<Plus className="size-4 text-sea" />
 												</Button>
 											</div>
 										</div>
@@ -1102,30 +1086,28 @@ export function Step3({
 					{/* Venues Section */}
 					{hasVenues && (
 						<div
-							className="rounded-xl border bg-white shadow-sm overflow-hidden"
+							className="border bg-white shadow-sm overflow-hidden"
 							style={cardBorder}>
-							<div
-								className="px-5 py-3.5 font-semibold text-white flex justify-between items-center"
-								style={{ backgroundColor: "var(--color-sage)" }}>
+							<div className="px-5 py-3.5 font-semibold text-cream flex justify-between items-center bg-sea">
 								<span>Selected Venues</span>
 								<span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
 									{venues.length}
 								</span>
 							</div>
-							<div className="divide-y divide-gray-100">
+							<div className="divide-y divide-sand-dark/25">
 								{venues.map((venue: any, index: number) => (
 									<div
 										key={index}
 										className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 										<div className="space-y-1">
-											<span className="font-semibold text-gray-900 text-lg">
+											<span className="font-semibold text-ink text-lg">
 												{venue.name || "—"}
 											</span>
-											<div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-600 pt-1">
+											<div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-soft pt-1">
 												{venue.capacity && (
 													<span>Up to {venue.capacity} persons</span>
 												)}
-												<span className="font-medium text-green-800">
+												<span className="font-medium text-sea">
 													{pricingFormat(
 														venueEffectiveUnitPrice(
 															venue,
@@ -1156,18 +1138,18 @@ export function Step3({
 				</div>
 
 				{/* Sidebar Summary Placeholder / Order Totals */}
-				<div className="h-fit sticky top-24 bg-sage-muted/20 border border-sage-muted/50 rounded-2xl p-6">
-					<h3 className="font-display font-semibold text-xl mb-4 text-gray-900 border-b pb-3">
+				<div className="h-fit sticky top-24 bg-sage-muted/70 border border-sage-muted/50 p-6">
+					<h3 className="font-display font-semibold text-xl mb-4 text-ink border-b pb-3">
 						Booking Summary
 					</h3>
 
 					<div className="space-y-3 mb-6 text-sm">
 						{bookingType !== "venue" && hasRooms && (
 							<div className="flex justify-between">
-								<span className="text-gray-600">
+								<span className="text-ink-soft">
 									Rooms ({days} {pluralize(days, "night")})
 								</span>
-								<span className="font-medium text-gray-900">
+								<span className="font-medium text-ink">
 									{pricingFormat(calculateTotalPrice(rooms) * days)}
 								</span>
 							</div>
@@ -1175,8 +1157,8 @@ export function Step3({
 						{(bookingType === "venue" || bookingType === "both") &&
 							hasVenues && (
 								<div className="flex justify-between">
-									<span className="text-gray-600">Venues</span>
-									<span className="font-medium text-gray-900">
+									<span className="text-ink-soft">Venues</span>
+									<span className="font-medium text-ink">
 										{pricingFormat(
 											calculateVenuesLineTotal(
 												venues,
@@ -1188,9 +1170,9 @@ export function Step3({
 							)}
 					</div>
 
-					<div className="border-t border-gray-200 pt-4 flex justify-between items-end">
-						<span className="text-gray-600 font-medium">Total</span>
-						<span className="text-2xl font-bold text-green-900">
+					<div className="border-t border-sand-dark/35 pt-4 flex justify-between items-end">
+						<span className="text-ink-soft font-medium">Total</span>
+						<span className="text-2xl font-bold text-ink">
 							{pricingFormat(formData.grandTotalPrice ?? 0)}
 						</span>
 					</div>
