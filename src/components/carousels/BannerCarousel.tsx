@@ -8,7 +8,11 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import { motion } from "framer-motion";
 
-const LCP_BANNER_SRC = "/img/banner2.jpg";
+const LCP_BANNER_SRC_1 = "/img/banner2.jpg";
+const LCP_BANNER_SRC_2 = "/img/banner-3.webp";
+const LCP_BANNER_SRC_3 = "/img/banner-4.webp";
+
+const BANNER_IMAGES = [LCP_BANNER_SRC_1, LCP_BANNER_SRC_2, LCP_BANNER_SRC_3];
 
 export function BannerCarousel() {
 	const [api, setApi] = useState<CarouselApi | null>(null);
@@ -37,7 +41,7 @@ export function BannerCarousel() {
 			plugins={[plugin.current]}
 			setApi={setApi}>
 			<CarouselContent className="ml-0 gap-0 *:pl-0 *:mr-0">
-				{Array.from({ length: 5 }).map((_, index) => {
+				{BANNER_IMAGES.map((src, index) => {
 					const isActive = index === activeIndex;
 
 					return (
@@ -46,7 +50,7 @@ export function BannerCarousel() {
 							className="basis-full shrink-0 grow-0 pl-0 mr-0">
 							<div className="relative w-full h-[90vh] min-h-[600px] overflow-hidden">
 								<img
-									src={LCP_BANNER_SRC}
+									src={src}
 									alt="Marcelino's Resort"
 									loading="eager"
 									fetchPriority="high"
@@ -66,7 +70,8 @@ export function BannerCarousel() {
 								{isActive && (
 									<motion.div
 										key={index}
-                                        className="absolute inset-0 z-5 flex items-center lg:items-end justify-center lg:justify-start px-6 lg:px-16 xl:px-20 pb-0 lg:pb-24 md:lg:pb-28 text-center lg:text-left"										initial="initial"
+										className="absolute inset-0 z-5 flex items-center lg:items-end justify-center lg:justify-start px-6 lg:px-16 xl:px-20 pb-0 lg:pb-24 md:lg:pb-28 text-center lg:text-left"
+										initial="initial"
 										animate="animate"
 										transition={{ staggerChildren: 0.2 }}>
 										<div className="max-w-[720px]">
@@ -84,18 +89,18 @@ export function BannerCarousel() {
 											<motion.h1
 												variants={fadeUp}
 												transition={{ duration: 1, delay: 0.2 }}
-											className="font-display text-[clamp(48px,8vw,80px)] max-md:text-[clamp(32px,7vw,56px)] font-semibold uppercase leading-[0.95] max-md:leading-[1.05] tracking-[-0.02em] text-cream mb-2">
-											MAKE YOUR {" "}
-											<span className="text-gold-light">STAY</span>
-											<br />
-											COMFORTABLE
+												className="font-display text-[clamp(48px,8vw,80px)] max-md:text-[clamp(32px,7vw,56px)] font-semibold uppercase leading-[0.95] max-md:leading-[1.05] tracking-[-0.02em] text-cream mb-2">
+												MAKE YOUR <span className="text-gold-light">STAY</span>
+												<br />
+												COMFORTABLE
 											</motion.h1>
 											<motion.p
 												variants={fadeUp}
 												transition={{ duration: 0.8, delay: 0.4 }}
 												className="text-base md:text-lg leading-relaxed text-cream/85 max-w-[480px] mb-5 italic">
-												Experience refined comfort in thoughtfully designed rooms, 
-												complemented by quality amenities and warm hospitality.
+												Experience refined comfort in thoughtfully designed
+												rooms, complemented by quality amenities and warm
+												hospitality.
 											</motion.p>
 
 											{/* Actions */}
