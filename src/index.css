@@ -19,6 +19,40 @@
   .btn-secondary:hover {
     background-color: var(--secondary-color-hover);
   }
+
+  .turnstile-container {
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+  }
+  .turnstile-container > div {
+    width: 100%;
+    max-width: 100%;
+  }
+  .turnstile-container .cf-turnstile,
+  .turnstile-container .cf-turnstile iframe,
+  .turnstile-container .cf-turnstile .cf-turnstile-widget {
+    width: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  @media (max-width: 640px) {
+    .turnstile-container {
+      max-width: 100%;
+      overflow: visible;
+    }
+    .turnstile-container .cf-turnstile,
+    .turnstile-container .cf-turnstile iframe,
+    .turnstile-container .cf-turnstile .cf-turnstile-widget,
+    .turnstile-container > div {
+      transform: scale(0.88) !important;
+      transform-origin: top center !important;
+      width: auto !important;
+      max-width: 100% !important;
+    }
+  }
 }
 
 @theme inline {
@@ -182,14 +216,15 @@
    ============================================================ */
 
 .section-eyebrow {
-  font-size: 25px;
-  letter-spacing: 0.25em;
+  font-size: clamp(18px, 2.2vw, 25px);
+  letter-spacing: 0.20em;
   text-transform: uppercase;
   color: var(--color-gold);
   margin-bottom: 18px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   font-weight: 500;
 }
 .section-eyebrow::before {
@@ -199,6 +234,17 @@
   height: 1.5px;
   background: currentColor;
   flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .section-eyebrow {
+    font-size: clamp(16px, 4vw, 22px);
+    letter-spacing: 0.16em;
+    gap: 8px;
+  }
+  .section-eyebrow::before {
+    width: 24px;
+  }
 }
 
 /* Luxury home — forest & soft gradients + restrained depth */
