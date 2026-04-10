@@ -15,8 +15,10 @@ function Footer() {
   const infoLinks = [
     { name: "About Us", href: "#about" },
     { name: "Blog", href: "/blog", isRoute: true },
+    { name: "Privacy Policy", href: "/privacy-policy", isRoute: true },
     { name: "Refund Policy", href: "/refund-policy", isRoute: true },
-    { name: "Policies", href: "/terms-and-conditions", isRoute: true },
+    { name: "Terms and Conditions", href: "/terms-and-conditions", isRoute: true },
+    { name: "Rules and Regulation", href: "/rules-regulation", isRoute: true },
     { name: "Contact", href: "#contact" },
   ];
 
@@ -155,7 +157,7 @@ function Footer() {
             </Link>
             {" · "}
             <Link to="/terms-and-conditions" className="text-white no-underline hover:text-gold-light transition-colors">
-              Terms of Service
+              Terms and Conditions
             </Link>
           </p>
         </div>
