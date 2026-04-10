@@ -239,7 +239,7 @@ function RoomCard() {
 				</p>
 			) : (
 				<div
-					className="relative w-full max-w-[1200px] mx-auto min-h-[495px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] transition-shadow duration-400 ease-out"
+					className="relative w-full max-w-[1200px] mx-auto min-h-[400px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] transition-shadow duration-400 ease-out"
 					ref={containerRef}>
 					<div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-h-[420px]">
 						{visibleRooms.map(
@@ -252,7 +252,7 @@ function RoomCard() {
 								<div
 									key={String(room.id)}
 									data-flip-id={String(room.id)}
-									className="group bg-dark overflow-hidden relative cursor-pointer border border-white/6 shadow-lg transition-transform duration-300 hover:scale-105 hover:z-50"
+									className="group min-w-0 bg-dark overflow-hidden relative cursor-pointer border border-white/6 shadow-lg origin-center transition-transform duration-300 ease-out hover:scale-[1.025] hover:z-50 hover:shadow-2xl will-change-transform"
 									onClick={() =>
 										navigate(`/rooms/${room.id}`, { state: { room } })
 									}
@@ -273,7 +273,7 @@ function RoomCard() {
 											}
 											alt={(room.name as string) ?? "Room"}
 											containerClassName="w-full h-full"
-											className="object-center transition-transform duration-650 ease-out group-hover:scale-105"
+											className="object-center transition-transform duration-650 ease-out"
 										/>
 										<div className="absolute inset-0 bg-gold/12 opacity-0 transition-opacity duration-400 group-hover:opacity-100" />
 									</div>
