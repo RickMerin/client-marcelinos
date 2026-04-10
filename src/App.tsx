@@ -5,7 +5,6 @@ import { routes } from "./routes/route";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ScrollNav from "./components/ScrollNav";
-import { Spinner } from "./components/ui/spinner";
 import { LeafLoader } from "./components/ui/LeafLoader";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { useRealtimeGlobalSubscriber } from "@/hooks/useRealtimeGlobalSubscriber";
