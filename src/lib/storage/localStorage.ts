@@ -1,3 +1,5 @@
+import { defaultFormData } from "@/lib/constants/booking.constants";
+
 /**
  * Saves a value to the local storage with the specified key.
  * @param {string} key - The key under which the value will be stored in local storage.
@@ -76,9 +78,24 @@ const BOOKING_KEYS = [
   "reservationDetails.personal.phAddress",
 ] as const;
 
+export type ClearBookingStorageOptions = {
+  /**
+   * After clearing, persist `reservationDetails` with `current_step: 5` so the receipt
+   * step remains in storage (e.g. for progress UI or refresh) without keeping PII.
+   */
+  keepReceiptStep?: boolean;
+};
+
 /**
  * Clears booking-related data from localStorage (e.g. after successful booking).
  */
-export const clearBookingStorage = () => {
+export const clearBookingStorage = (options?: ClearBookingStorageOptions) => {
   BOOKING_KEYS.forEach((key) => localStorage.removeItem(key));
+  if (options?.keepReceiptStep) {
+    saveToLocalStorage(
+      "reservationDetails",
+      { ...defaultFormData, current_step: 5 },
+      BOOKING_EXPIRATION,
+    );
+  }
 };
