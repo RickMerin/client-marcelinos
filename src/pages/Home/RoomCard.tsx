@@ -250,7 +250,6 @@ function RoomCard() {
                   _index?: number;
                   _available_count?: number;
                 },
-                idx,
               ) => (
                 <div
                   key={String(room.id)}
