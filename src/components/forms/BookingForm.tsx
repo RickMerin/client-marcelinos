@@ -19,6 +19,7 @@ import {
   alignFormDataToBookingType,
   toBlockedDateKey,
 } from "@/lib/utils/booking.utils";
+import BookingBarSkeleton from "@/components/skeleton/BookingBarSkeleton";
 
 const KIND_OPTIONS: { value: BookingKind; label: string }[] = [
   { value: "room", label: "Room Stay" },
@@ -276,9 +277,7 @@ export default function BookingForm() {
 
 			{/* Form fields */}
 			{!reservationDate.check_in && isLoadingBlocked ? (
-				<div className="flex flex-1 items-center justify-center p-4">
-					<span className="text-cream/50 text-sm">Loading availability...</span>
-				</div>
+				<BookingBarSkeleton />
 			) : (
 				<div className="flex flex-col flex-1 min-w-0">
 					<FormWrapper
