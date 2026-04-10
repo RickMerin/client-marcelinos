@@ -69,8 +69,8 @@ function CardItem(props: CardItemProps) {
 
   return (
     <motion.div
-      className="group relative w-full overflow-hidden rounded-[4px] bg-white border border-sand-dark/60 transition-shadow duration-300 hover:shadow-lg hover:shadow-ink/10"
-      whileHover={{ y: -4 }}
+      className="group relative w-full overflow-hidden rounded-[4px] bg-white border border-sand-dark/60 transition-shadow transition-transform duration-300 hover:shadow-lg hover:shadow-ink/10 hover:z-50"
+      whileHover={{ y: -4, scale: 1.05 }}
       transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}

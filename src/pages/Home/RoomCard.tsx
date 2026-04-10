@@ -230,13 +230,13 @@ function RoomCard() {
 				<div
 					className="relative w-full max-w-[1200px] mx-auto min-h-[495px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] transition-shadow duration-400 ease-out"
 					ref={containerRef}>
-					<div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr] min-h-[420px]">
+					<div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-h-[420px]">
 						{visibleRooms.map(
 							(room: Record<string, unknown> & { _index?: number; _available_count?: number }, idx) => (
 								<div
 									key={String(room.id)}
 									data-flip-id={String(room.id)}
-									className="group bg-dark overflow-hidden relative cursor-pointer border border-white/[0.06] shadow-lg"
+									className="group bg-dark overflow-hidden relative cursor-pointer border border-white/[0.06] shadow-lg transition-transform duration-300 hover:scale-105 hover:z-50"
 									onClick={() =>
 										navigate(`/rooms/${room.id}`, { state: { room } })
 									}
@@ -250,7 +250,7 @@ function RoomCard() {
 									}}>
 									{/* Image */}
 									<div
-										className={`relative overflow-hidden ${idx === 0 && slidesPerView >= 3 ? "h-[420px]" : "h-[340px] max-md:h-[280px]"}`}>
+										className="relative overflow-hidden h-[340px] max-md:h-[280px]">
 										<OptimizedImage
 											src={
 												(room.featured_image as string) ??

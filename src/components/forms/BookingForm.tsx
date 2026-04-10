@@ -128,7 +128,13 @@ export default function BookingForm() {
 			checkInVal = new Date(r.check_in as string);
 			checkOutVal = r.check_out ? new Date(r.check_out as string) : "";
 		} else {
+			const now = new Date();
+			const currentHour = now.getHours();
 			let ci = startOfDay(new Date());
+			if (currentHour >= 21) {
+				ci = addDays(ci, 1);
+			}
+
 			while (blockedSet.has(toBlockedDateKey(ci.toISOString()))) {
 				ci = addDays(ci, 1);
 			}
@@ -279,8 +285,24 @@ export default function BookingForm() {
 
 			{/* Form fields */}
 			{!reservationDate.check_in && isLoadingBlocked ? (
-				<div className="flex flex-1 items-center justify-center p-4">
-					<span className="text-cream/50 text-sm">Loading availability...</span>
+				<div className={formGridClass}>
+					<div className="booking-bar-field flex flex-col gap-2 justify-center animate-pulse">
+						<div className="h-3 w-20 bg-cream/10 rounded"></div>
+						<div className="h-5 w-24 bg-cream/20 rounded"></div>
+					</div>
+					<div className="booking-bar-field flex flex-col gap-2 justify-center animate-pulse">
+						<div className="h-3 w-20 bg-cream/10 rounded"></div>
+						<div className="h-5 w-24 bg-cream/20 rounded"></div>
+					</div>
+					{kind !== "venue" && (
+						<div className="booking-bar-field hidden lg:flex flex-col gap-2 justify-center animate-pulse" style={{ flex: '0 0 100px' }}>
+							<div className="h-3 w-12 bg-cream/10 rounded"></div>
+							<div className="h-5 w-8 bg-cream/20 rounded"></div>
+						</div>
+					)}
+					<div className="booking-bar-submit flex items-stretch animate-pulse">
+						<div className="w-full lg:w-[220px] bg-gold/40 h-[52px] lg:h-auto"></div>
+					</div>
 				</div>
 			) : (
 				<div className="flex flex-col flex-1 min-w-0">
