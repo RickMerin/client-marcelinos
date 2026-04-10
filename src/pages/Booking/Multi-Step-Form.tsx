@@ -65,7 +65,7 @@ export function MultiStepForm() {
     }
 
     await submitBooking(formData, (response) => {
-      clearBookingStorage();
+      clearBookingStorage({ keepReceiptStep: true });
       // Online payment: redirect to Xendit payment page
       if (response?.payment_url) {
         window.location.href = response.payment_url;
