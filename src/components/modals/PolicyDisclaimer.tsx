@@ -45,7 +45,7 @@ export default function PaymentPolicyConfirmContent({
       </div>
 
       {/* SCROLLABLE BODY */}
-      <div className="flex-1 overflow-y-auto text-xs space-y-5 pb-2 px-1">
+      <div className="flex-1 overflow-y-auto text-xs space-y-5 pb-2 px-1 [scrollbar-width:thin] [scrollbar-color:#6e6a5d_#113731] hover:[scrollbar-color:#c6a15b_#113731] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-[#113731]/55 hover:[&::-webkit-scrollbar-track]:bg-[#113731]/80 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#c6a15b]/35 hover:[&::-webkit-scrollbar-thumb]:bg-[#c6a15b]/85 [&::-webkit-scrollbar-thumb]:border [&::-webkit-scrollbar-thumb]:border-[#0b2621]/60 hover:[&::-webkit-scrollbar-thumb]:border-[#0b2621] [&::-webkit-scrollbar-thumb:hover]:bg-[#e6d3a3]">
         {/* CHECK IN / OUT */}
         <div className="grid md:grid-cols-2 gap-4 text-center">
           <div className="rounded-lg border border-[#e6d3a3]/20 bg-white/5 p-3">
@@ -81,7 +81,7 @@ export default function PaymentPolicyConfirmContent({
         {/* NO SMOKING */}
         <div className="text-center rounded-lg border border-[#e6d3a3]/20 bg-white/5 p-3">
           <h3 className="text-lg font-extrabold uppercase text-[#e6d3a3]">
-            STRICTLY <span className="text-red-300">NO SMOKING!</span> INSIDE
+            STRICTLY <span className="text-red-700">NO SMOKING!</span> INSIDE
             THE ROOM
           </h3>
           <p className="text-xs text-white/90">PENALTY - Php 5,000.00</p>
