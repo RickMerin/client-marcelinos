@@ -61,7 +61,7 @@ function ContactForm() {
     error: captchaError,
     setError: setCaptchaError,
     reset: resetCaptcha,
-  } = useTurnstile();
+  } = useTurnstile({ size: "flexible" });
 
   const [formData, setFormData] = useState<FormData>({
     full_name: "",
@@ -247,8 +247,8 @@ function ContactForm() {
               )}
             </div>
 
-            <div className="flex flex-col items-start gap-2">
-              <div ref={captchaRef} />
+            <div className="flex flex-col items-start gap-2 w-full turnstile-container">
+              <div ref={captchaRef} className="w-full max-w-full overflow-hidden" />
               {captchaError && (
                 <p className="text-sm text-red-600">{captchaError}</p>
               )}

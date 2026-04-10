@@ -66,8 +66,7 @@ export function BannerCarousel() {
 								{isActive && (
 									<motion.div
 										key={index}
-										className="absolute inset-0 z-5 flex items-end px-6 lg:px-16 xl:px-20 pb-24 md:pb-28"
-										initial="initial"
+                                        className="absolute inset-0 z-5 flex items-center lg:items-end justify-center lg:justify-start px-6 lg:px-16 xl:px-20 pb-0 lg:pb-24 md:lg:pb-28 text-center lg:text-left"										initial="initial"
 										animate="animate"
 										transition={{ staggerChildren: 0.2 }}>
 										<div className="max-w-[720px]">
@@ -78,13 +77,14 @@ export function BannerCarousel() {
 												className="flex items-center gap-3.5 text-[13px] tracking-[0.25em] uppercase text-gold-light  font-medium mb-4">
 												<span className="block w-9 h-[1.5px] bg-gold-light shrink-0" />
 												Hilongos, Leyte, Philippines
+												<span className="block w-9 h-[1.5px] bg-gold-light shrink-0" />
 											</motion.p>
 
 											{/* Title */}
 											<motion.h1
 												variants={fadeUp}
 												transition={{ duration: 1, delay: 0.2 }}
-											className="font-display text-[clamp(48px,8vw,80px)] font-semibold uppercase leading-[0.95] tracking-[-0.02em] text-cream mb-2">
+											className="font-display text-[clamp(48px,8vw,80px)] max-md:text-[clamp(32px,7vw,56px)] font-semibold uppercase leading-[0.95] max-md:leading-[1.05] tracking-[-0.02em] text-cream mb-2">
 											MAKE YOUR {" "}
 											<span className="text-gold-light">STAY</span>
 											<br />
@@ -108,7 +108,7 @@ export function BannerCarousel() {
 													className="btn-primary-mockup max-md:w-full max-md:text-center flex items-center justify-center">
 													Explore Rooms
 												</a>
-												<a href="#venues" className="btn-ghost-mockup">
+												<a href="#venues" className="btn-ghost-mockup max-md:w-full max-md:text-center">
 													View Venues
 												</a>
 											</motion.div>
