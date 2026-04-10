@@ -2,13 +2,17 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import {
-  Armchair,
-  Bed,
-  Images,
-  Landmark,
-  Mail,
-  type LucideIcon,
+  ShoppingCart,
+  Trash2,
 } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 const SECTION_IDS = [
   "home",
@@ -25,8 +29,47 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>("home");
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartCount, setCartCount] = useState<number>(0);
+  const [cartDates, setCartDates] = useState<{ checkIn?: string, checkOut?: string } | null>(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
+      setCartItems(items);
+      const totalCount = items.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0);
+      setCartCount(totalCount);
+      
+      try {
+        const resDate = JSON.parse(localStorage.getItem("reservationDate") || "{}");
+        if (resDate.check_in && resDate.check_out) {
+          setCartDates({ checkIn: resDate.check_in, checkOut: resDate.check_out });
+        } else {
+          setCartDates(null);
+        }
+      } catch (e) {
+        setCartDates(null);
+      }
+    };
+    
+    updateCartCount();
+    window.addEventListener("cart-updated", updateCartCount);
+    window.addEventListener("storage", updateCartCount);
+    return () => {
+      window.removeEventListener("cart-updated", updateCartCount);
+      window.removeEventListener("storage", updateCartCount);
+    };
+  }, []);
+
+  const removeItem = (id: number, itemType: string) => {
+    const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    const newItems = items.filter((i: any) => !(i.id === id && i.itemType === itemType));
+    localStorage.setItem("cartItems", JSON.stringify(newItems));
+    window.dispatchEvent(new Event("cart-updated"));
+  };
 
   const headerRef = useRef<HTMLElement>(null);
   const scrollingToRef = useRef<string | null>(null);
@@ -137,6 +180,11 @@ export default function Header() {
     window.dispatchEvent(new Event("open-checkin"));
   };
 
+  const proceedToBookNow = () => {
+    setIsCartOpen(false);
+    navigate("/create-booking");
+  };
+
   const handleNavClick = (hash: string) => {
     setOpen(false);
     const id = hash.startsWith("#") ? hash.slice(1) : hash;
@@ -229,6 +277,85 @@ export default function Header() {
             </li>
           );
         })}
+          <li className="relative flex items-center">
+            <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
+              <SheetTrigger asChild>
+                <button
+                  type="button"
+                  className="relative text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
+                  aria-label="View Cart"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+              </SheetTrigger>
+
+              <SheetContent side="right" className="w-[400px] sm:max-w-md bg-stone-50 overflow-y-auto z-[9999] flex flex-col p-0">
+                <SheetHeader className="px-6 py-4 border-b border-stone-200 sticky top-0 bg-stone-50 z-10 text-left">
+                  <SheetTitle className="font-display text-2xl font-semibold text-stone-900">Your Cart</SheetTitle>
+                  <p className="text-sm text-stone-500">{cartCount} items</p>
+                  
+                  {cartDates?.checkIn && cartDates?.checkOut && cartCount > 0 && (
+                    <div className="mt-2 text-xs font-medium text-emerald-800 bg-emerald-100 py-1.5 px-3 rounded-full inline-block border border-emerald-200 self-start">
+                      Dates: {new Date(cartDates.checkIn).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} &mdash; {new Date(cartDates.checkOut).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </div>
+                  )}
+                </SheetHeader>
+
+                <div className="flex-1 p-6 space-y-4">
+                  {cartItems.length === 0 ? (
+                    <div className="text-center py-10 flex flex-col items-center gap-3">
+                      <ShoppingCart className="w-12 h-12 text-stone-300" />
+                      <p className="text-stone-500 font-medium">Your cart is currently empty</p>
+                    </div>
+                  ) : (
+                    cartItems.map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-4 p-4 bg-white rounded-xl border border-stone-200 shadow-sm relative">
+                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-stone-100 flex-shrink-0">
+                          {item.featured_image ? (
+                            <img src={item.featured_image} alt={item.name || item.type} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-stone-200" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0 pr-4">
+                          <h4 className="font-display font-medium text-stone-900 truncate">
+                            {item.name || item.type || "Listing"}
+                          </h4>
+                          <p className="text-sm text-stone-500">{item.itemType === "venue" ? "Venue" : "Room"} &times; {item.quantity}</p>
+                          <div className="mt-1 font-semibold text-emerald-700">
+                            {item.price ? `₱${(Number(item.price) * item.quantity).toLocaleString()}` : "Price varies"}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className="absolute top-4 right-4 text-stone-400 hover:text-red-500 transition-colors cursor-pointer"
+                          onClick={() => removeItem(item.id, item.itemType)}
+                          aria-label="Remove item"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="px-6 py-5 border-t border-stone-200 bg-white sticky bottom-0 z-10 w-full mb-0">
+                  <Button
+                    onClick={proceedToBookNow}
+                    className="w-full py-6 text-base font-semibold cursor-pointer"
+                    disabled={cartItems.length === 0}
+                  >
+                    Proceed to Book Now
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </li>
 
         <li>
           <button
@@ -239,29 +366,46 @@ export default function Header() {
           </button>
         </li>
       </ul>
-        {/* Hamburger */}
-        <button
-          className="lg:hidden flex flex-col justify-center gap-[5px] w-8 h-8 bg-transparent border-none p-1 cursor-pointer z-210"
-          onClick={() => setOpen((o) => !o)}
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-        >
-          <span
-            className={`block w-full h-[1.5px] bg-cream transition-transform duration-350 ease-out origin-center ${
-              open ? "translate-y-[6.5px] rotate-45" : ""
-            }`}
-          />
-          <span
-            className={`block w-full h-[1.5px] bg-cream transition-all duration-300 ${
-              open ? "opacity-0 scale-x-0" : ""
-            }`}
-          />
-          <span
-            className={`block w-full h-[1.5px] bg-cream transition-transform duration-350 ease-out origin-center ${
-              open ? "-translate-y-[6.5px] -rotate-45" : ""
-            }`}
-          />
-        </button>
+
+        {/* Mobile quick actions */}
+        <div className="lg:hidden flex items-center gap-5 z-210">
+          <button
+            type="button"
+            onClick={() => setIsCartOpen(true)}
+            className="relative text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
+            aria-label="View Cart"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
+                {cartCount}
+              </span>
+            )}
+          </button>
+          {/* Hamburger */}
+          <button
+            className="flex flex-col justify-center gap-[5px] w-8 h-8 bg-transparent border-none p-1 cursor-pointer z-210"
+            onClick={() => setOpen((o) => !o)}
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+          >
+            <span
+              className={`block w-full h-[1.5px] bg-cream transition-transform duration-350 ease-out origin-center ${
+                open ? "translate-y-[6.5px] rotate-45" : ""
+              }`}
+            />
+            <span
+              className={`block w-full h-[1.5px] bg-cream transition-all duration-300 ${
+                open ? "opacity-0 scale-x-0" : ""
+              }`}
+            />
+            <span
+              className={`block w-full h-[1.5px] bg-cream transition-transform duration-350 ease-out origin-center ${
+                open ? "-translate-y-[6.5px] -rotate-45" : ""
+              }`}
+            />
+          </button>
+        </div>
         </nav>
 
         {/* Mobile overlay */}
