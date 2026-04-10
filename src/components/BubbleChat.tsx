@@ -123,13 +123,13 @@ export default function BubbleChat() {
         {showPrompt && (
           <button
             onClick={() => setOpen(true)}
-            className="rounded-md border border-[rgba(198,161,91,0.55)] bg-[rgba(198,161,91,0.95)] px-2.5 py-1.5 text-right text-xs font-semibold tracking-wide text-[#0F1F3D] shadow-md hover:bg-[rgba(230,211,163,0.96)] transition-colors">
+            className="rounded-md bg-white/95 px-2 py-1.5 text-right text-xs font-medium text-gray-800 shadow-md ring-1 ring-black/5 hover:bg-white transition-colors">
             Hi, need help?
           </button>
         )}
         <button
           onClick={() => setOpen(true)}
-          className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-full border border-[rgba(230,211,163,0.55)] bg-[linear-gradient(145deg,#C6A15B,#B8955A)] text-[#0F1F3D] shadow-[0_12px_30px_rgba(15,31,61,0.35)] hover:brightness-105 transition-transform duration-300 animate-pulse">
+          className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-full bg-green-700 text-white shadow-lg hover:bg-green-800 transition-transform duration-300 animate-pulse">
           <MessageCircle className="transition-transform duration-300" />
         </button>
       </div>
@@ -140,17 +140,15 @@ export default function BubbleChat() {
           fixed bottom-4 right-4 sm:right-6 z-50
           w-[90%] max-w-lg
           max-h-[60vh]
-          rounded-2xl border border-[rgba(230,211,163,0.28)] shadow-2xl overflow-hidden flex flex-col
-          before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(115deg,transparent_0%,transparent_36%,rgba(230,211,163,0.10)_48%,transparent_60%,transparent_100%)] before:translate-x-[-120%] before:animate-[chat-luxury-shimmer_6s_ease-in-out_infinite]
+          rounded-2xl border shadow-2xl overflow-hidden flex flex-col
           transform transition-all duration-500
           ${open ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" : "opacity-0 translate-y-10 scale-95 pointer-events-none"}
         `}
         style={{
-          background:
-            "linear-gradient(160deg, rgba(14,27,44,0.98) 0%, rgba(20,38,60,0.98) 55%, rgba(11,21,36,0.98) 100%)",
+          background: "linear-gradient(135deg, #a7f3d0 0%, #fef08a 100%)", // green to yellow
         }}>
         {/* HEADER */}
-        <div className="flex items-center justify-between border-b border-[rgba(230,211,163,0.28)] bg-[rgba(198,161,91,0.16)] px-4 py-3 backdrop-blur-sm">
+        <div className="flex items-center justify-between  bg-white opacity-70 px-4 py-3">
           <div className="flex items-center gap-2">
             <div className="h-11 w-11 rounded-full text-white flex items-center justify-center font-bold">
               <div className="relative inline-block">
@@ -161,15 +159,15 @@ export default function BubbleChat() {
                 />
 
                 {/* Status circle */}
-                <span className="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-[#0F1F3D] bg-[#C6A15B]"></span>
+                <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-600 rounded-full border-2 border-white"></span>
               </div>
             </div>
             <div>
-              <p className="font-display text-base font-semibold tracking-[0.02em] text-[#F6F7F5]">
+              <p className="text-sm green font-semibold">
                 Marcelino's Concierge
               </p>
 
-              <p className="text-xs text-[rgba(230,211,163,0.88)]">Ready to help</p>
+              <p className="text-xs green">Ready to help</p>
             </div>
           </div>
           <button
@@ -178,12 +176,12 @@ export default function BubbleChat() {
               setShowPrompt(false);
             }}
             className="transition-transform duration-200 hover:scale-110">
-            <X className="h-5 w-5 text-[rgba(246,247,245,0.72)]" />
+            <X className="h-5 w-5 text-black/50" />
           </button>
         </div>
 
         {/* BODY */}
-        <div className="relative z-10 flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 text-sm">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 text-sm">
           {messages.map((msg, i) => (
             <div
               key={i}
@@ -192,17 +190,15 @@ export default function BubbleChat() {
               }`}>
               <p
                 className={`mb-1 text-[10px] uppercase tracking-wide font-semibold ${
-                  msg.from === "user"
-                    ? "text-[rgba(230,211,163,0.92)]"
-                    : "text-[rgba(246,247,245,0.72)]"
+                  msg.from === "user" ? "text-green-800" : "text-green-700"
                 }`}>
                 {msg.from === "bot" ? "Marcelino's Concierge" : "You"}
               </p>
               <div
                 className={`rounded-xl px-3 py-2 shadow-sm whitespace-pre-line transition-all duration-300 ${
                   msg.from === "user"
-                    ? "border border-[rgba(230,211,163,0.38)] bg-[linear-gradient(145deg,#C6A15B,#B8955A)] text-[#0F1F3D] shadow-[0_6px_18px_rgba(15,31,61,0.28)]"
-                    : "border border-[rgba(230,211,163,0.22)] bg-[rgba(246,247,245,0.08)] text-[#F6F7F5]"
+                    ? "bg-green-700 text-white"
+                    : "bg-green-50 border-l-4 border-green-600 text-gray-800"
                 }`}>
                 {msg.text}
               </div>
@@ -211,17 +207,17 @@ export default function BubbleChat() {
 
           {/* Typing indicator */}
           {isTyping && (
-            <div className="max-w-[60%] rounded-lg border border-[rgba(230,211,163,0.25)] bg-[rgba(246,247,245,0.08)] px-3 py-2 text-[#F6F7F5] flex items-center space-x-2 animate-pulse">
-              <div className="w-2 h-2 bg-[#E6D3A3] rounded-full animate-bounce delay-0"></div>
-              <div className="w-2 h-2 bg-[#E6D3A3] rounded-full animate-bounce delay-150"></div>
-              <div className="w-2 h-2 bg-[#E6D3A3] rounded-full animate-bounce delay-300"></div>
+            <div className="max-w-[60%] text-gray-800 rounded-lg px-3 py-2 flex items-center space-x-2 animate-pulse">
+              <div className="w-2 h-2 bg-green-700 rounded-full animate-bounce delay-0"></div>
+              <div className="w-2 h-2 bg-green-700 rounded-full animate-bounce delay-150"></div>
+              <div className="w-2 h-2 bg-green-700 rounded-full animate-bounce delay-300"></div>
             </div>
           )}
 
           {/* Inline suggested replies (user's questions) */}
           {faqs.length > 0 && (
             <div className="pt-2">
-              <p className="mb-2 text-[10px] uppercase tracking-wide text-[rgba(230,211,163,0.9)] font-semibold text-right">
+              <p className="mb-2 text-[10px] uppercase tracking-wide text-green-700 font-semibold text-right">
                 You can ask
               </p>
               <div className="flex flex-wrap gap-2 justify-end">
@@ -229,7 +225,7 @@ export default function BubbleChat() {
                   <button
                     key={i}
                     onClick={() => handleFaqClick(faq)}
-                    className="inline-flex items-center gap-1 rounded-full border border-[rgba(230,211,163,0.45)] bg-[rgba(198,161,91,0.94)] px-3 py-2 text-xs font-medium text-[#0F1F3D] hover:bg-[rgba(230,211,163,0.96)] transition shadow-sm max-w-[85%]">
+                    className="inline-flex items-center gap-1 rounded-full bg-green-700/90 text-white px-3 py-2 text-xs hover:bg-green-800 transition shadow-sm max-w-[85%]">
                     <span className="truncate">{faq.question}</span>
                     <ChevronRight className="h-3.5 w-3.5 shrink-0" />
                   </button>
@@ -240,32 +236,10 @@ export default function BubbleChat() {
         </div>
 
         {/* FOOTER */}
-        <div className="relative z-10 shrink-0 border-t border-[rgba(230,211,163,0.2)] bg-[rgba(198,161,91,0.08)] py-2 text-center text-[10px] text-[rgba(230,211,163,0.86)]">
+        <div className="py-2 text-center text-[10px] green shrink-0">
           Powered by Marcelino's Virtual Concierge
         </div>
       </div>
-      <style>{`
-        @keyframes chat-luxury-shimmer {
-          0% {
-            transform: translateX(-120%);
-            opacity: 0;
-          }
-          18% {
-            opacity: 0.85;
-          }
-          42% {
-            opacity: 0.35;
-          }
-          60% {
-            transform: translateX(120%);
-            opacity: 0;
-          }
-          100% {
-            transform: translateX(120%);
-            opacity: 0;
-          }
-        }
-      `}</style>
     </>
   );
 }
