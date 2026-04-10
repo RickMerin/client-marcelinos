@@ -116,15 +116,8 @@ export const useBookingForm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- align once on mount; bookingTypeInit is from initial reservationDate
   }, []);
 
-  // Redirect if no reservation date (must start from home booking bar). After a successful
-  // booking, clearBookingStorage removes reservationDate but keeps reservationDetails with
-  // current_step 5 — do not send those users home.
+  // Redirect if no reservation date (must start from home booking bar)
   useEffect(() => {
-    const details = getFromLocalStorage("reservationDetails") as
-      | Partial<FormData>
-      | undefined;
-    if (details?.current_step === 5) return;
-
     if (!reservationDate || reservationDate.days === 0) {
       navigate("/");
     }
