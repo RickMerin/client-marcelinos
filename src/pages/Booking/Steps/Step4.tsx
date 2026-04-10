@@ -44,7 +44,9 @@ export function Step4({
 
   const handleConfirmProceed = () => {
     // Keep modal open so the button loader is visible during submit
-    toast.success({ content: "Payment method locked in! Finalizing your booking." });
+    toast.success({
+      content: "Payment method locked in! Finalizing your booking now.",
+    });
     onProceed(); // FINAL proceed – on success we navigate away; on error modal stays, user can Cancel
   };
 

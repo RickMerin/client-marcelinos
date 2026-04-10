@@ -841,3 +841,219 @@
   position: relative;
   z-index: 1;
 }
+
+/* ============================================================
+   TOASTS — aligned with landing page design language
+   ============================================================ */
+.Toastify__toast-container {
+  width: min(92vw, 380px);
+  padding: 0.7rem;
+}
+
+.Toastify__toast-container--top-right {
+  top: 5.25rem;
+  right: 0.75rem;
+}
+
+.resort-toast {
+  border-radius: 10px !important;
+  border: 1px solid rgba(198, 161, 91, 0.32);
+  border-left: 2px solid rgba(230, 211, 163, 0.7);
+  background: linear-gradient(135deg, #0f3d34 0%, #145244 100%) !important;
+  color: var(--color-cream) !important;
+  box-shadow: 0 12px 26px rgba(8, 30, 25, 0.35);
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.resort-toast .Toastify__toast-body {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  line-height: 1.4;
+  color: var(--color-cream);
+  margin: 0;
+  width: 100%;
+  padding: 0.92rem 1rem;
+}
+
+.resort-toast .Toastify__toast-body > div {
+  width: 100%;
+}
+
+.resort-toast .Toastify__progress-bar {
+  background: linear-gradient(90deg, rgba(198, 161, 91, 0.95) 0%, rgba(230, 211, 163, 0.95) 100%) !important;
+  height: 3px;
+}
+
+.resort-toast .Toastify__close-button {
+  color: var(--color-gold-light);
+  opacity: 0.72;
+  position: absolute;
+  top: 0.38rem;
+  right: 0.38rem;
+  margin: 0;
+  padding: 0.1rem;
+  line-height: 1;
+}
+
+.resort-toast .Toastify__close-button:hover {
+  opacity: 1;
+}
+
+.resort-toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  padding-right: 1.1rem;
+}
+
+.resort-toast-success-layout {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.resort-toast-success-layout__icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  min-width: 1.35rem;
+  border-radius: 9999px;
+  background: rgba(230, 211, 163, 0.95);
+  color: #0f3d34;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.resort-toast-content__title {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.25;
+  color: var(--color-cream);
+  margin: 0;
+}
+
+.resort-toast-content__message {
+  font-family: var(--font-body);
+  font-size: 0.83rem;
+  line-height: 1.35;
+  color: rgba(246, 247, 245, 0.9);
+  margin: 0;
+}
+
+.resort-toast--success {
+  border-color: rgba(198, 161, 91, 0.34);
+  background: linear-gradient(135deg, #0f3d34 0%, #145244 100%) !important;
+  box-shadow: 0 14px 30px rgba(8, 30, 25, 0.4);
+}
+
+.resort-toast--success .Toastify__toast-body {
+  color: #ffffff;
+}
+
+.resort-toast--success .resort-toast-content__title {
+  color: #ffffff;
+}
+
+.resort-toast--success .resort-toast-content__message {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.resort-toast--success .Toastify__close-button {
+  color: #ffffff;
+}
+
+.resort-toast--success .Toastify__progress-bar {
+  background: linear-gradient(90deg, rgba(198, 161, 91, 0.95) 0%, rgba(230, 211, 163, 0.95) 100%) !important;
+}
+
+.resort-toast--error {
+  border-left-color: #b34747;
+  border-color: rgba(179, 71, 71, 0.25);
+}
+
+.resort-toast--error .Toastify__toast-icon svg {
+  fill: #b34747;
+}
+
+.resort-toast--warning {
+  border-left-color: var(--color-gold);
+}
+
+.resort-toast--info,
+.resort-toast--default {
+  border-left-color: var(--color-forest-soft);
+}
+
+/* ============================================================
+   TOASTS — default toastify with brand polish
+   ============================================================ */
+.Toastify__toast-container--top-right {
+  top: 5rem;
+  right: 0.9rem;
+}
+
+.Toastify__toast-theme--light {
+  border-radius: 10px;
+  font-family: var(--font-body);
+  box-shadow: 0 10px 24px rgba(11, 38, 32, 0.18);
+}
+
+.Toastify__toast--success {
+  background: linear-gradient(135deg, #0f6b58 0%, #14816b 100%);
+  color: #ffffff;
+}
+
+.Toastify__toast--error {
+  background: linear-gradient(135deg, #9f2f2f 0%, #b23e3e 100%);
+  color: #ffffff;
+}
+
+.Toastify__toast--warning {
+  background: linear-gradient(135deg, #8c6a2e 0%, #a47a35 100%);
+  color: #ffffff;
+}
+
+.Toastify__toast--info,
+.Toastify__toast--default {
+  background: linear-gradient(135deg, #2f5d50 0%, #3f7a6b 100%);
+  color: #ffffff;
+}
+
+.Toastify__close-button--light {
+  color: rgba(255, 255, 255, 0.95);
+  opacity: 0.78;
+}
+
+.Toastify__close-button--light:hover {
+  opacity: 1;
+}
+
+.Toastify__progress-bar-theme--light {
+  background: linear-gradient(90deg, rgba(230, 211, 163, 0.94) 0%, rgba(246, 247, 245, 0.95) 100%);
+}
+
+@media (max-width: 640px) {
+  .Toastify__toast-container {
+    width: calc(100vw - 1rem);
+    left: 0.5rem;
+    right: 0.5rem;
+    padding: 0;
+  }
+
+  .Toastify__toast-container--top-right {
+    top: 4.8rem;
+    right: 0.5rem;
+  }
+
+  .resort-toast .Toastify__toast-body {
+    padding: 0.85rem 0.92rem;
+  }
+}

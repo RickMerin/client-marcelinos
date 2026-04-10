@@ -44,7 +44,11 @@ const App = () => {
           </Routes>
         </Suspense>
       </Router>
-      <ToastContainer newestOnTop pauseOnFocusLoss={false} />
+      <ToastContainer
+        newestOnTop
+        pauseOnFocusLoss={false}
+        limit={3}
+      />
     </ErrorBoundary>
   );
 };
