@@ -58,12 +58,12 @@ export function Step4({
 
       <div className="text-center space-y-2">
         <h3
-          className="font-display text-lg font-semibold"
+          className="font-display text-lg font-semibold text-[color:var(--color-sea)]"
           style={{ color: "var(--color-charcoal)" }}>
           Online Payment Awareness
         </h3>
         <p
-          className="max-w-2xl mx-auto text-sm opacity-80"
+          className="max-w-2xl mx-auto text-sm leading-relaxed opacity-85"
           style={{ color: "var(--color-charcoal)" }}>
           Guests are encouraged to pay online through secure methods such as
           GCash, PayMaya, PayPal, or bank transfer for a fast and convenient
@@ -77,11 +77,11 @@ export function Step4({
       <div className="grid md:grid-cols-2 gap-6">
         {/* Pay in Cash */}
         <label
-          className={`cursor-pointer border rounded-md p-4 flex items-start gap-3 shadow-sm transition relative
+          className={`cursor-pointer border rounded-lg p-4 flex items-start gap-3 shadow-sm transition relative
             ${
               paymentMethod === PAYMENT_METHODS.CASH
-                ? "ring-2 ring-(--color-sage) bg-(--color-sage-muted) border-(--color-sage)"
-                : "bg-(--color-cream) border-(--color-sage-muted) hover:bg-(--color-cream-dark)"
+                ? "ring-2 ring-(--color-sea) bg-(--color-sage-muted) border-(--color-sea)"
+                : "bg-(--color-cream) border-(--color-sage-muted) hover:bg-(--color-cream-dark) hover:border-(--color-leaf)"
             }`}>
           <input
             type="checkbox"
@@ -91,14 +91,14 @@ export function Step4({
             style={{ accentColor: "var(--color-sage)" }}
           />
           <img src={cash} alt="Cash" loading="lazy" className="w-13 h-13" />
-          <div>
+          <div className="space-y-1">
             <h4
-              className="font-semibold"
+              className="font-semibold text-[color:var(--color-sea)]"
               style={{ color: "var(--color-charcoal)" }}>
               Pay in Cash
             </h4>
             <p
-              className="text-sm opacity-80"
+              className="text-sm leading-relaxed opacity-85"
               style={{ color: "var(--color-charcoal)" }}>
               You can also pay directly at the resort upon check-in. Please
               present your booking confirmation at the front desk.
@@ -108,7 +108,7 @@ export function Step4({
 
         {/* Pay Online (Xendit) */}
         <label
-          className={`cursor-not-allowed border rounded-md p-4 flex items-start gap-3 shadow-sm relative opacity-50
+          className={`cursor-not-allowed border rounded-lg p-4 flex items-start gap-3 shadow-sm relative opacity-55
     bg-(--color-cream) border-(--color-sage-muted)
             ${
               paymentMethod === PAYMENT_METHODS.ONLINE
@@ -129,14 +129,14 @@ export function Step4({
             loading="lazy"
             className="w-15 h-15"
           />
-          <div>
+          <div className="space-y-1">
             <h4
-              className="font-semibold"
+              className="font-semibold text-[color:var(--color-sea)]"
               style={{ color: "var(--color-charcoal)" }}>
               Pay Online
             </h4>
             <p
-              className="text-sm opacity-80"
+              className="text-sm leading-relaxed opacity-85"
               style={{ color: "var(--color-charcoal)" }}>
               Pay securely via GCash, PayMaya, debit/credit card, or bank
               transfer. You will be redirected to our payment partner Xendit.
@@ -158,7 +158,7 @@ export function Step4({
           disabled={!paymentMethod}
           className={`px-6 py-3 rounded-md ${
             paymentMethod
-              ? "bg-amber-400 hover:bg-amber-500 text-black"
+              ? "bg-yellow-600 hover:bg-yellow-800 text-white"
               : "bg-gray-300 text-gray-600 cursor-not-allowed"
           }`}>
           Proceed to Payment
@@ -169,7 +169,9 @@ export function Step4({
       <Modal
         open={isProceedModalOpen}
         onClose={isSubmitting ? () => {} : () => setIsProceedModalOpen(false)}
-        showCloseButton={!isSubmitting}>
+        showCloseButton={!isSubmitting}
+        contentClassName="relative w-full max-w-3xl mx-4 overflow-hidden rounded-xl border border-[#d7c089]/25 bg-[#0c2c27]/95 px-5 py-6 text-center shadow-2xl backdrop-blur-sm md:px-8 md:py-8"
+        backgroundImage={undefined}>
         <PaymentConfirmContent
           onCancel={() => !isSubmitting && setIsProceedModalOpen(false)}
           onConfirm={handleConfirmProceed}
