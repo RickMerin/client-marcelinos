@@ -81,11 +81,7 @@ function About() {
 						containerClassName="w-full h-full"
 						className="object-center transition-transform duration-700 hover:scale-105"
 					/>
-					<div className="absolute inset-0 bg-ink/25 flex items-center justify-center pointer-events-none">
-						<span className="font-display italic text-base text-cream/60">
-							Pool &amp; Gardens
-						</span>
-					</div>
+					<div className="absolute inset-0 bg-ink/25 flex items-center justify-center pointer-events-none"></div>
 				</div>
 			</div>
 		</div>
