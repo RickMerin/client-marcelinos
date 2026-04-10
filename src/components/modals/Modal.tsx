@@ -59,11 +59,11 @@ export default function Modal({
             {showCloseButton && (
               <button
                 type="button"
-                className="absolute top-2 right-2 text-white hover:text-gray-300 z-20"
+                className="absolute top-3 right-3 z-20 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white transition hover:bg-white/20"
                 onClick={onClose}
                 aria-label="Close modal"
               >
-                <CircleX />
+                <CircleX className="h-4 w-4" />
               </button>
             )}
 
