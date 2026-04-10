@@ -164,7 +164,7 @@ const App = () => {
   return (
     <ErrorBoundary>
       <Router>
-        <Suspense fallback={<Spinner />}>
+        <Suspense>
           <Routes>
             <Route path="/maintenance" element={<Navigate to="/" replace />} />
             {routes.map(({ path, component: Component }, index) => (
