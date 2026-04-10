@@ -4,6 +4,39 @@
 @custom-variant dark (&:is(.dark *));
 @layer base, components, utilities;
 
+@keyframes leaf-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.85) translateY(4px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes splash-loading-fade {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.splash-loading-text {
+  animation: splash-loading-fade 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-loading-text {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+
 @layer components {
   .btn-secondary {
     background-color: var(--secondary-color);

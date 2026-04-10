@@ -5,7 +5,7 @@ import { routes } from "./routes/route";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ScrollNav from "./components/ScrollNav";
-import { LeafLoader } from "./components/ui/LeafLoader";
+import { GlobalSplash } from "./components/GlobalSplash";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { useRealtimeGlobalSubscriber } from "@/hooks/useRealtimeGlobalSubscriber";
 import { ToastContainer } from "react-toastify";
@@ -114,7 +114,7 @@ const App = () => {
       setIsLoaderExiting(true);
       const exitTimer = window.setTimeout(() => {
         setShowGlobalLoader(false);
-      }, 350);
+      }, 600);
 
       return () => {
         window.clearTimeout(exitTimer);
@@ -123,18 +123,7 @@ const App = () => {
   }, [isLoadingMaintenance, showGlobalLoader]);
 
   if (showGlobalLoader || isLoadingMaintenance) {
-    return (
-      <div
-        className="fixed inset-0 z-[9999] flex items-center justify-center bg-cream"
-        style={{
-          opacity: isLoaderExiting ? 0 : 1,
-          transform: isLoaderExiting ? "scale(1.02)" : "scale(1)",
-          transition: "opacity 350ms ease, transform 350ms ease",
-        }}
-      >
-        <LeafLoader />
-      </div>
-    );
+    return <GlobalSplash isExiting={isLoaderExiting} />;
   }
 
   if (maintenance.enabled) {
