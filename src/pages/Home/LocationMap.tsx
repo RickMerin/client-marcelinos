@@ -5,7 +5,7 @@ export default function InteractiveMap() {
   return (
     <div className="w-full">
       <div className="section-eyebrow">Find Us</div>
-      <h2 className="font-display text-[clamp(36px,4vw,56px)] font-light text-ink leading-[1.1] mb-10">
+      <h2 className="font-display text-fluid-h2 font-light text-ink leading-[1.1] mb-10">
         Visit <em className="italic text-gold">Marcelino's</em>
       </h2>
 

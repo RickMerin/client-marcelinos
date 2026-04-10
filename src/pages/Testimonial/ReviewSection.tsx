@@ -135,7 +135,7 @@ function ClientReviews() {
       {!isLoading && !isError && current && (
         <>
           <blockquote
-            className="font-display text-[clamp(22px,3vw,36px)] font-light italic leading-normal text-cream my-8 transition-all duration-600"
+            className="font-display text-fluid-quote font-light italic leading-normal text-cream my-8 transition-all duration-600"
             key={currentIdx}
             style={{
               animation: "fadeUp 0.6s ease both",

@@ -108,7 +108,7 @@ function EventVenues() {
         <div className="section-eyebrow">Event Spaces</div>
         <h2
           id="venues-heading"
-          className="font-display text-[clamp(36px,4vw,56px)] font-light leading-[1.1] text-ink"
+          className="font-display text-fluid-h2 font-light leading-[1.1] text-ink"
         >
           Host Your <em className="italic text-gold">Perfect</em> Event
         </h2>

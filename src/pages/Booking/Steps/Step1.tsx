@@ -420,7 +420,7 @@ export function Step1({
 				<br />
 
 				{/* Booking summary — labels match room vs venue vs combined */}
-				<div className="booking-form-panel">
+				<div className="booking-form-panel text-center">
 					{bookingType === "venue" ? (
 						<>
 							<div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
@@ -581,16 +581,6 @@ export function Step1({
 
 			{showRooms && (
 				<section className="space-y-4">
-					<div>
-						<h3 className="font-display text-xl font-semibold">
-							Where you&apos;ll stay
-						</h3>
-						<p className="text-sm mt-0.5 opacity-80">
-							{bookingType === "both"
-								? "Standard, Family, and Deluxe appear below by layout. Use +/− for each—up to what’s available—or skip rooms if you only need a venue."
-								: "Browse Standard, Family, and Deluxe by layout. Use +/− to choose how many rooms you need; you can’t exceed availability for your dates."}
-						</p>
-					</div>
 					{roomsError && (
 						<p className="text-red-600 text-sm py-2">
 							Error loading rooms. Please try again.

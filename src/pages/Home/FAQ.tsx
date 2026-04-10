@@ -49,7 +49,7 @@ function FAQ() {
       <div className="w-full">
         <h2
           id="faq-heading"
-          className="font-display text-3xl font-bold tracking-tight mb-6 text-center text-(--color-charcoal)">
+          className="font-display text-fluid-h2 font-bold tracking-tight mb-6 text-center text-(--color-charcoal)">
           <span className="green">FREQUENTLY</span>{" "}
           <span className="yellow">ASKED</span>{" "}
           <span className="green">QUESTIONS</span>

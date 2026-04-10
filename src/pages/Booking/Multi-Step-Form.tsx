@@ -92,7 +92,7 @@ export function MultiStepForm() {
   };
 
   return (
-		<section className="w-full max-w-[1200px] mx-auto px-6 lg:px-12 pt-20 pb-8">
+		<section className="w-full max-w-[1200px] mx-auto px-3 lg:px-12 pt-20 pb-8">
 			<ProgressIndicator currentStep={formData.current_step} />
 
 			<div className="mt-8 mb-8 min-h-87.5">

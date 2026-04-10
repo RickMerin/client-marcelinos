@@ -73,7 +73,7 @@ function Home() {
 
 			{/* ── ROOMS (dark) ── */}
 			<Section id="rooms" className="section-depth-forest" fullWidth>
-				<div className="max-w-[1400px] mx-auto px-6 lg:px-16 xl:px-20">
+				<div className="max-w-[1400px] mx-auto px-3 lg:px-16 xl:px-20">
 					<SectionReveal>
 						<RoomCard />
 					</SectionReveal>
@@ -109,11 +109,9 @@ function Home() {
 			</Section>
 
 			{/* ── CTA STRIP ── */}
-			<div className="cta-strip-luxury py-16 md:py-20 lg:py-24 px-6 lg:px-16 xl:px-20 flex items-center justify-between gap-10 flex-wrap max-md:flex-col max-md:items-start max-md:gap-8">
-				<h2
-					className="cta-strip-inner font-display text-[clamp(32px,4vw,56px)] font-light leading-[1.15] text-cream">
-					Ready to{" "}
-					<em className="italic text-gold">Escape</em> to Paradise?
+			<div className="cta-strip-luxury py-16 md:py-20 lg:py-24 px-3 lg:px-16 xl:px-20 flex items-center justify-between gap-10 flex-wrap max-md:flex-col max-md:items-start max-md:gap-8">
+				<h2 className="cta-strip-inner font-display text-fluid-h2 font-light leading-[1.15] text-cream">
+					Ready to <em className="italic text-gold">Escape</em> to Paradise?
 				</h2>
 				<Link
 					to="/create-booking"

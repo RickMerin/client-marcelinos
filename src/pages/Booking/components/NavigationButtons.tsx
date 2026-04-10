@@ -27,31 +27,30 @@ export const NavigationButtons = ({
   const showEstimatedTotal = currentStep === 1;
 
   return (
-    <div className="flex items-center justify-between gap-4 pt-2">
-      <Button
-        variant="ghost"
-        onClick={onPrevious}
-        className="px-5 py-2.5 text-ink hover:bg-sage-muted font-medium">
-        {currentStep === 3 ? "← Edit Personal Info" : "← Back"}
-      </Button>
-      <div className="flex items-center gap-4">
-        {showEstimatedTotal && (
-          <div className="text-right text-ink">
-            <p className="text-sm font-medium opacity-90">Estimated total</p>
-            <p className="text-xl font-bold tracking-tight">
-              {pricingFormat(estimatedTotal)}
-            </p>
-          </div>
-        )}
-        <button
-          type="button"
-          onClick={onNext}
-          disabled={isNextDisabled}
-          className="btn-primary-mockup min-w-40 text-center"
-        >
-          Continue
-        </button>
-      </div>
-    </div>
-  );
+		<div className="flex items-center justify-between gap-4 pt-2">
+			<Button
+				variant="ghost"
+				onClick={onPrevious}
+				className="px-5 py-2.5 text-ink hover:bg-sage-muted font-medium">
+				{currentStep === 3 ? "← Edit Personal Info" : "← Back"}
+			</Button>
+			<div className="flex items-center gap-4">
+				{showEstimatedTotal && (
+					<div className="text-right text-ink">
+						<p className="text-sm font-medium opacity-90">Estimated total</p>
+						<p className="text-xl font-bold tracking-tight">
+							{pricingFormat(estimatedTotal)}
+						</p>
+					</div>
+				)}
+				<button
+					type="button"
+					onClick={onNext}
+					disabled={isNextDisabled}
+					className="btn-primary-mockup min-w-30 text-center">
+					Continue
+				</button>
+			</div>
+		</div>
+	);
 };

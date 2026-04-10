@@ -89,7 +89,7 @@ export function BannerCarousel() {
 											<motion.h1
 												variants={fadeUp}
 												transition={{ duration: 1, delay: 0.2 }}
-												className="font-display text-[clamp(48px,8vw,80px)] max-md:text-[clamp(32px,7vw,56px)] font-semibold uppercase leading-[0.95] max-md:leading-[1.05] tracking-[-0.02em] text-cream mb-2">
+												className="font-display text-fluid-display font-semibold uppercase leading-[0.95] max-md:leading-[1.05] tracking-[-0.02em] text-cream mb-2">
 												MAKE YOUR <span className="text-gold-light">STAY</span>
 												<br />
 												COMFORTABLE
@@ -110,9 +110,10 @@ export function BannerCarousel() {
 												className="flex items-center flex-wrap gap-6 max-md:flex-col max-md:items-start max-md:gap-5 mt-2">
 												<a
 													href="#rooms"
-													className="btn-primary-mockup max-md:w-full max-md:text-center flex items-center justify-center">
+													className="btn-primary-mockup max-md:w-full max-md:text-center">
 													Explore Rooms
 												</a>
+
 												<a
 													href="#venues"
 													className="btn-outline-hero-secondary max-md:w-full max-md:text-center">
