@@ -242,38 +242,37 @@ export default function BookingForm() {
   };
 
   const formGridClass = cn(
-    "relative z-10 flex-1 min-w-0",
-    "flex flex-col lg:flex-row lg:items-stretch",
-    "[&_label]:text-gold-light [&_label]:text-[13px] [&_label]:tracking-[0.2em] [&_label]:uppercase [&_label]:font-medium",
-  );
+		"relative z-10 flex-1 min-w-0",
+		"flex flex-col lg:flex-row lg:items-stretch",
+		"[&_label]:w-full [&_label]:justify-center [&_label]:text-center",
+		"[&_label]:text-gold-light [&_label]:text-[13px] [&_label]:tracking-[0.2em] [&_label]:uppercase [&_label]:font-medium",
+	);
 
   return (
-    <div className="relative z-10 flex flex-col lg:flex-row lg:items-stretch">
-      {/* Booking type dropdown — first field in the bar */}
-      <div className="flex flex-col gap-1.5 px-5 py-5 lg:py-6 border-b lg:border-b-0 lg:border-r border-cream/[0.07] min-w-0">
-        <span className="text-gold-light text-[13px] tracking-[0.2em] uppercase font-medium">
-          Booking Type
-        </span>
-        <div className="relative">
-          <select
-            value={kind}
-            onChange={(e) => setKind(e.target.value as BookingKind)}
-            className="bg-transparent border-none outline-none font-display text-lg text-cream w-full min-w-0 cursor-pointer appearance-none pr-6"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            {KIND_OPTIONS.map((opt) => (
-              <option
-                key={opt.value}
-                value={opt.value}
-                className="bg-ink text-cream"
-              >
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 size-4 text-cream/40 pointer-events-none" />
-        </div>
-      </div>
+		<div className="relative z-10 flex flex-col lg:flex-row lg:items-stretch">
+			{/* Booking type dropdown — first field in the bar */}
+			<div className="booking-bar-segment flex flex-col gap-1.5 px-5 py-5 lg:py-6 border-b lg:border-b-0 lg:border-r border-cream/[0.07] xl:w-75 items-center text-center">
+				<span className="text-gold-light text-[13px] tracking-[0.2em] uppercase font-medium">
+					Booking Type
+				</span>
+				<div className="relative w-full max-w-full">
+					<select
+						value={kind}
+						onChange={(e) => setKind(e.target.value as BookingKind)}
+						className="bg-transparent border-none outline-none font-display text-lg text-cream w-full min-w-0 cursor-pointer appearance-none px-6 text-center"
+						style={{ fontFamily: "var(--font-display)" }}>
+						{KIND_OPTIONS.map((opt) => (
+							<option
+								key={opt.value}
+								value={opt.value}
+								className="bg-ink text-cream">
+								{opt.label}
+							</option>
+						))}
+					</select>
+					<ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 size-4 text-cream/40 pointer-events-none" />
+				</div>
+			</div>
 
 			{/* Form fields */}
 			{!reservationDate.check_in && isLoadingBlocked ? (
