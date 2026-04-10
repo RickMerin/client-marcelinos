@@ -116,7 +116,7 @@ export const useBookingForm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- align once on mount; bookingTypeInit is from initial reservationDate
   }, []);
 
-  // Redirect if no reservation date
+  // Redirect if no reservation date (must start from home booking bar)
   useEffect(() => {
     if (!reservationDate || reservationDate.days === 0) {
       navigate("/");

@@ -793,13 +793,12 @@ export function Step5(props: Props) {
 						{/* Booking summary */}
 						<div className="grid sm:grid-cols-2 gap-8">
 							<div className="space-y-1.5">
-								<ReceiptRow
-									label="Booking Created"
-									value={formattedCreatedAt}
-								/>
 								<ReceiptRow label="Check-in" value={formattedCheckIn} />
 								<ReceiptRow label="Check-out" value={formattedCheckOut} />
-								<ReceiptRow label={bookingType === "venue" ? "Days" : "Nights"} value={String(nights)} />
+								<ReceiptRow
+									label={bookingType === "venue" ? "Days" : "Nights"}
+									value={String(nights)}
+								/>
 								{venues.length > 0 && (
 									<ReceiptRow label="Event type" value={venueEventLabel} />
 								)}
@@ -845,113 +844,150 @@ export function Step5(props: Props) {
 
 						<ReceiptDivider />
 
-						{/* Line items table */}
-						<div className="overflow-hidden border border-gray-200 rounded-md">
-							<table className="w-full text-xs sm:text-sm">
-								<thead className="bg-emerald-50">
-									<tr className="text-left">
-										<th className="px-3 py-2 sm:px-4 sm:py-2.5 w-10">No.</th>
-										<th className="px-3 py-2 sm:px-4 sm:py-2.5">
-											Room / Venue
-										</th>
-										<th className="px-3 py-2 sm:px-4 sm:py-2.5 text-right whitespace-nowrap">
-											Rate
-										</th>
-										<th className="px-3 py-2 sm:px-4 sm:py-2.5 text-center">
-											Nights / Day
-										</th>
-									</tr>
-								</thead>
-								<tbody>
-									{rooms.length === 0 && venues.length === 0 ? (
-										<tr>
-											<td
-												colSpan={5}
-												className="px-4 py-4 text-center text-xs italic text-gray-500">
-												No rooms or venues selected
-											</td>
+						{/* Rooms items table */}
+						{rooms.length > 0 && (
+							<div className="overflow-hidden border border-gray-200 rounded-md">
+								<table className="w-full text-xs sm:text-sm">
+									<thead className="bg-emerald-50">
+										<tr className="text-left">
+											<th className="px-3 py-2 sm:px-4 sm:py-2.5 w-10">No.</th>
+											<th className="px-3 py-2 sm:px-4 sm:py-2.5">Room</th>
+											<th className="px-3 py-2 sm:px-4 sm:py-2.5 text-right whitespace-nowrap">
+												Rate
+											</th>
+											<th className="px-3 py-2 sm:px-4 sm:py-2.5 text-center">
+												Night(s)
+											</th>
 										</tr>
-									) : (
-										<>
-											{rooms.map((room: any, idx: number) => {
-												const unitPrice =
-													typeof room.price === "number"
-														? room.price
-														: parseFloat(String(room.price || 0));
-												const qty = nights || 1;
-												const title =
-													room.kind === "line"
-														? formatRoomLineTitle({
-																room_type: room.room_type,
-																inventory_group_key: room.inventory_group_key,
-																quantity: room.quantity,
-															})
-														: assignedRoomBillingTitle(room);
-												return (
-													<tr
-														key={`room-${idx}`}
-														className={
-															idx % 2 === 0 ? "bg-white" : "bg-emerald-50/30"
-														}>
-														<td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
-															#{String(idx + 1)}
-														</td>
-														<td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
-															<div className="font-medium">{title}</div>
-														</td>
-														<td className="px-3 py-2 sm:px-4 sm:py-2.5 text-right align-top tabular-nums">
-															{pricingFormat(unitPrice)}
-														</td>
-														<td className="px-3 py-2 sm:px-4 sm:py-2.5 text-center align-top">
-															{qty}
-														</td>
-													</tr>
-												);
-											})}
-											{venues.map((venue: any, idx: number) => {
-												const unitPrice = venueEffectiveUnitPrice(
-													venue,
-													venueEventTypeRaw as
-														| "wedding"
-														| "birthday"
-														| "meeting_staff"
-														| "",
-												);
-												const qty = nightsForPricing;
+									</thead>
+									<tbody>
+										{rooms.length === 0 ? (
+											<tr>
+												<td
+													colSpan={5}
+													className="px-4 py-4 text-center text-xs italic text-gray-500">
+													No rooms or venues selected
+												</td>
+											</tr>
+										) : (
+											<>
+												{rooms.map((room: any, idx: number) => {
+													const unitPrice =
+														typeof room.price === "number"
+															? room.price
+															: parseFloat(String(room.price || 0));
+													const qty = nights || 1;
+													const title =
+														room.kind === "line"
+															? formatRoomLineTitle({
+																	room_type: room.room_type,
+																	inventory_group_key: room.inventory_group_key,
+																	quantity: room.quantity,
+																})
+															: assignedRoomBillingTitle(room);
+													return (
+														<tr
+															key={`room-${idx}`}
+															className={
+																idx % 2 === 0 ? "bg-white" : "bg-emerald-50/30"
+															}>
+															<td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
+																#{String(idx + 1)}
+															</td>
+															<td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
+																<div className="font-medium">{title} </div>
+															</td>
+															<td className="px-3 py-2 sm:px-4 sm:py-2.5 text-right align-top tabular-nums">
+																{pricingFormat(unitPrice)}
+															</td>
+															<td className="px-3 py-2 sm:px-4 sm:py-2.5 text-center align-top">
+																{qty}
+															</td>
+														</tr>
+													);
+												})}
+											</>
+										)}
+									</tbody>
+								</table>
+							</div>
+						)}
 
-												return (
-													<tr
-														key={`venue-${idx}`}
-														className={
-															(rooms.length + idx) % 2 === 0
-																? "bg-white"
-																: "bg-emerald-50/30"
-														}>
-														<td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
-															{String(rooms.length + idx + 1).padStart(2, "0")}
-														</td>
-														<td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
-															<div className="font-medium">
-																{venue.name ?? "Venue"}
-															</div>
-															<div className="text-[11px] sm:text-xs text-gray-600 mt-0.5">
-																Capacity: {venue.capacity ?? "—"}
-															</div>
-														</td>
-														<td className="px-3 py-2 sm:px-4 sm:py-2.5 text-right align-top tabular-nums">
-															{pricingFormat(unitPrice)}
-														</td>
-														<td className="px-3 py-2 sm:px-4 sm:py-2.5 text-center align-top">
-															{qty}
-														</td>
-													</tr>
-												);
-											})}
-										</>
-									)}
-								</tbody>
-							</table>
-						</div>
+						{/* Venues items table */}
+						{venues.length > 0 && (
+							<div className="overflow-hidden border border-gray-200 rounded-md">
+								<table className="w-full text-xs sm:text-sm">
+									<thead className="bg-emerald-50">
+										<tr className="text-left">
+											<th className="px-3 py-2 sm:px-4 sm:py-2.5 w-10">No.</th>
+											<th className="px-3 py-2 sm:px-4 sm:py-2.5">Venue</th>
+											<th className="px-3 py-2 sm:px-4 sm:py-2.5 text-right whitespace-nowrap">
+												Rate
+											</th>
+											<th className="px-3 py-2 sm:px-4 sm:py-2.5 text-center">
+												Day(s)
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										{venues.length === 0 ? (
+											<tr>
+												<td
+													colSpan={5}
+													className="px-4 py-4 text-center text-xs italic text-gray-500">
+													No venues selected
+												</td>
+											</tr>
+										) : (
+											<>
+												{venues.map((venue: any, idx: number) => {
+													const unitPrice = venueEffectiveUnitPrice(
+														venue,
+														venueEventTypeRaw as
+															| "wedding"
+															| "birthday"
+															| "meeting_staff"
+															| "",
+													);
+													const qty = nightsForPricing;
+
+													return (
+														<tr
+															key={`venue-${idx}`}
+															className={
+																(rooms.length + idx) % 2 === 0
+																	? "bg-white"
+																	: "bg-emerald-50/30"
+															}>
+															<td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top">
+																{String(rooms.length + idx + 1).padStart(
+																	2,
+																	"0",
+																)}
+															</td>
+															<td className="px-3 py-2 sm:px-4 sm:py-2.5 align-top flex gap-2">
+																<div className="font-medium">
+																	{venue.name ?? "Venue"}
+																</div>
+																<div className="text-[11px] sm:text-xs text-gray-600 mt-0.5">
+																	Capacity: {venue.capacity ?? "—"}
+																</div>
+															</td>
+															<td className="px-3 py-2 sm:px-4 sm:py-2.5 text-right align-top tabular-nums">
+																{pricingFormat(unitPrice)}
+															</td>
+															<td className="px-3 py-2 sm:px-4 sm:py-2.5 text-center align-top">
+																{qty}
+															</td>
+														</tr>
+													);
+												})}
+											</>
+										)}
+									</tbody>
+								</table>
+							</div>
+						)}
 
 						{/* Totals section */}
 						<div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-8 items-start mt-1">

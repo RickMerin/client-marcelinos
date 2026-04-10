@@ -175,18 +175,17 @@ export function BookingReceiptPage({
 
   if (isLoading) {
     return (
-      <main
-        className="min-h-screen flex flex-col items-center p-4 pb-10 landing-section-alt"
-        style={{ backgroundColor: "var(--color-cream)" }}
-      >
-        <div className="w-full max-w-6xl mx-auto">
-          <ProgressIndicator currentStep={RECEIPT_STEP} />
-          <div className="mt-6 mb-8">
-            <Step5Skeleton />
-          </div>
-        </div>
-      </main>
-    );
+			<main
+				className="min-h-screen flex flex-col items-center p-4 pb-10 landing-section-alt"
+				style={{ backgroundColor: "var(--color-cream)" }}>
+				<div className="w-full max-w-6xl mx-auto pt-15">
+					<ProgressIndicator currentStep={RECEIPT_STEP} />
+					<div className="mt-6 mb-8">
+						<Step5Skeleton />
+					</div>
+				</div>
+			</main>
+		);
   }
 
   if (isError || !receipt) {
@@ -228,17 +227,16 @@ export function BookingReceiptPage({
   ) : null;
 
   return (
-    <main
-      className="min-h-screen flex flex-col items-center p-4 pb-10 landing-section-alt"
-      style={{ backgroundColor: "var(--color-cream)" }}
-    >
-      <div className="w-full max-w-6xl mx-auto">
-        <ProgressIndicator currentStep={RECEIPT_STEP} />
-        {PaymentStatusBanner}
-        <div className="mt-6 mb-8">
-          <Step5 receiptData={receipt} qrCodeUrl={qrCodeUrl} />
-        </div>
-      </div>
-    </main>
-  );
+		<main
+			className="min-h-screen flex flex-col items-center p-4 pb-10 landing-section-alt"
+			style={{ backgroundColor: "var(--color-cream)" }}>
+			<div className="w-full max-w-6xl mx-auto pt-15">
+				<ProgressIndicator currentStep={RECEIPT_STEP} />
+				{PaymentStatusBanner}
+				<div className="mt-6 mb-8">
+					<Step5 receiptData={receipt} qrCodeUrl={qrCodeUrl} />
+				</div>
+			</div>
+		</main>
+	);
 }
