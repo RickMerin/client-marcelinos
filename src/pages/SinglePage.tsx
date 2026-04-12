@@ -1,28 +1,24 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import SinglePageSkeleton from "@/components/skeleton/SinglePageSkeleton";
 import CardItem from "@/components/cards/CardItem";
-import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
-import { ArrowLeft } from "lucide-react";
-import { buildAvailabilityUrl } from "@/hooks/useRoomList";
+import { Minus, Plus, Users, BedDouble, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
-  BOOKING_EXPIRATION,
-  getFromLocalStorage,
-  saveToLocalStorage,
-} from "@/lib/storage/localStorage";
+  buildAvailabilityUrl,
+  amenityNames,
+  amenityPills,
+  roomImages,
+} from "@/hooks/useRoomList";
+import { bedSpecificationLine } from "@/lib/formatters/roomDisplayName";
 import {
-  calculateGrandTotalPrice,
-  calculateTotalPrice,
-  calculateVenuesLineTotal,
   venueStartingDisplayPrice,
 } from "@/lib/math/calculate";
 import type { VenuePriceItem } from "@/lib/math/calculate";
-import { formatDate } from "@/lib/formatters/formatDate";
-import type { BookingKind } from "@/types/booking.types";
-import type { VenueEventType } from "@/types/booking.types";
 import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
 
 interface ApiListResponse<T> {
@@ -50,15 +46,6 @@ function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
   if (Array.isArray(response)) return response;
   if (response?.data && Array.isArray(response.data)) return response.data;
   return [];
-}
-
-function amenityLabels(amenities: unknown[] | undefined): string[] {
-  if (!Array.isArray(amenities)) return [];
-  return amenities
-    .map((item) =>
-      typeof item === "string" ? item : (item as { name?: string })?.name,
-    )
-    .filter((label): label is string => Boolean(label));
 }
 
 const SinglePage = () => {
@@ -111,7 +98,6 @@ const SinglePage = () => {
   };
 
   const heroImage = selectedItem?.featured_image ?? selectedItem?.gallery?.[0];
-  const amenities = amenityLabels(selectedItem?.amenities);
   const bedSpecs = selectedItem?.bed_specifications ?? [];
   const headingLabel = isVenuePage ? "Our Venues" : "Our Rooms";
   const introTitle = isVenuePage
@@ -122,7 +108,6 @@ const SinglePage = () => {
     : "Browse every room we have available. Click any card to open its full details.";
   const listLabel = isVenuePage ? "All venues" : "All rooms";
   const availableLabel = isVenuePage ? "venues" : "rooms";
-  const bookCta = isVenuePage ? "Book this venue" : "Book this room";
   const fallbackLabel = isVenuePage ? "Venue" : "Room";
 
   const mainTitle = isVenuePage
@@ -136,105 +121,6 @@ const SinglePage = () => {
       detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [selectedItem]);
-
-  // Persist selected room so it remains checked after choosing dates
-  const handleBookSelectedRoom = () => {
-    if (!selectedItem) {
-      navigate("/", { state: { openCheckIn: true } });
-      return;
-    }
-
-    const existingDetails = getFromLocalStorage("reservationDetails") ?? {};
-    const existingVenues: VenuePriceItem[] = Array.isArray(existingDetails?.venues)
-      ? (existingDetails.venues as VenuePriceItem[])
-      : [];
-    const reservationDate = getFromLocalStorage("reservationDate") ?? {};
-    const days = reservationDate?.days ?? existingDetails?.days ?? 1;
-    const bookingType: BookingKind =
-      (reservationDate?.booking_type as BookingKind | undefined) ||
-      (existingDetails?.booking_type as BookingKind | undefined) ||
-      "room";
-    const rawEvent =
-      (existingDetails as { venue_event_type?: string }).venue_event_type || "";
-    const venueEventType: VenueEventType =
-      rawEvent === "birthday"
-        ? "birthday"
-        : rawEvent === "meeting_staff" || rawEvent === "seminar"
-          ? "meeting_staff"
-          : "wedding";
-
-    const mergedVenueEventDate =
-      (existingDetails as { venue_event_date?: string })?.venue_event_date ||
-      (reservationDate?.venue_event_date
-        ? formatDate(reservationDate.venue_event_date as string | Date)
-        : "") ||
-      (bookingType === "both" && reservationDate?.check_in
-        ? formatDate(reservationDate.check_in as string | Date)
-        : "");
-
-    if (isVenuePage) {
-      const rooms: ListingItem[] = [];
-      const venues: VenuePriceItem[] = [selectedItem as VenuePriceItem];
-      const totalPrice =
-        calculateTotalPrice(rooms) + calculateVenuesLineTotal(venues, venueEventType);
-      const grandTotalPrice = calculateGrandTotalPrice(
-        rooms,
-        days,
-        venues,
-        "venue",
-        venueEventType,
-      );
-      saveToLocalStorage(
-        "reservationDetails",
-        {
-          ...existingDetails,
-          booking_type: "venue",
-          venue_event_date: mergedVenueEventDate,
-          venue_event_type: venueEventType,
-          rooms,
-          venues,
-          days,
-          totalPrice,
-          grandTotalPrice,
-          current_step: 1,
-        },
-        BOOKING_EXPIRATION,
-      );
-      navigate("/", { state: { openCheckIn: true } });
-      return;
-    }
-
-    const rooms = [selectedItem];
-    const totalPrice =
-      calculateTotalPrice(rooms) + calculateVenuesLineTotal(existingVenues, venueEventType);
-    const grandTotalPrice = calculateGrandTotalPrice(
-      rooms,
-      days,
-      existingVenues,
-      bookingType,
-      venueEventType,
-    );
-
-    saveToLocalStorage(
-      "reservationDetails",
-      {
-        ...existingDetails,
-        booking_type: bookingType,
-        venue_event_date: mergedVenueEventDate,
-        venue_event_type:
-          existingVenues.length > 0 ? venueEventType : "",
-        rooms,
-        venues: existingVenues,
-        days,
-        totalPrice,
-        grandTotalPrice,
-        current_step: 1,
-      },
-      BOOKING_EXPIRATION,
-    );
-
-    navigate("/", { state: { openCheckIn: true } });
-  };
 
   /**
    * Example of using the buildAvailabilityUrl function to construct an API URL for fetching available rooms based on check-in and check-out dates. This demonstrates how to integrate the utility function from useRoomList into the SinglePage component to retrieve availability data.
@@ -268,55 +154,124 @@ const SinglePage = () => {
 
   const isUnavailable = availabilityMatch?.available === false;
   const unavailableTitle =
-    availabilityMatch?.unavailability_title || "Reserved for your dates";
+    availabilityMatch?.unavailability_title || "Fully booked";
   const unavailableDetail =
     availabilityMatch?.unavailability_detail ||
     "Please pick different dates or another room.";
 
-  const unavailableReasonText =
-    `${availabilityMatch?.unavailability_title ?? ""} ${availabilityMatch?.unavailability_detail ?? ""}`.toLowerCase();
-  const isReservedReason =
-    isUnavailable &&
-    (unavailableReasonText.includes("reserv") ||
-      unavailableReasonText.includes("booked"));
-  const isBlockedReason =
-    isUnavailable && unavailableReasonText.includes("block");
-  const showUnavailableOverlay = false;
-
-  const bookingButtonLabel = isReservedReason
-    ? "Booked as of today"
-    : isBlockedReason
-      ? "Unavailable"
-      : bookCta;
-
-  const bookingButtonClass = isReservedReason
-    ? "rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition"
-    : isBlockedReason
-      ? "rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition"
-      : "rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-800";
+  const showUnavailableOverlay = isUnavailable;
+  const fullyBooked = showUnavailableOverlay;
 
   const bookingButtonDisabled = isUnavailable;
+
+  const [quantityInCart, setQuantityInCart] = useState(0);
+
+  const images = roomImages(selectedItem as any);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const hasGallery = images.length > 1;
+  const mainImage =
+    images[activeImageIndex] ?? images[0] ?? "/placeholder-room.jpg";
+
+  const pills = amenityPills(selectedItem?.amenities as any);
+  const fallbackDesc =
+    selectedItem?.description?.trim() ||
+    amenityNames(selectedItem?.amenities as any) ||
+    "—";
+  const headline = fallbackDesc !== "—" ? fallbackDesc : (selectedItem?.type || "Unit Details");
+
+  const cap = Number(selectedItem?.capacity);
+  const capacityGuestWord = cap === 1 ? "guest" : "guests";
+  const capacityLine = !Number.isNaN(cap) && cap > 0 ? `${cap} ${capacityGuestWord}` : null;
+
+  const bedExtra = bedSpecificationLine(selectedItem as any);
+  const showBedExtra =
+    bedExtra && headline && bedExtra.toLowerCase() !== headline.toLowerCase();
+
+  const priceVal = isVenuePage
+    ? venueStartingDisplayPrice(selectedItem as unknown as VenuePriceItem)
+    : Number(selectedItem?.price) || 0;
+
+  useEffect(() => {
+    const updateQuantity = () => {
+      if (!selectedItem) {
+        setQuantityInCart(0);
+        return;
+      }
+      const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
+      const itemType = isVenuePage ? "venue" : "room";
+      const existing = items.find(
+        (i: any) => i.id === selectedItem.id && i.itemType === itemType
+      );
+      setQuantityInCart(existing ? existing.quantity || 0 : 0);
+    };
+
+    updateQuantity();
+    window.addEventListener("cart-updated", updateQuantity);
+    window.addEventListener("storage", updateQuantity);
+    return () => {
+      window.removeEventListener("cart-updated", updateQuantity);
+      window.removeEventListener("storage", updateQuantity);
+    };
+  }, [selectedItem, isVenuePage]);
+
+  const handleIncrementCart = () => {
+    if (!selectedItem) return;
+    const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    const itemType = isVenuePage ? "venue" : "room";
+    const existingIndex = items.findIndex(
+      (i: any) => i.id === selectedItem.id && i.itemType === itemType
+    );
+
+    if (existingIndex >= 0) {
+      items[existingIndex].quantity = (items[existingIndex].quantity || 0) + 1;
+    } else {
+      items.push({
+        id: selectedItem.id,
+        itemType,
+        name: mainTitle,
+        type: selectedItem.type,
+        price: isVenuePage ? venueStartingDisplayPrice(selectedItem as unknown as VenuePriceItem) : selectedItem.price,
+        featured_image: heroImage,
+        quantity: 1,
+      });
+    }
+
+    localStorage.setItem("cartItems", JSON.stringify(items));
+    window.dispatchEvent(new Event("cart-updated"));
+  };
+
+  const handleDecrementCart = () => {
+    if (!selectedItem) return;
+    const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    const itemType = isVenuePage ? "venue" : "room";
+    const existingIndex = items.findIndex(
+      (i: any) => i.id === selectedItem.id && i.itemType === itemType
+    );
+
+    if (existingIndex >= 0) {
+      if (items[existingIndex].quantity > 1) {
+        items[existingIndex].quantity--;
+      } else {
+        items.splice(existingIndex, 1);
+      }
+      localStorage.setItem("cartItems", JSON.stringify(items));
+      window.dispatchEvent(new Event("cart-updated"));
+    }
+  };
 
   return (
     <div className="w-full bg-gradient-to-b from-emerald-50 via-white to-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
-        <div className="flex items-start justify-between gap-4">
-          <div>
+<div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6">        
+          <div className="flex-1">
             <p className="text-sm uppercase tracking-[0.15em] text-green-800/70 font-semibold">
               {headingLabel}
             </p>
             <h1 className="font-display text-3xl sm:text-4xl font-bold text-(--color-charcoal)">
               {introTitle}
             </h1>
-            <p className="mt-2 text-gray-600 max-w-2xl">{introCopy}</p>
+            <p className="mt-2 text-gray-600 max-w-2xl">{introCopy}</p> 
           </div>
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-green-100 bg-white px-3 py-2 text-xs font-semibold text-green-900 shadow-sm transition hover:border-green-200 hover:shadow-md"
-          >
-            <ArrowLeft size={16} /> Back
-          </button>
         </div>
 
         {isLoading ? (
@@ -328,112 +283,196 @@ const SinglePage = () => {
         ) : (
           <div className="space-y-12">
             {selectedItem && (
-              <div
-                ref={detailRef}
-                className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-start rounded-3xl border border-gray-100 bg-white shadow-sm shadow-gray-900/5 p-6 sm:p-8"
-              >
-                <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
-                  <OptimizedImage
-                    src={heroImage ?? "/placeholder-room.jpg"}
-                    alt={mainTitle}
-                    containerClassName="h-[280px] sm:h-[360px]"
-                    className="object-center"
+              <div className="relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-4">
+                <div className="w-full flex justify-end">
+                  <button
+                    onClick={() => navigate(-1)}
+                    className="flex shrink-0 items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-all hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 hover:shadow-md cursor-pointer group"
+                  >
+                    <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1 text-green-700" />
+                    <span>Back</span>
+                  </button>
+                </div>
+
+                <div
+                  ref={detailRef}
+                  className="w-full group/card flex flex-col overflow-hidden rounded-2xl border border-sand-dark/40 bg-white shadow-[0_1px_0_rgba(15,23,42,0.04),0_12px_32px_-12px_rgba(15,23,42,0.12)] transition-shadow hover:shadow-[0_1px_0_rgba(15,23,42,0.05),0_16px_40px_-14px_rgba(15,23,42,0.14)]"
+                >
+                <div className="relative h-[250px] sm:h-[350px] w-full bg-gradient-to-b from-sand to-sand-dark/50">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover/card:scale-[1.02]"
+                    style={{ backgroundImage: `url(${mainImage})` }}
                   />
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent"
+                    aria-hidden
+                  />
+                  
                   {showUnavailableOverlay && (
                     <UnavailableReasonOverlay
                       title={unavailableTitle}
                       detail={unavailableDetail}
                     />
                   )}
+
+                  {quantityInCart > 0 && !fullyBooked && (
+                    <div
+                      className="absolute top-4 right-4 z-10 flex h-10 min-w-10 items-center justify-center rounded-full bg-sea px-2.5 shadow-lg ring-2 ring-white/30"
+                      aria-hidden>
+                      <span className="text-sm font-bold tracking-tight text-white tabular-nums">
+                        {quantityInCart}
+                      </span>
+                    </div>
+                  )}
+
+                  {hasGallery && !fullyBooked && (
+                    <div className="absolute bottom-2 left-2 right-2 pl-2 flex gap-2 overflow-x-auto pb-2 pt-6">
+                      {images.map((img: string, i: number) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveImageIndex(i);
+                          }}
+                          className={cn(
+                            "aspect-4/3 w-16 shrink-0 overflow-hidden rounded-lg ring-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-dark/80",
+                            i === activeImageIndex
+                              ? "ring-white shadow-lg shadow-black/30"
+                              : "ring-white/70 opacity-90 hover:opacity-100",
+                          )}
+                          aria-label={`View image ${i + 1}`}
+                          aria-pressed={i === activeImageIndex}
+                          style={{
+                            backgroundImage: `url(${img})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                          }}>
+                          <span className="sr-only">Image {i + 1}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <div className="space-y-4">
-                  {selectedItem.type ? (
-                    <div className="flex items-center gap-3 mb-2">
+                <div className="relative flex flex-1 flex-col bg-[linear-gradient(180deg,#fffefc_0%,#faf8f5_100%)] p-6">
+                  {selectedItem.type && (
+					          <div className="mb-4 inline-flex">
                       <RoomTypeBadge type={selectedItem.type} isTitle />
                     </div>
-                  ) : (
-                    <h2 className="font-display text-3xl font-bold text-(--color-charcoal)">
-                      {mainTitle}
-                    </h2>
                   )}
 
-                  {selectedItem.description && (
-                    <p className="text-gray-700 leading-relaxed">
-                      {selectedItem.description}
-                    </p>
-                  )}
-
-                  <div className="flex flex-wrap gap-4 text-sm text-gray-700">
-                    {selectedItem.capacity != null && (
-                      <div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
-                        Capacity: {selectedItem.capacity}{" "}
-                        {selectedItem.capacity === 1 ? "person" : "people"}
+                  <div
+                    className="mb-4 rounded-xl border border-amber-100/80 bg-gradient-to-br from-stone-50/95 via-white to-amber-50/30 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]"
+                    style={{ boxShadow: "inset 0 0 0 1px rgba(245, 158, 11, 0.06)" }}
+                  >
+                    <div className="flex gap-3.5">
+                      <div
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-sm"
+                        style={{
+                          background:
+                            "linear-gradient(145deg, rgba(47, 93, 80, 0.14) 0%, rgba(47, 93, 80, 0.06) 100%)",
+                          color: "var(--color-sea)",
+                        }}
+                      >
+                        <BedDouble className="h-5 w-5" strokeWidth={1.75} />
                       </div>
-                    )}
-                    {selectedItem.bed_specifications &&
-                      selectedItem.bed_specifications.length > 0 && (
-                        <div className="rounded-full bg-gray-100 px-3 py-1 font-medium">
-                          Beds: {selectedItem.bed_specifications.join(", ")}
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-ink-soft">
+                          {isVenuePage ? "Details" : "Bed layout"}
+                        </p>
+                        <p className="font-display text-lg font-semibold leading-snug tracking-tight text-ink sm:text-xl">
+                          {headline}
+                        </p>
+                        {showBedExtra && (
+                          <p className="text-xs leading-relaxed text-ink-soft">
+                            Also listed: <span className="font-medium text-ink">{bedExtra}</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {capacityLine && (
+                      <div className="mt-4 flex items-center gap-2.5 border-t border-gold-light/40 pt-3.5">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sand text-ink-soft">
+                          <Users className="h-4 w-4" strokeWidth={1.75} />
                         </div>
-                      )}
-                    {isVenuePage &&
-                      venueStartingDisplayPrice(
-                        selectedItem as unknown as VenuePriceItem,
-                      ) > 0 && (
-                        <div className="rounded-full bg-amber-50 px-3 py-1 font-semibold text-green-900">
-                          {pricingFormat(
-                            venueStartingDisplayPrice(
-                              selectedItem as unknown as VenuePriceItem,
-                            ),
-                          )}
+                        <div>
+                          <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-ink-soft">
+                            Capacity
+                          </p>
+                          <p className="text-sm font-semibold text-ink">
+                            {capacityLine}
+                          </p>
                         </div>
-                      )}
-                    {!isVenuePage && selectedItem.price != null && (
-                      <div className="rounded-full bg-amber-50 px-3 py-1 font-semibold text-green-900">
-                        {pricingFormat(selectedItem.price)}
                       </div>
                     )}
                   </div>
 
-                  {amenities.length > 0 && (
-                    <div className="space-y-2">
-                      <div className="text-sm font-semibold text-(--color-charcoal)">
-                        Amenities
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {amenities.map((label) => (
-                          <span
-                            key={label}
-                            className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-900"
-                          >
-                            {label}
-                          </span>
-                        ))}
-                      </div>
+                  {pills.length > 0 && (
+                    <div className="mb-4 flex flex-wrap gap-2">
+                      {pills.map((pill, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center rounded-full border border-sand-dark/40 bg-white/80 px-3 py-1 text-xs font-medium text-ink-soft shadow-sm"
+                        >
+                          {pill}
+                        </span>
+                      ))}
                     </div>
                   )}
 
-                  <div className="flex flex-wrap gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => navigate(-1)}
-                      className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-(--color-charcoal) transition hover:border-gray-300"
-                    >
-                      Back to previous page
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (bookingButtonDisabled) return;
-                        handleBookSelectedRoom();
-                      }}
-                      disabled={bookingButtonDisabled}
-                      className={`${bookingButtonClass} ${bookingButtonDisabled ? "cursor-not-allowed opacity-85" : ""}`}
-                    >
-                      {bookingButtonLabel}
-                    </button>
+                  <div className="mt-auto flex flex-col gap-3 border-t border-sand-dark/40 pt-4 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+                    <div>
+                      <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-ink-soft">
+                        From
+                      </p>
+                      <p className="font-display text-xl font-bold text-ink">
+                        {pricingFormat(priceVal)}
+                        <span className="text-sm font-normal text-ink-soft">
+                          {" "}
+                          /night
+                        </span>
+                      </p>
+                    </div>
+
+                      <div className="flex flex-wrap items-center justify-end gap-4"> 
+                      <div className="flex shrink-0 items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted"
+                          disabled={quantityInCart === 0}
+                          onClick={handleDecrementCart}
+                          aria-label={`Remove one ${mainTitle} from cart`}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span
+                          className="min-w-10 text-center font-display text-xl font-semibold tabular-nums text-ink"
+                          aria-live="polite"
+                        >
+                          {quantityInCart}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className={cn(
+                            "border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted",
+                            "border-sea/40 hover:border-sea/60 hover:bg-sage-muted"
+                          )}
+                          disabled={bookingButtonDisabled}
+                          onClick={handleIncrementCart}
+                          aria-label={`Add one ${mainTitle} to cart`}
+                        >
+                          <Plus className="h-4 w-4 text-sea" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
+                </div>
                 </div>
               </div>
             )}
