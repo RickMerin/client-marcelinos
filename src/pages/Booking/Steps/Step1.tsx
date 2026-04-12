@@ -304,6 +304,73 @@ export function Step1({
     return rep.description?.trim() || "Room options";
   };
 
+  // Sync items from the cart if the user navigated from the single product page
+  useEffect(() => {
+    const rawCart = localStorage.getItem("cartItems");
+    if (!rawCart) return; // Ignore if no cart items
+    if (roomList.length === 0 && venueList.length === 0) return; // Wait until API responds
+    
+    try {
+      const items = JSON.parse(rawCart);
+      if (Array.isArray(items) && items.length > 0) {
+        let roomsToAdd: any[] = [];
+        let venuesToAdd: any[] = [];
+        
+        items.forEach((item: any) => {
+          if (item.itemType === "room" && roomList.length > 0) {
+            // Locate the exact room prototype using ID (could also match from single page)
+            const exactRoom = roomList.find((r: any) => String(r.id) === String(item.id));
+            if (exactRoom) {
+              const t = normalizeRoomTypeSlug(item.type || exactRoom.type);
+              const invk = roomInventoryGroupKey(exactRoom);
+              
+              const pool = roomList.filter(
+                (r: any) =>
+                  normalizeRoomTypeSlug(r.type) === t &&
+                  roomInventoryGroupKey(r) === invk &&
+                  isRoomInventoryAvailable(r) &&
+                  !roomsToAdd.some((added) => String(added.id) === String(r.id))
+              ).sort((a: any, b: any) => a.id - b.id);
+              
+              const needed = Number(item.quantity) || 1;
+              const toAdd = pool.slice(0, needed);
+              roomsToAdd.push(...toAdd);
+            }
+          } else if (item.itemType === "venue" && venueList.length > 0) {
+            const exactVenue = venueList.find((v: any) => String(v.id) === String(item.id));
+            if (exactVenue && !venuesToAdd.some((added) => String(added.id) === String(exactVenue.id))) {
+               venuesToAdd.push(exactVenue);
+            }
+          }
+        });
+
+        // Push new rooms to form data
+        if (roomsToAdd.length > 0) {
+          const ids = new Set(formData.rooms.map((p: any) => String(p.id)));
+          const newRooms = roomsToAdd.filter((n) => !ids.has(String(n.id)));
+          if (newRooms.length > 0) {
+            setSelectedRooms([...formData.rooms, ...newRooms]);
+          }
+        }
+        
+        // Push new venues to form data
+        if (venuesToAdd.length > 0) {
+          const ids = new Set(formData.venues.map((p: any) => String(p.id)));
+          const newVenues = venuesToAdd.filter((n) => !ids.has(String(n.id)));
+          if (newVenues.length > 0) {
+            setSelectedVenues([...formData.venues, ...newVenues]);
+          }
+        }
+        
+        // Clear cart
+        localStorage.removeItem("cartItems");
+        window.dispatchEvent(new Event("cart-updated"));
+      }
+    } catch (e) {
+      console.error("Failed to parse cartItems", e);
+    }
+  }, [roomList, venueList, setSelectedRooms, setSelectedVenues, formData.rooms, formData.venues]);
+
   // Remove pre-selected rooms that are unavailable for the current inventory response,
   // trim counts when room_lines on other bookings consume remaining units,
   // and refresh each selected row from the latest GET /rooms payload (rates stay in sync).
