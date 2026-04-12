@@ -12,6 +12,7 @@ import { ToastContainer } from "react-toastify";
 import { API } from "./lib/api/apiClient";
 import { endpoints } from "./lib/api/endpoints";
 import MaintenanceMode from "./pages/MaintenanceMode";
+import { normalizeMaintenanceUiVariant } from "./pages/maintenance/maintenanceUi";
 
 // Layout component to wrap pages with consistent structure
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -32,6 +33,7 @@ const App = () => {
   const [isLoaderExiting, setIsLoaderExiting] = useState(false);
   const [maintenance, setMaintenance] = useState({
     enabled: false,
+    variant: "resort-hero",
     badge: "Scheduled Maintenance",
     title: "We are improving your experience",
     description:
@@ -50,6 +52,7 @@ const App = () => {
             success: boolean;
             data: {
               enabled: boolean;
+              variant?: string;
               badge: string;
               title: string;
               description: string;
@@ -63,6 +66,7 @@ const App = () => {
           | {
               data: {
                 enabled: boolean;
+                variant?: string;
                 badge: string;
                 title: string;
                 description: string;
@@ -84,6 +88,7 @@ const App = () => {
 
         setMaintenance({
           enabled: !!response.data.enabled,
+          variant: normalizeMaintenanceUiVariant(response.data.variant),
           badge: response.data.badge || "Scheduled Maintenance",
           title: response.data.title || "We are improving your experience",
           description:
@@ -135,6 +140,7 @@ const App = () => {
               path="/maintenance"
               element={
                 <MaintenanceMode
+                  variant={maintenance.variant}
                   badge={maintenance.badge}
                   title={maintenance.title}
                   description={maintenance.description}
