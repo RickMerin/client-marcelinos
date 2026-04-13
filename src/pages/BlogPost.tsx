@@ -57,7 +57,7 @@ function BlogPost() {
   } = useApiQuery<BlogPostDetailResponse>(
     [...queryKeys.blogPosts.detail(slug ?? "")],
     endpoints.blogPostBySlug(slug ?? ""),
-    { enabled: Boolean(slug) }
+    { enabled: Boolean(slug) },
   );
 
   const post = response?.success ? response.data : undefined;
@@ -75,7 +75,8 @@ function BlogPost() {
       : slug && isLoading
         ? {
             title: "Blog | Marcelinos Hotel & Resort",
-            description: "News and updates from Marcelinos Hotel & Resort in Hilongos, Leyte.",
+            description:
+              "News and updates from Marcelinos Hotel & Resort in Hilongos, Leyte.",
             path: `/blog/${slug}`,
             keywords: "Marcelinos, blog, Hilongos Leyte",
           }
@@ -86,12 +87,12 @@ function BlogPost() {
                 "This blog post is no longer available. Browse other news from Marcelinos Hotel & Resort.",
               path: `/blog/${slug}`,
             }
-          : null
+          : null,
   );
 
   if (!slug) {
     return (
-      <div className="min-h-screen bg-neutral-50 px-4 py-14">
+      <div className="min-h-screen bg-neutral-50 px-4 pt-28 pb-14 md:pt-36">
         <p className="text-center text-neutral-600">Invalid link.</p>
       </div>
     );
@@ -99,7 +100,7 @@ function BlogPost() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50 pt-28 pb-14 md:pt-36">
         <Spinner />
       </div>
     );
@@ -108,14 +109,17 @@ function BlogPost() {
   if (error && isNotFoundError(error)) {
     return (
       <div id="blog-post" className="min-h-screen bg-neutral-50">
-        <article className="mx-auto max-w-3xl px-4 py-10 md:py-14">
-          <h1 className="font-display text-2xl font-bold text-green-900">Post not found</h1>
+        <article className="mx-auto max-w-3xl px-4 pt-28 pb-10 md:pt-36 md:pb-14">
+          <h1 className="font-display text-2xl font-bold text-green-900">
+            Post not found
+          </h1>
           <p className="mt-2 text-neutral-600">
             This blog post may have been removed or the link is incorrect.
           </p>
           <Link
             to="/blog"
-            className="mt-6 inline-block text-sm font-medium text-green-800 underline underline-offset-2 hover:text-green-950">
+            className="mt-6 inline-block text-sm font-medium text-green-800 underline underline-offset-2 hover:text-green-950"
+          >
             Back to blog
           </Link>
         </article>
@@ -125,13 +129,14 @@ function BlogPost() {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-neutral-50 px-4 py-14">
+      <div className="min-h-screen bg-neutral-50 px-4 pt-28 pb-14 md:pt-36">
         <p className="text-center text-neutral-600">
           {error?.message ?? "Could not load this post."}
         </p>
         <Link
           to="/blog"
-          className="mt-4 block text-center text-sm font-medium text-green-800 underline">
+          className="mt-4 block text-center text-sm font-medium text-green-800 underline"
+        >
           Back to blog
         </Link>
       </div>
@@ -141,7 +146,7 @@ function BlogPost() {
   return (
     <div id="blog-post" className="min-h-screen bg-neutral-50">
       <BlogPostingJsonLd post={post} />
-      <article className="mx-auto max-w-3xl px-4 py-10 md:py-14">
+      <article className="mx-auto max-w-3xl px-4 pt-28 pb-10 md:pt-36 md:pb-14">
         <header className="mb-8">
           <nav className="mb-4 text-sm text-neutral-600">
             <Link to="/blog" className="text-green-800 hover:underline">
@@ -164,13 +169,16 @@ function BlogPost() {
               />
             </div>
           ) : null}
-          <p className="mt-4 text-base leading-relaxed text-neutral-700">{post.excerpt}</p>
+          <p className="mt-4 text-base leading-relaxed text-neutral-700">
+            {post.excerpt}
+          </p>
         </header>
 
         <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
           <div
             className="mx-auto max-w-full"
-            style={{ maxWidth: post.iframe_width }}>
+            style={{ maxWidth: post.iframe_width }}
+          >
             <iframe
               title={`${post.title} — Facebook post`}
               src={post.embed_src}

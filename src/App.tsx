@@ -1,6 +1,11 @@
 import "./assets/styles/App.css";
 import { Suspense, useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { routes } from "./routes/route";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -62,18 +67,16 @@ const App = () => {
           new Promise<null>((resolve) => {
             window.setTimeout(() => resolve(null), timeoutMs);
           }),
-        ])) as
-          | {
-              data: {
-                enabled: boolean;
-                variant?: string;
-                badge: string;
-                title: string;
-                description: string;
-                eta: string;
-              };
-            }
-          | null;
+        ])) as {
+          data: {
+            enabled: boolean;
+            variant?: string;
+            badge: string;
+            title: string;
+            description: string;
+            eta: string;
+          };
+        } | null;
 
         if (!response) {
           if (active) {
@@ -175,11 +178,7 @@ const App = () => {
           </Routes>
         </Suspense>
       </Router>
-      <ToastContainer
-        newestOnTop
-        pauseOnFocusLoss={false}
-        limit={3}
-      />
+      <ToastContainer newestOnTop pauseOnFocusLoss={false} limit={3} />
     </ErrorBoundary>
   );
 };

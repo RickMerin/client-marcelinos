@@ -16,16 +16,20 @@ function Blog() {
     keywords: "Marcelinos, blog, news, Hilongos Leyte, hotel resort updates",
   });
 
-  const { data: response, isLoading, error } = useApiQuery<BlogPostsListResponse>(
+  const {
+    data: response,
+    isLoading,
+    error,
+  } = useApiQuery<BlogPostsListResponse>(
     [...queryKeys.blogPosts.all],
-    endpoints.blogPosts
+    endpoints.blogPosts,
   );
 
   const posts = response?.success ? response.data : [];
 
   return (
     <div id="blog" className="min-h-screen bg-neutral-50">
-      <article className="mx-auto max-w-3xl px-4 py-10 md:py-14">
+      <article className="mx-auto max-w-3xl px-4 pt-28 pb-10 md:pt-36 md:pb-14">
         <header className="mb-8">
           <h1 className="font-display text-3xl font-bold tracking-tight text-green-900 md:text-4xl">
             Blog
@@ -49,7 +53,8 @@ function Blog() {
 
         {!isLoading && !error && posts.length === 0 && (
           <p className="text-sm text-neutral-600">
-            No posts yet. Check back soon, or visit our Facebook page for updates.
+            No posts yet. Check back soon, or visit our Facebook page for
+            updates.
           </p>
         )}
 
@@ -59,7 +64,8 @@ function Blog() {
               <li key={post.id}>
                 <Link
                   to={`/blog/${post.slug}`}
-                  className="flex flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm transition hover:border-green-200 hover:shadow-md sm:flex-row">
+                  className="flex flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm transition hover:border-green-200 hover:shadow-md sm:flex-row"
+                >
                   {post.featured_image ? (
                     <div className="relative aspect-[16/10] w-full shrink-0 bg-neutral-100 sm:aspect-auto sm:h-auto sm:min-h-[11rem] sm:w-44 sm:max-w-[45%]">
                       <img

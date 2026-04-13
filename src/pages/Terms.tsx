@@ -1,4 +1,4 @@
-  import { usePageSEO } from "@/hooks/usePageSEO";
+import { usePageSEO } from "@/hooks/usePageSEO";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 function Terms() {
@@ -14,7 +14,7 @@ function Terms() {
 
   return (
     <div id="terms-and-conditions" className="min-h-screen bg-neutral-50">
-      <article className="mx-auto max-w-3xl px-4 py-10 md:py-14">
+      <article className="mx-auto max-w-3xl px-4 pt-28 pb-10 md:pt-36 md:pb-14">
         <header className="mb-8">
           <h1 className="font-display text-3xl font-bold tracking-tight text-green-900 md:text-4xl">
             Terms and Conditions
@@ -31,12 +31,12 @@ function Terms() {
             </h2>
             <p>
               Welcome to Marcelino's Hotel & Resort. These Terms and Conditions
-              (“Terms”) govern your use of our website and the booking, stay, and
-              related services we provide. By accessing our website, making a
-              reservation, or using our services, you agree to be bound by these
-              Terms. Marcelino's Hotel & Resort is located in Hilongos, Leyte,
-              Philippines. If you do not agree with any part of these Terms,
-              please do not use our website or services.
+              (“Terms”) govern your use of our website and the booking, stay,
+              and related services we provide. By accessing our website, making
+              a reservation, or using our services, you agree to be bound by
+              these Terms. Marcelino's Hotel & Resort is located in Hilongos,
+              Leyte, Philippines. If you do not agree with any part of these
+              Terms, please do not use our website or services.
             </p>
           </section>
 
@@ -69,8 +69,9 @@ function Terms() {
               details, and address) are correct. We may contact you to verify
               your booking. Room and venue availability are subject to change;
               we will inform you as soon as practicable if we cannot honor a
-              confirmed reservation and will work with you to find an alternative
-              or provide a refund in accordance with our cancellation policy.
+              confirmed reservation and will work with you to find an
+              alternative or provide a refund in accordance with our
+              cancellation policy.
             </p>
           </section>
 
@@ -145,13 +146,13 @@ function Terms() {
             <ul className="list-disc pl-6 space-y-1">
               <li>
                 <strong>No smoking:</strong> Smoking is strictly prohibited
-                inside the rooms. A penalty of <strong>Php 5,000.00</strong> will
-                be charged for violations.
+                inside the rooms. A penalty of <strong>Php 5,000.00</strong>{" "}
+                will be charged for violations.
               </li>
               <li>
-                <strong>Damage and loss:</strong> Guests are responsible for
-                any damage to or loss of property. The following charges apply
-                for lost or broken items:
+                <strong>Damage and loss:</strong> Guests are responsible for any
+                damage to or loss of property. The following charges apply for
+                lost or broken items:
               </li>
             </ul>
             <ul className="list-disc pl-6 space-y-1 mt-2">
@@ -192,9 +193,9 @@ function Terms() {
             </h2>
             <p>
               The content on our website (including text, images, logos, and
-              design) is owned by Marcelino's Hotel & Resort or our licensors and
-              is protected by copyright and other intellectual property laws.
-              You may not copy, modify, distribute, or use our content for
+              design) is owned by Marcelino's Hotel & Resort or our licensors
+              and is protected by copyright and other intellectual property
+              laws. You may not copy, modify, distribute, or use our content for
               commercial purposes without our prior written consent. If you
               submit a review or testimonial, you grant us a non-exclusive
               license to display and use it for promotional and operational
