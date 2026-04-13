@@ -93,11 +93,11 @@ function Footer() {
   };
 
   return (
-    <footer className="bg-dark pt-20 pb-10 px-3 lg:px-16 xl:px-20 text-white">
+    <footer className="bg-dark pt-20 pb-10 px-4 lg:px-16 xl:px-20 text-white">
       <div className="max-w-[1200px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 lg:gap-14 mb-16">
+        <div className="grid grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-x-6 gap-y-12 lg:gap-14 mb-16">
           {/* Brand */}
-          <div className="md:col-span-2 lg:col-span-1">
+          <div className="col-span-2 lg:col-span-1">
             <a
               href="/"
               className="font-display text-[24px] font-normal text-gold-light tracking-[0.04em] no-underline block mb-5"
@@ -122,7 +122,7 @@ function Footer() {
           </div>
 
           {/* Explore */}
-          <div>
+          <div className="col-span-1">
             <h4 className="text-[13px] tracking-[0.2em] uppercase text-gold-light font-medium mb-6">
               Explore
             </h4>
@@ -134,7 +134,7 @@ function Footer() {
           </div>
 
           {/* Information */}
-          <div>
+          <div className="col-span-1">
             <h4 className="text-[13px] tracking-[0.2em] uppercase text-gold-light font-medium mb-6">
               Information
             </h4>
@@ -146,7 +146,7 @@ function Footer() {
           </div>
 
           {/* Contact */}
-          <div>
+          <div className="col-span-2 md:col-span-1 lg:col-span-1">
             <h4 className="text-[13px] tracking-[0.2em] uppercase text-gold-light font-medium mb-6">
               Contact
             </h4>
