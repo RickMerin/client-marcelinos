@@ -16,7 +16,7 @@ function About() {
 					id="about-heading"
 					className="font-display text-fluid-h2 font-light leading-[1.12] mb-7 text-ink"
 					itemProp="headline">
-					Welcome To <em className="italic text-forest">Marcelino’s Resort!</em>
+					Welcome To <em className="italic text-forest">Marcelino’s Resort Hotel!</em>
 				</h2>
 				<p
 					className="text-base md:text-lg leading-relaxed text-gray-1000 mb-5 max-w-[65ch]"
