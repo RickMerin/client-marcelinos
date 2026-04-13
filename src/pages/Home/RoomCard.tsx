@@ -231,16 +231,26 @@ function RoomCard() {
 														isTitle
 													/>
 												</h3>
+												{(room.description as string) && (
+													<p className="text-sm leading-relaxed text-cream/70 mb-3 line-clamp-2">
+														{room.description as string}
+													</p>
+												)}
 												<p className="text-base leading-relaxed text-cream/70 mb-5 line-clamp-2">
 													{(room.bed_specifications as string) ?? ""}
 												</p>
-												<div className="flex items-baseline gap-2">
-													<span className="font-display text-fluid-price font-light text-cream">
-														{room.price != null
-															? pricingFormat(String(room.price))
-															: "—"}
-													</span>
-													<span className="text-sm text-cream/55">/ night</span>
+												<div className="flex items-end justify-between">
+													<div className="flex items-baseline gap-2">
+														<span className="font-display text-fluid-price font-light text-cream">
+															{room.price != null
+																? pricingFormat(String(room.price))
+																: "—"}
+														</span>
+														<span className="text-sm text-cream/55">/ night</span>
+													</div>
+													<div className="text-gold-light text-sm font-medium hover:underline">
+														See more
+													</div>
 												</div>
 											</div>
 										</div>
