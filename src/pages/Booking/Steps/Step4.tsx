@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "@/components/modals/Modal";
 import PaymentConfirmContent from "@/components/modals/PolicyDisclaimer";
 
@@ -8,10 +8,14 @@ import cashless from "@/assets/img/cashless-payment-svgrepo-com.svg";
 import cash from "@/assets/img/cash.webp";
 import { PAYMENT_METHODS } from "@/enum/constants";
 import { toast } from "@/lib/logger/toast";
+import { API } from "@/lib/api/apiClient";
+import { endpoints } from "@/lib/api/endpoints";
 
 interface Step4Props {
   paymentMethod?: string;
   setPaymentMethod: (method: string) => void;
+  onlinePaymentPlan: "" | "full" | "partial_30";
+  setOnlinePaymentPlan: (plan: "" | "full" | "partial_30") => void;
   onBack: () => void;
   onProceed: () => void;
   isSubmitting?: boolean;
@@ -20,15 +24,23 @@ interface Step4Props {
 export function Step4({
   paymentMethod,
   setPaymentMethod,
+  onlinePaymentPlan,
+  setOnlinePaymentPlan,
   onBack,
   onProceed,
   isSubmitting = false,
 }: Step4Props) {
   const [isProceedModalOpen, setIsProceedModalOpen] = useState(false);
+  const [isPaymentPlanModalOpen, setIsPaymentPlanModalOpen] = useState(false);
+  const [isOnlinePaymentEnabled, setIsOnlinePaymentEnabled] = useState(false);
 
   const handleSelect = (method: string) => {
     const newValue = paymentMethod === method ? "" : method;
     setPaymentMethod(newValue);
+
+    if (newValue !== PAYMENT_METHODS.ONLINE) {
+      setOnlinePaymentPlan("");
+    }
   };
 
   const handleProceed = () => {
@@ -37,7 +49,54 @@ export function Step4({
       return;
     }
 
-    // Open confirmation modal instead of proceeding immediately
+    if (paymentMethod === PAYMENT_METHODS.ONLINE) {
+      setIsPaymentPlanModalOpen(true);
+      return;
+    }
+
+    setIsProceedModalOpen(true);
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchPaymentSettings = async () => {
+      try {
+        const response = await API.get<{
+          success: boolean;
+          data?: { online_payment_enabled?: boolean };
+        }>(endpoints.paymentSettings);
+
+        if (!isMounted) {
+          return;
+        }
+
+        const enabled = Boolean(response?.data?.online_payment_enabled);
+        setIsOnlinePaymentEnabled(enabled);
+      } catch {
+        if (isMounted) {
+          setIsOnlinePaymentEnabled(false);
+        }
+      }
+    };
+
+    fetchPaymentSettings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isOnlinePaymentEnabled && paymentMethod === PAYMENT_METHODS.ONLINE) {
+      setPaymentMethod("");
+      setOnlinePaymentPlan("");
+    }
+  }, [isOnlinePaymentEnabled, paymentMethod, setOnlinePaymentPlan, setPaymentMethod]);
+
+  const handleSelectOnlinePaymentPlan = (plan: "full" | "partial_30") => {
+    setOnlinePaymentPlan(plan);
+    setIsPaymentPlanModalOpen(false);
     setIsProceedModalOpen(true);
   };
 
@@ -98,19 +157,25 @@ export function Step4({
 
         {/* Pay Online (Xendit) */}
         <label
-          className={`cursor-not-allowed border rounded-lg p-4 flex items-start gap-3 shadow-sm relative opacity-55
-    bg-cream border-sage-muted
+          className={`border rounded-lg p-4 flex items-start gap-3 shadow-sm relative
             ${
               paymentMethod === PAYMENT_METHODS.ONLINE
                 ? "ring-2 ring-gold/50 bg-sage-muted border-sea"
-                : "bg-cream border-sage-muted hover:bg-sand"
+                : "bg-cream border-sage-muted"
+            }
+            ${
+              isOnlinePaymentEnabled
+                ? "cursor-pointer hover:bg-sand"
+                : "cursor-not-allowed opacity-55"
             }`}>
           <input
             type="checkbox"
             checked={paymentMethod === PAYMENT_METHODS.ONLINE}
             onChange={() => handleSelect(PAYMENT_METHODS.ONLINE)}
-            disabled
-            className="absolute top-3 right-3 w-5 h-5 cursor-not-allowed"
+            disabled={!isOnlinePaymentEnabled}
+            className={`absolute top-3 right-3 w-5 h-5 ${
+              isOnlinePaymentEnabled ? "cursor-pointer" : "cursor-not-allowed"
+            }`}
             style={{ accentColor: "var(--color-gold)" }}
           />
           <img
@@ -125,6 +190,11 @@ export function Step4({
               Pay securely via GCash, PayMaya, debit/credit card, or bank
               transfer. You will be redirected to our payment partner Xendit.
             </p>
+            {!isOnlinePaymentEnabled && (
+              <p className="text-xs font-medium text-amber-700">
+                Online payment is currently unavailable.
+              </p>
+            )}
           </div>
         </label>
       </div>
@@ -146,6 +216,44 @@ export function Step4({
           Proceed to Payment
         </button>
       </div>
+
+      <Modal
+        open={isPaymentPlanModalOpen}
+        onClose={isSubmitting ? () => {} : () => setIsPaymentPlanModalOpen(false)}
+        showCloseButton={!isSubmitting}
+        contentClassName="relative w-full max-w-xl mx-4 overflow-hidden rounded-xl border border-[#d7c089]/25 bg-[#0c2c27]/95 px-5 py-6 text-center shadow-2xl backdrop-blur-sm md:px-8 md:py-8"
+        backgroundImage={undefined}>
+        <div className="space-y-5 text-white">
+          <h3 className="text-xl font-semibold">Choose Online Payment Option</h3>
+          <p className="text-sm text-white/85">
+            Select how your client will settle payment before continuing to booking policy confirmation.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => handleSelectOnlinePaymentPlan("full")}
+              className={`rounded-lg border px-4 py-3 text-left transition ${
+                onlinePaymentPlan === "full"
+                  ? "border-gold bg-white/15"
+                  : "border-white/20 bg-white/5 hover:bg-white/10"
+              }`}>
+              <p className="font-semibold">Pay Full</p>
+              <p className="text-xs text-white/80">Collect the total booking amount now.</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSelectOnlinePaymentPlan("partial_30")}
+              className={`rounded-lg border px-4 py-3 text-left transition ${
+                onlinePaymentPlan === "partial_30"
+                  ? "border-gold bg-white/15"
+                  : "border-white/20 bg-white/5 hover:bg-white/10"
+              }`}>
+              <p className="font-semibold">Pay Partial (30%)</p>
+              <p className="text-xs text-white/80">Collect 30% now and settle the balance later.</p>
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Proceed Confirmation Modal – stay open during submit so loader is visible */}
       <Modal

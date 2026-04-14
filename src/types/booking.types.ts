@@ -50,6 +50,13 @@ export interface BookingReferenceResponse {
   down_payment_notice_min_lead_days?: number;
   /** True when check-in is strictly after today (Manila): Messenger settlement, no 3-day deadline line. */
   use_messenger_deposit_instructions?: boolean;
+  payment?: {
+    method?: string;
+    plan?: string;
+    invoice_id?: string;
+    invoice_url?: string;
+    can_retry?: boolean;
+  };
   booking?: {
     reference_number: string;
     /** Opaque public id for receipt URL (UUID). */
@@ -60,6 +67,10 @@ export interface BookingReferenceResponse {
     no_of_days?: number;
     venue_event_type?: string | null;
     total_price?: string | number;
+    payment_method?: string;
+    online_payment_plan?: string;
+    xendit_invoice_id?: string;
+    xendit_invoice_url?: string;
     created_at?: string;
     guest?: {
       first_name?: string;
@@ -152,6 +163,11 @@ export interface BookingReceipt {
   down_payment_notice_applies?: boolean;
   down_payment_notice_min_lead_days?: number;
   use_messenger_deposit_instructions?: boolean;
+  payment_method?: string;
+  online_payment_plan?: string;
+  invoice_id?: string;
+  invoice_url?: string;
+  can_retry_payment?: boolean;
 }
 
 export interface FormData {
@@ -192,6 +208,7 @@ export interface FormData {
   newsletter: boolean;
   notifications: boolean;
   paymentMethod: string;
+  onlinePaymentPlan: "" | "full" | "partial_30";
 
   totalPrice: number;
   grandTotalPrice: number;
@@ -218,6 +235,7 @@ export interface RoomLinePayload {
 export interface BookingPayload {
   reference_number?: string;
   payment_method?: string;
+  online_payment_plan?: "full" | "partial_30";
   check_in: string;
   check_out: string;
   days: number;

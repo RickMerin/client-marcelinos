@@ -24,6 +24,7 @@ export function MultiStepForm() {
     setSelectedRooms,
     setSelectedVenues,
     setPaymentMethod,
+    setOnlinePaymentPlan,
     updateFormData,
     goToStep,
     nextStep,
@@ -140,6 +141,8 @@ export function MultiStepForm() {
 							<Step4
 								paymentMethod={formData.paymentMethod}
 								setPaymentMethod={setPaymentMethod}
+								onlinePaymentPlan={formData.onlinePaymentPlan}
+								setOnlinePaymentPlan={setOnlinePaymentPlan}
 								onBack={() => goToStep(3)}
 								onProceed={handleSubmit}
 								isSubmitting={isSubmitting}
