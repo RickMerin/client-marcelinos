@@ -460,7 +460,18 @@ export function Step5(props: Props) {
   const formattedCheckIn = formatReceiptDate(checkIn, includeRoomTimes);
   const formattedCheckOut = formatReceiptDate(checkOut, includeRoomTimes);
   const formattedIssuedOn = formatReceiptDate(issuedOn);
-  const paymentMethod = isFromApi ? undefined : form?.paymentMethod;
+  const paymentMethod = isFromApi
+    ? receipt?.payment_method
+    : form?.paymentMethod;
+  const onlinePaymentPlan = isFromApi
+    ? receipt?.online_payment_plan
+    : form?.onlinePaymentPlan;
+  const paymentMethodLabel =
+    paymentMethod === "online"
+      ? onlinePaymentPlan === "partial_30"
+        ? "Online (Partial 30%)"
+        : "Online (Full)"
+      : paymentMethod || undefined;
 
   const isCancelled =
     bookingStatus === "cancelled" || bookingStatus === "completed"; //for display purposes, treat completed same as cancelled since booking is no longer active
@@ -825,8 +836,8 @@ export function Step5(props: Props) {
 										valueClassName={AMOUNT_PRIMARY}
 									/>
 								)}
-								{paymentMethod && (
-									<ReceiptRow label="Payment method" value={paymentMethod} />
+								{paymentMethodLabel && (
+									<ReceiptRow label="Payment method" value={paymentMethodLabel} />
 								)}
 							</div>
 						</div>
@@ -1117,7 +1128,7 @@ export function Step5(props: Props) {
 									{qrCodeUrl ? "Scan to view your digital receipt" : null}
 								</p>
 								<div className="text-ink-soft space-y-0.5">
-									{paymentMethod && <p>Payment: {paymentMethod}</p>}
+									{paymentMethodLabel && <p>Payment: {paymentMethodLabel}</p>}
 								</div>
 							</div>
 						</div>

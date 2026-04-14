@@ -64,6 +64,7 @@ export const defaultFormData: FormData = {
   newsletter: false,
   notifications: false,
   paymentMethod: "",
+  onlinePaymentPlan: "",
 
   totalPrice: 0,
   grandTotalPrice: 0,

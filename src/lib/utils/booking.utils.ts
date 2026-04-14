@@ -317,6 +317,9 @@ export const buildBookingPayload = (formData: FormData): BookingPayload => {
   return {
     reference_number: formData.reference_number ?? undefined,
     payment_method: formData.paymentMethod || "cash",
+    ...(formData.paymentMethod === "online" && formData.onlinePaymentPlan
+      ? { online_payment_plan: formData.onlinePaymentPlan }
+      : {}),
     check_in: formData.check_in,
     check_out: formData.check_out,
     days: formData.days,

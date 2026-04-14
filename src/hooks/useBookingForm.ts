@@ -206,6 +206,9 @@ export const useBookingForm = () => {
   const setPaymentMethod = (method: string) =>
     setFormData((prev) => ({ ...prev, paymentMethod: method }));
 
+  const setOnlinePaymentPlan = (plan: FormData["onlinePaymentPlan"]) =>
+    setFormData((prev) => ({ ...prev, onlinePaymentPlan: plan }));
+
   const updateFormData = (updates: Partial<FormData>) =>
     setFormData((prev) => ({ ...prev, ...updates }));
 
@@ -225,6 +228,7 @@ export const useBookingForm = () => {
     setSelectedRooms,
     setSelectedVenues,
     setPaymentMethod,
+    setOnlinePaymentPlan,
     updateFormData,
     goToStep,
     nextStep,
