@@ -220,16 +220,7 @@ export function RoomTypeQuantityCard({
 						</div>
 					)}
 
-					<div className="mt-3 flex flex-wrap items-center gap-2">
-						<span className="inline-flex items-center rounded-full bg-sage-muted px-2.5 py-0.5 text-xs font-semibold text-sea ring-1 ring-sage-muted">
-							{maxAvailable} available
-						</span>
-						{unavailableInGroup > 0 && (
-							<span className="text-xs text-ink-soft">
-								{unavailableInGroup} unavailable for these dates
-							</span>
-						)}
-					</div>
+					
 				</div>
 
 				{pills.length > 0 && (
@@ -249,9 +240,10 @@ export function RoomTypeQuantityCard({
 
 				<div
 					className={cn(
-						"mt-auto flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-end sm:justify-between sm:gap-4",
+						"mt-auto flex items-center justify-between gap-3 border-t pt-4 flex-row flex-wrap sm:flex-nowrap",
 						panelText.borderClass,
-					)}>
+					)}
+					>
 					<div>
 						<p
 							className={cn(
@@ -283,41 +275,58 @@ export function RoomTypeQuantityCard({
 							</span>
 						</p>
 					</div>
-
-					<div className="flex shrink-0 items-center gap-2">
-						<Button
-							type="button"
-							variant="outline"
-							size="icon"
-							className="border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted"
-							disabled={!canDec || fullyBooked}
-							onClick={onDecrement}
-							aria-label={`Remove one ${roomType} room (${headline})`}>
-							<Minus className="size-4" />
-						</Button>
-						<span
-							className={cn(
-								"min-w-10 text-center font-display text-xl font-semibold tabular-nums",
-								panelText.emphasisClass,
-							)}
-							aria-live="polite">
-							{selectedCount}
+					
+					<div className="flex shrink-0 items-center gap-8">
+					{/* AVAILABLE */}
+					<div className="flex items-center gap-2">
+						<span className="inline-flex items-center rounded-full bg-sage-muted px-2.5 py-0.5 text-xs font-semibold text-sea ring-1 ring-sage-muted">
+						{maxAvailable} available
 						</span>
+						{unavailableInGroup > 0 && (
+						<span className="text-xs text-ink-soft">
+							{unavailableInGroup} unavailable for these dates
+						</span>
+						)}
+					</div>
+
+					{/* CONTROLS */}
+					<div className="flex items-center gap-2">
 						<Button
-							type="button"
-							variant="outline"
-							size="icon"
-							className={cn(
-								"border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted",
-								canInc &&
-									!fullyBooked &&
-									"border-sea/40 hover:border-sea/60 hover:bg-sage-muted",
-							)}
-							disabled={!canInc || fullyBooked}
-							onClick={onIncrement}
-							aria-label={`Add one ${roomType} room (${headline})`}>
-							<Plus className="size-4 text-sea" />
+						type="button"
+						variant="outline"
+						size="icon"
+						className="border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted"
+						disabled={!canDec || fullyBooked}
+						onClick={onDecrement}
+						>
+						<Minus className="size-4" />
 						</Button>
+
+						<span
+						className={cn(
+							"min-w-10 text-center font-display text-xl font-semibold tabular-nums",
+							panelText.emphasisClass,
+						)}
+						>
+						{selectedCount}
+						</span>
+
+						<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						className={cn(
+							"border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted",
+							canInc &&
+							!fullyBooked &&
+							"border-sea/40 hover:border-sea/60 hover:bg-sage-muted",
+						)}
+						disabled={!canInc || fullyBooked}
+						onClick={onIncrement}
+						>
+						<Plus className="size-4 text-sea" />
+						</Button>
+					</div>
 					</div>
 				</div>
 			</div>
