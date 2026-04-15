@@ -4,12 +4,14 @@ import { ROOM_TYPE_BADGE_THEME } from "@/lib/constants/roomTypeTheme";
 
 interface RoomTypeBadgeProps {
   type: string;
+  label?: string;
   className?: string;
   isTitle?: boolean;
 }
 
 export function RoomTypeBadge({
   type,
+  label,
   className = "",
   isTitle = false,
 }: RoomTypeBadgeProps) {
@@ -67,7 +69,7 @@ export function RoomTypeBadge({
         style={{ backgroundColor: "rgba(255,255,255,0.6)" }}
         aria-hidden
       />
-      <span className="relative z-10 pr-0.5">{type}</span>
+      <span className="relative z-10 pr-0.5">{label || type}</span>
     </div>
   );
 }
