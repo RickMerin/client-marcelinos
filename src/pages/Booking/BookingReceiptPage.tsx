@@ -157,7 +157,9 @@ export function BookingReceiptPage({
   useEffect(() => {
     if (paymentStatus !== "success" || !isReceiptTokenUuid(receiptToken)) return;
 
-    const mode = paymentMode === "partial_30" ? "partial_30" : "full";
+    const mode = /^partial_(\d{1,2})$/.test(String(paymentMode ?? ""))
+      ? String(paymentMode)
+      : "full";
     void API.post<{ success: boolean }>(
       `/bookings/receipt/${encodeURIComponent(receiptToken)}/confirm-payment`,
       { payment_mode: mode },
