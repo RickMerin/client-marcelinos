@@ -186,10 +186,7 @@ const SinglePage = () => {
   );
 
   const availabilityList = useMemo(
-    () =>
-      extractList<AvailabilityItem>(
-        availabilityRoomData?.data ?? availabilityRoomData,
-      ),
+    () => extractList<AvailabilityItem>(availabilityRoomData),
     [availabilityRoomData],
   );
 
@@ -221,10 +218,10 @@ const SinglePage = () => {
   const mainImage =
     images[activeImageIndex] ?? images[0] ?? "/placeholder-room.jpg";
 
-  const pills = amenityPills(selectedItem?.amenities as unknown);
+  const pills = amenityPills(selectedItem?.amenities as any[] | undefined);
   const fallbackDesc =
     selectedItem?.description?.trim() ||
-    amenityNames(selectedItem?.amenities as unknown) ||
+    amenityNames(selectedItem?.amenities as any[] | undefined) ||
     "—";
   const headline = fallbackDesc !== "—" ? fallbackDesc : (selectedItem?.type || "Unit Details");
   const [descExpanded, setDescExpanded] = useState(false);
