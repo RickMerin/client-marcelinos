@@ -208,7 +208,7 @@ export interface FormData {
   newsletter: boolean;
   notifications: boolean;
   paymentMethod: string;
-  onlinePaymentPlan: "" | "full" | "partial_30";
+  onlinePaymentPlan: "" | "full" | `partial_${number}`;
 
   totalPrice: number;
   grandTotalPrice: number;
@@ -235,7 +235,7 @@ export interface RoomLinePayload {
 export interface BookingPayload {
   reference_number?: string;
   payment_method?: string;
-  online_payment_plan?: "full" | "partial_30";
+  online_payment_plan?: "full" | `partial_${number}`;
   check_in: string;
   check_out: string;
   days: number;

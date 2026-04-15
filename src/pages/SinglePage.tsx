@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import SinglePageSkeleton from "@/components/skeleton/SinglePageSkeleton";
 import CardItem from "@/components/cards/CardItem";
+import Section from "@/components/Section";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
-import { Minus, Plus, Users, BedDouble, ArrowLeft } from "lucide-react";
+import { Minus, Plus, Users, BedDouble, MapPin, X, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -42,6 +44,19 @@ interface ListingItem {
   meeting_staff_price?: number | string;
 }
 
+type AvailabilityItem = {
+  id: number;
+  available?: boolean;
+  unavailability_title?: string;
+  unavailability_detail?: string;
+};
+
+type CartItem = {
+  id: number;
+  itemType: "room" | "venue";
+  quantity?: number;
+};
+
 function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
   if (Array.isArray(response)) return response;
   if (response?.data && Array.isArray(response.data)) return response.data;
@@ -63,6 +78,7 @@ const SinglePage = () => {
 
   const isVenuePage = location.pathname.startsWith("/venues");
   const stateItem = state?.room ?? state?.venue;
+  const basePath = isVenuePage ? "/venues" : "/rooms";
 
   const { data, isLoading, error } = useApiQuery<
     ApiListResponse<ListingItem> | ListingItem[]
@@ -87,8 +103,37 @@ const SinglePage = () => {
     return itemList.filter((item) => item.id !== selectedItem.id);
   }, [itemList, selectedItem]);
 
+  const groupedRooms = useMemo(() => {
+    if (isVenuePage) return [];
+    const order = ["standard", "family", "deluxe"] as const;
+    const labels: Record<(typeof order)[number], string> = {
+      standard: "Standard",
+      family: "Family",
+      deluxe: "Deluxe",
+    };
+
+    return order
+      .map((key) => {
+        const items = visibleList.filter(
+          (item) => (item.type || "").toLowerCase() === key,
+        );
+        return { key, label: labels[key], items };
+      })
+      .filter((group) => group.items.length > 0);
+  }, [visibleList, isVenuePage]);
+  const [activeRoomTab, setActiveRoomTab] = useState<string>("standard");
+
+  useEffect(() => {
+    if (isVenuePage) return;
+    if (!groupedRooms.length) return;
+    const hasActive = groupedRooms.some((group) => group.key === activeRoomTab);
+    if (!hasActive) {
+      setActiveRoomTab(groupedRooms[0]!.key);
+    }
+  }, [groupedRooms, activeRoomTab, isVenuePage]);
+
   const handleCardClick = (id: number, item?: ListingItem) => {
-    const path = isVenuePage ? `/venues/${id}` : `/rooms/${id}`;
+    const path = `${basePath}/${id}`;
     navigate(path, {
       state: {
         [isVenuePage ? "venue" : "room"]:
@@ -122,28 +167,29 @@ const SinglePage = () => {
     }
   }, [selectedItem]);
 
-  /**
-   * Example of using the buildAvailabilityUrl function to construct an API URL for fetching available rooms based on check-in and check-out dates. This demonstrates how to integrate the utility function from useRoomList into the SinglePage component to retrieve availability data.
-   */
   const dateToday = new Date().toISOString().split("T")[0];
-  const dateTommorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
+  const dateTomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
     .toISOString()
     .split("T")[0];
 
   const extractAvailabilityUrl = buildAvailabilityUrl(
     "/rooms",
     dateToday,
-    dateTommorrow,
+    dateTomorrow,
   );
-  const { data: availabilityRoomData } = useApiQuery<ApiListResponse<any>>(
-    ["rooms", dateToday, dateTommorrow],
+  const { data: availabilityRoomData } = useApiQuery<
+    ApiListResponse<AvailabilityItem> | AvailabilityItem[]
+  >(
+    ["rooms", dateToday, dateTomorrow],
     extractAvailabilityUrl,
+    { enabled: !isVenuePage },
   );
-
-  console.table(availabilityRoomData?.data);
 
   const availabilityList = useMemo(
-    () => extractList<any>(availabilityRoomData?.data ?? availabilityRoomData),
+    () =>
+      extractList<AvailabilityItem>(
+        availabilityRoomData?.data ?? availabilityRoomData,
+      ),
     [availabilityRoomData],
   );
 
@@ -165,44 +211,63 @@ const SinglePage = () => {
   const bookingButtonDisabled = isUnavailable;
 
   const [quantityInCart, setQuantityInCart] = useState(0);
+  const [draftQuantity, setDraftQuantity] = useState(0);
+  const [isAddAnimating, setIsAddAnimating] = useState(false);
+  const [isImageZoomOpen, setIsImageZoomOpen] = useState(false);
 
-  const images = roomImages(selectedItem as any);
+  const images = roomImages(selectedItem as unknown as Record<string, unknown>);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const hasGallery = images.length > 1;
   const mainImage =
     images[activeImageIndex] ?? images[0] ?? "/placeholder-room.jpg";
 
-  const pills = amenityPills(selectedItem?.amenities as any);
+  const pills = amenityPills(selectedItem?.amenities as unknown);
   const fallbackDesc =
     selectedItem?.description?.trim() ||
-    amenityNames(selectedItem?.amenities as any) ||
+    amenityNames(selectedItem?.amenities as unknown) ||
     "—";
   const headline = fallbackDesc !== "—" ? fallbackDesc : (selectedItem?.type || "Unit Details");
+  const [descExpanded, setDescExpanded] = useState(false);
+  const descriptionPreview = useMemo(() => {
+    const raw = String(headline ?? "").trim();
+    if (!raw) return { short: "", isLong: false };
+    const words = raw.split(/\s+/);
+    const limit = 26;
+    if (words.length <= limit) return { short: raw, isLong: false };
+    return { short: words.slice(0, limit).join(" ") + "…", isLong: true };
+  }, [headline]);
 
   const cap = Number(selectedItem?.capacity);
   const capacityGuestWord = cap === 1 ? "guest" : "guests";
   const capacityLine = !Number.isNaN(cap) && cap > 0 ? `${cap} ${capacityGuestWord}` : null;
 
-  const bedExtra = bedSpecificationLine(selectedItem as any);
-  const showBedExtra =
-    bedExtra && headline && bedExtra.toLowerCase() !== headline.toLowerCase();
+  const bedExtra = bedSpecificationLine(
+    selectedItem as unknown as Record<string, unknown>,
+  );
+  void bedExtra;
 
   const priceVal = isVenuePage
     ? venueStartingDisplayPrice(selectedItem as unknown as VenuePriceItem)
     : Number(selectedItem?.price) || 0;
+  const propertyLocation = "Hilongos, Leyte, Philippines";
 
   useEffect(() => {
     const updateQuantity = () => {
       if (!selectedItem) {
         setQuantityInCart(0);
+        setDraftQuantity(0);
         return;
       }
-      const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
+      const items = JSON.parse(
+        localStorage.getItem("cartItems") || "[]",
+      ) as CartItem[];
       const itemType = isVenuePage ? "venue" : "room";
       const existing = items.find(
-        (i: any) => i.id === selectedItem.id && i.itemType === itemType
+        (i) => i.id === selectedItem.id && i.itemType === itemType,
       );
-      setQuantityInCart(existing ? existing.quantity || 0 : 0);
+      const nextQty = existing ? existing.quantity || 0 : 0;
+      setQuantityInCart(nextQty);
+      setDraftQuantity(nextQty);
     };
 
     updateQuantity();
@@ -214,307 +279,813 @@ const SinglePage = () => {
     };
   }, [selectedItem, isVenuePage]);
 
-  const handleIncrementCart = () => {
+  const playLeafFlightToCart = (sourceEl?: HTMLElement | null) => {
+    const cartButton = document.querySelector(
+      'button[aria-label="View Cart"]',
+    ) as HTMLElement | null;
+    if (!sourceEl || !cartButton) return;
+
+    const start = sourceEl.getBoundingClientRect();
+    const end = cartButton.getBoundingClientRect();
+    const startX = start.left + start.width / 2;
+    const startY = start.top + start.height / 2;
+    const endX = end.left + end.width / 2;
+    const endY = end.top + end.height / 2;
+
+    const burst = document.createElement("div");
+    burst.style.position = "fixed";
+    burst.style.left = `${startX}px`;
+    burst.style.top = `${startY}px`;
+    burst.style.width = "16px";
+    burst.style.height = "16px";
+    burst.style.zIndex = "9998";
+    burst.style.pointerEvents = "none";
+    burst.style.borderRadius = "9999px";
+    burst.style.background = "rgba(198, 161, 91, 0.45)";
+    burst.style.transform = "translate(-50%, -50%) scale(0.2)";
+    burst.style.boxShadow = "0 0 0 0 rgba(198, 161, 91, 0.45)";
+    document.body.appendChild(burst);
+    const burstAnim = burst.animate(
+      [
+        {
+          transform: "translate(-50%, -50%) scale(0.2)",
+          opacity: 0.85,
+          boxShadow: "0 0 0 0 rgba(198, 161, 91, 0.45)",
+        },
+        {
+          transform: "translate(-50%, -50%) scale(2.1)",
+          opacity: 0,
+          boxShadow: "0 0 0 20px rgba(198, 161, 91, 0)",
+        },
+      ],
+      { duration: 520, easing: "ease-out" },
+    );
+    burstAnim.onfinish = () => burst.remove();
+
+    for (let i = 0; i < 10; i += 1) {
+      const trail = document.createElement("div");
+      trail.style.position = "fixed";
+      trail.style.left = `${startX}px`;
+      trail.style.top = `${startY}px`;
+      trail.style.width = "42px";
+      trail.style.height = "2px";
+      trail.style.zIndex = "9997";
+      trail.style.pointerEvents = "none";
+      trail.style.transformOrigin = "left center";
+      trail.style.borderRadius = "9999px";
+      trail.style.background =
+        "linear-gradient(90deg, rgba(230,211,163,0.65) 0%, rgba(198,161,91,0.25) 70%, rgba(198,161,91,0) 100%)";
+      trail.style.filter = "blur(0.4px)";
+      document.body.appendChild(trail);
+
+      const leaf = document.createElement("div");
+      leaf.style.position = "fixed";
+      leaf.style.left = `${startX}px`;
+      leaf.style.top = `${startY}px`;
+      leaf.style.width = i % 2 === 0 ? "22px" : "18px";
+      leaf.style.height = i % 2 === 0 ? "14px" : "12px";
+      leaf.style.zIndex = "9999";
+      leaf.style.pointerEvents = "none";
+      leaf.style.borderRadius = "80% 10% 80% 10%";
+      leaf.style.background =
+        i % 3 === 0
+          ? "linear-gradient(135deg, #E6D3A3 0%, #C6A15B 100%)"
+          : "linear-gradient(135deg, #9cc5b5 0%, #2F5D50 100%)";
+      leaf.style.transform = "translate(-50%, -50%) rotate(30deg)";
+      leaf.style.filter = "drop-shadow(0 4px 8px rgba(15,31,26,0.25))";
+      document.body.appendChild(leaf);
+
+      const wobble = i % 2 === 0 ? 72 : -72;
+      const drift = (i - 4) * 10;
+      const midX = startX + (endX - startX) * 0.45 + wobble + drift;
+      const midY = startY + (endY - startY) * 0.34 - 110 - i * 6;
+
+      const animation = leaf.animate(
+        [
+          {
+            transform: "translate(-50%, -50%) rotate(20deg) scale(1)",
+            left: `${startX}px`,
+            top: `${startY}px`,
+            opacity: 0.95,
+          },
+          {
+            transform: "translate(-50%, -50%) rotate(260deg) scale(0.98)",
+            left: `${midX}px`,
+            top: `${midY}px`,
+            opacity: 0.95,
+            offset: 0.52,
+          },
+          {
+            transform: "translate(-50%, -50%) rotate(520deg) scale(0.42)",
+            left: `${endX}px`,
+            top: `${endY}px`,
+            opacity: 0.1,
+          },
+        ],
+        {
+          duration: 1020 + i * 90,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+          delay: i * 45,
+        },
+      );
+
+      animation.onfinish = () => {
+        leaf.remove();
+      };
+
+      const dx = endX - startX;
+      const dy = endY - startY;
+      const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
+      const trailAnimation = trail.animate(
+        [
+          {
+            transform: `translate(-50%, -50%) rotate(${angleDeg - 8}deg) scaleX(0.35)`,
+            left: `${startX}px`,
+            top: `${startY}px`,
+            opacity: 0.6,
+          },
+          {
+            transform: `translate(-50%, -50%) rotate(${angleDeg + 10}deg) scaleX(1.05)`,
+            left: `${startX + dx * 0.55}px`,
+            top: `${startY + dy * 0.48 - 18}px`,
+            opacity: 0.35,
+            offset: 0.62,
+          },
+          {
+            transform: `translate(-50%, -50%) rotate(${angleDeg}deg) scaleX(0.2)`,
+            left: `${endX}px`,
+            top: `${endY}px`,
+            opacity: 0,
+          },
+        ],
+        {
+          duration: 980 + i * 80,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+          delay: i * 45,
+        },
+      );
+
+      trailAnimation.onfinish = () => {
+        trail.remove();
+      };
+    }
+
+    cartButton.animate(
+      [
+        { transform: "scale(1) rotate(0deg)" },
+        { transform: "scale(1.24) rotate(-10deg)" },
+        { transform: "scale(1.12) rotate(8deg)" },
+        { transform: "scale(1) rotate(0deg)" },
+      ],
+      { duration: 640, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+    );
+  };
+
+  const handleIncrementDraft = () => {
+    if (bookingButtonDisabled) return;
+    setDraftQuantity((prev) => prev + 1);
+  };
+
+  const handleDecrementDraft = () => {
+    setDraftQuantity((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleAddToCart = (sourceEl?: HTMLElement | null) => {
     if (!selectedItem) return;
-    const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    const nextQuantity = Math.max(0, draftQuantity);
+    const items = JSON.parse(
+      localStorage.getItem("cartItems") || "[]",
+    ) as Array<Record<string, unknown> & CartItem>;
     const itemType = isVenuePage ? "venue" : "room";
     const existingIndex = items.findIndex(
-      (i: any) => i.id === selectedItem.id && i.itemType === itemType
+      (i) => i.id === selectedItem.id && i.itemType === itemType,
     );
 
     if (existingIndex >= 0) {
-      items[existingIndex].quantity = (items[existingIndex].quantity || 0) + 1;
-    } else {
+      if (nextQuantity === 0) {
+        items.splice(existingIndex, 1);
+      } else {
+        items[existingIndex] = {
+          ...items[existingIndex],
+          quantity: nextQuantity,
+          name: mainTitle,
+          type: selectedItem.type,
+          price: isVenuePage
+            ? venueStartingDisplayPrice(selectedItem as unknown as VenuePriceItem)
+            : selectedItem.price,
+          featured_image: heroImage,
+        };
+      }
+    } else if (nextQuantity > 0) {
       items.push({
         id: selectedItem.id,
         itemType,
         name: mainTitle,
         type: selectedItem.type,
-        price: isVenuePage ? venueStartingDisplayPrice(selectedItem as unknown as VenuePriceItem) : selectedItem.price,
+        price: isVenuePage
+          ? venueStartingDisplayPrice(selectedItem as unknown as VenuePriceItem)
+          : selectedItem.price,
         featured_image: heroImage,
-        quantity: 1,
+        quantity: nextQuantity,
       });
     }
 
     localStorage.setItem("cartItems", JSON.stringify(items));
     window.dispatchEvent(new Event("cart-updated"));
+    playLeafFlightToCart(sourceEl);
+    setIsAddAnimating(true);
+    window.setTimeout(() => setIsAddAnimating(false), 700);
+
+    if (nextQuantity === 0) return;
   };
 
-  const handleDecrementCart = () => {
-    if (!selectedItem) return;
-    const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
-    const itemType = isVenuePage ? "venue" : "room";
-    const existingIndex = items.findIndex(
-      (i: any) => i.id === selectedItem.id && i.itemType === itemType
-    );
-
-    if (existingIndex >= 0) {
-      if (items[existingIndex].quantity > 1) {
-        items[existingIndex].quantity--;
-      } else {
-        items.splice(existingIndex, 1);
+  const theme = isVenuePage
+    ? {
+        heroSectionClass: "section-depth-light",
+        heroEyebrowStyle: { color: "var(--color-gold)" } as const,
+        heroTextClass: "text-ink",
+        heroSubTextClass: "text-ink-soft",
+        panelClass:
+          "bg-white border border-sand-dark/70 shadow-[0_18px_60px_rgba(15,31,26,0.10)]",
       }
-      localStorage.setItem("cartItems", JSON.stringify(items));
-      window.dispatchEvent(new Event("cart-updated"));
-    }
-  };
+    : {
+        heroSectionClass: "section-depth-light",
+        heroEyebrowStyle: { color: "var(--color-gold)" } as const,
+        heroTextClass: "text-ink",
+        heroSubTextClass: "text-ink-soft",
+        panelClass:
+          "bg-white border border-sand-dark/70 shadow-[0_18px_60px_rgba(15,31,26,0.10)]",
+      };
 
   return (
-    <div className="w-full bg-gradient-to-b from-emerald-50 via-white to-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-10 sm:pt-28 sm:pb-14 space-y-10">
-<div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6">        
-          <div className="flex-1">
-            <p className="text-sm uppercase tracking-[0.15em] text-green-800/70 font-semibold">
-              {headingLabel}
-            </p>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-(--color-charcoal)">
-              {introTitle}
-            </h1>
-            <p className="mt-2 text-gray-600 max-w-2xl">{introCopy}</p> 
-          </div>
-        </div>
+    <div className="w-full landing-section-alt booking-funnel--leaves-bg relative">
+      {!selectedItem && (
+        <Section
+          className={cn(
+            theme.heroSectionClass,
+            "pt-28 md:pt-32 lg:pt-36 pb-10",
+          )}
+          innerClassName="max-w-[1400px] px-6 lg:px-16 xl:px-20"
+        >
+          <div className="space-y-5">
+            <div className="text-sm font-medium text-ink-soft">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="hover:text-ink transition-colors bg-transparent border-none cursor-pointer p-0"
+              >
+                Home
+              </button>
+              <span className="mx-2 text-ink-soft/60">/</span>
+              <button
+                type="button"
+                onClick={() => navigate(basePath)}
+                className="hover:text-ink transition-colors bg-transparent border-none cursor-pointer p-0"
+              >
+                {headingLabel}
+              </button>
+            </div>
 
+            <div className="flex items-end justify-between gap-8 flex-wrap max-md:flex-col max-md:items-start">
+              <div className="max-w-3xl">
+                <div className="section-eyebrow" style={theme.heroEyebrowStyle}>
+                  {headingLabel}
+                </div>
+                <h1
+                  className={cn(
+                    "font-display text-fluid-h1 font-light leading-[1.05]",
+                    theme.heroTextClass,
+                  )}
+                >
+                  {introTitle}
+                </h1>
+                <p
+                  className={cn(
+                    "mt-4 text-base leading-relaxed",
+                    theme.heroSubTextClass,
+                  )}
+                >
+                  {introCopy}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => navigate("/create-booking")}
+                className="btn-primary-mockup max-md:w-full max-md:text-center"
+              >
+                Book Now
+              </button>
+            </div>
+          </div>
+        </Section>
+      )}
+
+      <Section
+        className={cn(
+          "bg-transparent",
+          selectedItem ? "pt-28 md:pt-32 lg:pt-36" : "pt-8 md:pt-10 lg:pt-12",
+        )}
+      >
         {isLoading ? (
           <SinglePageSkeleton />
         ) : error ? (
-          <div className="rounded-lg border border-red-100 bg-red-50 p-4 text-red-800">
+          <div className="rounded-[4px] border border-red-200/60 bg-red-50 p-5 text-red-900 shadow-sm">
             Unable to load {availableLabel} right now. Please try again later.
           </div>
         ) : (
-          <div className="space-y-12">
+          <div className="space-y-14">
             {selectedItem && (
-              <div className="relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-4">
-                <div className="w-full flex justify-end">
-                  <button
-                    onClick={() => navigate(-1)}
-                    className="flex shrink-0 items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-all hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 hover:shadow-md cursor-pointer group"
-                  >
-                    <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1 text-green-700" />
-                    <span>Back</span>
-                  </button>
-                </div>
+              <div className="relative mx-auto w-full max-w-[860px]" ref={detailRef}>
+                <div className="grid gap-4 lg:grid-cols-[1.45fr_0.85fr] items-stretch">
+                  {/* Main (rooms: no big card wrapper; venues keep card) */}
+                  {isVenuePage ? (
+                    <article className={cn("overflow-hidden rounded-[6px]", theme.panelClass)}>
+                      <div className="relative h-[320px] sm:h-[460px] w-full bg-sand">
+                        <div
+                          className="absolute inset-0 bg-cover bg-center"
+                          style={{ backgroundImage: `url(${mainImage})` }}
+                        />
+                        <div
+                          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-dark/70 via-dark/10 to-transparent"
+                          aria-hidden
+                        />
 
-                <div
-                  ref={detailRef}
-                  className="w-full group/card flex flex-col overflow-hidden rounded-2xl border border-sand-dark/40 bg-white shadow-[0_1px_0_rgba(15,23,42,0.04),0_12px_32px_-12px_rgba(15,23,42,0.12)] transition-shadow hover:shadow-[0_1px_0_rgba(15,23,42,0.05),0_16px_40px_-14px_rgba(15,23,42,0.14)]"
-                >
-                <div className="relative h-[250px] sm:h-[350px] w-full bg-gradient-to-b from-sand to-sand-dark/50">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover/card:scale-[1.02]"
-                    style={{ backgroundImage: `url(${mainImage})` }}
-                  />
-                  <div
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent"
-                    aria-hidden
-                  />
-                  
-                  {showUnavailableOverlay && (
-                    <UnavailableReasonOverlay
-                      title={unavailableTitle}
-                      detail={unavailableDetail}
-                    />
-                  )}
+                        {quantityInCart > 0 && !fullyBooked && (
+                          <div
+                            className="absolute top-5 right-5 z-10 flex h-10 min-w-10 items-center justify-center rounded-full bg-sea px-2.5 shadow-lg ring-2 ring-white/30"
+                            aria-hidden
+                          >
+                            <span className="text-sm font-bold tracking-tight text-white tabular-nums">
+                              {quantityInCart}
+                            </span>
+                          </div>
+                        )}
 
-                  {quantityInCart > 0 && !fullyBooked && (
-                    <div
-                      className="absolute top-4 right-4 z-10 flex h-10 min-w-10 items-center justify-center rounded-full bg-sea px-2.5 shadow-lg ring-2 ring-white/30"
-                      aria-hidden>
-                      <span className="text-sm font-bold tracking-tight text-white tabular-nums">
-                        {quantityInCart}
-                      </span>
-                    </div>
-                  )}
-
-                  {hasGallery && !fullyBooked && (
-                    <div className="absolute bottom-2 left-2 right-2 pl-2 flex gap-2 overflow-x-auto pb-2 pt-6">
-                      {images.map((img: string, i: number) => (
-                        <button
-                          key={i}
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveImageIndex(i);
-                          }}
-                          className={cn(
-                            "aspect-4/3 w-16 shrink-0 overflow-hidden rounded-lg ring-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-dark/80",
-                            i === activeImageIndex
-                              ? "ring-white shadow-lg shadow-black/30"
-                              : "ring-white/70 opacity-90 hover:opacity-100",
-                          )}
-                          aria-label={`View image ${i + 1}`}
-                          aria-pressed={i === activeImageIndex}
-                          style={{
-                            backgroundImage: `url(${img})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                          }}>
-                          <span className="sr-only">Image {i + 1}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="relative flex flex-1 flex-col bg-[linear-gradient(180deg,#fffefc_0%,#faf8f5_100%)] p-6">
-                  {selectedItem.type && (
-					          <div className="mb-4 inline-flex">
-                      <RoomTypeBadge type={selectedItem.type} isTitle />
-                    </div>
-                  )}
-
-                  <div
-                    className="mb-4 rounded-xl border border-amber-100/80 bg-gradient-to-br from-stone-50/95 via-white to-amber-50/30 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]"
-                    style={{ boxShadow: "inset 0 0 0 1px rgba(245, 158, 11, 0.06)" }}
-                  >
-                    <div className="flex gap-3.5">
-                      <div
-                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-sm"
-                        style={{
-                          background:
-                            "linear-gradient(145deg, rgba(47, 93, 80, 0.14) 0%, rgba(47, 93, 80, 0.06) 100%)",
-                          color: "var(--color-sea)",
-                        }}
-                      >
-                        <BedDouble className="h-5 w-5" strokeWidth={1.75} />
+                        {hasGallery && !fullyBooked && (
+                          <div className="absolute bottom-3 left-3 right-3 flex gap-2 overflow-x-auto pb-2 pt-8">
+                            {images.map((img: string, i: number) => (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  setActiveImageIndex(i);
+                                }}
+                                className={cn(
+                                  "aspect-4/3 w-16 shrink-0 overflow-hidden rounded-[4px] ring-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-dark/80",
+                                  i === activeImageIndex
+                                    ? "ring-white shadow-lg shadow-black/30"
+                                    : "ring-white/70 opacity-90 hover:opacity-100",
+                                )}
+                                aria-label={`View image ${i + 1}`}
+                                aria-pressed={i === activeImageIndex}
+                                style={{
+                                  backgroundImage: `url(${img})`,
+                                  backgroundSize: "cover",
+                                  backgroundPosition: "center",
+                                }}
+                              >
+                                <span className="sr-only">Image {i + 1}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-ink-soft">
-                          {isVenuePage ? "Details" : "Bed layout"}
-                        </p>
-                        <p className="font-display text-lg font-semibold leading-snug tracking-tight text-ink sm:text-xl">
-                          {headline}
-                        </p>
-                        {showBedExtra && (
-                          <p className="text-xs leading-relaxed text-ink-soft">
-                            Also listed: <span className="font-medium text-ink">{bedExtra}</span>
+
+                      <div className="p-7 md:p-10 space-y-8">
+                        <header className="space-y-3">
+                          {selectedItem.type && (
+                            <div className="inline-flex">
+                              <RoomTypeBadge type={selectedItem.type} isTitle />
+                            </div>
+                          )}
+                          <h2 className="font-display text-fluid-h2 font-light leading-[1.1] text-ink">
+                            {mainTitle}
+                          </h2>
+                          <p className="text-ink-soft leading-relaxed max-w-2xl">
+                            {headline}
                           </p>
+                        </header>
+
+                        <div className="grid gap-5 md:grid-cols-2">
+                          <div className="rounded-[6px] border border-sand-dark/70 bg-white p-5">
+                            <div className="flex items-start gap-3.5">
+                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[6px] bg-sage-muted text-sea">
+                                <BedDouble className="h-5 w-5" strokeWidth={1.75} />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
+                                  Details
+                                </div>
+                                <div className="mt-1 font-display text-lg font-semibold text-ink leading-snug">
+                                  {headline}
+                                </div>
+                              </div>
+                            </div>
+                            {capacityLine && (
+                              <div className="mt-4 flex items-center gap-3 border-t border-sand-dark/60 pt-4">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[6px] bg-sand text-ink-soft">
+                                  <Users className="h-4 w-4" strokeWidth={1.75} />
+                                </div>
+                                <div>
+                                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
+                                    Capacity
+                                  </div>
+                                  <div className="text-sm font-semibold text-ink">
+                                    {capacityLine}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="rounded-[6px] border border-sand-dark/70 bg-white p-5">
+                            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
+                              Amenities
+                            </div>
+                            {pills.length > 0 ? (
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {pills.map((pill, i) => (
+                                  <span
+                                    key={i}
+                                    className="inline-flex items-center rounded-full border border-sand-dark/60 bg-white px-3 py-1 text-xs font-medium text-ink-soft shadow-sm"
+                                  >
+                                    {pill}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="mt-3 text-sm text-ink-soft">—</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ) : (
+                    <div className="h-full flex flex-col">
+                      {/* Gallery (match reference: big image + 3-up thumbnails) */}
+                      <div className="h-full flex flex-col rounded-[8px] bg-white border border-sand-dark/60 shadow-[0_8px_24px_rgba(15,31,26,0.08)] overflow-hidden">
+                        <div
+                          className="relative flex-1 min-h-[220px] sm:min-h-[310px] w-full bg-sand cursor-zoom-in"
+                          onClick={() => setIsImageZoomOpen(true)}
+                        >
+                          <div
+                            className="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-[1.03]"
+                            style={{ backgroundImage: `url(${mainImage})` }}
+                          />
+                          <div
+                            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-dark/65 via-dark/10 to-transparent"
+                            aria-hidden
+                          />
+                          <div className="absolute bottom-2 right-2 z-10 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium text-ink shadow-sm">
+                            <ZoomIn className="h-3.5 w-3.5" />
+                            Zoom
+                          </div>
+
+                          {showUnavailableOverlay && (
+                            <UnavailableReasonOverlay
+                              title={unavailableTitle}
+                              detail={unavailableDetail}
+                            />
+                          )}
+
+                          {quantityInCart > 0 && !fullyBooked && (
+                            <div
+                              className="absolute top-4 right-4 z-10 flex h-10 min-w-10 items-center justify-center rounded-full bg-sea px-2.5 shadow-lg ring-2 ring-white/30"
+                              aria-hidden
+                            >
+                              <span className="text-sm font-bold tracking-tight text-white tabular-nums">
+                                {quantityInCart}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {hasGallery && !fullyBooked && (
+                          <div className="grid grid-cols-3 gap-2 p-2 border-t border-sand-dark/60 bg-white">
+                            {images.slice(0, 3).map((img: string, i: number) => (
+                              <button
+                                key={img + i}
+                                type="button"
+                                onClick={() => setActiveImageIndex(i)}
+                                className={cn(
+                                  "aspect-4/3 w-full overflow-hidden rounded-[6px] ring-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+                                  i === activeImageIndex
+                                    ? "ring-sea shadow-sm"
+                                    : "ring-sand-dark/60 opacity-90 hover:opacity-100",
+                                )}
+                                aria-label={`View image ${i + 1}`}
+                                aria-pressed={i === activeImageIndex}
+                                style={{
+                                  backgroundImage: `url(${img})`,
+                                  backgroundSize: "cover",
+                                  backgroundPosition: "center",
+                                }}
+                              >
+                                <span className="sr-only">Image {i + 1}</span>
+                              </button>
+                            ))}
+                          </div>
                         )}
                       </div>
                     </div>
-
-                    {capacityLine && (
-                      <div className="mt-4 flex items-center gap-2.5 border-t border-gold-light/40 pt-3.5">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sand text-ink-soft">
-                          <Users className="h-4 w-4" strokeWidth={1.75} />
-                        </div>
-                        <div>
-                          <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-ink-soft">
-                            Capacity
-                          </p>
-                          <p className="text-sm font-semibold text-ink">
-                            {capacityLine}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {pills.length > 0 && (
-                    <div className="mb-4 flex flex-wrap gap-2">
-                      {pills.map((pill, i) => (
-                        <span
-                          key={i}
-                          className="inline-flex items-center rounded-full border border-sand-dark/40 bg-white/80 px-3 py-1 text-xs font-medium text-ink-soft shadow-sm"
-                        >
-                          {pill}
-                        </span>
-                      ))}
-                    </div>
                   )}
 
-                  <div className="mt-auto flex flex-col gap-3 border-t border-sand-dark/40 pt-4 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-                    <div>
-                      <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-ink-soft">
-                        From
-                      </p>
-                      <p className="font-display text-xl font-bold text-ink">
-                        {pricingFormat(priceVal)}
-                        <span className="text-sm font-normal text-ink-soft">
-                          {" "}
-                          /night
-                        </span>
-                      </p>
-                    </div>
+                  {/* Sticky sidebar panel (WordPress theme vibe) */}
+                  <aside>
+                    <div className="h-full flex flex-col rounded-[8px] border border-sand-dark/60 bg-white p-3 shadow-[0_8px_24px_rgba(15,31,26,0.08)] space-y-2.5">
+                      {selectedItem.type && (
+                        <div className="inline-flex scale-95 origin-left">
+                          <RoomTypeBadge type={selectedItem.type} isTitle />
+                        </div>
+                      )}
 
-                      <div className="flex flex-wrap items-center justify-end gap-4"> 
-                      <div className="flex shrink-0 items-center gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          className="border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted"
-                          disabled={quantityInCart === 0}
-                          onClick={handleDecrementCart}
-                          aria-label={`Remove one ${mainTitle} from cart`}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <span
-                          className="min-w-10 text-center font-display text-xl font-semibold tabular-nums text-ink"
-                          aria-live="polite"
-                        >
-                          {quantityInCart}
-                        </span>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          className={cn(
-                            "border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted",
-                            "border-sea/40 hover:border-sea/60 hover:bg-sage-muted"
-                          )}
-                          disabled={bookingButtonDisabled}
-                          onClick={handleIncrementCart}
-                          aria-label={`Add one ${mainTitle} to cart`}
-                        >
-                          <Plus className="h-4 w-4 text-sea" />
-                        </Button>
+                      <h3 className="text-ink font-semibold text-[14px] leading-snug">
+                        {mainTitle}
+                      </h3>
+
+                      <div className="flex flex-wrap items-center gap-2.5 text-[10px] text-ink-soft">
+                        {bedSpecs.length > 0 && (
+                          <span className="inline-flex items-center gap-2">
+                            <BedDouble className="h-4 w-4" />
+                            {bedSpecs.length} Beds
+                          </span>
+                        )}
+                        {capacityLine && (
+                          <span className="inline-flex items-center gap-2">
+                            <Users className="h-4 w-4" />
+                            {capacityLine}
+                          </span>
+                        )}
+                        {selectedItem.type && (
+                          <span className="inline-flex items-center gap-2">
+                            <span className="h-4 w-4 rounded-[4px] border border-sand-dark/70 bg-sand" />
+                            {selectedItem.type}
+                          </span>
+                        )}
                       </div>
+
+                      <div className="font-semibold text-sea text-base leading-none">
+                        {pricingFormat(priceVal)}
+                      </div>
+
+                      <div className="flex items-start gap-1.5 text-[10px] text-ink-soft">
+                        <MapPin className="h-3.5 w-3.5 mt-0.5" />
+                        <span>{propertyLocation}</span>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <div className="text-[10px] font-semibold text-ink">
+                          Property Description:
+                        </div>
+                        <div className="text-[10px] text-ink-soft leading-relaxed">
+                          {descExpanded ? headline : descriptionPreview.short}
+                          {descriptionPreview.isLong && (
+                            <>
+                              {" "}
+                              <button
+                                type="button"
+                                onClick={() => setDescExpanded((v) => !v)}
+                                className="text-sea font-semibold underline underline-offset-2 bg-transparent border-none cursor-pointer p-0"
+                              >
+                                {descExpanded ? "read less" : "read more"}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="rounded-[8px] bg-sand p-1.5 border border-sand-dark/60">
+                        <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
+                          Add to cart
+                        </div>
+                        <div className="mt-1 flex items-center justify-between gap-0.5">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-5.5 w-5.5 min-h-5.5 min-w-5.5 border-sand-dark/60 bg-white shadow-sm hover:bg-sage-muted"
+                            disabled={draftQuantity === 0}
+                            onClick={handleDecrementDraft}
+                            aria-label={`Remove one ${mainTitle} from cart`}
+                          >
+                            <Minus className="h-2.5 w-2.5" />
+                          </Button>
+                          <span
+                            className="min-w-5 text-center font-display text-[13px] font-semibold tabular-nums text-ink"
+                            aria-live="polite"
+                          >
+                            {draftQuantity}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className={cn(
+                              "h-5.5 w-5.5 min-h-5.5 min-w-5.5 border-sand-dark/60 bg-white shadow-sm hover:bg-sage-muted",
+                              "border-sea/40 hover:border-sea/60",
+                            )}
+                            disabled={bookingButtonDisabled}
+                            onClick={handleIncrementDraft}
+                            aria-label={`Add one ${mainTitle} to cart`}
+                          >
+                            <Plus className="h-2.5 w-2.5 text-sea" />
+                          </Button>
+                        </div>
+                        <div className="mt-0.5 text-[8px] text-ink-soft text-center">In cart: {quantityInCart}</div>
+                      </div>
+
+                      <div>
+                        <div className="text-[10px] font-semibold text-ink">
+                          Additional Details:
+                        </div>
+                        <dl className="mt-1 grid grid-cols-2 gap-x-3 gap-y-1 text-[10px]">
+                          <div>
+                            <dt className="text-ink-soft">Type</dt>
+                            <dd className="font-medium text-ink">
+                              {selectedItem.type ?? "—"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-ink-soft">Capacity</dt>
+                            <dd className="font-medium text-ink">
+                              {capacityLine ?? "—"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-ink-soft">Beds</dt>
+                            <dd className="font-medium text-ink">
+                              {bedSpecs.length > 0 ? `${bedSpecs.length}` : "—"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-ink-soft">Pricing</dt>
+                            <dd className="font-medium text-ink">
+                              {isVenuePage ? "Starting rate" : "Per night"}
+                            </dd>
+                          </div>
+                        </dl>
+                      </div>
+
+                      <motion.button
+                        type="button"
+                        onClick={(event) =>
+                          handleAddToCart(event.currentTarget as HTMLElement)
+                        }
+                        className="btn-primary-mockup w-full justify-center mt-auto min-h-8 text-[9px] tracking-[0.08em] px-2.5 rounded-[6px]"
+                        disabled={bookingButtonDisabled || draftQuantity === quantityInCart}
+                        animate={
+                          isAddAnimating
+                            ? {
+                                rotateX: [0, -18, 12, -4, 0],
+                                rotateY: [0, 14, -9, 4, 0],
+                                scale: [1, 1.1, 0.98, 1.03, 1],
+                                boxShadow: [
+                                  "0 0 0 rgba(198,161,91,0)",
+                                  "0 0 24px rgba(198,161,91,0.55)",
+                                  "0 0 10px rgba(198,161,91,0.22)",
+                                  "0 0 0 rgba(198,161,91,0)",
+                                ],
+                              }
+                            : {
+                                rotateX: 0,
+                                rotateY: 0,
+                                scale: 1,
+                                boxShadow: "0 0 0 rgba(198,161,91,0)",
+                              }
+                        }
+                        transition={{ duration: 0.66, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ transformStyle: "preserve-3d" }}
+                      >
+                        Update cart
+                      </motion.button>
+
+                      {fullyBooked && (
+                        <div className="text-sm text-red-700 bg-red-50 border border-red-200/70 rounded-[6px] p-3">
+                          This {isVenuePage ? "venue" : "room"} is currently unavailable.
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </div>
+                  </aside>
                 </div>
               </div>
             )}
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-display text-2xl font-semibold text-(--color-charcoal)">
-                  {listLabel}
-                </h3>
-                <span className="text-sm text-gray-500">
+            <div className="space-y-6">
+              <div className="flex items-end justify-between gap-6 flex-wrap">
+                <div>
+                  <div className="section-eyebrow">Explore</div>
+                  <h3 className="font-display text-fluid-h3 font-light text-ink leading-[1.1]">
+                    {listLabel}
+                  </h3>
+                </div>
+                <div className="text-sm text-ink-soft">
                   {visibleList.length} {availableLabel} available
-                </span>
+                </div>
               </div>
 
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {visibleList.map((item) => (
-                  <CardItem
-                    key={item.id}
-                    id={item.id}
-                    type={item.type}
-                    name={item.name}
-                    description={item.description}
-                    capacity={item.capacity}
-                    price={
-                      isVenuePage
-                        ? venueStartingDisplayPrice(
-                            item as unknown as VenuePriceItem,
-                          )
-                        : item.price
-                    }
-                    amenities={item.amenities}
-                    featured_image={item.featured_image}
-                    gallery={item.gallery}
-                    bed_specifications={item.bed_specifications}
-                    onClick={() => handleCardClick(item.id, item)}
-                  />
-                ))}
-              </div>
+              {visibleList.length === 0 ? (
+                <div className="rounded-[4px] border border-sand-dark/70 bg-white p-6 text-ink-soft">
+                  No {availableLabel} to show right now.
+                </div>
+              ) : !isVenuePage ? (
+                <section className="rounded-[8px] border border-sand-dark/60 bg-white/85 p-4 md:p-5 shadow-[0_8px_24px_rgba(15,31,26,0.06)]">
+                  <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-sand-dark/40 pb-3">
+                    {groupedRooms.map((group) => {
+                      const isActive = group.key === activeRoomTab;
+                      return (
+                        <button
+                          key={group.key}
+                          type="button"
+                          onClick={() => setActiveRoomTab(group.key)}
+                          className={cn(
+                            "rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition-colors",
+                            isActive
+                              ? "border-sea bg-sea text-white"
+                              : "border-sand-dark/70 bg-white text-ink-soft hover:border-sea/60 hover:text-ink",
+                          )}
+                        >
+                          {group.label} ({group.items.length})
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    {(groupedRooms.find((group) => group.key === activeRoomTab)?.items ??
+                      []).map((item) => (
+                      <CardItem
+                        key={item.id}
+                        id={item.id}
+                        type={item.type}
+                        name={item.name}
+                        description={item.description}
+                        capacity={item.capacity}
+                        price={item.price}
+                        amenities={item.amenities}
+                        featured_image={item.featured_image}
+                        gallery={item.gallery}
+                        bed_specifications={item.bed_specifications}
+                        onClick={() => handleCardClick(item.id, item)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ) : (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {visibleList.map((item) => (
+                    <CardItem
+                      key={item.id}
+                      id={item.id}
+                      type={item.type}
+                      name={item.name}
+                      description={item.description}
+                      capacity={item.capacity}
+                      price={
+                        isVenuePage
+                          ? venueStartingDisplayPrice(
+                              item as unknown as VenuePriceItem,
+                            )
+                          : item.price
+                      }
+                      amenities={item.amenities}
+                      featured_image={item.featured_image}
+                      gallery={item.gallery}
+                      bed_specifications={item.bed_specifications}
+                      onClick={() => handleCardClick(item.id, item)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
-      </div>
+      </Section>
+
+      {isImageZoomOpen && (
+        <div
+          className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm p-4 md:p-10"
+          onClick={() => setIsImageZoomOpen(false)}
+        >
+          <button
+            type="button"
+            className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-ink shadow-md hover:bg-white"
+            onClick={() => setIsImageZoomOpen(false)}
+            aria-label="Close image zoom"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <div className="h-full w-full flex items-center justify-center">
+            <img
+              src={mainImage}
+              alt={mainTitle}
+              className="max-h-[90vh] max-w-[92vw] object-contain rounded-[10px] shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
+              onClick={(event) => event.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

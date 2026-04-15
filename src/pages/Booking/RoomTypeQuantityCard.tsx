@@ -284,7 +284,7 @@ export function RoomTypeQuantityCard({
 						</span>
 						{unavailableInGroup > 0 && (
 						<span className="text-xs text-ink-soft">
-							{unavailableInGroup} unavailable for these dates
+							{unavailableInGroup} unavailable for these dates 
 						</span>
 						)}
 					</div>

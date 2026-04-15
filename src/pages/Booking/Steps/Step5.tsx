@@ -466,10 +466,17 @@ export function Step5(props: Props) {
   const onlinePaymentPlan = isFromApi
     ? receipt?.online_payment_plan
     : form?.onlinePaymentPlan;
+  const partialPlanMatch = /^partial_(\d{1,2})$/.exec(String(onlinePaymentPlan ?? ""));
+  const partialPlanPercent = partialPlanMatch ? Number(partialPlanMatch[1]) : null;
+  const hasValidPartialPlan =
+    partialPlanPercent != null &&
+    Number.isFinite(partialPlanPercent) &&
+    partialPlanPercent > 0 &&
+    partialPlanPercent < 100;
   const paymentMethodLabel =
     paymentMethod === "online"
-      ? onlinePaymentPlan === "partial_30"
-        ? "Online (Partial 30%)"
+      ? hasValidPartialPlan
+        ? `Online (Partial ${partialPlanPercent}%)`
         : "Online (Full)"
       : paymentMethod || undefined;
 
