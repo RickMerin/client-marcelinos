@@ -1,9 +1,16 @@
-import { useRef, useLayoutEffect, useMemo } from "react";
+import { useRef, useLayoutEffect, useMemo, useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import CardItem from "@/components/cards/CardItem";
 import EventVenueSkeleton from "@/components/skeleton/EventVenueSkeleton";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { useNavigate } from "react-router-dom";
 import {
   venueStartingDisplayPrice,
@@ -39,9 +46,17 @@ const REVEAL_DURATION = 0.6;
 const STAGGER_DELAY = 0.12;
 const REVEAL_EASE = "power2.out";
 
+function getVenueCarouselThreshold(viewportWidth: number): number {
+  if (viewportWidth < 640) return 1;
+  return 2;
+}
+
 function EventVenues() {
   const sectionRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
+  const [viewportWidth, setViewportWidth] = useState<number>(() =>
+    typeof window === "undefined" ? 1280 : window.innerWidth,
+  );
 
   const {
     data: venuesResponse,
@@ -56,6 +71,15 @@ function EventVenues() {
     () => extractList(venuesResponse),
     [venuesResponse],
   );
+
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const venueCarouselThreshold = getVenueCarouselThreshold(viewportWidth);
+  const shouldUseVenueCarousel = venueList.length > venueCarouselThreshold;
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -159,30 +183,63 @@ function EventVenues() {
           </div>
 
           {/* Right: venue cards */}
-          <div
-            className={`grid gap-6 ${
-              venueList.length === 1
-                ? "grid-cols-1 max-w-md"
-                : "grid-cols-1 sm:grid-cols-2"
-            }`}
-          >
-            {venueList.map((venue) => (
-              <div key={venue.id} className="venue-card-wrap">
-                <CardItem
-                  id={venue.id}
-                  name={venue.name}
-                  capacity={venue.capacity}
-                  price={venueStartingDisplayPrice(venue as VenuePriceItem)}
-                  description={venue.description}
-                  featured_image={venue.featured_image}
-                  gallery={venue.gallery}
-                  onClick={() =>
-                    navigate(`/venues/${venue.id}`, { state: { venue } })
-                  }
-                />
-              </div>
-            ))}
-          </div>
+          {shouldUseVenueCarousel ? (
+            <div className="relative min-w-0 overflow-visible">
+              <Carousel opts={{ align: "start", loop: true }} className="w-full px-4 sm:px-8 md:px-10">
+                <CarouselContent className="-ml-4">
+                  {venueList.map((venue) => (
+                    <CarouselItem
+                      key={venue.id}
+                      className="min-w-0 basis-full pl-4 sm:basis-1/2"
+                    >
+                      <div className="venue-card-wrap">
+                        <CardItem
+                          id={venue.id}
+                          name={venue.name}
+                          capacity={venue.capacity}
+                          price={venueStartingDisplayPrice(venue as VenuePriceItem)}
+                          description={venue.description}
+                          featured_image={venue.featured_image}
+                          gallery={venue.gallery}
+                          onClick={() =>
+                            navigate(`/venues/${venue.id}`, { state: { venue } })
+                          }
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+
+                <CarouselPrevious className="left-2 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 backdrop-blur-sm text-gray-700 hover:bg-white sm:left-0 sm:-translate-x-1/2" />
+                <CarouselNext className="right-2 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 backdrop-blur-sm text-gray-700 hover:bg-white sm:right-0 sm:translate-x-1/2" />
+              </Carousel>
+            </div>
+          ) : (
+            <div
+              className={`min-w-0 grid gap-6 ${
+                venueList.length === 1
+                  ? "grid-cols-1 max-w-md"
+                  : "grid-cols-1 sm:grid-cols-2"
+              }`}
+            >
+              {venueList.map((venue) => (
+                <div key={venue.id} className="venue-card-wrap">
+                  <CardItem
+                    id={venue.id}
+                    name={venue.name}
+                    capacity={venue.capacity}
+                    price={venueStartingDisplayPrice(venue as VenuePriceItem)}
+                    description={venue.description}
+                    featured_image={venue.featured_image}
+                    gallery={venue.gallery}
+                    onClick={() =>
+                      navigate(`/venues/${venue.id}`, { state: { venue } })
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>
