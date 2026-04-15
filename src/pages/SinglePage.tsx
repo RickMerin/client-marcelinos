@@ -87,6 +87,30 @@ const SinglePage = () => {
     return itemList.filter((item) => item.id !== selectedItem.id);
   }, [itemList, selectedItem]);
 
+  const groupedVisibleList = useMemo(() => {
+    if (isVenuePage) return visibleList.map(item => ({ ...item, groupCount: 1 }));
+
+    const map = new Map<string, ListingItem & { groupCount?: number }>();
+    
+    for (const item of visibleList) {
+      const type = (item.type || "").trim().toLowerCase();
+      // Use bed_specifications array to differentiate rooms of the same type. 
+      // Fall back to empty string to group those without specs together.      
+      const bedSpecs = (item.bed_specifications || []).slice().sort().join("|").toLowerCase();
+      const key = `${type}-${bedSpecs}`;
+      
+      // Only keep the first match for each unique type + bed specs combination
+      if (!map.has(key)) {
+        map.set(key, { ...item, groupCount: 1 });
+      } else {
+        const existing = map.get(key)!;
+        existing.groupCount = (existing.groupCount || 1) + 1;
+      }
+    }
+    
+    return Array.from(map.values());
+  }, [visibleList, isVenuePage]);
+
   const handleCardClick = (id: number, item?: ListingItem) => {
     const path = isVenuePage ? `/venues/${id}` : `/rooms/${id}`;
     navigate(path, {
@@ -483,18 +507,17 @@ const SinglePage = () => {
                   {listLabel}
                 </h3>
                 <span className="text-sm text-gray-500">
-                  {visibleList.length} {availableLabel} available
+                  {groupedVisibleList.length} {availableLabel} available
                 </span>
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {visibleList.map((item) => (
+                {groupedVisibleList.map((item) => (
                   <CardItem
                     key={item.id}
                     id={item.id}
                     type={item.type}
-                    name={item.name}
-                    description={item.description}
+                    name={item.name}                    groupCount={item.groupCount}                    description={item.description}
                     capacity={item.capacity}
                     price={
                       isVenuePage
