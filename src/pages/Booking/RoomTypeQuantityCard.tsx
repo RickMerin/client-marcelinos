@@ -98,7 +98,6 @@ export function RoomTypeQuantityCard({
 
   const canInc = selectedCount < maxAvailable;
   const canDec = selectedCount > 0;
-  const unavailableInGroup = roomsInGroup.length - maxAvailable;
 
   const panelTheme = ROOM_TYPE_CARD_PANEL[roomType];
 	const panelText = ROOM_TYPE_CARD_PANEL_TEXT[roomType];
