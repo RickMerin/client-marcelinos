@@ -261,7 +261,7 @@ const SinglePage = () => {
 
   return (
     <div className="w-full bg-gradient-to-b from-emerald-50 via-white to-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-10 sm:pt-28 sm:pb-14 space-y-10">
 <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6">        
           <div className="flex-1">
             <p className="text-sm uppercase tracking-[0.15em] text-green-800/70 font-semibold">
