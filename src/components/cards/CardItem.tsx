@@ -17,7 +17,6 @@ interface CardItemProps {
   images?: string[];
   onClick?: () => void;
   bed_specifications?: string[];
-  groupCount?: number;
 }
 
 function CardItem(props: CardItemProps) {
@@ -33,7 +32,6 @@ function CardItem(props: CardItemProps) {
     bed_specifications,
     images: imagesProp,
     onClick,
-    groupCount,
   } = props;
 
   const [expanded, setExpanded] = useState(false);
@@ -99,20 +97,15 @@ function CardItem(props: CardItemProps) {
 
       {/* CONTENT */}
       <div className="relative p-5">
-        <div className="mb-2 flex items-start justify-between gap-2">
-          {typeTitle ? (
+        {typeTitle ? (
+          <div className="mb-2">
             <RoomTypeBadge type={typeTitle} isTitle />
-          ) : (
-            <h2 className="font-display text-xl font-normal tracking-tight text-ink">
-              {title}
-            </h2>
-          )}
-          {groupCount != null && groupCount > 0 && (
-            <span className="shrink-0 text-xs font-semibold text-sea bg-sea/10 px-2 py-1 rounded-md">
-              {groupCount} available
-            </span>
-          )}
-        </div>
+          </div>
+        ) : (
+          <h2 className="font-display mb-2 text-xl font-normal tracking-tight text-ink">
+            {title}
+          </h2>
+        )}
 
         {(capacity != null || description || amenityList.length > 0) && (
           <ul className="mb-3 space-y-1.5 text-base text-ink-soft">
