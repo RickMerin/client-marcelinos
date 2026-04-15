@@ -276,17 +276,17 @@ export function RoomTypeQuantityCard({
 						</p>
 					</div>
 					
-					<div className="flex shrink-0 items-center gap-8">
+					<div className="flex shrink-0 items-center gap-6">
 					{/* AVAILABLE */}
 					<div className="flex items-center gap-2">
 						<span className="inline-flex items-center rounded-full bg-sage-muted px-2.5 py-0.5 text-xs font-semibold text-sea ring-1 ring-sage-muted">
 						{maxAvailable} available
 						</span>
-						{unavailableInGroup > 0 && (
+						{/* {unavailableInGroup > 0 && (
 						<span className="text-xs text-ink-soft">
 							{unavailableInGroup} unavailable for these dates
 						</span>
-						)}
+						)} */}
 					</div>
 
 					{/* CONTROLS */}
