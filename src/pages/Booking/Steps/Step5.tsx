@@ -842,6 +842,14 @@ export function Step5(props: Props) {
 							</div>
 						</div>
 
+						{bookingType === "venue" && venues.length > 0 && (
+							<div className="flex justify-center mt-3 mb-1">
+								<span className="text-[11px] sm:text-xs font-medium text-amber-800 bg-amber-50 px-3 py-1 rounded-md italic text-center shadow-sm border border-amber-200">
+									*Check-in time: 8:00 AM - Check-out time: 12:00 AM
+								</span>
+							</div>
+						)}
+
 						<ReceiptDivider />
 
 						{/* Rooms items table */}
