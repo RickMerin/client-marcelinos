@@ -27,6 +27,25 @@ const KIND_OPTIONS: { value: BookingKind; label: string }[] = [
   { value: "both", label: "Room + Venue" },
 ];
 
+function deriveBookingKindFromCart(): BookingKind | null {
+  try {
+    const raw = localStorage.getItem("cartItems");
+    if (!raw) return null;
+    const items = JSON.parse(raw);
+    if (!Array.isArray(items) || items.length === 0) return null;
+
+    const hasVenue = items.some((item: any) => item?.itemType === "venue");
+    const hasRoom = items.some((item: any) => item?.itemType === "room");
+
+    if (hasVenue && hasRoom) return "both";
+    if (hasVenue) return "venue";
+    if (hasRoom) return "room";
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
@@ -84,9 +103,12 @@ export default function BookingForm() {
   const navigate = useNavigate();
 
   const reservationDate = getFromLocalStorage("reservationDate") ?? {};
+  const cartDrivenKind = deriveBookingKindFromCart();
 
   const [kind, setKind] = useState<BookingKind>(
-    (reservationDate.booking_type as BookingKind) || "room",
+    (cartDrivenKind ||
+      (reservationDate.booking_type as BookingKind) ||
+      "room") as BookingKind,
   );
 
   const addDays = (date: Date, numDays: number) => {
