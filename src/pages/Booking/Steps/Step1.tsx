@@ -152,18 +152,25 @@ export function Step1({
   );
 
   const {
-    data: roomsResponse,
-    isLoading: roomsLoading,
-    error: roomsError,
-  } = useApiQuery<ApiListResponse<any>>(["rooms", checkIn, checkOut], roomsUrl);
+		data: roomsResponse,
+		isLoading: roomsLoading,
+		error: roomsError,
+	} = useApiQuery<ApiListResponse<any>>(
+		["rooms", checkIn, checkOut],
+		roomsUrl,
+		{
+			enabled: showRooms,
+		},
+	);
   const {
-    data: venuesResponse,
-    isLoading: venuesLoading,
-    error: venuesError,
-  } = useApiQuery<ApiListResponse<any>>(
-    ["venues", venueRangeStart, venueRangeEnd],
-    venuesUrl,
-  );
+		data: venuesResponse,
+		isLoading: venuesLoading,
+		error: venuesError,
+	} = useApiQuery<ApiListResponse<any>>(
+		["venues", venueRangeStart, venueRangeEnd],
+		venuesUrl,
+		{ enabled: showVenues },
+	);
 
   const roomList = useMemo(
     () => extractList<any>(roomsResponse),

@@ -145,9 +145,13 @@ export function BookingReceiptPage({
   const receiptApiPath = useLegacyReferenceLookup
     ? `/bookings/reference/${encodeURIComponent(receiptToken)}`
     : `/bookings/receipt/${receiptToken}`;
-  const queryKey = useLegacyReferenceLookup
-    ? queryKeys.bookings.byReference(receiptToken)
-    : queryKeys.bookings.byReceiptToken(receiptToken);
+  const queryKey = useMemo(
+		() =>
+			useLegacyReferenceLookup
+				? queryKeys.bookings.byReference(receiptToken)
+				: queryKeys.bookings.byReceiptToken(receiptToken),
+		[receiptToken, useLegacyReferenceLookup],
+	);
 
   useEffect(() => {
     clearBookingStorage();
@@ -159,6 +163,17 @@ export function BookingReceiptPage({
     { retry: 1, staleTime: 10_000 },
   );
 
+  const receiptRefetchInFlightRef = useRef(false);
+	const refetchReceipt = useCallback(async () => {
+		if (receiptRefetchInFlightRef.current) return;
+		receiptRefetchInFlightRef.current = true;
+		try {
+			await queryClient.refetchQueries({ queryKey: [...queryKey] });
+		} finally {
+			receiptRefetchInFlightRef.current = false;
+		}
+	}, [queryClient, queryKey]);
+
   useEffect(() => {
     if (!data?.booking?.receipt_token || !useLegacyReferenceLookup) return;
     const t = data.booking.receipt_token;
@@ -168,44 +183,46 @@ export function BookingReceiptPage({
   }, [data, useLegacyReferenceLookup, receiptToken, navigate]);
 
   useEffect(() => {
-    if (paymentStatus !== "success" || !isReceiptTokenUuid(receiptToken)) return;
+		if (paymentStatus !== "success" || !isReceiptTokenUuid(receiptToken))
+			return;
 
-    const mode = /^partial_(\d{1,2})$/.test(String(paymentMode ?? ""))
-      ? String(paymentMode)
-      : "full";
-    void API.post<{ success: boolean }>(
-      `/bookings/receipt/${encodeURIComponent(receiptToken)}/confirm-payment`,
-      { payment_mode: mode },
-    )
-      .then(() => {
-        queryClient.refetchQueries({ queryKey: [...queryKey] });
-      })
-      .catch(() => {
-        // Keep receipt usable even if payment sync fails; banner still informs user.
-      });
-  }, [paymentMode, paymentStatus, queryClient, queryKey, receiptToken]);
+		const mode = /^partial_(\d{1,2})$/.test(String(paymentMode ?? ""))
+			? String(paymentMode)
+			: "full";
+		void API.post<{ success: boolean }>(
+			`/bookings/receipt/${encodeURIComponent(receiptToken)}/confirm-payment`,
+			{ payment_mode: mode },
+		)
+			.then(() => refetchReceipt())
+			.catch(() => {
+				// Keep receipt usable even if payment sync fails; banner still informs user.
+			});
+	}, [paymentMode, paymentStatus, receiptToken, refetchReceipt]);
 
   useEffect(() => {
-    if (!isReceiptTokenUuid(receiptToken)) return;
+		if (!isReceiptTokenUuid(receiptToken)) return;
 
-    const poll = async () => {
-      try {
-        const statusRes = await API.get<{
-          success: boolean;
-          data?: { status?: string; invoice_url?: string };
-        }>(`/bookings/receipt/${encodeURIComponent(receiptToken)}/payment-status`);
-        const nextStatus = String(statusRes?.data?.status ?? "").toLowerCase();
-        if (nextStatus === "paid" || nextStatus === "partial") {
-          queryClient.refetchQueries({ queryKey: [...queryKey] });
-        }
-      } catch {
-        // Keep polling best-effort only.
-      }
-    };
+		const poll = async () => {
+			if (document.visibilityState !== "visible") return;
+			try {
+				const statusRes = await API.get<{
+					success: boolean;
+					data?: { status?: string; invoice_url?: string };
+				}>(
+					`/bookings/receipt/${encodeURIComponent(receiptToken)}/payment-status`,
+				);
+				const nextStatus = String(statusRes?.data?.status ?? "").toLowerCase();
+				if (nextStatus === "paid" || nextStatus === "partial") {
+					void refetchReceipt();
+				}
+			} catch {
+				// Keep polling best-effort only.
+			}
+		};
 
-    const id = window.setInterval(poll, 12000);
-    return () => window.clearInterval(id);
-  }, [queryClient, queryKey, receiptToken]);
+		const id = window.setInterval(poll, 12000);
+		return () => window.clearInterval(id);
+	}, [receiptToken, refetchReceipt]);
 
   const receipt = useMemo(() => (data ? toBookingReceipt(data) : null), [data]);
   const qrCodeUrl = receipt?.qr_code_url ?? data?.qr_code_url ?? null;
@@ -217,12 +234,12 @@ export function BookingReceiptPage({
 
   const refetchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleRealtimeEvent = useCallback(() => {
-    if (refetchDebounceRef.current) clearTimeout(refetchDebounceRef.current);
-    refetchDebounceRef.current = setTimeout(() => {
-      refetchDebounceRef.current = null;
-      queryClient.refetchQueries({ queryKey: [...queryKey] });
-    }, 400);
-  }, [queryClient, queryKey]);
+		if (refetchDebounceRef.current) clearTimeout(refetchDebounceRef.current);
+		refetchDebounceRef.current = setTimeout(() => {
+			refetchDebounceRef.current = null;
+			void refetchReceipt();
+		}, 400);
+	}, [refetchReceipt]);
 
   useEffect(
     () => () => {
@@ -324,7 +341,7 @@ export function BookingReceiptPage({
         window.location.href = paymentUrl;
         return;
       }
-      queryClient.refetchQueries({ queryKey: [...queryKey] });
+      await refetchReceipt();
     } finally {
       setIsRetryingPayment(false);
     }

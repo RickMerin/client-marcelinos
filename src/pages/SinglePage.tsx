@@ -80,11 +80,11 @@ const SinglePage = () => {
   const basePath = isVenuePage ? "/venues" : "/rooms";
 
   const { data, isLoading, error } = useApiQuery<
-    ApiListResponse<ListingItem> | ListingItem[]
-  >(
-    [isVenuePage ? "venues" : "rooms", "single-page"],
-    isVenuePage ? "/venues?is_all=1" : "/rooms?is_all=1",
-  );
+		ApiListResponse<ListingItem> | ListingItem[]
+	>(
+		[isVenuePage ? "venues" : "rooms", "single-page"],
+		isVenuePage ? "/venues?is_all=1&limit=60" : "/rooms?is_all=1&limit=80",
+	);
 
   const itemList = useMemo(() => extractList<ListingItem>(data), [data]);
 

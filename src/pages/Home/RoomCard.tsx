@@ -68,7 +68,7 @@ function RoomCard() {
 		error,
 	} = useApiQuery<ApiListResponse<Record<string, unknown>>>(
 		["rooms", "home"],
-		"/rooms?is_all=1",
+		"/rooms?is_all=1&limit=18",
 	);
 
 	const roomList = useMemo(() => extractList(roomsResponse), [roomsResponse]);
