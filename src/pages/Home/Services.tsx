@@ -56,7 +56,7 @@ function Services() {
 				{services.map((service, index) => (
 					<div
 						key={index}
-						className="group bg-forest px-8 py-14 text-center transition-all duration-300 hover:bg-dark cursor-default">
+						className="group bg-forest px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14 text-center transition-all duration-300 hover:bg-dark cursor-default">
 						{/* Icon */}
 						<service.Icon className="w-10 h-10 mb-5 mx-auto text-sand group-hover:text-cream transition-colors duration-300" />
 
