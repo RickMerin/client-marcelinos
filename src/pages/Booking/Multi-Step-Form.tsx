@@ -12,6 +12,7 @@ import { useBookingForm } from "@/hooks/useBookingForm";
 import { useBookingValidation } from "@/hooks/useBookingValidation";
 import { useBookingSubmission } from "@/hooks/useBookingSubmission";
 import { NavigationButtons } from "./components/NavigationButtons";
+import { clearCartStorage } from "@/lib/storage/localStorage";
 
 /**
  * Multi-step booking form component
@@ -65,9 +66,9 @@ export function MultiStepForm() {
     }
 
     await submitBooking(formData, (response) => {
-      // Do not clear localStorage here — it drops reservationDate and triggers a redirect
-      // to home before navigation. Billing statement: receipt route (API) or goToStep(5).
-      // Storage is cleared on receipt page mount or "Book another".
+      // Keep booking form storage until receipt flow completes, but clear cart immediately
+      // after successful booking creation so guest selections don't linger.
+      clearCartStorage();
 
       // Online payment: redirect to Xendit payment page
       if (response?.payment_url) {

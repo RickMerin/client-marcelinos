@@ -362,9 +362,6 @@ export function Step1({
           }
         }
         
-        // Clear cart
-        localStorage.removeItem("cartItems");
-        window.dispatchEvent(new Event("cart-updated"));
       }
     } catch (e) {
       console.error("Failed to parse cartItems", e);
