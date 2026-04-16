@@ -52,22 +52,21 @@ function Services() {
 				Enjoy a complete resort experience without ever leaving the property.
 			</p>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
+			<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1">
 				{services.map((service, index) => (
 					<div
 						key={index}
-						className="group bg-sand px-8 py-14 text-center transition-all duration-300 hover:bg-dark hover:-translate-y-1 cursor-default"
-					>
+						className="group bg-forest px-8 py-14 text-center transition-all duration-300 hover:bg-dark cursor-default">
 						{/* Icon */}
-						<service.Icon className="w-10 h-10 mb-5 mx-auto text-forest group-hover:text-cream transition-colors duration-300" />
+						<service.Icon className="w-10 h-10 mb-5 mx-auto text-sand group-hover:text-cream transition-colors duration-300" />
 
 						{/* Title */}
-						<h3 className="font-display text-fluid-subtitle font-normal text-ink mb-3 transition-colors duration-300 group-hover:text-cream">
+						<h3 className="font-display text-fluid-subtitle font-normal text-sand mb-3 transition-colors duration-300 group-hover:text-cream">
 							{service.title}
 						</h3>
 
 						{/* Description */}
-						<p className="text-base leading-relaxed text-ink-soft transition-colors duration-300 group-hover:text-cream/70">
+						<p className="text-base leading-relaxed text-sand transition-colors duration-300 group-hover:text-cream/70">
 							{service.description}
 						</p>
 					</div>
