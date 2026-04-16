@@ -13,7 +13,6 @@ import { cn } from "@/lib/utils";
 import {
   buildAvailabilityUrl,
   amenityNames,
-  amenityPills,
   roomImages,
 } from "@/hooks/useRoomList";
 import { bedSpecificationLine } from "@/lib/formatters/roomDisplayName";
@@ -220,7 +219,6 @@ const SinglePage = () => {
   const mainImage =
     images[activeImageIndex] ?? images[0] ?? "/placeholder-room.jpg";
 
-  const pills = amenityPills(selectedItem?.amenities as any[] | undefined);
   const fallbackDesc =
     selectedItem?.description?.trim() ||
     amenityNames(selectedItem?.amenities as any[] | undefined) ||
@@ -277,6 +275,10 @@ const SinglePage = () => {
       window.removeEventListener("storage", updateQuantity);
     };
   }, [selectedItem, isVenuePage]);
+
+  useEffect(() => {
+    setDescExpanded(false);
+  }, [selectedItem?.id]);
 
   const playLeafFlightToCart = (sourceEl?: HTMLElement | null) => {
     const cartButton = document.querySelector(
@@ -597,22 +599,36 @@ const SinglePage = () => {
             {selectedItem && (
               <div className="relative mx-auto w-full max-w-[1120px]" ref={detailRef}>
                 <div className="grid gap-5 lg:grid-cols-[1.35fr_0.95fr] items-stretch">
-                  {/* Main (rooms: no big card wrapper; venues keep card) */}
-                  {isVenuePage ? (
-                    <article className={cn("overflow-hidden rounded-[6px]", theme.panelClass)}>
-                      <div className="relative h-[320px] sm:h-[460px] w-full bg-sand">
+                  <div className="h-full flex flex-col">
+                    {/* Gallery (match reference: big image + 3-up thumbnails) */}
+                    <div className="h-full flex flex-col rounded-[8px] bg-white border border-sand-dark/60 shadow-[0_8px_24px_rgba(15,31,26,0.08)] overflow-hidden">
+                      <div
+                        className="relative flex-1 min-h-[220px] sm:min-h-[310px] w-full bg-sand cursor-zoom-in"
+                        onClick={() => setIsImageZoomOpen(true)}
+                      >
                         <div
-                          className="absolute inset-0 bg-cover bg-center"
+                          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-[1.03]"
                           style={{ backgroundImage: `url(${mainImage})` }}
                         />
                         <div
-                          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-dark/70 via-dark/10 to-transparent"
+                          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-dark/65 via-dark/10 to-transparent"
                           aria-hidden
                         />
+                        <div className="absolute bottom-2 right-2 z-10 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium text-ink shadow-sm">
+                          <ZoomIn className="h-3.5 w-3.5" />
+                          Zoom
+                        </div>
+
+                        {showUnavailableOverlay && (
+                          <UnavailableReasonOverlay
+                            title={unavailableTitle}
+                            detail={unavailableDetail}
+                          />
+                        )}
 
                         {quantityInCart > 0 && !fullyBooked && (
                           <div
-                            className="absolute top-5 right-5 z-10 flex h-10 min-w-10 items-center justify-center rounded-full bg-sea px-2.5 shadow-lg ring-2 ring-white/30"
+                            className="absolute top-4 right-4 z-10 flex h-10 min-w-10 items-center justify-center rounded-full bg-sea px-2.5 shadow-lg ring-2 ring-white/30"
                             aria-hidden
                           >
                             <span className="text-sm font-bold tracking-tight text-white tabular-nums">
@@ -620,176 +636,36 @@ const SinglePage = () => {
                             </span>
                           </div>
                         )}
-
-                        {hasGallery && !fullyBooked && (
-                          <div className="absolute bottom-3 left-3 right-3 flex gap-2 overflow-x-auto pb-2 pt-8">
-                            {images.map((img: string, i: number) => (
-                              <button
-                                key={i}
-                                type="button"
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  setActiveImageIndex(i);
-                                }}
-                                className={cn(
-                                  "aspect-4/3 w-16 shrink-0 overflow-hidden rounded-[4px] ring-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-dark/80",
-                                  i === activeImageIndex
-                                    ? "ring-white shadow-lg shadow-black/30"
-                                    : "ring-white/70 opacity-90 hover:opacity-100",
-                                )}
-                                aria-label={`View image ${i + 1}`}
-                                aria-pressed={i === activeImageIndex}
-                                style={{
-                                  backgroundImage: `url(${img})`,
-                                  backgroundSize: "cover",
-                                  backgroundPosition: "center",
-                                }}
-                              >
-                                <span className="sr-only">Image {i + 1}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
                       </div>
 
-                      <div className="p-7 md:p-10 space-y-8">
-                        <header className="space-y-3">
-                          {selectedItem.type && (
-                            <div className="inline-flex">
-                              <RoomTypeBadge type={selectedItem.type} isTitle />
-                            </div>
-                          )}
-                          <h2 className="font-display text-fluid-h2 font-light leading-[1.1] text-ink">
-                            {mainTitle}
-                          </h2>
-                          <p className="text-ink-soft leading-relaxed max-w-2xl">
-                            {headline}
-                          </p>
-                        </header>
-
-                        <div className="grid gap-5 md:grid-cols-2">
-                          <div className="rounded-[6px] border border-sand-dark/70 bg-white p-5">
-                            <div className="flex items-start gap-3.5">
-                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[6px] bg-sage-muted text-sea">
-                                <BedDouble className="h-5 w-5" strokeWidth={1.75} />
-                              </div>
-                              <div className="min-w-0">
-                                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
-                                  Details
-                                </div>
-                                <div className="mt-1 font-display text-lg font-semibold text-ink leading-snug">
-                                  {headline}
-                                </div>
-                              </div>
-                            </div>
-                            {capacityLine && (
-                              <div className="mt-4 flex items-center gap-3 border-t border-sand-dark/60 pt-4">
-                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[6px] bg-sand text-ink-soft">
-                                  <Users className="h-4 w-4" strokeWidth={1.75} />
-                                </div>
-                                <div>
-                                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
-                                    Capacity
-                                  </div>
-                                  <div className="text-sm font-semibold text-ink">
-                                    {capacityLine}
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="rounded-[6px] border border-sand-dark/70 bg-white p-5">
-                            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
-                              Amenities
-                            </div>
-                            {pills.length > 0 ? (
-                              <div className="mt-3 flex flex-wrap gap-2">
-                                {pills.map((pill, i) => (
-                                  <span
-                                    key={i}
-                                    className="inline-flex items-center rounded-full border border-sand-dark/60 bg-white px-3 py-1 text-xs font-medium text-ink-soft shadow-sm"
-                                  >
-                                    {pill}
-                                  </span>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="mt-3 text-sm text-ink-soft">—</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  ) : (
-                    <div className="h-full flex flex-col">
-                      {/* Gallery (match reference: big image + 3-up thumbnails) */}
-                      <div className="h-full flex flex-col rounded-[8px] bg-white border border-sand-dark/60 shadow-[0_8px_24px_rgba(15,31,26,0.08)] overflow-hidden">
-                        <div
-                          className="relative flex-1 min-h-[220px] sm:min-h-[310px] w-full bg-sand cursor-zoom-in"
-                          onClick={() => setIsImageZoomOpen(true)}
-                        >
-                          <div
-                            className="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-[1.03]"
-                            style={{ backgroundImage: `url(${mainImage})` }}
-                          />
-                          <div
-                            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-dark/65 via-dark/10 to-transparent"
-                            aria-hidden
-                          />
-                          <div className="absolute bottom-2 right-2 z-10 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium text-ink shadow-sm">
-                            <ZoomIn className="h-3.5 w-3.5" />
-                            Zoom
-                          </div>
-
-                          {showUnavailableOverlay && (
-                            <UnavailableReasonOverlay
-                              title={unavailableTitle}
-                              detail={unavailableDetail}
-                            />
-                          )}
-
-                          {quantityInCart > 0 && !fullyBooked && (
-                            <div
-                              className="absolute top-4 right-4 z-10 flex h-10 min-w-10 items-center justify-center rounded-full bg-sea px-2.5 shadow-lg ring-2 ring-white/30"
-                              aria-hidden
+                      {hasGallery && !fullyBooked && (
+                        <div className="grid grid-cols-3 gap-2 p-2 border-t border-sand-dark/60 bg-white">
+                          {images.slice(0, 3).map((img: string, i: number) => (
+                            <button
+                              key={img + i}
+                              type="button"
+                              onClick={() => setActiveImageIndex(i)}
+                              className={cn(
+                                "aspect-4/3 w-full overflow-hidden rounded-[6px] ring-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+                                i === activeImageIndex
+                                  ? "ring-sea shadow-sm"
+                                  : "ring-sand-dark/60 opacity-90 hover:opacity-100",
+                              )}
+                              aria-label={`View image ${i + 1}`}
+                              aria-pressed={i === activeImageIndex}
+                              style={{
+                                backgroundImage: `url(${img})`,
+                                backgroundSize: "cover",
+                                backgroundPosition: "center",
+                              }}
                             >
-                              <span className="text-sm font-bold tracking-tight text-white tabular-nums">
-                                {quantityInCart}
-                              </span>
-                            </div>
-                          )}
+                              <span className="sr-only">Image {i + 1}</span>
+                            </button>
+                          ))}
                         </div>
-
-                        {hasGallery && !fullyBooked && (
-                          <div className="grid grid-cols-3 gap-2 p-2 border-t border-sand-dark/60 bg-white">
-                            {images.slice(0, 3).map((img: string, i: number) => (
-                              <button
-                                key={img + i}
-                                type="button"
-                                onClick={() => setActiveImageIndex(i)}
-                                className={cn(
-                                  "aspect-4/3 w-full overflow-hidden rounded-[6px] ring-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-                                  i === activeImageIndex
-                                    ? "ring-sea shadow-sm"
-                                    : "ring-sand-dark/60 opacity-90 hover:opacity-100",
-                                )}
-                                aria-label={`View image ${i + 1}`}
-                                aria-pressed={i === activeImageIndex}
-                                style={{
-                                  backgroundImage: `url(${img})`,
-                                  backgroundSize: "cover",
-                                  backgroundPosition: "center",
-                                }}
-                              >
-                                <span className="sr-only">Image {i + 1}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </div>
-                  )}
+                  </div>
 
                   {/* Sticky sidebar panel (WordPress theme vibe) */}
                   <aside>
