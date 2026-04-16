@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import { ShoppingCart, Trash2, X } from "lucide-react";
@@ -33,6 +33,7 @@ export default function Header() {
     checkOut?: string;
   } | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [visibleCartCount, setVisibleCartCount] = useState(6);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -71,6 +72,14 @@ export default function Header() {
       window.removeEventListener("storage", updateCartCount);
     };
   }, []);
+  useEffect(() => {
+    if (!isCartOpen) return;
+    setVisibleCartCount(6);
+    const timer = window.setTimeout(() => {
+      setVisibleCartCount((prev) => Math.min(prev + 6, cartItems.length));
+    }, 140);
+    return () => window.clearTimeout(timer);
+  }, [isCartOpen, cartItems.length]);
 
   const removeItem = (id: number, itemType: string) => {
     const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
@@ -243,6 +252,17 @@ export default function Header() {
     activeSection !== null && activeSection === sectionId;
 
   const isHome = () => location.pathname === "/";
+  const renderedCartItems = cartItems.slice(0, visibleCartCount);
+  const hasMoreCartItems = visibleCartCount < cartItems.length;
+  const cartSubtotal = useMemo(
+    () =>
+      cartItems.reduce((total, item: any) => {
+        const quantity = Number(item?.quantity) || 0;
+        const price = Number(item?.price) || 0;
+        return total + quantity * price;
+      }, 0),
+    [cartItems],
+  );
 
   return (
     <>
@@ -323,30 +343,37 @@ export default function Header() {
 
               <SheetContent
                 side="right"
-                className="w-full max-w-[100vw] sm:max-w-md bg-stone-50 overflow-y-auto z-[9999] flex flex-col p-0"
+                className="w-full max-w-[100vw] sm:max-w-lg bg-cream overflow-y-auto z-[9999] flex flex-col p-0 border-l border-sand-dark/60"
               >
-                <SheetHeader className="px-6 py-4 border-b border-stone-200 sticky top-0 bg-stone-50 z-10 text-left gap-1">
+                <SheetHeader className="px-6 py-5 border-b border-sand-dark/50 sticky top-0 bg-cream z-10 text-left gap-2">
                   <div className="flex items-center justify-between gap-2">
-                    <SheetTitle className="font-display text-2xl font-semibold text-stone-900 m-0">
+                    <SheetTitle className="font-display text-2xl font-semibold text-ink m-0">
                       Your Cart
                     </SheetTitle>
                     <button
                       type="button"
                       onClick={() => setIsCartOpen(false)}
-                      className="p-1.5 -mr-1.5 text-stone-600 hover:text-stone-900 rounded-full hover:bg-stone-200 transition-all cursor-pointer flex-shrink-0"
+                      className="p-1.5 -mr-1.5 text-ink-soft hover:text-ink rounded-full hover:bg-sand transition-all cursor-pointer flex-shrink-0"
                       aria-label="Close cart"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   </div>
-                  <p className="text-sm text-stone-500 m-0">
-                    {cartCount} items
-                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft m-0">
+                      {cartCount} {cartCount === 1 ? "item" : "items"}
+                    </p>
+                    {cartItems.length > 0 && (
+                      <span className="inline-flex items-center rounded-full border border-sand-dark/60 bg-sand px-2.5 py-1 text-xs font-semibold text-ink-soft">
+                        Subtotal: ₱{cartSubtotal.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
 
                   {cartDates?.checkIn &&
                     cartDates?.checkOut &&
                     cartCount > 0 && (
-                      <div className="mt-2 text-xs font-medium text-emerald-800 bg-emerald-100 py-1.5 px-3 rounded-full inline-block border border-emerald-200 self-start">
+                      <div className="mt-1 text-xs font-medium text-sea bg-sage-muted py-1.5 px-3 rounded-full inline-block border border-sea/20 self-start">
                         Dates:{" "}
                         {new Date(cartDates.checkIn).toLocaleDateString(
                           "en-US",
@@ -361,40 +388,46 @@ export default function Header() {
                     )}
                 </SheetHeader>
 
-                <div className="flex-1 p-6 space-y-4">
+                <div className="flex-1 p-6 space-y-4 bg-linear-to-b from-cream via-cream to-sand/30">
                   {cartItems.length === 0 ? (
-                    <div className="text-center py-10 flex flex-col items-center gap-3">
-                      <ShoppingCart className="w-12 h-12 text-stone-300" />
-                      <p className="text-stone-500 font-medium">
+                    <div className="text-center py-12 px-4 flex flex-col items-center gap-3 rounded-[12px] border border-dashed border-sand-dark/70 bg-white/80">
+                      <ShoppingCart className="w-12 h-12 text-sand-dark" />
+                      <p className="text-ink-soft font-medium">
                         Your cart is currently empty
                       </p>
                     </div>
                   ) : (
-                    cartItems.map((item, idx) => (
+                    renderedCartItems.map((item: any) => (
                       <div
-                        key={idx}
-                        className="flex items-start gap-4 p-4 bg-white rounded-xl border border-stone-200 shadow-sm relative"
+                        key={`${item.itemType}-${item.id}`}
+                        className="flex items-start gap-4 p-4 bg-white rounded-[12px] border border-sand-dark/60 shadow-sm relative"
                       >
-                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-stone-100 flex-shrink-0">
+                        <div className="w-18 h-18 rounded-[10px] overflow-hidden bg-sand flex-shrink-0 border border-sand-dark/50">
                           {item.featured_image ? (
                             <img
                               src={item.featured_image}
                               alt={item.name || item.type}
                               className="w-full h-full object-cover"
+                              loading="lazy"
+                              decoding="async"
                             />
                           ) : (
-                            <div className="w-full h-full bg-stone-200" />
+                            <div className="w-full h-full bg-sand-dark/40" />
                           )}
                         </div>
-                        <div className="flex-1 min-w-0 pr-4">
-                          <h4 className="font-display font-medium text-stone-900 truncate">
+                        <div className="flex-1 min-w-0 pr-7">
+                          <div className="mb-1 flex items-center gap-2">
+                            <span className="inline-flex rounded-full border border-sand-dark/60 bg-sand px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
+                              {item.itemType === "venue" ? "Venue" : "Room"}
+                            </span>
+                          </div>
+                          <h4 className="font-display font-medium text-ink text-lg leading-tight truncate">
                             {item.name || item.type || "Listing"}
                           </h4>
-                          <p className="text-sm text-stone-500">
-                            {item.itemType === "venue" ? "Venue" : "Room"}{" "}
-                            &times; {item.quantity}
+                          <p className="text-sm text-ink-soft">
+                            Quantity: {item.quantity}
                           </p>
-                          <div className="mt-1 font-semibold text-emerald-700">
+                          <div className="mt-2 font-semibold text-sea text-base">
                             {item.price
                               ? `₱${(Number(item.price) * item.quantity).toLocaleString()}`
                               : "Price varies"}
@@ -402,7 +435,7 @@ export default function Header() {
                         </div>
                         <button
                           type="button"
-                          className="absolute top-4 right-4 text-stone-400 hover:text-red-500 transition-colors cursor-pointer"
+                          className="absolute top-4 right-4 text-ink-soft/70 hover:text-red-600 transition-colors cursor-pointer"
                           onClick={() => removeItem(item.id, item.itemType)}
                           aria-label="Remove item"
                         >
@@ -411,9 +444,29 @@ export default function Header() {
                       </div>
                     ))
                   )}
+                  {hasMoreCartItems && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        setVisibleCartCount((prev) =>
+                          Math.min(prev + 6, cartItems.length),
+                        )
+                      }
+                      className="w-full border-sand-dark/70 bg-white hover:bg-sand/40"
+                    >
+                      Show more items
+                    </Button>
+                  )}
                 </div>
 
-                <div className="px-6 py-5 border-t border-stone-200 bg-white sticky bottom-0 z-10 w-full mb-0">
+                <div className="px-6 py-5 border-t border-sand-dark/60 bg-white sticky bottom-0 z-10 w-full mb-0">
+                  {cartItems.length > 0 && (
+                    <div className="mb-3 flex items-center justify-between text-sm">
+                      <span className="text-ink-soft font-medium">Estimated subtotal</span>
+                      <span className="font-semibold text-ink">₱{cartSubtotal.toLocaleString()}</span>
+                    </div>
+                  )}
                   <Button
                     onClick={proceedToBookNow}
                     className="w-full py-6 text-base font-semibold cursor-pointer"

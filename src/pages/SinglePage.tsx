@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import SinglePageSkeleton from "@/components/skeleton/SinglePageSkeleton";
 import CardItem from "@/components/cards/CardItem";
 import Section from "@/components/Section";
@@ -131,6 +131,8 @@ const SinglePage = () => {
       setActiveRoomTab(groupedRooms[0]!.key);
     }
   }, [groupedRooms, activeRoomTab, isVenuePage]);
+  const activeRoomGroup = groupedRooms.find((group) => group.key === activeRoomTab);
+  const activeRoomItems = activeRoomGroup?.items ?? [];
 
   const handleCardClick = (id: number, item?: ListingItem) => {
     const path = `${basePath}/${id}`;
@@ -593,8 +595,8 @@ const SinglePage = () => {
         ) : (
           <div className="space-y-14">
             {selectedItem && (
-              <div className="relative mx-auto w-full max-w-[860px]" ref={detailRef}>
-                <div className="grid gap-4 lg:grid-cols-[1.45fr_0.85fr] items-stretch">
+              <div className="relative mx-auto w-full max-w-[1120px]" ref={detailRef}>
+                <div className="grid gap-5 lg:grid-cols-[1.35fr_0.95fr] items-stretch">
                   {/* Main (rooms: no big card wrapper; venues keep card) */}
                   {isVenuePage ? (
                     <article className={cn("overflow-hidden rounded-[6px]", theme.panelClass)}>
@@ -791,18 +793,18 @@ const SinglePage = () => {
 
                   {/* Sticky sidebar panel (WordPress theme vibe) */}
                   <aside>
-                    <div className="h-full flex flex-col rounded-[8px] border border-sand-dark/60 bg-white p-3 shadow-[0_8px_24px_rgba(15,31,26,0.08)] space-y-2.5">
+                    <div className="h-full flex flex-col rounded-[8px] border border-sand-dark/60 bg-white p-4 md:p-5 shadow-[0_8px_24px_rgba(15,31,26,0.08)] space-y-3.5">
                       {selectedItem.type && (
-                        <div className="inline-flex scale-95 origin-left">
+                        <div className="inline-flex">
                           <RoomTypeBadge type={selectedItem.type} isTitle />
                         </div>
                       )}
 
-                      <h3 className="text-ink font-semibold text-[14px] leading-snug">
+                      <h3 className="text-ink font-semibold text-base md:text-lg leading-snug">
                         {mainTitle}
                       </h3>
 
-                      <div className="flex flex-wrap items-center gap-2.5 text-[10px] text-ink-soft">
+                      <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm text-ink-soft">
                         {bedSpecs.length > 0 && (
                           <span className="inline-flex items-center gap-2">
                             <BedDouble className="h-4 w-4" />
@@ -823,20 +825,20 @@ const SinglePage = () => {
                         )}
                       </div>
 
-                      <div className="font-semibold text-sea text-base leading-none">
+                      <div className="font-semibold text-sea text-xl leading-none">
                         {pricingFormat(priceVal)}
                       </div>
 
-                      <div className="flex items-start gap-1.5 text-[10px] text-ink-soft">
-                        <MapPin className="h-3.5 w-3.5 mt-0.5" />
+                      <div className="flex items-start gap-2 text-xs md:text-sm text-ink-soft">
+                        <MapPin className="h-4 w-4 mt-0.5" />
                         <span>{propertyLocation}</span>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <div className="text-[10px] font-semibold text-ink">
+                      <div className="space-y-2">
+                        <div className="text-xs md:text-sm font-semibold text-ink">
                           Property Description:
                         </div>
-                        <div className="text-[10px] text-ink-soft leading-relaxed">
+                        <div className="text-xs md:text-sm text-ink-soft leading-relaxed">
                           {descExpanded ? headline : descriptionPreview.short}
                           {descriptionPreview.isLong && (
                             <>
@@ -853,24 +855,24 @@ const SinglePage = () => {
                         </div>
                       </div>
 
-                      <div className="rounded-[8px] bg-sand p-1.5 border border-sand-dark/60">
-                        <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
+                      <div className="rounded-[8px] bg-sand p-2.5 border border-sand-dark/60">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
                           Add to cart
                         </div>
-                        <div className="mt-1 flex items-center justify-between gap-0.5">
+                        <div className="mt-2 flex items-center justify-between gap-2">
                           <Button
                             type="button"
                             variant="outline"
                             size="icon"
-                            className="h-5.5 w-5.5 min-h-5.5 min-w-5.5 border-sand-dark/60 bg-white shadow-sm hover:bg-sage-muted"
+                            className="h-8 w-8 min-h-8 min-w-8 border-sand-dark/60 bg-white shadow-sm hover:bg-sage-muted"
                             disabled={draftQuantity === 0}
                             onClick={handleDecrementDraft}
                             aria-label={`Remove one ${mainTitle} from cart`}
                           >
-                            <Minus className="h-2.5 w-2.5" />
+                            <Minus className="h-3.5 w-3.5" />
                           </Button>
                           <span
-                            className="min-w-5 text-center font-display text-[13px] font-semibold tabular-nums text-ink"
+                            className="min-w-8 text-center font-display text-lg font-semibold tabular-nums text-ink"
                             aria-live="polite"
                           >
                             {draftQuantity}
@@ -880,24 +882,24 @@ const SinglePage = () => {
                             variant="outline"
                             size="icon"
                             className={cn(
-                              "h-5.5 w-5.5 min-h-5.5 min-w-5.5 border-sand-dark/60 bg-white shadow-sm hover:bg-sage-muted",
+                              "h-8 w-8 min-h-8 min-w-8 border-sand-dark/60 bg-white shadow-sm hover:bg-sage-muted",
                               "border-sea/40 hover:border-sea/60",
                             )}
                             disabled={bookingButtonDisabled}
                             onClick={handleIncrementDraft}
                             aria-label={`Add one ${mainTitle} to cart`}
                           >
-                            <Plus className="h-2.5 w-2.5 text-sea" />
+                            <Plus className="h-3.5 w-3.5 text-sea" />
                           </Button>
                         </div>
-                        <div className="mt-0.5 text-[8px] text-ink-soft text-center">In cart: {quantityInCart}</div>
+                        <div className="mt-1 text-[11px] text-ink-soft text-center">In cart: {quantityInCart}</div>
                       </div>
 
                       <div>
-                        <div className="text-[10px] font-semibold text-ink">
+                        <div className="text-xs md:text-sm font-semibold text-ink">
                           Additional Details:
                         </div>
-                        <dl className="mt-1 grid grid-cols-2 gap-x-3 gap-y-1 text-[10px]">
+                        <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs md:text-sm">
                           <div>
                             <dt className="text-ink-soft">Type</dt>
                             <dd className="font-medium text-ink">
@@ -930,7 +932,7 @@ const SinglePage = () => {
                         onClick={(event) =>
                           handleAddToCart(event.currentTarget as HTMLElement)
                         }
-                        className="btn-primary-mockup w-full justify-center mt-auto min-h-8 text-[9px] tracking-[0.08em] px-2.5 rounded-[6px]"
+                        className="btn-primary-mockup w-full justify-center mt-auto min-h-10 text-xs md:text-sm tracking-[0.08em] px-3 rounded-[6px]"
                         disabled={bookingButtonDisabled || draftQuantity === quantityInCart}
                         animate={
                           isAddAnimating
@@ -987,8 +989,24 @@ const SinglePage = () => {
                   No {availableLabel} to show right now.
                 </div>
               ) : !isVenuePage ? (
-                <section className="rounded-[8px] border border-sand-dark/60 bg-white/85 p-4 md:p-5 shadow-[0_8px_24px_rgba(15,31,26,0.06)]">
-                  <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-sand-dark/40 pb-3">
+                <section className="rounded-[14px] border border-sand-dark/60 bg-white p-5 md:p-6 shadow-[0_16px_36px_rgba(15,31,26,0.08)]">
+                  <div className="mb-5 flex items-start justify-between gap-4 max-md:flex-col max-md:items-stretch">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
+                        Browse by room type
+                      </p>
+                      <p className="mt-1 text-sm text-ink-soft">
+                        Choose a category to quickly compare available rooms.
+                      </p>
+                    </div>
+                    {activeRoomGroup && (
+                      <div className="rounded-full border border-sand-dark/60 bg-sand px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink-soft">
+                        Showing {activeRoomGroup.label}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mb-5 flex flex-wrap items-center gap-2.5 border-b border-sand-dark/40 pb-4">
                     {groupedRooms.map((group) => {
                       const isActive = group.key === activeRoomTab;
                       return (
@@ -997,37 +1015,61 @@ const SinglePage = () => {
                           type="button"
                           onClick={() => setActiveRoomTab(group.key)}
                           className={cn(
-                            "rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition-colors",
+                            "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-all",
                             isActive
-                              ? "border-sea bg-sea text-white"
-                              : "border-sand-dark/70 bg-white text-ink-soft hover:border-sea/60 hover:text-ink",
+                              ? "border-sea bg-sea text-white shadow-[0_8px_18px_rgba(47,93,80,0.24)]"
+                              : "border-sand-dark/70 bg-white text-ink-soft hover:-translate-y-0.5 hover:border-sea/60 hover:text-ink",
                           )}
+                          aria-pressed={isActive}
                         >
-                          {group.label} ({group.items.length})
+                          <span>{group.label}</span>
+                          <span
+                            className={cn(
+                              "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                              isActive ? "bg-white/20 text-white" : "bg-sand text-ink-soft",
+                            )}
+                          >
+                            {group.items.length}
+                          </span>
                         </button>
                       );
                     })}
                   </div>
 
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    {(groupedRooms.find((group) => group.key === activeRoomTab)?.items ??
-                      []).map((item) => (
-                      <CardItem
-                        key={item.id}
-                        id={item.id}
-                        type={item.type}
-                        name={item.name}
-                        description={item.description}
-                        capacity={item.capacity}
-                        price={item.price}
-                        amenities={item.amenities}
-                        featured_image={item.featured_image}
-                        gallery={item.gallery}
-                        bed_specifications={item.bed_specifications}
-                        onClick={() => handleCardClick(item.id, item)}
-                      />
-                    ))}
-                  </div>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={activeRoomTab}
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {activeRoomItems.length === 0 ? (
+                        <div className="rounded-[10px] border border-dashed border-sand-dark/70 bg-sand/35 p-6 text-center text-sm text-ink-soft">
+                          No rooms are available in this category right now.
+                        </div>
+                      ) : (
+                        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                          {activeRoomItems.map((item) => (
+                            <CardItem
+                              key={item.id}
+                              id={item.id}
+                              type={item.type}
+                              name={item.name}
+                              description={item.description}
+                              capacity={item.capacity}
+                              price={item.price}
+                              amenities={item.amenities}
+                              featured_image={item.featured_image}
+                              gallery={item.gallery}
+                              bed_specifications={item.bed_specifications}
+                              onClick={() => handleCardClick(item.id, item)}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
                 </section>
               ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
