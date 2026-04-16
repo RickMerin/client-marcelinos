@@ -152,7 +152,7 @@ export const useBookingForm = () => {
     });
   }, [formData.days, formData.rooms, formData.venues, formData.venue_event_type]);
 
-  const handleInputChange = useCallback((
+  const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
@@ -162,9 +162,9 @@ export const useBookingForm = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-  }, [setFormData]);
+  };
 
-  const setSelectedRooms = useCallback((rooms: any[]) =>
+  const setSelectedRooms = (rooms: any[]) =>
     setFormData((prev) => {
       const venues = prev.venues ?? [];
       const venueEventType = prev.venue_event_type || "wedding";
@@ -179,9 +179,9 @@ export const useBookingForm = () => {
         venueEventType,
       );
       return { ...prev, rooms, totalPrice, grandTotalPrice };
-    }), [setFormData]);
+    });
 
-  const setSelectedVenues = useCallback((venues: any[]) =>
+  const setSelectedVenues = (venues: any[]) =>
     setFormData((prev) => {
       const v = venues ?? [];
       const venueEventType = prev.venue_event_type || "wedding";
@@ -201,7 +201,7 @@ export const useBookingForm = () => {
         totalPrice,
         grandTotalPrice,
       };
-    }), [setFormData]);
+    });
 
   const setPaymentMethod = (method: string) =>
     setFormData((prev) => ({ ...prev, paymentMethod: method }));
