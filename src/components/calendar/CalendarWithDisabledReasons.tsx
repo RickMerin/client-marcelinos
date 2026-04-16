@@ -40,6 +40,7 @@ function DayWithReason({
   const dateKey = day.isoDate
   const reason = blockedReasons[dateKey]
   const isBlocked = !!reason
+  const isBookingConflict = isBlocked && (reason === "Booked" || reason === "Fully booked")
   const dayDate = new Date(dateKey + "T00:00:00")
   const isOverlap = (isOverlapInvalid?.(dayDate) ?? false) && !isBlocked
 
@@ -146,8 +147,10 @@ function DayWithReason({
 						"hover:!bg-emerald-200 focus-visible:!bg-emerald-200",
 						"dark:!bg-emerald-600/55 dark:!text-white dark:ring-emerald-400/40",
 					],
-					isBlocked &&
+					isBlocked && !isBookingConflict &&
 						"bg-red-500 mx-px text-white cursor-not-allowed hover:bg-red-600 focus:bg-red-600",
+					isBookingConflict &&
+						"bg-gray-200 text-gray-500 line-through opacity-70 cursor-not-allowed mx-px hover:bg-gray-300",
 					isOverlap && "line-through opacity-70 cursor-not-allowed",
 				)}
 			/>

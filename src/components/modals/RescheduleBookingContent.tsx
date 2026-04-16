@@ -111,8 +111,8 @@ export default function RescheduleBookingContent({
   };
 
   const { data, isLoading: isDatesLoading } = useApiQuery<BlockedDatesResponse>(
-    ["blocked-dates"],
-    "/blocked-dates",
+    ["blocked-dates", referenceNumber],
+    `/blocked-dates?booking_reference=${referenceNumber}`,
   );
 
   const blockedDateRows = useMemo(() => {
