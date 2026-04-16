@@ -132,6 +132,7 @@ export function Step3({
   const venues = formData.venues ?? [];
   const hasRooms = rooms.length > 0;
   const hasVenues = venues.length > 0;
+  const showRooms = bookingType !== "venue";
 
   // Editing state
   const [editingDates, setEditingDates] = useState(false);
@@ -154,9 +155,10 @@ export function Step3({
   );
 
   const { data: roomsResponse, isLoading: roomsLoading } = useApiQuery<any>(
-    ["rooms", tempCheckIn, tempCheckOut],
-    roomsUrl,
-  );
+		["rooms", tempCheckIn, tempCheckOut],
+		roomsUrl,
+		{ enabled: showRooms },
+	);
 
   const availableRoomsList = useMemo(
     () => extractList(roomsResponse),
@@ -198,9 +200,10 @@ export function Step3({
   };
 
   const { data: blockedDatesData } = useApiQuery<BlockedDatesResponse>(
-    ["blocked-dates"],
-    "/blocked-dates",
-  );
+		["blocked-dates"],
+		"/blocked-dates",
+		{ enabled: showRooms },
+	);
 
   const blockedDateRows = useMemo(() => {
     const rows =

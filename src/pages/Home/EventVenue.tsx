@@ -59,13 +59,13 @@ function EventVenues() {
   );
 
   const {
-    data: venuesResponse,
-    isLoading,
-    error,
-  } = useApiQuery<ApiListResponse<VenueItem>>(
-    ["venues", "home"],
-    "/venues?is_all=1",
-  );
+		data: venuesResponse,
+		isLoading,
+		error,
+	} = useApiQuery<ApiListResponse<VenueItem>>(
+		["venues", "home"],
+		"/venues?is_all=1&limit=12",
+	);
 
   const venueList = useMemo(
     () => extractList(venuesResponse),
