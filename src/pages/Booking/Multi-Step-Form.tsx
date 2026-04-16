@@ -21,16 +21,17 @@ import { clearCartStorage } from "@/lib/storage/localStorage";
 export function MultiStepForm() {
   const navigate = useNavigate();
   const {
-    formData,
-    setSelectedRooms,
-    setSelectedVenues,
-    setPaymentMethod,
-    setOnlinePaymentPlan,
-    updateFormData,
-    goToStep,
-    nextStep,
-    previousStep,
-  } = useBookingForm();
+		formData,
+		setSelectedRooms,
+		setSelectedVenues,
+		setPaymentMethod,
+		setOnlinePaymentPlan,
+		paymentSettings,
+		updateFormData,
+		goToStep,
+		nextStep,
+		previousStep,
+	} = useBookingForm();
 
   const { personalDetails, isStepComplete } = useBookingValidation(
     formData,
@@ -144,6 +145,7 @@ export function MultiStepForm() {
 								setPaymentMethod={setPaymentMethod}
 								onlinePaymentPlan={formData.onlinePaymentPlan}
 								setOnlinePaymentPlan={setOnlinePaymentPlan}
+								paymentSettings={paymentSettings}
 								onBack={() => goToStep(3)}
 								onProceed={handleSubmit}
 								isSubmitting={isSubmitting}

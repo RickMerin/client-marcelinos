@@ -16,6 +16,10 @@ interface Step4Props {
   setPaymentMethod: (method: string) => void;
   onlinePaymentPlan: "" | "full" | `partial_${number}`;
   setOnlinePaymentPlan: (plan: "" | "full" | `partial_${number}`) => void;
+  paymentSettings?: {
+    onlinePaymentEnabled: boolean;
+    partialPaymentPercent: number;
+  };
   onBack: () => void;
   onProceed: () => void;
   isSubmitting?: boolean;
@@ -26,16 +30,19 @@ export function Step4({
   setPaymentMethod,
   onlinePaymentPlan,
   setOnlinePaymentPlan,
+  paymentSettings,
   onBack,
   onProceed,
   isSubmitting = false,
 }: Step4Props) {
   const [isProceedModalOpen, setIsProceedModalOpen] = useState(false);
   const [isPaymentPlanModalOpen, setIsPaymentPlanModalOpen] = useState(false);
-  const [isOnlinePaymentEnabled, setIsOnlinePaymentEnabled] = useState(false);
-  const [partialPaymentOptions, setPartialPaymentOptions] = useState<number[]>([30]);
-  const [allowCustomPartialPayment, setAllowCustomPartialPayment] = useState(false);
-  const [customPartialPercent, setCustomPartialPercent] = useState("");
+  const [isOnlinePaymentEnabled, setIsOnlinePaymentEnabled] = useState(
+    paymentSettings?.onlinePaymentEnabled ?? false,
+  );
+  const [partialPaymentPercent, setPartialPaymentPercent] = useState(
+    paymentSettings?.partialPaymentPercent ?? 30,
+  );
 
   const handleSelect = (method: string) => {
     const newValue = paymentMethod === method ? "" : method;
@@ -61,6 +68,18 @@ export function Step4({
   };
 
   useEffect(() => {
+    if (!paymentSettings) {
+      return;
+    }
+    setIsOnlinePaymentEnabled(paymentSettings.onlinePaymentEnabled);
+    setPartialPaymentPercent(paymentSettings.partialPaymentPercent);
+  }, [paymentSettings]);
+
+  useEffect(() => {
+    if (paymentSettings) {
+      return;
+    }
+
     let isMounted = true;
 
     const fetchPaymentSettings = async () => {
@@ -70,7 +89,6 @@ export function Step4({
           data?: {
             online_payment_enabled?: boolean;
             partial_payment_options?: number[];
-            allow_custom_partial_payment?: boolean;
           };
         }>(endpoints.paymentSettings);
 
@@ -87,13 +105,11 @@ export function Step4({
         const uniqueOptions = [...new Set(options)].sort((a, b) => a - b);
 
         setIsOnlinePaymentEnabled(enabled);
-        setPartialPaymentOptions(uniqueOptions.length > 0 ? uniqueOptions : [30]);
-        setAllowCustomPartialPayment(Boolean(response?.data?.allow_custom_partial_payment));
+        setPartialPaymentPercent(uniqueOptions[0] ?? 30);
       } catch {
         if (isMounted) {
           setIsOnlinePaymentEnabled(false);
-          setPartialPaymentOptions([30]);
-          setAllowCustomPartialPayment(false);
+          setPartialPaymentPercent(30);
         }
       }
     };
@@ -103,7 +119,7 @@ export function Step4({
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [paymentSettings]);
 
   useEffect(() => {
     if (!isOnlinePaymentEnabled && paymentMethod === PAYMENT_METHODS.ONLINE) {
@@ -111,6 +127,24 @@ export function Step4({
       setOnlinePaymentPlan("");
     }
   }, [isOnlinePaymentEnabled, paymentMethod, setOnlinePaymentPlan, setPaymentMethod]);
+
+  useEffect(() => {
+    if (paymentMethod !== PAYMENT_METHODS.ONLINE) {
+      return;
+    }
+
+    const selectedPercent = parsePartialPercent(String(onlinePaymentPlan));
+    if (selectedPercent == null || selectedPercent === partialPaymentPercent) {
+      return;
+    }
+
+    setOnlinePaymentPlan(buildPartialPlan(partialPaymentPercent));
+  }, [
+    onlinePaymentPlan,
+    partialPaymentPercent,
+    paymentMethod,
+    setOnlinePaymentPlan,
+  ]);
 
   const parsePartialPercent = (plan: string): number | null => {
     const match = /^partial_(\d{1,2})$/.exec(plan);
@@ -120,34 +154,17 @@ export function Step4({
     return parsed;
   };
 
-  const buildPartialPlan = (percentage: number): `partial_${number}` =>
-    `partial_${Math.trunc(percentage)}` as `partial_${number}`;
+  function buildPartialPlan(percentage: number): `partial_${number}` {
+    const normalized = Math.min(99, Math.max(1, Math.trunc(percentage)));
+    return `partial_${normalized}` as `partial_${number}`;
+  }
 
-  const selectedPartialPercent =
-    typeof onlinePaymentPlan === "string"
-      ? parsePartialPercent(onlinePaymentPlan)
-      : null;
+  const selectedPartialPercent = parsePartialPercent(String(onlinePaymentPlan));
 
   const handleSelectOnlinePaymentPlan = (plan: "full" | `partial_${number}`) => {
     setOnlinePaymentPlan(plan);
     setIsPaymentPlanModalOpen(false);
     setIsProceedModalOpen(true);
-  };
-
-  const applyCustomPartialPlan = () => {
-    const parsed = Number(customPartialPercent);
-    if (!Number.isFinite(parsed)) {
-      toast.error({ content: "Enter a valid custom percentage." });
-      return;
-    }
-
-    const rounded = Math.trunc(parsed);
-    if (rounded <= 0 || rounded >= 100) {
-      toast.error({ content: "Partial payment must be between 1% and 99%." });
-      return;
-    }
-
-    handleSelectOnlinePaymentPlan(buildPartialPlan(rounded));
   };
 
   const handleConfirmProceed = () => {
@@ -290,47 +307,20 @@ export function Step4({
               <p className="font-semibold">Pay Full</p>
               <p className="text-xs text-white/80">Collect the total booking amount now.</p>
             </button>
-            {partialPaymentOptions.map((percent) => (
-              <button
-                key={percent}
-                type="button"
-                onClick={() => handleSelectOnlinePaymentPlan(buildPartialPlan(percent))}
-                className={`rounded-lg border px-4 py-3 text-left transition ${
-                  selectedPartialPercent === percent
-                    ? "border-gold bg-white/15"
-                    : "border-white/20 bg-white/5 hover:bg-white/10"
-                }`}>
-                <p className="font-semibold">{`Pay Partial (${percent}%)`}</p>
-                <p className="text-xs text-white/80">{`Collect ${percent}% now and settle the balance later.`}</p>
-              </button>
-            ))}
+            <button
+              type="button"
+              onClick={() =>
+                handleSelectOnlinePaymentPlan(buildPartialPlan(partialPaymentPercent))
+              }
+              className={`rounded-lg border px-4 py-3 text-left transition ${
+                selectedPartialPercent === partialPaymentPercent
+                  ? "border-gold bg-white/15"
+                  : "border-white/20 bg-white/5 hover:bg-white/10"
+              }`}>
+              <p className="font-semibold">{`Pay Partial (${partialPaymentPercent}%)`}</p>
+              <p className="text-xs text-white/80">{`Collect ${partialPaymentPercent}% now and settle the balance later.`}</p>
+            </button>
           </div>
-          {allowCustomPartialPayment && (
-            <div className="space-y-2 rounded-lg border border-white/20 bg-white/5 p-3 text-left">
-              <p className="text-sm font-semibold">Custom partial percentage</p>
-              <p className="text-xs text-white/80">
-                Enter any value from 1 to 99. 100% is not allowed for partial payment.
-              </p>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min={1}
-                  max={99}
-                  step={1}
-                  value={customPartialPercent}
-                  onChange={(e) => setCustomPartialPercent(e.target.value)}
-                  placeholder="e.g. 35"
-                  className="w-full rounded-md border border-white/30 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/60 focus:border-gold focus:outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={applyCustomPartialPlan}
-                  className="rounded-md border border-gold/60 bg-gold/20 px-3 py-2 text-xs font-semibold text-white hover:bg-gold/30">
-                  Apply
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </Modal>
 
