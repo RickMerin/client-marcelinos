@@ -42,132 +42,138 @@ export interface BookingConflictResponse {
 
 /** API response shape for GET /bookings/receipt/:token or GET /bookings/reference/:reference */
 export interface BookingReferenceResponse {
-  /** ISO 8601 — unpaid bookings must be settled by this time (matches Booking::unpaidExpiresAt). */
-  unpaid_expires_at?: string | null;
-  unpaid_expiry_days?: number;
-  /** True when check-in is far enough ahead to show the 3-day / down-payment policy on the receipt. */
-  down_payment_notice_applies?: boolean;
-  down_payment_notice_min_lead_days?: number;
-  /** True when check-in is strictly after today (Manila): Messenger settlement, no 3-day deadline line. */
-  use_messenger_deposit_instructions?: boolean;
-  payment?: {
-    method?: string;
-    plan?: string;
-    invoice_id?: string;
-    invoice_url?: string;
-    can_retry?: boolean;
-  };
-  booking?: {
-    reference_number: string;
-    /** Opaque public id for receipt URL (UUID). */
-    receipt_token?: string;
-    status?: string;
-    check_in?: string;
-    check_out?: string;
-    no_of_days?: number;
-    venue_event_type?: string | null;
-    total_price?: string | number;
-    payment_method?: string;
-    online_payment_plan?: string;
-    xendit_invoice_id?: string;
-    xendit_invoice_url?: string;
-    created_at?: string;
-    guest?: {
-      first_name?: string;
-      middle_name?: string | null;
-      last_name?: string;
-      email?: string;
-      contact_num?: string;
-      street?: string;
-      barangay?: string;
-      municipality?: string;
-      province?: string;
-      region?: string;
-      [key: string]: unknown;
-    };
-    rooms?: Array<{
-      name?: string;
-      type?: string;
-      capacity?: number;
-      price?: string | number;
-      [key: string]: unknown;
-    }>;
-    venues?: Array<{
-      name?: string;
-      capacity?: number;
-      price?: string | number;
-      [key: string]: unknown;
-    }>;
-    [key: string]: unknown;
-  };
-  qr_code_url?: string | null;
-  /** True when a testimonial/site review has already been submitted for this booking. */
-  has_testimonial?: boolean;
+	/** ISO 8601 — unpaid bookings must be settled by this time (matches Booking::unpaidExpiresAt). */
+	unpaid_expires_at?: string | null;
+	unpaid_expiry_days?: number;
+	/** True when check-in is far enough ahead to show the 3-day / down-payment policy on the receipt. */
+	down_payment_notice_applies?: boolean;
+	down_payment_notice_min_lead_days?: number;
+	/** True when check-in is strictly after today (Manila): Messenger settlement, no 3-day deadline line. */
+	use_messenger_deposit_instructions?: boolean;
+	payment?: {
+		method?: string;
+		plan?: string;
+		invoice_id?: string;
+		invoice_url?: string;
+		can_retry?: boolean;
+		amount_paid?: number;
+		balance?: number;
+		amount_due_now?: number;
+	};
+	booking?: {
+		reference_number: string;
+		/** Opaque public id for receipt URL (UUID). */
+		receipt_token?: string;
+		status?: string;
+		check_in?: string;
+		check_out?: string;
+		no_of_days?: number;
+		venue_event_type?: string | null;
+		total_price?: string | number;
+		payment_method?: string;
+		online_payment_plan?: string;
+		xendit_invoice_id?: string;
+		xendit_invoice_url?: string;
+		created_at?: string;
+		guest?: {
+			first_name?: string;
+			middle_name?: string | null;
+			last_name?: string;
+			email?: string;
+			contact_num?: string;
+			street?: string;
+			barangay?: string;
+			municipality?: string;
+			province?: string;
+			region?: string;
+			[key: string]: unknown;
+		};
+		rooms?: Array<{
+			name?: string;
+			type?: string;
+			capacity?: number;
+			price?: string | number;
+			[key: string]: unknown;
+		}>;
+		venues?: Array<{
+			name?: string;
+			capacity?: number;
+			price?: string | number;
+			[key: string]: unknown;
+		}>;
+		[key: string]: unknown;
+	};
+	qr_code_url?: string | null;
+	/** True when a testimonial/site review has already been submitted for this booking. */
+	has_testimonial?: boolean;
 }
 
 /** Receipt view model for Step5 (from booking API payload). */
 export interface BookingReceipt {
-  /** QR code image URL for check-in */
-  qr_code_url?: string | null;
-  reference_number: string;
-  created_at: string;
-  booking_status: string;
-  check_in: string;
-  check_out: string;
-  issued_on: string;
-  nights: number;
-  guest_name: string;
-  guest_email: string;
-  guest_contact: string;
-  guest_address: string;
-  /** Assigned physical rooms (optional until staff assigns). */
-  rooms?: Array<{
-    name: string;
-    type: string;
-    capacity: number;
-    price: number | string;
-    bed_specifications?: string[];
-  }>;
-  /** Requested room types from guest checkout (no room name yet). */
-  room_lines?: Array<{
-    room_type: string;
-    inventory_group_key: string;
-    quantity: number;
-    unit_price_per_night: number | string;
-  }>;
-  /** True when stay includes accommodation (show check-in/out times on receipt). */
-  has_room_stay?: boolean;
-  /** Multiple venues */
-  venues?: Array<{
-    name: string;
-    capacity: number;
-    price?: number | string;
-    wedding_price?: number | string;
-    birthday_price?: number | string;
-    meeting_staff_price?: number | string;
-  }>;
-  /** Stored when the booking includes venues */
-  venue_event_type?: string | null;
-  /** @deprecated use rooms instead */
-  room?: {
-    number: number | null;
-    type: string;
-    capacity: number;
-    price: string;
-  };
-  subtotal: string;
-  grand_total: string;
-  /** ISO 8601 — deadline for required down payment (3 days from booking creation). */
-  unpaid_expires_at?: string | null;
-  unpaid_expiry_days?: number;
-  down_payment_notice_applies?: boolean;
-  down_payment_notice_min_lead_days?: number;
-  use_messenger_deposit_instructions?: boolean;
-  payment_method?: string;
-  online_payment_plan?: string;
-  invoice_id?: string;
-  invoice_url?: string;
-  can_retry_payment?: boolean;
+	/** QR code image URL for check-in */
+	qr_code_url?: string | null;
+	reference_number: string;
+	created_at: string;
+	booking_status: string;
+	check_in: string;
+	check_out: string;
+	issued_on: string;
+	nights: number;
+	guest_name: string;
+	guest_email: string;
+	guest_contact: string;
+	guest_address: string;
+	/** Assigned physical rooms (optional until staff assigns). */
+	rooms?: Array<{
+		name: string;
+		type: string;
+		capacity: number;
+		price: number | string;
+		bed_specifications?: string[];
+	}>;
+	/** Requested room types from guest checkout (no room name yet). */
+	room_lines?: Array<{
+		room_type: string;
+		inventory_group_key: string;
+		quantity: number;
+		unit_price_per_night: number | string;
+	}>;
+	/** True when stay includes accommodation (show check-in/out times on receipt). */
+	has_room_stay?: boolean;
+	/** Multiple venues */
+	venues?: Array<{
+		name: string;
+		capacity: number;
+		price?: number | string;
+		wedding_price?: number | string;
+		birthday_price?: number | string;
+		meeting_staff_price?: number | string;
+	}>;
+	/** Stored when the booking includes venues */
+	venue_event_type?: string | null;
+	/** @deprecated use rooms instead */
+	room?: {
+		number: number | null;
+		type: string;
+		capacity: number;
+		price: string;
+	};
+	subtotal: string;
+	grand_total: string;
+	/** ISO 8601 — deadline for required down payment (3 days from booking creation). */
+	unpaid_expires_at?: string | null;
+	unpaid_expiry_days?: number;
+	down_payment_notice_applies?: boolean;
+	down_payment_notice_min_lead_days?: number;
+	use_messenger_deposit_instructions?: boolean;
+	payment_method?: string;
+	online_payment_plan?: string;
+	invoice_id?: string;
+	invoice_url?: string;
+	can_retry_payment?: boolean;
+	amount_paid?: number;
+	balance?: number;
+	amount_due_now?: number;
 }
 
 export interface FormData {

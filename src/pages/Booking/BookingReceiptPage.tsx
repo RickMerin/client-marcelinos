@@ -57,65 +57,78 @@ function toBookingReceipt(
   const invoiceId = res.payment?.invoice_id ?? b.xendit_invoice_id ?? "";
   const invoiceUrl = res.payment?.invoice_url ?? b.xendit_invoice_url ?? "";
   const canRetry = Boolean(res.payment?.can_retry);
+  const amountPaid = Number(res.payment?.amount_paid ?? 0);
+	const balance = Number(
+		res.payment?.balance ?? Math.max(0, Number(total) || 0),
+	);
+	const amountDueNow = Number(
+		res.payment?.amount_due_now ?? Math.max(0, Number(total) || 0),
+	);
   return {
-    reference_number: b.reference_number ?? "",
-    unpaid_expires_at: res.unpaid_expires_at ?? null,
-    unpaid_expiry_days: res.unpaid_expiry_days ?? 3,
-    down_payment_notice_applies: res.down_payment_notice_applies,
-    down_payment_notice_min_lead_days: res.down_payment_notice_min_lead_days,
-    use_messenger_deposit_instructions: res.use_messenger_deposit_instructions,
-    created_at: b.created_at ?? "",
-    booking_status: b.status ?? "unpaid",
-    check_in: b.check_in ?? "",
-    check_out: b.check_out ?? "",
-    issued_on: b.created_at ?? new Date().toISOString(),
-    nights: b.no_of_days ?? 0,
-    guest_name: guestName,
-    guest_email: guest?.email ?? "—",
-    guest_contact: guest?.contact_num ?? "—",
-    guest_address: guestAddress,
-    rooms: (b.rooms ?? []).map((r) => ({
-      name: r.name ?? "",
-      type: r.type ?? "",
-      capacity: r.capacity ?? 0,
-      price: r.price ?? 0,
-      bed_specifications: Array.isArray(r.bed_specifications)
-        ? (r.bed_specifications as string[])
-        : [],
-    })),
-    room_lines: Array.isArray(b.room_lines)
-      ? b.room_lines.map((l: Record<string, unknown>) => ({
-          room_type: String(l.room_type ?? ""),
-          inventory_group_key: String(l.inventory_group_key ?? ""),
-          quantity: Number(l.quantity) || 0,
-          unit_price_per_night:
-            typeof l.unit_price_per_night === "number" ||
-            typeof l.unit_price_per_night === "string"
-              ? (l.unit_price_per_night as number | string)
-              : 0,
-        }))
-      : [],
-    has_room_stay:
-      (Array.isArray(b.room_lines) ? b.room_lines.length : 0) > 0 ||
-      (b.rooms?.length ?? 0) > 0,
-    venues: (b.venues ?? []).map((v) => ({
-      name: v.name ?? "",
-      capacity: v.capacity ?? 0,
-      wedding_price: (v as { wedding_price?: number | string }).wedding_price ?? 0,
-      birthday_price: (v as { birthday_price?: number | string }).birthday_price ?? 0,
-      meeting_staff_price:
-        (v as { meeting_staff_price?: number | string }).meeting_staff_price ?? 0,
-    })),
-    venue_event_type: b.venue_event_type ?? null,
-    subtotal: total,
-    grand_total: total,
-    qr_code_url: res.qr_code_url ?? null,
-    payment_method: paymentMethod,
-    online_payment_plan: paymentPlan,
-    invoice_id: invoiceId,
-    invoice_url: invoiceUrl,
-    can_retry_payment: canRetry,
-  };
+		reference_number: b.reference_number ?? "",
+		unpaid_expires_at: res.unpaid_expires_at ?? null,
+		unpaid_expiry_days: res.unpaid_expiry_days ?? 3,
+		down_payment_notice_applies: res.down_payment_notice_applies,
+		down_payment_notice_min_lead_days: res.down_payment_notice_min_lead_days,
+		use_messenger_deposit_instructions: res.use_messenger_deposit_instructions,
+		created_at: b.created_at ?? "",
+		booking_status: b.status ?? "unpaid",
+		check_in: b.check_in ?? "",
+		check_out: b.check_out ?? "",
+		issued_on: b.created_at ?? new Date().toISOString(),
+		nights: b.no_of_days ?? 0,
+		guest_name: guestName,
+		guest_email: guest?.email ?? "—",
+		guest_contact: guest?.contact_num ?? "—",
+		guest_address: guestAddress,
+		rooms: (b.rooms ?? []).map((r) => ({
+			name: r.name ?? "",
+			type: r.type ?? "",
+			capacity: r.capacity ?? 0,
+			price: r.price ?? 0,
+			bed_specifications: Array.isArray(r.bed_specifications)
+				? (r.bed_specifications as string[])
+				: [],
+		})),
+		room_lines: Array.isArray(b.room_lines)
+			? b.room_lines.map((l: Record<string, unknown>) => ({
+					room_type: String(l.room_type ?? ""),
+					inventory_group_key: String(l.inventory_group_key ?? ""),
+					quantity: Number(l.quantity) || 0,
+					unit_price_per_night:
+						typeof l.unit_price_per_night === "number" ||
+						typeof l.unit_price_per_night === "string"
+							? (l.unit_price_per_night as number | string)
+							: 0,
+				}))
+			: [],
+		has_room_stay:
+			(Array.isArray(b.room_lines) ? b.room_lines.length : 0) > 0 ||
+			(b.rooms?.length ?? 0) > 0,
+		venues: (b.venues ?? []).map((v) => ({
+			name: v.name ?? "",
+			capacity: v.capacity ?? 0,
+			wedding_price:
+				(v as { wedding_price?: number | string }).wedding_price ?? 0,
+			birthday_price:
+				(v as { birthday_price?: number | string }).birthday_price ?? 0,
+			meeting_staff_price:
+				(v as { meeting_staff_price?: number | string }).meeting_staff_price ??
+				0,
+		})),
+		venue_event_type: b.venue_event_type ?? null,
+		subtotal: total,
+		grand_total: total,
+		qr_code_url: res.qr_code_url ?? null,
+		payment_method: paymentMethod,
+		online_payment_plan: paymentPlan,
+		invoice_id: invoiceId,
+		invoice_url: invoiceUrl,
+		can_retry_payment: canRetry,
+		amount_paid: Number.isFinite(amountPaid) ? amountPaid : 0,
+		balance: Number.isFinite(balance) ? balance : 0,
+		amount_due_now: Number.isFinite(amountDueNow) ? amountDueNow : 0,
+	};
 }
 
 export function BookingReceiptPage({
@@ -281,11 +294,22 @@ export function BookingReceiptPage({
 
   const statusLower = String(receipt.booking_status ?? "").toLowerCase();
   const hasSuccessParam = paymentStatus === "success";
-  const canRetryPayment =
-    !hasSuccessParam &&
-    receipt.payment_method === "online" &&
-    receipt.can_retry_payment === true &&
-    (statusLower === "unpaid" || statusLower === "partial");
+  const payInFull =
+		!hasSuccessParam &&
+		receipt.payment_method === "online" &&
+		receipt.can_retry_payment === true &&
+		(statusLower === "unpaid" || statusLower === "partial");
+
+  const dueNowAmount = Math.max(0, Number(receipt.amount_due_now ?? 0));
+	const paymentActionLabel = (() => {
+		if (statusLower === "partial") {
+			return `Pay Remaining Balance Online (${dueNowAmount > 0 ? `₱${dueNowAmount.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Amount Pending"})`;
+		}
+		if (String(receipt.online_payment_plan ?? "").startsWith("partial_")) {
+			return `Pay Deposit Online (${dueNowAmount > 0 ? `₱${dueNowAmount.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Amount Pending"})`;
+		}
+		return `Pay Online (${dueNowAmount > 0 ? `₱${dueNowAmount.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Amount Pending"})`;
+	})();
 
   const handleRetryPayment = async () => {
     if (!isReceiptTokenUuid(receiptToken) || isRetryingPayment) return;
@@ -313,20 +337,17 @@ export function BookingReceiptPage({
 			<div className="w-full max-w-[1200px] mx-auto px-6 lg:px-12 pt-15">
 				<ProgressIndicator currentStep={RECEIPT_STEP} />
 				{PaymentStatusBanner}
-        {canRetryPayment && (
-          <div className="mb-4 flex justify-center">
-            <button
-              type="button"
-              onClick={handleRetryPayment}
-              disabled={isRetryingPayment}
-              className="rounded-lg bg-sea px-4 py-2 text-sm font-semibold text-white hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isRetryingPayment ? "Preparing payment link..." : "Retry Online Payment"}
-            </button>
-          </div>
-        )}
 				<div className="mt-6 mb-8">
-					<Step5 receiptData={receipt} qrCodeUrl={qrCodeUrl} />
+					<Step5
+						receiptData={receipt}
+						qrCodeUrl={qrCodeUrl}
+						onlinePaymentAction={{
+							visible: payInFull,
+							label: paymentActionLabel,
+							isLoading: isRetryingPayment,
+							onClick: handleRetryPayment,
+						}}
+					/>
 				</div>
 			</div>
 		</main>

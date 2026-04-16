@@ -17,6 +17,13 @@ import {
   alignFormDataToBookingType,
   parseRoomTypeFilters,
 } from "@/lib/utils/booking.utils";
+import { API } from "@/lib/api/apiClient";
+import { endpoints } from "@/lib/api/endpoints";
+
+type BookingPaymentSettings = {
+	onlinePaymentEnabled: boolean;
+	partialPaymentPercent: number;
+};
 
 function normalizeStoredVenueEventType(
   v: string | undefined,
@@ -88,6 +95,11 @@ export const useBookingForm = () => {
   const [formData, setFormData] = useState<FormData>(
     alignFormDataToBookingType(initialFormData, bookingTypeInit),
   );
+  const [paymentSettings, setPaymentSettings] =
+		useState<BookingPaymentSettings>({
+			onlinePaymentEnabled: false,
+			partialPaymentPercent: 30,
+		});
 
   // Keep localStorage synced with formData
   useEffect(() => {
@@ -122,6 +134,57 @@ export const useBookingForm = () => {
       navigate("/");
     }
   }, [reservationDate, navigate]);
+
+  useEffect(() => {
+		let isMounted = true;
+
+		const fetchPaymentSettings = async () => {
+			try {
+				const response = await API.get<{
+					success: boolean;
+					data?: {
+						online_payment_enabled?: boolean;
+						partial_payment_options?: number[];
+					};
+				}>(endpoints.paymentSettings);
+
+				if (!isMounted) {
+					return;
+				}
+
+				const partialOptions = Array.isArray(
+					response?.data?.partial_payment_options,
+				)
+					? response.data.partial_payment_options
+							.map((value) => Number(value))
+							.filter(
+								(value) => Number.isFinite(value) && value > 0 && value < 100,
+							)
+					: [];
+				const partialPaymentPercent =
+					partialOptions.length > 0 ? partialOptions[0] : 30;
+
+				setPaymentSettings({
+					onlinePaymentEnabled: Boolean(response?.data?.online_payment_enabled),
+					partialPaymentPercent,
+				});
+			} catch {
+				if (!isMounted) {
+					return;
+				}
+				setPaymentSettings({
+					onlinePaymentEnabled: false,
+					partialPaymentPercent: 30,
+				});
+			}
+		};
+
+		fetchPaymentSettings();
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
   // Keep grandTotalPrice in sync when days, rooms, venues, or event type change.
   // Do not clear venue_event_type when venues are empty — guests can pick event type
   // before selecting venues (prices on cards follow this choice).
@@ -222,16 +285,17 @@ export const useBookingForm = () => {
     setFormData((prev) => ({ ...prev, current_step: prev.current_step - 1 }));
 
   return {
-    formData,
-    setFormData,
-    handleInputChange,
-    setSelectedRooms,
-    setSelectedVenues,
-    setPaymentMethod,
-    setOnlinePaymentPlan,
-    updateFormData,
-    goToStep,
-    nextStep,
-    previousStep,
-  };
+		formData,
+		setFormData,
+		handleInputChange,
+		setSelectedRooms,
+		setSelectedVenues,
+		setPaymentMethod,
+		setOnlinePaymentPlan,
+		paymentSettings,
+		updateFormData,
+		goToStep,
+		nextStep,
+		previousStep,
+	};
 };
