@@ -348,7 +348,7 @@ export default function Header() {
                 <SheetHeader className="px-6 py-5 border-b border-sand-dark/50 sticky top-0 bg-cream z-10 text-left gap-2">
                   <div className="flex items-center justify-between gap-2">
                     <SheetTitle className="font-display text-2xl font-semibold text-ink m-0">
-                      Your Cart
+                    Selected spaces
                     </SheetTitle>
                     <button
                       type="button"
@@ -393,7 +393,7 @@ export default function Header() {
                     <div className="text-center py-12 px-4 flex flex-col items-center gap-3 rounded-[12px] border border-dashed border-sand-dark/70 bg-white/80">
                       <House className="w-12 h-12 text-sand-dark" />
                       <p className="text-ink-soft font-medium">
-                        Your cart is currently empty
+                      No rooms or spaces selected yet
                       </p>
                     </div>
                   ) : (
@@ -469,7 +469,7 @@ export default function Header() {
                   )}
                   <Button
                     onClick={proceedToBookNow}
-                    className="w-full py-6 text-base font-semibold cursor-pointer"
+                    className="w-full py-6 text-black font-semibold cursor-pointer"
                     disabled={cartItems.length === 0}
                   >
                     Proceed to Book Now
