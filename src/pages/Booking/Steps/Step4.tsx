@@ -216,8 +216,9 @@ export function Step4({
           <div className="space-y-1">
             <h4 className="font-semibold text-sea">Pay in Cash</h4>
             <p className="text-sm leading-relaxed opacity-85 text-ink-soft">
-              You can also pay directly at the resort upon check-in. Please
-              present your booking confirmation at the front desk.
+              You can pay directly at the resort upon check-in.  
+              A down payment is required within 24 hours to secure your booking, 
+              even if you choose to pay the remaining balance in cash upon arrival.
             </p>
           </div>
         </label>
