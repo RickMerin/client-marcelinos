@@ -21,9 +21,17 @@ import {
   normalizeRoomTypeSlug,
   extractInventoryGroupAvailability,
   effectiveMaxUnitsForSubgroup,
-  reconcileRoomsWithInventory,
   roomSelectionsDiffer,
+  sortRoomSelectionStable,
 } from "@/lib/utils/booking.utils";
+import {
+  pruneCartItemsToAvailability,
+  reconcileFormDataFromCart,
+  syncCartToReservationDetails,
+  toggleVenueInCart,
+  upsertRoomSubgroupInCart,
+  type CartLine,
+} from "@/lib/utils/cartBookingSync";
 import {
   bedSpecificationLine,
   roomInventoryGroupKey,
@@ -248,54 +256,15 @@ export function Step1({
 
   const setQuantityForSubgroup = useCallback(
     (type: RoomTypeFilter, inventoryGroupKey: string, nextCount: number) => {
-      const pool = (roomsByType.get(type) || [])
-        .filter(
-          (r: any) =>
-            roomInventoryGroupKey(r) === inventoryGroupKey &&
-            isRoomInventoryAvailable(r),
-        )
-        .sort((a: any, b: any) => a.id - b.id);
-      const max = effectiveMaxUnitsForSubgroup(
-        pool.length,
-        inventoryGroupAvailability,
+      upsertRoomSubgroupInCart({
         type,
         inventoryGroupKey,
-      );
-      const clamped = Math.max(0, Math.min(nextCount, max));
-      const selectedOfSubgroup = formData.rooms.filter((r: any) =>
-        roomMatchesSubgroup(r, type, inventoryGroupKey),
-      );
-      const current = selectedOfSubgroup.length;
-      if (clamped === current) return;
-
-      const selectedIds = new Set(
-        formData.rooms.map((r: any) => r?.id ?? r),
-      );
-
-      if (clamped < current) {
-        const sortedSel = [...selectedOfSubgroup].sort(
-          (a: any, b: any) => b.id - a.id,
-        );
-        const toRemove = new Set(
-          sortedSel.slice(0, current - clamped).map((r: any) => r.id),
-        );
-        setSelectedRooms(
-          formData.rooms.filter((r: any) => !toRemove.has(r?.id ?? r)),
-        );
-      } else {
-        const toAdd = pool
-          .filter((r: any) => !selectedIds.has(r.id))
-          .slice(0, clamped - current);
-        setSelectedRooms([...formData.rooms, ...toAdd]);
-      }
+        nextCount,
+        roomList,
+        roomsResponse,
+      });
     },
-    [
-      formData.rooms,
-      roomsByType,
-      setSelectedRooms,
-      roomMatchesSubgroup,
-      inventoryGroupAvailability,
-    ],
+    [roomList, roomsResponse],
   );
 
   const countForSubgroup = (type: RoomTypeFilter, inventoryGroupKey: string) =>
@@ -311,148 +280,83 @@ export function Step1({
     return rep.description?.trim() || "Room options";
   };
 
-  // Sync items from the cart if the user navigated from the single product page
+  // Cart is the single source of truth. This effect (a) prunes cart lines that
+  // exceed current inventory, (b) reconciles formData.rooms/venues from the
+  // cart on every cart/storage change, and (c) mirrors the result into
+  // reservationDetails so totals stay in sync across Step1, SinglePage, and
+  // the header cart drawer.
   useEffect(() => {
-    const rawCart = localStorage.getItem("cartItems");
-    if (!rawCart) return; // Ignore if no cart items
-    if (roomList.length === 0 && venueList.length === 0) return; // Wait until API responds
-    
-    try {
-      const items = JSON.parse(rawCart);
-      if (Array.isArray(items) && items.length > 0) {
-        let roomsToAdd: any[] = [];
-        let venuesToAdd: any[] = [];
-        
-        items.forEach((item: any) => {
-          if (item.itemType === "room" && roomList.length > 0) {
-            // Locate the exact room prototype using ID (could also match from single page)
-            const exactRoom = roomList.find((r: any) => String(r.id) === String(item.id));
-            if (exactRoom) {
-              const t = normalizeRoomTypeSlug(item.type || exactRoom.type);
-              const invk = roomInventoryGroupKey(exactRoom);
-              
-              const pool = roomList.filter(
-                (r: any) =>
-                  normalizeRoomTypeSlug(r.type) === t &&
-                  roomInventoryGroupKey(r) === invk &&
-                  isRoomInventoryAvailable(r) &&
-                  !roomsToAdd.some((added) => String(added.id) === String(r.id))
-              ).sort((a: any, b: any) => a.id - b.id);
-              
-              const needed = Number(item.quantity) || 1;
-              const toAdd = pool.slice(0, needed);
-              roomsToAdd.push(...toAdd);
-            }
-          } else if (item.itemType === "venue" && venueList.length > 0) {
-            const exactVenue = venueList.find((v: any) => String(v.id) === String(item.id));
-            if (exactVenue && !venuesToAdd.some((added) => String(added.id) === String(exactVenue.id))) {
-               venuesToAdd.push(exactVenue);
-            }
-          }
-        });
+    if (roomList.length === 0 && venueList.length === 0) return;
 
-        // Push new rooms to form data
-        if (roomsToAdd.length > 0) {
-          const ids = new Set(formData.rooms.map((p: any) => String(p.id)));
-          const newRooms = roomsToAdd.filter((n) => !ids.has(String(n.id)));
-          if (newRooms.length > 0) {
-            setSelectedRooms([...formData.rooms, ...newRooms]);
-          }
+    pruneCartItemsToAvailability(roomList, venueList, roomsResponse);
+
+    const venueIdsKey = (xs: any[]) =>
+      [...xs]
+        .map((v) => String(v?.id ?? v))
+        .sort()
+        .join(",");
+
+    const reconcile = () => {
+      const raw =
+        typeof window !== "undefined"
+          ? window.localStorage.getItem("cartItems")
+          : null;
+      let items: CartLine[] = [];
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) items = parsed as CartLine[];
+        } catch {
+          items = [];
         }
-        
-        // Push new venues to form data
-        if (venuesToAdd.length > 0) {
-          const ids = new Set(formData.venues.map((p: any) => String(p.id)));
-          const newVenues = venuesToAdd.filter((n) => !ids.has(String(n.id)));
-          if (newVenues.length > 0) {
-            setSelectedVenues([...formData.venues, ...newVenues]);
-          }
+      }
+
+      const { rooms: nextRooms, venues: nextVenues } =
+        reconcileFormDataFromCart(items, roomList, venueList, roomsResponse);
+
+      const prevSorted = sortRoomSelectionStable(formData.rooms);
+      const roomChanged = roomSelectionsDiffer(prevSorted, nextRooms);
+      const venueChanged =
+        venueIdsKey(nextVenues) !== venueIdsKey(formData.venues);
+
+      if (roomChanged) {
+        setSelectedRooms(nextRooms);
+        if (nextRooms.length < formData.rooms.length) {
+          setRecentlyUnselectedCount(formData.rooms.length - nextRooms.length);
         }
-        
+      } else if (recentlyUnselectedCount !== 0) {
+        setRecentlyUnselectedCount(0);
       }
-    } catch (e) {
-      console.error("Failed to parse cartItems", e);
-    }
-  }, [roomList, venueList, setSelectedRooms, setSelectedVenues, formData.rooms, formData.venues]);
 
-  // Remove pre-selected rooms that are unavailable for the current inventory response,
-  // trim counts when room_lines on other bookings consume remaining units,
-  // and refresh each selected row from the latest GET /rooms payload (rates stay in sync).
-  useEffect(() => {
-    if (!roomList.length || !formData.rooms.length) return;
-
-    const reconciled = reconcileRoomsWithInventory(formData.rooms, roomList);
-
-    const availableRoomIds = new Set(
-      roomList
-        .filter((room: any) => isRoomInventoryAvailable(room))
-        .map((room: any) => room.id),
-    );
-
-    let filteredRooms = reconciled.filter((r: unknown) =>
-      availableRoomIds.has((r as { id?: number })?.id ?? r),
-    ) as any[];
-
-    const igRows = extractInventoryGroupAvailability(roomsResponse);
-    if (igRows?.length) {
-      const byGroup = new Map<string, any[]>();
-      for (const r of filteredRooms) {
-        const t = normalizeRoomTypeSlug((r as { type?: string }).type);
-        if (!t) continue;
-        const invk = roomInventoryGroupKey(
-          r as Parameters<typeof roomInventoryGroupKey>[0],
-        );
-        const gk = `${t}\0${invk}`;
-        if (!byGroup.has(gk)) byGroup.set(gk, []);
-        byGroup.get(gk)!.push(r);
+      if (venueChanged) {
+        setSelectedVenues(nextVenues);
       }
-      filteredRooms = [];
-      for (const [gk, list] of byGroup) {
-        const [t, invk] = gk.split("\0");
-        const pool = roomList.filter(
-          (room: any) =>
-            normalizeRoomTypeSlug(room.type) === t &&
-            roomInventoryGroupKey(room) === invk &&
-            isRoomInventoryAvailable(room),
-        );
-        const max = effectiveMaxUnitsForSubgroup(
-          pool.length,
-          igRows,
-          t,
-          invk,
-        );
-        list.sort((a: any, b: any) => a.id - b.id);
-        filteredRooms.push(...list.slice(0, max));
-      }
-    }
 
-    if (roomSelectionsDiffer(formData.rooms, filteredRooms)) {
-      setSelectedRooms(filteredRooms);
-      if (filteredRooms.length < formData.rooms.length) {
-        setRecentlyUnselectedCount(formData.rooms.length - filteredRooms.length);
-      }
-      return;
-    }
+      syncCartToReservationDetails(roomList, venueList, roomsResponse);
+    };
 
-    if (recentlyUnselectedCount !== 0) {
-      setRecentlyUnselectedCount(0);
-    }
+    reconcile();
+
+    if (typeof window === "undefined") return;
+    window.addEventListener("cart-updated", reconcile);
+    window.addEventListener("storage", reconcile);
+    return () => {
+      window.removeEventListener("cart-updated", reconcile);
+      window.removeEventListener("storage", reconcile);
+    };
   }, [
     roomList,
-    formData.rooms,
+    venueList,
     roomsResponse,
+    formData.rooms,
+    formData.venues,
     setSelectedRooms,
+    setSelectedVenues,
     recentlyUnselectedCount,
   ]);
 
   const onSelectVenue = (venue: any) => {
-    const isAlreadySelected = formData.venues.some(
-      (v: any) => (v?.id ?? v) === venue.id,
-    );
-    const updated = isAlreadySelected
-      ? formData.venues.filter((v: any) => (v?.id ?? v) !== venue.id)
-      : [...formData.venues, venue];
-    setSelectedVenues(updated);
+    toggleVenueInCart(venue);
   };
 
   const roomCount = formData.rooms.length;
