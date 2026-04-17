@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import gsap from "gsap";
-import { ShoppingCart, Trash2, X } from "lucide-react";
+import { House, Trash2, X } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -332,7 +332,7 @@ export default function Header() {
                   className="relative text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
                   aria-label="View Cart"
                 >
-                  <ShoppingCart className="w-5 h-5" />
+                  <House className="w-5 h-5" />
                   {cartCount > 0 && (
                     <span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
                       {cartCount}
@@ -391,7 +391,7 @@ export default function Header() {
                 <div className="flex-1 p-6 space-y-4 bg-linear-to-b from-cream via-cream to-sand/30">
                   {cartItems.length === 0 ? (
                     <div className="text-center py-12 px-4 flex flex-col items-center gap-3 rounded-[12px] border border-dashed border-sand-dark/70 bg-white/80">
-                      <ShoppingCart className="w-12 h-12 text-sand-dark" />
+                      <House className="w-12 h-12 text-sand-dark" />
                       <p className="text-ink-soft font-medium">
                         Your cart is currently empty
                       </p>
@@ -488,7 +488,7 @@ export default function Header() {
             className="relative text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
             aria-label="View Cart"
           >
-            <ShoppingCart className="w-5 h-5" />
+            <House className="w-5 h-5" />
             {cartCount > 0 && (
               <span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
                 {cartCount}
