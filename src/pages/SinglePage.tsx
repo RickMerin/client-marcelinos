@@ -62,6 +62,15 @@ function extractList<T>(response: { data?: T[] } | T[] | undefined): T[] {
   return [];
 }
 
+/** Same key as grouped room rows: type + bed_specifications. */
+function roomGroupKey(item: ListingItem): string {
+  const typeLabel = (item.type || "Other").trim();
+  const bedLabel = (item.bed_specifications ?? []).length
+    ? item.bed_specifications!.join(", ")
+    : "No bed specification";
+  return `${typeLabel.toLowerCase()}::${bedLabel.toLowerCase()}`;
+}
+
 const SinglePage = () => {
   const navigate = useNavigate();
   const { roomId, venueId } = useParams<{
@@ -110,11 +119,11 @@ const SinglePage = () => {
     >();
 
     visibleList.forEach((item) => {
+      const groupKey = roomGroupKey(item);
       const typeLabel = (item.type || "Other").trim();
       const bedLabel = (item.bed_specifications ?? []).length
         ? item.bed_specifications!.join(", ")
         : "No bed specification";
-      const groupKey = `${typeLabel.toLowerCase()}::${bedLabel.toLowerCase()}`;
       if (!grouped.has(groupKey)) {
         grouped.set(groupKey, {
           key: groupKey,
@@ -132,6 +141,28 @@ const SinglePage = () => {
       return a.bedLabel.localeCompare(b.bedLabel);
     });
   }, [visibleList, isVenuePage]);
+
+  const consolidatedRoomCards = useMemo(() => {
+    if (isVenuePage) return [];
+    const hideGroupKey =
+      selectedItem && !isVenuePage ? roomGroupKey(selectedItem) : null;
+    return groupedRooms
+      .filter((g) => hideGroupKey == null || g.key !== hideGroupKey)
+      .map((group) => {
+      const sorted = [...group.items].sort((a, b) => {
+        const pa = Number(a.price) || 0;
+        const pb = Number(b.price) || 0;
+        if (pa !== pb) return pa - pb;
+        return a.id - b.id;
+      });
+      const rep = sorted[0]!;
+      const prices = group.items
+        .map((i) => Number(i.price))
+        .filter((p) => !Number.isNaN(p));
+      const minPrice = prices.length > 0 ? Math.min(...prices) : rep.price;
+      return { group, rep, minPrice };
+    });
+  }, [groupedRooms, isVenuePage, selectedItem]);
 
   const handleCardClick = (id: number, item?: ListingItem) => {
     const path = `${basePath}/${id}`;
@@ -864,88 +895,30 @@ const SinglePage = () => {
                   No {availableLabel} to show right now.
                 </div>
               ) : !isVenuePage ? (
-                <section className="rounded-[14px] border border-sand-dark/60 bg-white p-5 md:p-6 shadow-[0_16px_36px_rgba(15,31,26,0.08)]">
-                  <div className="mb-5 flex items-start justify-between gap-4 max-md:flex-col max-md:items-stretch">
-                    <div>
-                      <p className="text-md font-semibold uppercase tracking-[0.16em] text-ink-soft">
-                        Browse by room type
-                      </p>
-                      <p className="mt-1 text-sm text-black">
-                        Choose a category to quickly compare available rooms.
-                      </p>
-                    </div>
-                    {activeRoomGroup && (
-                      <div className="rounded-full border border-sand-dark/60 bg-sand px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-black">
-                        Showing {activeRoomGroup.label}
-                      </div>
-                    )}
+                consolidatedRoomCards.length === 0 ? (
+                  <div className="rounded-[4px] border border-sand-dark/70 bg-white p-6 text-ink-soft">
+                    No other room categories to explore — the list below hides the category you are viewing.
                   </div>
-
-                  <div className="mb-5 flex flex-wrap items-center gap-2.5 border-b border-sand-dark/40 pb-4">
-                    {groupedRooms.map((group) => {
-                      const isActive = group.key === activeRoomTab;
-                      return (
-                        <button
-                          key={group.key}
-                          type="button"
-                          onClick={() => setActiveRoomTab(group.key)}
-                          className={cn(
-                            "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-all",
-                            isActive
-                              ? "border-sea bg-sea text-white shadow-[0_8px_18px_rgba(47,93,80,0.24)]"
-                              : "border-sand-dark/70 bg-white text-black hover:-translate-y-0.5 hover:border-sea/60 hover:text-ink",
-                          )}
-                          aria-pressed={isActive}
-                        >
-                          <span>{group.label}</span>
-                          <span
-                            className={cn(
-                              "rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                              isActive ? "bg-white/20 text-white" : "bg-sand text-ink-soft",
-                            )}
-                          >
-                            {group.items.length}
-                          </span>
-                        </button>
-                      );
-                    })}
+                ) : (
+                  <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    {consolidatedRoomCards.map(({ group, rep, minPrice }) => (
+                      <CardItem
+                        key={group.key}
+                        id={rep.id}
+                        type={rep.type}
+                        name={rep.name}
+                        description={rep.description}
+                        capacity={rep.capacity}
+                        price={minPrice}
+                        amenities={rep.amenities}
+                        featured_image={rep.featured_image}
+                        gallery={rep.gallery}
+                        bed_specifications={rep.bed_specifications}
+                        onClick={() => handleCardClick(rep.id, rep)}
+                      />
+                    ))}
                   </div>
-
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.div
-                      key={activeRoomTab}
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      {activeRoomItems.length === 0 ? (
-                        <div className="rounded-[10px] border border-dashed border-sand-dark/70 bg-sand/35 p-6 text-center text-sm text-ink-soft">
-                          No rooms are available in this category right now.
-                        </div>
-                      ) : (
-                        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                          {activeRoomItems.map((item) => (
-                            <CardItem
-                              key={item.id}
-                              id={item.id}
-                              type={item.type}
-                              name={item.name}
-                              description={item.description}
-                              capacity={item.capacity}
-                              price={item.price}
-                              amenities={item.amenities}
-                              featured_image={item.featured_image}
-                              gallery={item.gallery}
-                              bed_specifications={item.bed_specifications}
-                              onClick={() => handleCardClick(item.id, item)}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </motion.div>
-                  </AnimatePresence>
-                </section>
+                )
               ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {visibleList.map((item) => (
