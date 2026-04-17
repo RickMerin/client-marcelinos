@@ -3,6 +3,7 @@ import {
   collapseRoomsToLines,
   reconcileRoomsWithInventory,
   roomSelectionsDiffer,
+  sortRoomSelectionStable,
 } from "./booking.utils";
 
 describe("collapseRoomsToLines", () => {
@@ -78,5 +79,48 @@ describe("roomSelectionsDiffer", () => {
   it("returns false for same ids and prices", () => {
     const row = { id: 1, price: 2200 };
     expect(roomSelectionsDiffer([row], [{ ...row }])).toBe(false);
+  });
+
+  it("treats same rows in different order as different without sorting", () => {
+    const a = { id: 1, type: "standard", price: 100, description: "A" };
+    const b = { id: 2, type: "deluxe", price: 200, description: "B" };
+    expect(roomSelectionsDiffer([a, b], [b, a])).toBe(true);
+  });
+
+  it("treats same multiset as equal after stable sort", () => {
+    const a = { id: 1, type: "standard", price: 100, description: "A" };
+    const b = { id: 2, type: "deluxe", price: 200, description: "B" };
+    const left = sortRoomSelectionStable([a, b]);
+    const right = sortRoomSelectionStable([b, a]);
+    expect(roomSelectionsDiffer(left, right)).toBe(false);
+  });
+});
+
+describe("sortRoomSelectionStable", () => {
+  it("orders by type, then inventory group key, then id", () => {
+    const r1 = {
+      id: 10,
+      type: "deluxe",
+      price: 1,
+      description: "Layout A",
+    };
+    const r2 = {
+      id: 2,
+      type: "standard",
+      price: 1,
+      description: "Layout B",
+    };
+    const r3 = {
+      id: 5,
+      type: "standard",
+      price: 1,
+      description: "Layout A",
+    };
+    const out = sortRoomSelectionStable([r1, r2, r3]) as {
+      id: number;
+      type: string;
+    }[];
+    // Type slug order is lexicographic: "deluxe" before "standard".
+    expect(out.map((r) => r.id)).toEqual([10, 5, 2]);
   });
 });

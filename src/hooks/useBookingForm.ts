@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FormData } from "@/types/booking.types";
 import { defaultFormData } from "@/lib/constants/booking.constants";
@@ -227,7 +227,7 @@ export const useBookingForm = () => {
     }));
   };
 
-  const setSelectedRooms = (rooms: any[]) =>
+  const setSelectedRooms = useCallback((rooms: any[]) => {
     setFormData((prev) => {
       const venues = prev.venues ?? [];
       const venueEventType = prev.venue_event_type || "wedding";
@@ -243,8 +243,9 @@ export const useBookingForm = () => {
       );
       return { ...prev, rooms, totalPrice, grandTotalPrice };
     });
+  }, []);
 
-  const setSelectedVenues = (venues: any[]) =>
+  const setSelectedVenues = useCallback((venues: any[]) => {
     setFormData((prev) => {
       const v = venues ?? [];
       const venueEventType = prev.venue_event_type || "wedding";
@@ -265,6 +266,7 @@ export const useBookingForm = () => {
         grandTotalPrice,
       };
     });
+  }, []);
 
   const setPaymentMethod = (method: string) =>
     setFormData((prev) => ({ ...prev, paymentMethod: method }));

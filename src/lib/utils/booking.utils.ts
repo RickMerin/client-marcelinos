@@ -113,6 +113,11 @@ export function isRoomInventoryAvailable(room: any): boolean {
   return true;
 }
 
+/** Same availability rules as rooms (API uses `available` + optional `is_block_date`). */
+export function isVenueInventoryAvailable(venue: any): boolean {
+  return isRoomInventoryAvailable(venue);
+}
+
 /** Per layout row from GET /rooms (with dates); includes room_lines + assigned demand. */
 export type InventoryGroupAvailabilityRow = {
   room_type: string;
@@ -200,6 +205,31 @@ export function reconcileRoomsWithInventory(
     if (fresh !== undefined) out.push(fresh);
   }
   return out;
+}
+
+/**
+ * Deterministic order for selected room rows (type → layout group → id).
+ * Safe for Step1: UI counts per subgroup do not depend on array order.
+ */
+export function sortRoomSelectionStable(rooms: unknown[]): unknown[] {
+  if (!Array.isArray(rooms) || rooms.length === 0) return [];
+  const copy = [...rooms];
+  copy.sort((a, b) => {
+    const ra = a as { type?: string; id?: number };
+    const rb = b as { type?: string; id?: number };
+    const ta = normalizeRoomTypeSlug(ra.type) ?? "";
+    const tb = normalizeRoomTypeSlug(rb.type) ?? "";
+    if (ta !== tb) return ta.localeCompare(tb);
+    const ka = roomInventoryGroupKey(
+      ra as Parameters<typeof roomInventoryGroupKey>[0],
+    );
+    const kb = roomInventoryGroupKey(
+      rb as Parameters<typeof roomInventoryGroupKey>[0],
+    );
+    if (ka !== kb) return ka.localeCompare(kb);
+    return Number(ra.id) - Number(rb.id);
+  });
+  return copy;
 }
 
 /** True if selection length, room ids, or any per-night price differs. */

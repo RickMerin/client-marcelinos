@@ -7,13 +7,23 @@ import Section from "@/components/Section";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
 import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
-import { Minus, Plus, Users, BedDouble, MapPin, X, ZoomIn } from "lucide-react";
+import {
+  Minus,
+  Plus,
+  Users,
+  BedDouble,
+  MapPin,
+  X,
+  ZoomIn,
+  CalendarRange,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   buildAvailabilityUrl,
   amenityNames,
   roomImages,
+  formatShortDate,
 } from "@/hooks/useRoomList";
 import { bedSpecificationLine } from "@/lib/formatters/roomDisplayName";
 import {
@@ -21,6 +31,20 @@ import {
 } from "@/lib/math/calculate";
 import type { VenuePriceItem } from "@/lib/math/calculate";
 import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
+import { getActiveStayDates } from "@/lib/utils/bookingDates";
+import {
+  pruneCartItemsToAvailability,
+  syncCartToReservationDetails,
+} from "@/lib/utils/cartBookingSync";
+import { roomInventoryGroupKey } from "@/lib/formatters/roomDisplayName";
+import {
+  effectiveMaxUnitsForSubgroup,
+  extractInventoryGroupAvailability,
+  isRoomInventoryAvailable,
+  isVenueInventoryAvailable,
+  normalizeRoomTypeSlug,
+} from "@/lib/utils/booking.utils";
+import type { RoomTypeFilter } from "@/types/booking.types";
 
 interface ApiListResponse<T> {
   success?: boolean;
@@ -41,14 +65,11 @@ interface ListingItem {
   wedding_price?: number | string;
   birthday_price?: number | string;
   meeting_staff_price?: number | string;
-}
-
-type AvailabilityItem = {
-  id: number;
+  /** Present on date-scoped inventory responses */
   available?: boolean;
   unavailability_title?: string;
   unavailability_detail?: string;
-};
+}
 
 type CartItem = {
   id: number;
@@ -88,14 +109,68 @@ const SinglePage = () => {
   const stateItem = state?.room ?? state?.venue;
   const basePath = isVenuePage ? "/venues" : "/rooms";
 
-  const { data, isLoading, error } = useApiQuery<
-		ApiListResponse<ListingItem> | ListingItem[]
-	>(
-		[isVenuePage ? "venues" : "rooms", "single-page"],
-		isVenuePage ? "/venues?is_all=1&limit=60" : "/rooms?is_all=1&limit=80",
-	);
+  const stayDates = useMemo(
+    () => getActiveStayDates(),
+    [location.key, location.pathname],
+  );
 
-  const itemList = useMemo(() => extractList<ListingItem>(data), [data]);
+  const roomsUrl = useMemo(
+    () =>
+      stayDates
+        ? buildAvailabilityUrl("/rooms", stayDates.checkIn, stayDates.checkOut)
+        : "/rooms?is_all=1&limit=80",
+    [stayDates],
+  );
+  const venuesUrl = useMemo(
+    () =>
+      stayDates
+        ? buildAvailabilityUrl(
+            "/venues",
+            stayDates.checkIn,
+            stayDates.checkOut,
+          )
+        : "/venues?is_all=1&limit=60",
+    [stayDates],
+  );
+
+  const roomsQueryKey = useMemo(
+    () =>
+      stayDates
+        ? ["rooms", stayDates.checkIn, stayDates.checkOut]
+        : ["rooms", "browse", "single-page"],
+    [stayDates],
+  );
+  const venuesQueryKey = useMemo(
+    () =>
+      stayDates
+        ? ["venues", stayDates.checkIn, stayDates.checkOut]
+        : ["venues", "browse", "single-page"],
+    [stayDates],
+  );
+
+  const { data: roomsData, isLoading: roomsLoading, error: roomsError } =
+    useApiQuery<ApiListResponse<ListingItem> | ListingItem[]>(
+      roomsQueryKey,
+      roomsUrl,
+    );
+  const { data: venuesData, isLoading: venuesLoading, error: venuesError } =
+    useApiQuery<ApiListResponse<ListingItem> | ListingItem[]>(
+      venuesQueryKey,
+      venuesUrl,
+    );
+
+  const roomList = useMemo(
+    () => extractList<ListingItem>(roomsData),
+    [roomsData],
+  );
+  const venueList = useMemo(
+    () => extractList<ListingItem>(venuesData),
+    [venuesData],
+  );
+
+  const itemList = isVenuePage ? venueList : roomList;
+  const isLoading = isVenuePage ? venuesLoading : roomsLoading;
+  const error = isVenuePage ? venuesError : roomsError;
 
   const selectedItem = useMemo(() => {
     const idToMatch = isVenuePage ? venueId : roomId;
@@ -199,39 +274,61 @@ const SinglePage = () => {
     }
   }, [selectedItem]);
 
-  const dateToday = new Date().toISOString().split("T")[0];
-  const dateTomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split("T")[0];
+  /** Fresh row from date-scoped list (preferred over navigation state). */
+  const availabilityRow = useMemo(() => {
+    if (!selectedItem) return null;
+    if (isVenuePage) {
+      return (
+        venueList.find((v) => String(v.id) === String(selectedItem.id)) ??
+        selectedItem
+      );
+    }
+    return (
+      roomList.find((r) => String(r.id) === String(selectedItem.id)) ??
+      selectedItem
+    );
+  }, [selectedItem, isVenuePage, roomList, venueList]);
 
-  const extractAvailabilityUrl = buildAvailabilityUrl(
-    "/rooms",
-    dateToday,
-    dateTomorrow,
-  );
-  const { data: availabilityRoomData } = useApiQuery<
-    ApiListResponse<AvailabilityItem> | AvailabilityItem[]
-  >(
-    ["rooms", dateToday, dateTomorrow],
-    extractAvailabilityUrl,
-    { enabled: !isVenuePage },
-  );
+  const maxSelectableQuantity = useMemo(() => {
+    if (!availabilityRow) return 0;
+    if (isVenuePage) {
+      return isVenueInventoryAvailable(availabilityRow) ? 1 : 0;
+    }
+    if (!isRoomInventoryAvailable(availabilityRow)) return 0;
+    const t = normalizeRoomTypeSlug(availabilityRow.type);
+    if (!t) return 0;
+    const invk = roomInventoryGroupKey(
+      availabilityRow as Parameters<typeof roomInventoryGroupKey>[0],
+    );
+    const poolLen = roomList.filter(
+      (r) =>
+        normalizeRoomTypeSlug(r.type) === t &&
+        roomInventoryGroupKey(r as Parameters<typeof roomInventoryGroupKey>[0]) ===
+          invk &&
+        isRoomInventoryAvailable(r),
+    ).length;
+    const igRows = extractInventoryGroupAvailability(roomsData);
+    return effectiveMaxUnitsForSubgroup(
+      poolLen,
+      igRows,
+      t as RoomTypeFilter,
+      invk,
+    );
+  }, [availabilityRow, isVenuePage, roomList, roomsData]);
 
-  const availabilityList = useMemo(
-    () => extractList<AvailabilityItem>(availabilityRoomData),
-    [availabilityRoomData],
-  );
+  const isUnavailable =
+    availabilityRow != null &&
+    (isVenuePage
+      ? !isVenueInventoryAvailable(availabilityRow)
+      : maxSelectableQuantity === 0);
 
-  const availabilityMatch = useMemo(() => {
-    if (isVenuePage || !roomId) return null;
-    return availabilityList.find((item) => String(item.id) === roomId) ?? null;
-  }, [availabilityList, isVenuePage, roomId]);
-
-  const isUnavailable = availabilityMatch?.available === false;
   const unavailableTitle =
-    availabilityMatch?.unavailability_title || "Fully booked";
+    availabilityRow?.unavailability_title ||
+    selectedItem?.unavailability_title ||
+    "Fully booked";
   const unavailableDetail =
-    availabilityMatch?.unavailability_detail ||
+    availabilityRow?.unavailability_detail ||
+    selectedItem?.unavailability_detail ||
     "Please pick different dates or another room.";
 
   const showUnavailableOverlay = isUnavailable;
@@ -279,6 +376,29 @@ const SinglePage = () => {
     : Number(selectedItem?.price) || 0;
   const propertyLocation = "Hilongos, Leyte, Philippines";
 
+  const stayDatesLabel = useMemo(() => {
+    if (!stayDates) return null;
+    const ci = formatShortDate(stayDates.checkIn);
+    const co = formatShortDate(stayDates.checkOut);
+    if (ci === "—" && co === "—") return null;
+    return `${ci} – ${co}`;
+  }, [stayDates]);
+
+  useEffect(() => {
+    const changed = pruneCartItemsToAvailability(
+      roomList,
+      venueList,
+      roomsData,
+    );
+    if (changed) {
+      window.dispatchEvent(new Event("cart-updated"));
+    }
+  }, [roomList, venueList, roomsData]);
+
+  useEffect(() => {
+    setDraftQuantity((d) => Math.min(d, maxSelectableQuantity));
+  }, [maxSelectableQuantity]);
+
   useEffect(() => {
     const updateQuantity = () => {
       if (!selectedItem) {
@@ -294,8 +414,9 @@ const SinglePage = () => {
         (i) => i.id === selectedItem.id && i.itemType === itemType,
       );
       const nextQty = existing ? existing.quantity || 0 : 0;
-      setQuantityInCart(nextQty);
-      setDraftQuantity(nextQty);
+      const capped = Math.min(nextQty, maxSelectableQuantity);
+      setQuantityInCart(capped);
+      setDraftQuantity(capped);
     };
 
     updateQuantity();
@@ -305,7 +426,7 @@ const SinglePage = () => {
       window.removeEventListener("cart-updated", updateQuantity);
       window.removeEventListener("storage", updateQuantity);
     };
-  }, [selectedItem, isVenuePage]);
+  }, [selectedItem, isVenuePage, maxSelectableQuantity]);
 
   useEffect(() => {
     setDescExpanded(false);
@@ -474,8 +595,8 @@ const SinglePage = () => {
   };
 
   const handleIncrementDraft = () => {
-    if (bookingButtonDisabled) return;
-    setDraftQuantity((prev) => prev + 1);
+    if (bookingButtonDisabled || maxSelectableQuantity === 0) return;
+    setDraftQuantity((prev) => Math.min(maxSelectableQuantity, prev + 1));
   };
 
   const handleDecrementDraft = () => {
@@ -484,7 +605,10 @@ const SinglePage = () => {
 
   const handleAddToCart = (sourceEl?: HTMLElement | null) => {
     if (!selectedItem) return;
-    const nextQuantity = Math.max(0, draftQuantity);
+    const nextQuantity = Math.min(
+      Math.max(0, draftQuantity),
+      maxSelectableQuantity,
+    );
     const items = JSON.parse(
       localStorage.getItem("cartItems") || "[]",
     ) as Array<Record<string, unknown> & CartItem>;
@@ -524,6 +648,7 @@ const SinglePage = () => {
 
     localStorage.setItem("cartItems", JSON.stringify(items));
     window.dispatchEvent(new Event("cart-updated"));
+    syncCartToReservationDetails(roomList, venueList, roomsData);
     playLeafFlightToCart(sourceEl);
     setIsAddAnimating(true);
     window.setTimeout(() => setIsAddAnimating(false), 700);
@@ -599,6 +724,31 @@ const SinglePage = () => {
                 >
                   {introCopy}
                 </p>
+                {stayDatesLabel ? (
+                  <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-sand-dark/60 bg-white/80 px-3 py-1.5 text-xs font-medium text-ink shadow-sm">
+                    <CalendarRange className="h-3.5 w-3.5 text-sea" />
+                    <span className="text-ink-soft">
+                      Availability for
+                    </span>
+                    <span className="tabular-nums text-ink">
+                      {stayDatesLabel}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/")}
+                      className="ml-1 rounded-full border-none bg-transparent p-0 text-[11px] font-semibold uppercase tracking-[0.12em] text-sea underline underline-offset-2 cursor-pointer"
+                    >
+                      Change
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-dashed border-sand-dark/70 bg-white/70 px-3 py-1.5 text-xs font-medium text-ink-soft">
+                    <CalendarRange className="h-3.5 w-3.5" />
+                    <span>
+                      Pick dates on the home page to see live availability.
+                    </span>
+                  </div>
+                )}
               </div>
 
               <button
@@ -740,6 +890,35 @@ const SinglePage = () => {
                         <span>{propertyLocation}</span>
                       </div>
 
+                      {stayDatesLabel ? (
+                        <div className="flex items-center justify-between gap-2 rounded-[6px] border border-sand-dark/60 bg-sand/60 px-2.5 py-2 text-[12px] text-ink">
+                          <span className="inline-flex items-center gap-2">
+                            <CalendarRange className="h-4 w-4 text-sea" />
+                            <span className="text-ink-soft">
+                              Checking availability for
+                            </span>
+                            <span className="font-semibold tabular-nums text-ink">
+                              {stayDatesLabel}
+                            </span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => navigate("/")}
+                            className="text-[11px] font-semibold uppercase tracking-[0.12em] text-sea underline underline-offset-2 bg-transparent border-none cursor-pointer p-0"
+                          >
+                            Change
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 rounded-[6px] border border-dashed border-sand-dark/70 bg-sand/40 px-2.5 py-2 text-[12px] text-ink-soft">
+                          <CalendarRange className="h-4 w-4" />
+                          <span>
+                            Set check-in and check-out on the home page to see
+                            live availability.
+                          </span>
+                        </div>
+                      )}
+
                       <div className="space-y-2">
                         <div className="text-md md:text-sm font-semibold text-ink">
                           Property Description:
@@ -791,14 +970,26 @@ const SinglePage = () => {
                               "h-8 w-8 min-h-8 min-w-8 border-sand-dark/60 bg-white shadow-sm hover:bg-sage-muted",
                               "border-sea/40 hover:border-sea/60",
                             )}
-                            disabled={bookingButtonDisabled}
+                            disabled={
+                              bookingButtonDisabled ||
+                              maxSelectableQuantity === 0 ||
+                              draftQuantity >= maxSelectableQuantity
+                            }
                             onClick={handleIncrementDraft}
                             aria-label={`Add one ${mainTitle} to cart`}
                           >
                             <Plus className="h-3.5 w-3.5 text-sea" />
                           </Button>
                         </div>
-                        <div className="mt-1 text-[14px] text-black text-center">In cart: {quantityInCart}</div>
+                        <div className="mt-1 text-[14px] text-black text-center">
+                          In cart: {quantityInCart}
+                          {!isVenuePage && maxSelectableQuantity > 0 && (
+                            <span className="block text-xs text-ink-soft mt-0.5">
+                              Up to {maxSelectableQuantity} available for your
+                              dates
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <div>
