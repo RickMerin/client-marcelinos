@@ -837,7 +837,7 @@ export function Step1({
 								const displayPrice = venueEffectiveUnitPrice(venue, eventType);
 								const priceTierLabel =
 									eventType === "wedding"
-										? "Wedding rate"
+										? "For wedding bookings, you are given one (1) day ahead—before check-in—for decorating and preparing the venue."
 										: eventType === "birthday"
 											? "Birthday rate"
 											: "Meeting/Seminar rate";

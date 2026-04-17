@@ -224,8 +224,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({
 						</p>
 						{priceTierLabel ? (
 							<p
-								className="text-xs mt-1 font-medium"
-								style={{ color: "var(--color-sage, #4a6741)" }}>
+								className="mt-1 inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-medium italic text-amber-900">
 								{priceTierLabel}
 							</p>
 						) : null}
