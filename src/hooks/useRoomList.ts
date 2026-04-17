@@ -35,12 +35,14 @@ function amenityPills(amenities: any[] | undefined): string[] {
 }
 
 function roomImages(room: any): string[] {
+  if (!room || typeof room !== "object") return [];
   const featured = room.featured_image;
   const gallery = Array.isArray(room.gallery) ? room.gallery : [];
   return [featured, ...gallery].filter((url): url is string => Boolean(url));
 }
 
 function venueImages(venue: any): string[] {
+  if (!venue || typeof venue !== "object") return [];
   const featured = venue.featured_image;
   const gallery = Array.isArray(venue.gallery) ? venue.gallery : [];
   return [featured, ...gallery].filter((url): url is string => Boolean(url));

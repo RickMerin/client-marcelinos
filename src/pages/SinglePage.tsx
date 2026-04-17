@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import SinglePageSkeleton from "@/components/skeleton/SinglePageSkeleton";
 import CardItem from "@/components/cards/CardItem";
 import Section from "@/components/Section";
@@ -104,34 +104,34 @@ const SinglePage = () => {
 
   const groupedRooms = useMemo(() => {
     if (isVenuePage) return [];
-    const order = ["standard", "family", "deluxe"] as const;
-    const labels: Record<(typeof order)[number], string> = {
-      standard: "Standard",
-      family: "Family",
-      deluxe: "Deluxe",
-    };
+    const grouped = new Map<
+      string,
+      { key: string; label: string; bedLabel: string; items: ListingItem[] }
+    >();
 
-    return order
-      .map((key) => {
-        const items = visibleList.filter(
-          (item) => (item.type || "").toLowerCase() === key,
-        );
-        return { key, label: labels[key], items };
-      })
-      .filter((group) => group.items.length > 0);
+    visibleList.forEach((item) => {
+      const typeLabel = (item.type || "Other").trim();
+      const bedLabel = (item.bed_specifications ?? []).length
+        ? item.bed_specifications!.join(", ")
+        : "No bed specification";
+      const groupKey = `${typeLabel.toLowerCase()}::${bedLabel.toLowerCase()}`;
+      if (!grouped.has(groupKey)) {
+        grouped.set(groupKey, {
+          key: groupKey,
+          label: typeLabel,
+          bedLabel,
+          items: [],
+        });
+      }
+      grouped.get(groupKey)!.items.push(item);
+    });
+
+    return Array.from(grouped.values()).sort((a, b) => {
+      const typeCompare = a.label.localeCompare(b.label);
+      if (typeCompare !== 0) return typeCompare;
+      return a.bedLabel.localeCompare(b.bedLabel);
+    });
   }, [visibleList, isVenuePage]);
-  const [activeRoomTab, setActiveRoomTab] = useState<string>("standard");
-
-  useEffect(() => {
-    if (isVenuePage) return;
-    if (!groupedRooms.length) return;
-    const hasActive = groupedRooms.some((group) => group.key === activeRoomTab);
-    if (!hasActive) {
-      setActiveRoomTab(groupedRooms[0]!.key);
-    }
-  }, [groupedRooms, activeRoomTab, isVenuePage]);
-  const activeRoomGroup = groupedRooms.find((group) => group.key === activeRoomTab);
-  const activeRoomItems = activeRoomGroup?.items ?? [];
 
   const handleCardClick = (id: number, item?: ListingItem) => {
     const path = `${basePath}/${id}`;
@@ -869,83 +869,60 @@ const SinglePage = () => {
                   <div className="mb-5 flex items-start justify-between gap-4 max-md:flex-col max-md:items-stretch">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
-                        Browse by room type
+                        Browse by room type and beds
                       </p>
                       <p className="mt-1 text-sm text-ink-soft">
-                        Choose a category to quickly compare available rooms.
+                        Compare rooms grouped by type and bed specifications.
                       </p>
                     </div>
-                    {activeRoomGroup && (
-                      <div className="rounded-full border border-sand-dark/60 bg-sand px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink-soft">
-                        Showing {activeRoomGroup.label}
+                  </div>
+                  <div className="space-y-6">
+                    {groupedRooms.length === 0 ? (
+                      <div className="rounded-[10px] border border-dashed border-sand-dark/70 bg-sand/35 p-6 text-center text-sm text-ink-soft">
+                        No rooms are available right now.
+                      </div>
+                    ) : (
+                      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                        {groupedRooms.map((group) => {
+                          const item = group.items[0];
+                          if (!item) return null;
+                          return (
+                            <motion.div
+                              key={group.key}
+                              initial={{ opacity: 0, y: 12 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                              className="space-y-2"
+                            >
+                              <div className="min-h-[44px]">
+                                <h4 className="text-sm md:text-base font-semibold text-ink leading-tight">
+                                  {group.label}
+                                </h4>
+                                <p className="text-xs md:text-sm text-ink-soft leading-tight">
+                                  Beds: {group.bedLabel}
+                                </p>
+                              </div>
+                              <div>
+                                <CardItem
+                                  id={item.id}
+                                  type={item.type}
+                                  name={item.name}
+                                  description={item.description}
+                                  capacity={item.capacity}
+                                  price={item.price}
+                                  amenities={item.amenities}
+                                  featured_image={item.featured_image}
+                                  gallery={item.gallery}
+                                  bed_specifications={item.bed_specifications}
+                                  onClick={() => handleCardClick(item.id, item)}
+                                />
+                              </div>
+                            </motion.div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
-
-                  <div className="mb-5 flex flex-wrap items-center gap-2.5 border-b border-sand-dark/40 pb-4">
-                    {groupedRooms.map((group) => {
-                      const isActive = group.key === activeRoomTab;
-                      return (
-                        <button
-                          key={group.key}
-                          type="button"
-                          onClick={() => setActiveRoomTab(group.key)}
-                          className={cn(
-                            "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-all",
-                            isActive
-                              ? "border-sea bg-sea text-white shadow-[0_8px_18px_rgba(47,93,80,0.24)]"
-                              : "border-sand-dark/70 bg-white text-ink-soft hover:-translate-y-0.5 hover:border-sea/60 hover:text-ink",
-                          )}
-                          aria-pressed={isActive}
-                        >
-                          <span>{group.label}</span>
-                          <span
-                            className={cn(
-                              "rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                              isActive ? "bg-white/20 text-white" : "bg-sand text-ink-soft",
-                            )}
-                          >
-                            {group.items.length}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.div
-                      key={activeRoomTab}
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      {activeRoomItems.length === 0 ? (
-                        <div className="rounded-[10px] border border-dashed border-sand-dark/70 bg-sand/35 p-6 text-center text-sm text-ink-soft">
-                          No rooms are available in this category right now.
-                        </div>
-                      ) : (
-                        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                          {activeRoomItems.map((item) => (
-                            <CardItem
-                              key={item.id}
-                              id={item.id}
-                              type={item.type}
-                              name={item.name}
-                              description={item.description}
-                              capacity={item.capacity}
-                              price={item.price}
-                              amenities={item.amenities}
-                              featured_image={item.featured_image}
-                              gallery={item.gallery}
-                              bed_specifications={item.bed_specifications}
-                              onClick={() => handleCardClick(item.id, item)}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </motion.div>
-                  </AnimatePresence>
                 </section>
               ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
