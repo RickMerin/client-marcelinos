@@ -680,7 +680,7 @@ const SinglePage = () => {
                         {mainTitle}
                       </h3>
 
-                      <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm text-ink-soft">
+                      <div className="flex flex-wrap items-center gap-3 text-md md:text-sm text-ink-soft">
                         {bedSpecs.length > 0 && (
                           <span className="inline-flex items-center gap-2">
                             <BedDouble className="h-4 w-4" />
@@ -693,28 +693,27 @@ const SinglePage = () => {
                             {capacityLine}
                           </span>
                         )}
-                        {selectedItem.type && (
+                        {/* {selectedItem.type && (
                           <span className="inline-flex items-center gap-2">
                             <span className="h-4 w-4 rounded-[4px] border border-sand-dark/70 bg-sand" />
                             {selectedItem.type}
                           </span>
-                        )}
+                        )} */}
                       </div>
-
                       <div className="font-semibold text-sea text-xl leading-none">
                         {pricingFormat(priceVal)}
                       </div>
 
-                      <div className="flex items-start gap-2 text-xs md:text-sm text-ink-soft">
+                      <div className="flex items-start gap-2 text-md md:text-sm text-black">
                         <MapPin className="h-4 w-4 mt-0.5" />
                         <span>{propertyLocation}</span>
                       </div>
 
                       <div className="space-y-2">
-                        <div className="text-xs md:text-sm font-semibold text-ink">
+                        <div className="text-md md:text-sm font-semibold text-ink">
                           Property Description:
                         </div>
-                        <div className="text-xs md:text-sm text-ink-soft leading-relaxed">
+                        <div className="text-md md:text-sm text-black leading-relaxed">
                           {descExpanded ? headline : descriptionPreview.short}
                           {descriptionPreview.isLong && (
                             <>
@@ -768,34 +767,34 @@ const SinglePage = () => {
                             <Plus className="h-3.5 w-3.5 text-sea" />
                           </Button>
                         </div>
-                        <div className="mt-1 text-[11px] text-ink-soft text-center">In cart: {quantityInCart}</div>
+                        <div className="mt-1 text-[14px] text-black text-center">In cart: {quantityInCart}</div>
                       </div>
 
                       <div>
-                        <div className="text-xs md:text-sm font-semibold text-ink">
+                        <div className="text-md md:text-sm font-semibold text-ink">
                           Additional Details:
                         </div>
-                        <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs md:text-sm">
+                        <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-md md:text-sm">
                           <div>
-                            <dt className="text-ink-soft">Type</dt>
+                            <dt className="text-black">Type</dt>
                             <dd className="font-medium text-ink">
                               {selectedItem.type ?? "—"}
                             </dd>
                           </div>
                           <div>
-                            <dt className="text-ink-soft">Capacity</dt>
+                            <dt className="text-black">Capacity</dt>
                             <dd className="font-medium text-ink">
                               {capacityLine ?? "—"}
                             </dd>
                           </div>
                           <div>
-                            <dt className="text-ink-soft">Beds</dt>
+                            <dt className="text-black">Beds</dt>
                             <dd className="font-medium text-ink">
                               {bedSpecs.length > 0 ? `${bedSpecs.length}` : "—"}
                             </dd>
                           </div>
                           <div>
-                            <dt className="text-ink-soft">Pricing</dt>
+                            <dt className="text-black">Pricing</dt>
                             <dd className="font-medium text-ink">
                               {isVenuePage ? "Starting rate" : "Per night"}
                             </dd>
@@ -855,7 +854,7 @@ const SinglePage = () => {
                     {listLabel}
                   </h3>
                 </div>
-                <div className="text-sm text-ink-soft">
+                <div className="text-md text-black">
                   {visibleList.length} {availableLabel} available
                 </div>
               </div>
@@ -868,61 +867,84 @@ const SinglePage = () => {
                 <section className="rounded-[14px] border border-sand-dark/60 bg-white p-5 md:p-6 shadow-[0_16px_36px_rgba(15,31,26,0.08)]">
                   <div className="mb-5 flex items-start justify-between gap-4 max-md:flex-col max-md:items-stretch">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
-                        Browse by room type and beds
+                      <p className="text-md font-semibold uppercase tracking-[0.16em] text-ink-soft">
+                        Browse by room type
                       </p>
-                      <p className="mt-1 text-sm text-ink-soft">
-                        Compare rooms grouped by type and bed specifications.
+                      <p className="mt-1 text-sm text-black">
+                        Choose a category to quickly compare available rooms.
                       </p>
                     </div>
-                  </div>
-                  <div className="space-y-6">
-                    {groupedRooms.length === 0 ? (
-                      <div className="rounded-[10px] border border-dashed border-sand-dark/70 bg-sand/35 p-6 text-center text-sm text-ink-soft">
-                        No rooms are available right now.
-                      </div>
-                    ) : (
-                      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                        {groupedRooms.map((group) => {
-                          const item = group.items[0];
-                          if (!item) return null;
-                          return (
-                            <motion.div
-                              key={group.key}
-                              initial={{ opacity: 0, y: 12 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                              className="space-y-2"
-                            >
-                              <div className="min-h-[44px]">
-                                <h4 className="text-sm md:text-base font-semibold text-ink leading-tight">
-                                  {group.label}
-                                </h4>
-                                <p className="text-xs md:text-sm text-ink-soft leading-tight">
-                                  Beds: {group.bedLabel}
-                                </p>
-                              </div>
-                              <div>
-                                <CardItem
-                                  id={item.id}
-                                  type={item.type}
-                                  name={item.name}
-                                  description={item.description}
-                                  capacity={item.capacity}
-                                  price={item.price}
-                                  amenities={item.amenities}
-                                  featured_image={item.featured_image}
-                                  gallery={item.gallery}
-                                  bed_specifications={item.bed_specifications}
-                                  onClick={() => handleCardClick(item.id, item)}
-                                />
-                              </div>
-                            </motion.div>
-                          );
-                        })}
+                    {activeRoomGroup && (
+                      <div className="rounded-full border border-sand-dark/60 bg-sand px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-black">
+                        Showing {activeRoomGroup.label}
                       </div>
                     )}
                   </div>
+
+                  <div className="mb-5 flex flex-wrap items-center gap-2.5 border-b border-sand-dark/40 pb-4">
+                    {groupedRooms.map((group) => {
+                      const isActive = group.key === activeRoomTab;
+                      return (
+                        <button
+                          key={group.key}
+                          type="button"
+                          onClick={() => setActiveRoomTab(group.key)}
+                          className={cn(
+                            "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-all",
+                            isActive
+                              ? "border-sea bg-sea text-white shadow-[0_8px_18px_rgba(47,93,80,0.24)]"
+                              : "border-sand-dark/70 bg-white text-black hover:-translate-y-0.5 hover:border-sea/60 hover:text-ink",
+                          )}
+                          aria-pressed={isActive}
+                        >
+                          <span>{group.label}</span>
+                          <span
+                            className={cn(
+                              "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                              isActive ? "bg-white/20 text-white" : "bg-sand text-ink-soft",
+                            )}
+                          >
+                            {group.items.length}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={activeRoomTab}
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {activeRoomItems.length === 0 ? (
+                        <div className="rounded-[10px] border border-dashed border-sand-dark/70 bg-sand/35 p-6 text-center text-sm text-ink-soft">
+                          No rooms are available in this category right now.
+                        </div>
+                      ) : (
+                        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                          {activeRoomItems.map((item) => (
+                            <CardItem
+                              key={item.id}
+                              id={item.id}
+                              type={item.type}
+                              name={item.name}
+                              description={item.description}
+                              capacity={item.capacity}
+                              price={item.price}
+                              amenities={item.amenities}
+                              featured_image={item.featured_image}
+                              gallery={item.gallery}
+                              bed_specifications={item.bed_specifications}
+                              onClick={() => handleCardClick(item.id, item)}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
                 </section>
               ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

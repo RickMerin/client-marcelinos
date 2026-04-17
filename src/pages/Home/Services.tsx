@@ -48,7 +48,7 @@ function Services() {
 				Everything You <em className="italic text-forest">Need</em>
 			</h2>
 
-			<p className="text-base md:text-lg leading-relaxed text-ink-soft max-w-[560px] mx-auto mb-16">
+			<p className="text-lg leading-relaxed text-black max-w-[560px] mx-auto mb-16">
 				Enjoy a complete resort experience without ever leaving the property.
 			</p>
 

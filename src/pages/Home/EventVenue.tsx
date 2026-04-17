@@ -154,7 +154,7 @@ function EventVenues() {
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[1fr_1.25fr] gap-12 lg:gap-18 items-start">
           {/* Left: venue text + features */}
           <div>
-            <p className="text-base md:text-lg leading-relaxed text-ink-soft mb-10 max-w-[65ch]">
+            <p className="text-lg leading-relaxed text-black mb-10 max-w-[65ch]">
               From intimate weddings to grand corporate gatherings, our versatile
               venues transform your vision into an unforgettable experience in the
               heart of Leyte.
@@ -169,8 +169,8 @@ function EventVenues() {
                   <div className="w-[36px] h-[36px] shrink-0 bg-gold rounded-full flex items-center justify-center text-base text-ink">
                     {feat.icon}
                   </div>
-                  <div className="text-base leading-relaxed text-ink-soft">
-                    <strong className="block font-medium text-ink mb-0.5">{feat.title}</strong>
+                  <div className="text-base leading-relaxed text-black">
+                    <strong className="block font-medium text-blacks mb-0.5">{feat.title}</strong>
                     {feat.text}
                   </div>
                 </div>

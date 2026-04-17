@@ -19,7 +19,7 @@ function About() {
 					Welcome To <em className="italic text-forest">Marcelino’s Resort Hotel!</em>
 				</h2>
 				<p
-					className="text-base md:text-lg leading-relaxed text-gray-1000 mb-5 max-w-[65ch]"
+					className="text-lg leading-relaxed text-black mb-5 max-w-[65ch]"
 					itemProp="description">
 					Where elegance meets celebration. Stay with us in comfortable rooms
 					and suites, or gather in our venues for weddings, parties, and life’s
