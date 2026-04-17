@@ -56,6 +56,59 @@ function diffDays(a: Date, b: Date): number {
   return Math.round((sb - sa) / 86400000);
 }
 
+/** Same payload shape as submit — used when the bar dates change so cart/header stay in sync. */
+function buildReservationDatePayload(
+  kind: BookingKind,
+  checkIn: Date,
+  checkOut: Date,
+): Record<string, unknown> | null {
+  const ci = startOfDay(checkIn);
+  const co = startOfDay(checkOut);
+  if (co < ci) return null;
+  const d = diffDays(ci, co);
+  if (kind === "room" || kind === "both") {
+    if (d < 1) return null;
+  }
+  let days: number;
+  if (kind === "venue") {
+    days = d + 1;
+  } else {
+    days = Math.max(1, d);
+  }
+  let venueEventDate: Date | undefined;
+  if (kind === "both") {
+    venueEventDate = ci;
+  }
+  return {
+    booking_type: kind,
+    days,
+    check_in: checkIn.toISOString(),
+    check_out: checkOut.toISOString(),
+    ...(kind === "room" || kind === "both"
+      ? { room_type_filters: [...DEFAULT_ROOM_TYPE_FILTERS] }
+      : {}),
+    ...(kind === "both" && venueEventDate
+      ? { venue_event_date: venueEventDate.toISOString() }
+      : {}),
+  };
+}
+
+function clearBarReservationInStorage(kind: BookingKind) {
+  saveToLocalStorage(
+    "reservationDate",
+    { booking_type: kind, days: 0 },
+    BOOKING_EXPIRATION,
+  );
+  window.dispatchEvent(new Event("reservation-date-updated"));
+}
+
+function persistBarReservation(kind: BookingKind, checkIn: Date, checkOut: Date) {
+  const payload = buildReservationDatePayload(kind, checkIn, checkOut);
+  if (!payload) return;
+  saveToLocalStorage("reservationDate", payload, BOOKING_EXPIRATION);
+  window.dispatchEvent(new Event("reservation-date-updated"));
+}
+
 function buildSchema(kind: BookingKind) {
   const base = z.object({
     days: z.coerce.number().min(0).optional(),
@@ -196,6 +249,7 @@ export default function BookingForm() {
 					form.setValue("check_out" as any, "");
 					form.setValue("days" as any, 0);
 					form.clearErrors(["check_in" as any, "check_out" as any]);
+					clearBarReservationInStorage(kind);
 				},
 			},
 			{
@@ -221,35 +275,7 @@ export default function BookingForm() {
   const handleSubmit = (values: z.infer<typeof schema>) => {
     const checkIn = values.check_in as Date;
     const checkOut = values.check_out as Date;
-    const d = diffDays(startOfDay(checkIn), startOfDay(checkOut));
-    let days: number;
-    if (kind === "venue") {
-      days = d + 1;
-    } else {
-      days = Math.max(1, d);
-    }
-    let venueEventDate: Date | undefined;
-
-    if (kind === "both") {
-      venueEventDate = checkIn;
-    }
-
-    saveToLocalStorage(
-      "reservationDate",
-      {
-        booking_type: kind,
-        days,
-        check_in: checkIn?.toISOString?.() ?? checkIn,
-        check_out: checkOut?.toISOString?.() ?? checkOut,
-        ...(kind === "room" || kind === "both"
-          ? { room_type_filters: [...DEFAULT_ROOM_TYPE_FILTERS] }
-          : {}),
-        ...(kind === "both" && venueEventDate
-          ? { venue_event_date: venueEventDate.toISOString() }
-          : {}),
-      },
-      BOOKING_EXPIRATION,
-    );
+    persistBarReservation(kind, checkIn, checkOut);
 
     const storedDetails = getFromLocalStorage(
       "reservationDetails",
@@ -319,8 +345,12 @@ export default function BookingForm() {
 						onChangeFields={(values) => {
 							const ci = values.check_in as Date | undefined;
 							const co = values.check_out as Date | undefined;
-							if (!ci) return {};
+							if (!ci) {
+								clearBarReservationInStorage(kind);
+								return {};
+							}
 							if (!co) {
+								clearBarReservationInStorage(kind);
 								return { days: 0 };
 							}
 							const ciD = startOfDay(new Date(ci));
@@ -332,12 +362,19 @@ export default function BookingForm() {
 								return { check_out: addDays(ciD, 1), days: 1 };
 							}
 							const d = diffDays(ciD, coD);
+							if (kind === "room" || kind === "both") {
+								if (d < 1) {
+									clearBarReservationInStorage(kind);
+									return { days: 0 };
+								}
+							}
 							let days: number;
 							if (kind === "venue") {
 								days = d + 1;
 							} else {
 								days = Math.max(1, d);
 							}
+							persistBarReservation(kind, new Date(ci), new Date(co));
 							return { days };
 						}}
 					/>

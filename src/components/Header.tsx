@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import gsap from "gsap";
-import { House, Trash2, X } from "lucide-react";
+import { CalendarRange, Luggage, Trash2, X } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -10,6 +10,23 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import {
+  getFromLocalStorage,
+  saveToLocalStorage,
+  BOOKING_EXPIRATION,
+} from "@/lib/storage/localStorage";
+import { formatDate } from "@/lib/formatters/formatDate";
+import { ROOM_TYPE_FILTER_OPTIONS } from "@/lib/constants/booking.constants";
+
+function cartLineBadgeLabel(item: { itemType?: string; type?: string }): string {
+  if (item.itemType === "venue") return "Venue";
+  const slug = String(item.type ?? "")
+    .trim()
+    .toLowerCase();
+  if (!slug) return "Room";
+  const found = ROOM_TYPE_FILTER_OPTIONS.find((o) => o.value === slug);
+  return found ? found.label : "Room";
+}
 
 const SECTION_IDS = [
   "home",
@@ -28,50 +45,62 @@ export default function Header() {
   const [activeSection, setActiveSection] = useState<string | null>("home");
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [cartCount, setCartCount] = useState<number>(0);
-  const [cartDates, setCartDates] = useState<{
-    checkIn?: string;
-    checkOut?: string;
+  /** Mirrors `reservationDate` from localStorage (wrapped format via getFromLocalStorage). */
+  const [stayWindow, setStayWindow] = useState<{
+    checkIn: string;
+    checkOut: string;
+    days: number;
   } | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [visibleCartCount, setVisibleCartCount] = useState(6);
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const updateCartCount = () => {
-      const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
-      setCartItems(items);
-      const totalCount = items.reduce(
-        (acc: number, item: any) => acc + (item.quantity || 0),
-        0,
-      );
-      setCartCount(totalCount);
+  const syncCartFromStorage = useCallback(() => {
+    const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    setCartItems(items);
+    const totalCount = items.reduce(
+      (acc: number, item: any) => acc + (item.quantity || 0),
+      0,
+    );
+    setCartCount(totalCount);
 
-      try {
-        const resDate = JSON.parse(
-          localStorage.getItem("reservationDate") || "{}",
-        );
-        if (resDate.check_in && resDate.check_out) {
-          setCartDates({
-            checkIn: resDate.check_in,
-            checkOut: resDate.check_out,
-          });
-        } else {
-          setCartDates(null);
-        }
-      } catch (e) {
-        setCartDates(null);
-      }
-    };
+    const rd = getFromLocalStorage("reservationDate") as {
+      check_in?: string;
+      check_out?: string;
+      days?: number;
+    } | null;
 
-    updateCartCount();
-    window.addEventListener("cart-updated", updateCartCount);
-    window.addEventListener("storage", updateCartCount);
-    return () => {
-      window.removeEventListener("cart-updated", updateCartCount);
-      window.removeEventListener("storage", updateCartCount);
-    };
+    if (rd?.check_in && rd?.check_out) {
+      setStayWindow({
+        checkIn: rd.check_in,
+        checkOut: rd.check_out,
+        days: Number(rd.days) || 0,
+      });
+    } else {
+      setStayWindow(null);
+    }
   }, []);
+
+  useEffect(() => {
+    syncCartFromStorage();
+    window.addEventListener("cart-updated", syncCartFromStorage);
+    window.addEventListener("reservation-date-updated", syncCartFromStorage);
+    window.addEventListener("storage", syncCartFromStorage);
+    return () => {
+      window.removeEventListener("cart-updated", syncCartFromStorage);
+      window.removeEventListener(
+        "reservation-date-updated",
+        syncCartFromStorage,
+      );
+      window.removeEventListener("storage", syncCartFromStorage);
+    };
+  }, [syncCartFromStorage]);
+
+  /** Same-tab updates (e.g. home booking bar) do not fire `storage`; refresh when opening the drawer. */
+  useEffect(() => {
+    if (isCartOpen) syncCartFromStorage();
+  }, [isCartOpen, syncCartFromStorage]);
   useEffect(() => {
     if (!isCartOpen) return;
     setVisibleCartCount(6);
@@ -89,6 +118,10 @@ export default function Header() {
     localStorage.setItem("cartItems", JSON.stringify(newItems));
     window.dispatchEvent(new Event("cart-updated"));
   };
+
+  const hasValidStayForBooking =
+    Boolean(stayWindow?.checkIn && stayWindow?.checkOut) &&
+    Number(stayWindow?.days) > 0;
 
   const headerRef = useRef<HTMLElement>(null);
   const scrollingToRef = useRef<string | null>(null);
@@ -214,6 +247,32 @@ export default function Header() {
 
   const proceedToBookNow = () => {
     setIsCartOpen(false);
+    const rd = getFromLocalStorage("reservationDate") as {
+      check_in?: string;
+      check_out?: string;
+      days?: number;
+    } | null;
+
+    const canEnterBookingFlow =
+      rd &&
+      rd.check_in &&
+      rd.check_out &&
+      Number(rd.days) > 0;
+
+    if (canEnterBookingFlow) {
+      const details = getFromLocalStorage("reservationDetails") as
+        | Record<string, unknown>
+        | null
+        | undefined;
+      saveToLocalStorage(
+        "reservationDetails",
+        { ...(details || {}), current_step: 1 },
+        BOOKING_EXPIRATION,
+      );
+      navigate("/create-booking");
+      return;
+    }
+
     bookNowHandler();
   };
 
@@ -324,20 +383,24 @@ export default function Header() {
               </li>
             );
           })}
-          <li className="relative flex items-center">
+          <li className="relative z-220 flex items-center">
             <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
               <SheetTrigger asChild>
                 <button
                   type="button"
-                  className="relative text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
+                  className="relative z-10 text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
                   aria-label="View Cart"
                 >
-                  <House className="w-5 h-5" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
-                      {cartCount}
-                    </span>
-                  )}
+                  <Luggage className="w-5 h-5" strokeWidth={1.75} />
+                  <span
+                    className={`absolute -top-2 -right-3 flex min-h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[10px] font-bold tabular-nums ${
+                      cartCount > 0
+                        ? "bg-emerald-600 text-white"
+                        : "border border-cream/35 bg-dark/80 text-cream/90"
+                    }`}
+                  >
+                    {cartCount}
+                  </span>
                 </button>
               </SheetTrigger>
 
@@ -345,22 +408,64 @@ export default function Header() {
                 side="right"
                 className="w-full max-w-[100vw] sm:max-w-lg bg-cream overflow-y-auto z-[9999] flex flex-col p-0 border-l border-sand-dark/60"
               >
-                <SheetHeader className="px-6 py-5 border-b border-sand-dark/50 sticky top-0 bg-cream z-10 text-left gap-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <SheetTitle className="font-display text-2xl font-semibold text-ink m-0">
-                    Selected spaces
+                <SheetHeader className="px-6 py-5 border-b border-sand-dark/50 sticky top-0 bg-cream z-10 text-left gap-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <SheetTitle className="font-display text-2xl font-semibold text-ink m-0 leading-tight pr-2">
+                      Selected spaces
                     </SheetTitle>
                     <button
                       type="button"
                       onClick={() => setIsCartOpen(false)}
-                      className="p-1.5 -mr-1.5 text-ink-soft hover:text-ink rounded-full hover:bg-sand transition-all cursor-pointer flex-shrink-0"
+                      className="p-1.5 -mr-1.5 mt-0.5 text-ink-soft hover:text-ink rounded-full hover:bg-sand transition-all cursor-pointer shrink-0"
                       aria-label="Close cart"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft m-0">
+
+                  <div className="rounded-xl border border-sand-dark/55 bg-white p-3.5 shadow-sm">
+                    <div className="mb-2.5 flex items-center gap-2 text-ink">
+                      <CalendarRange
+                        className="h-4 w-4 shrink-0 text-sea"
+                        strokeWidth={2}
+                        aria-hidden
+                      />
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-soft">
+                        Stay dates
+                      </span>
+                    </div>
+                    {hasValidStayForBooking && stayWindow ? (
+                      <dl className="m-0 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                        <div className="min-w-0">
+                          <dt className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
+                            Check-in
+                          </dt>
+                          <dd className="m-0 text-sm font-semibold tabular-nums text-ink">
+                            {formatDate(stayWindow.checkIn)}
+                          </dd>
+                        </div>
+                        <div className="min-w-0">
+                          <dt className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
+                            Check-out
+                          </dt>
+                          <dd className="m-0 text-sm font-semibold tabular-nums text-ink">
+                            {formatDate(stayWindow.checkOut)}
+                          </dd>
+                        </div>
+                      </dl>
+                    ) : (
+                      <p className="m-0 text-sm leading-snug text-ink-soft">
+                        No travel dates selected yet. Use the{" "}
+                        <strong className="font-semibold text-ink">
+                          Check Availability
+                        </strong>{" "}
+                        bar on the home page to set check-in and check-out.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                    <p className="m-0 text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
                       {cartCount} {cartCount === 1 ? "item" : "items"}
                     </p>
                     {cartItems.length > 0 && (
@@ -369,29 +474,12 @@ export default function Header() {
                       </span>
                     )}
                   </div>
-
-                  {cartDates?.checkIn &&
-                    cartDates?.checkOut &&
-                    cartCount > 0 && (
-                      <div className="mt-1 text-xs font-medium text-sea bg-sage-muted py-1.5 px-3 rounded-full inline-block border border-sea/20 self-start">
-                        Dates:{" "}
-                        {new Date(cartDates.checkIn).toLocaleDateString(
-                          "en-US",
-                          { month: "short", day: "numeric", year: "numeric" },
-                        )}{" "}
-                        &mdash;{" "}
-                        {new Date(cartDates.checkOut).toLocaleDateString(
-                          "en-US",
-                          { month: "short", day: "numeric", year: "numeric" },
-                        )}
-                      </div>
-                    )}
                 </SheetHeader>
 
                 <div className="flex-1 p-6 space-y-4 bg-linear-to-b from-cream via-cream to-sand/30">
                   {cartItems.length === 0 ? (
                     <div className="text-center py-12 px-4 flex flex-col items-center gap-3 rounded-[12px] border border-dashed border-sand-dark/70 bg-white/80">
-                      <House className="w-12 h-12 text-sand-dark" />
+                      <Luggage className="w-12 h-12 text-sand-dark" strokeWidth={1.25} />
                       <p className="text-ink-soft font-medium">
                       No rooms or spaces selected yet
                       </p>
@@ -400,46 +488,44 @@ export default function Header() {
                     renderedCartItems.map((item: any) => (
                       <div
                         key={`${item.itemType}-${item.id}`}
-                        className="flex items-start gap-4 p-4 bg-white rounded-[12px] border border-sand-dark/60 shadow-sm relative"
+                        className="flex items-stretch gap-4 p-4 bg-white rounded-[12px] border border-sand-dark/60 shadow-sm"
                       >
-                        <div className="w-18 h-18 rounded-[10px] overflow-hidden bg-sand flex-shrink-0 border border-sand-dark/50">
+                        <div className="h-24 w-24 shrink-0 overflow-hidden rounded-[10px] border border-sand-dark/50 bg-sand sm:h-28 sm:w-28">
                           {item.featured_image ? (
                             <img
                               src={item.featured_image}
                               alt={item.name || item.type}
-                              className="w-full h-full object-cover"
+                              className="h-full w-full object-cover"
                               loading="lazy"
                               decoding="async"
                             />
                           ) : (
-                            <div className="w-full h-full bg-sand-dark/40" />
+                            <div className="h-full w-full bg-sand-dark/40" />
                           )}
                         </div>
-                        <div className="flex-1 min-w-0 pr-7">
-                          <div className="mb-1 flex items-center gap-2">
-                            <span className="inline-flex rounded-full border border-sand-dark/60 bg-sand px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
-                              {item.itemType === "venue" ? "Venue" : "Room"}
-                            </span>
-                          </div>
-                          <h4 className="font-display font-medium text-ink text-lg leading-tight truncate">
+                        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
+                          <span className="inline-flex w-fit rounded-full border border-sand-dark/60 bg-sand px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
+                            {cartLineBadgeLabel(item)}
+                          </span>
+                          <h4 className="font-display text-lg font-medium leading-tight text-ink">
                             {item.name || item.type || "Listing"}
                           </h4>
-                          <p className="text-sm text-ink-soft">
+                          <p className="m-0 text-sm text-ink-soft">
                             Quantity: {item.quantity}
                           </p>
-                          <div className="mt-2 font-semibold text-sea text-base">
+                          <p className="m-0 mt-1 text-base font-semibold text-sea">
                             {item.price
                               ? `₱${(Number(item.price) * item.quantity).toLocaleString()}`
                               : "Price varies"}
-                          </div>
+                          </p>
                         </div>
                         <button
                           type="button"
-                          className="absolute top-4 right-4 text-ink-soft/70 hover:text-red-600 transition-colors cursor-pointer"
+                          className="shrink-0 self-start rounded-md p-1.5 text-ink-soft/70 transition-colors hover:bg-red-50 hover:text-red-600"
                           onClick={() => removeItem(item.id, item.itemType)}
                           aria-label="Remove item"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     ))
@@ -462,10 +548,21 @@ export default function Header() {
 
                 <div className="px-6 py-5 border-t border-sand-dark/60 bg-white sticky bottom-0 z-10 w-full mb-0">
                   {cartItems.length > 0 && (
-                    <div className="mb-3 flex items-center justify-between text-sm">
-                      <span className="text-ink-soft font-medium">Estimated subtotal</span>
-                      <span className="font-semibold text-ink">₱{cartSubtotal.toLocaleString()}</span>
+                    <div className="mb-3 flex items-baseline justify-between gap-3 text-sm">
+                      <span className="text-ink-soft font-medium">
+                        Estimated subtotal
+                      </span>
+                      <span className="shrink-0 text-right font-semibold tabular-nums text-ink">
+                        ₱{cartSubtotal.toLocaleString()}
+                      </span>
                     </div>
+                  )}
+                  {cartItems.length > 0 && !hasValidStayForBooking && (
+                    <p className="mb-3 text-center text-xs leading-snug text-ink-soft">
+                      Save check-in and check-out from the home page first, or tap
+                      below to open the booking bar. After dates are saved,
+                      continue goes to booking step 1.
+                    </p>
                   )}
                   <Button
                     onClick={proceedToBookNow}
@@ -481,19 +578,23 @@ export default function Header() {
         </ul>
 
         {/* Mobile quick actions */}
-        <div className="lg:hidden flex items-center gap-5 z-210">
+        <div className="relative z-220 flex items-center gap-5 lg:hidden">
           <button
             type="button"
             onClick={() => setIsCartOpen(true)}
-            className="relative text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
+            className="relative z-10 text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
             aria-label="View Cart"
           >
-            <House className="w-5 h-5" />
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
-                {cartCount}
-              </span>
-            )}
+            <Luggage className="w-5 h-5" strokeWidth={1.75} />
+            <span
+              className={`absolute -top-2 -right-3 flex min-h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[10px] font-bold tabular-nums ${
+                cartCount > 0
+                  ? "bg-emerald-600 text-white"
+                  : "border border-cream/35 bg-dark/80 text-cream/90"
+              }`}
+            >
+              {cartCount}
+            </span>
           </button>
           {/* Hamburger */}
           <button
