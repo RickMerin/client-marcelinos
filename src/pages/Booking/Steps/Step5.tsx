@@ -583,6 +583,10 @@ export function Step5(props: Props) {
   const venueEventLabel =
     VENUE_EVENT_OPTIONS.find((o) => o.value === venueEventTypeRaw)?.label ??
     venueEventTypeRaw;
+	const venueEventDescription =
+		venueEventTypeRaw === "wedding"
+			? " For wedding bookings, you are given one (1) day ahead—before check-in—for decorating and preparing the venue."
+			: "";
 
   const grandTotal =
     isFromApi && receipt
@@ -828,7 +832,14 @@ export function Step5(props: Props) {
 									value={String(nights)}
 								/>
 								{venues.length > 0 && (
-									<ReceiptRow label="Event type" value={venueEventLabel} />
+									<>
+										<ReceiptRow label="Event type" value={venueEventLabel} />
+										{venueEventDescription ? (
+											<p className="mt-1 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-xs italic text-amber-900">
+												{venueEventDescription}
+											</p>
+										) : null}
+									</>
 								)}
 							</div>
 							<div className="space-y-1.5 sm:text-right">
