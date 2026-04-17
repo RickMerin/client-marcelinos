@@ -168,7 +168,7 @@ function ContactForm() {
             <p className="font-display text-fluid-h3 font-light leading-tight">
               Get in <em className="text-gold not-italic">touch</em>
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-cream/90">
+            <p className="mt-2 text-md leading-relaxed text-cream/90">
               Questions about stays, events, or the resort? Send a note—we love hearing from you.
             </p>
           </div>
@@ -177,7 +177,7 @@ function ContactForm() {
         <div className="flex min-w-0 flex-col">
           <h2
             id="contact-heading"
-            className="section-eyebrow font-bold tracking-tight flex justify-center gap-2 px-6 pt-6 text-center text-(--color-charcoal) sm:px-8"
+            className="section-eyebrow font-bold tracking-tight flex justify-center gap-2 px-6 pt-6 text-center text-(--color-) sm:px-8"
           >
             <span className="text-gold">CONTACT</span>
             <span className="text-gold">US</span>
@@ -288,7 +288,7 @@ function ContactForm() {
               {captchaError && (
                 <p className="text-sm text-red-600">{captchaError}</p>
               )}
-              <p className="text-center text-xs leading-relaxed text-(--color-charcoal)/45 sm:text-left">
+              <p className="text-center text-xs leading-relaxed text-black sm:text-left">
                 We typically reply within one business day.
               </p>
             </div>
