@@ -984,44 +984,12 @@ const SinglePage = () => {
                         <div className="mt-1 text-[14px] text-black text-center">
                           In cart: {quantityInCart}
                           {!isVenuePage && maxSelectableQuantity > 0 && (
-                            <span className="block text-xs text-ink-soft mt-0.5">
+                            <span className="block text-xs text-black mt-0.5">
                               Up to {maxSelectableQuantity} available for your
                               dates
                             </span>
                           )}
                         </div>
-                      </div>
-
-                      <div>
-                        <div className="text-md md:text-sm font-semibold text-ink">
-                          Additional Details:
-                        </div>
-                        <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-md md:text-sm">
-                          <div>
-                            <dt className="text-black">Type</dt>
-                            <dd className="font-medium text-ink">
-                              {selectedItem.type ?? "—"}
-                            </dd>
-                          </div>
-                          <div>
-                            <dt className="text-black">Capacity</dt>
-                            <dd className="font-medium text-ink">
-                              {capacityLine ?? "—"}
-                            </dd>
-                          </div>
-                          <div>
-                            <dt className="text-black">Beds</dt>
-                            <dd className="font-medium text-ink">
-                              {bedSpecs.length > 0 ? `${bedSpecs.length}` : "—"}
-                            </dd>
-                          </div>
-                          <div>
-                            <dt className="text-black">Pricing</dt>
-                            <dd className="font-medium text-ink">
-                              {isVenuePage ? "Starting rate" : "Per night"}
-                            </dd>
-                          </div>
-                        </dl>
                       </div>
 
                       <motion.button
@@ -1082,12 +1050,12 @@ const SinglePage = () => {
               </div>
 
               {visibleList.length === 0 ? (
-                <div className="rounded-[4px] border border-sand-dark/70 bg-white p-6 text-ink-soft">
+                <div className="rounded-lg border border-sand-dark/70 bg-white p-6 text-black">
                   No {availableLabel} to show right now.
                 </div>
               ) : !isVenuePage ? (
                 consolidatedRoomCards.length === 0 ? (
-                  <div className="rounded-[4px] border border-sand-dark/70 bg-white p-6 text-ink-soft">
+                  <div className="rounded-lg border border-sand-dark/70 bg-white p-6 text-black">
                     No other room categories to explore — the list below hides the category you are viewing.
                   </div>
                 ) : (
