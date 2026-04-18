@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { API } from "@/lib/api/apiClient";
 import type { BookingReferenceResponse } from "@/types/booking.types";
-import { InlineLoader, ButtonLoader } from "@/components/ui/loader";
+import { ButtonLoader } from "@/components/ui/loader";
 
 const MySwal = withReactContent(Swal);
 
@@ -125,11 +125,11 @@ export default function TestimonialPage() {
   };
 
   if (loading) {
-    return (
-      <section className="bg-cream min-h-[60vh] flex items-center justify-center px-4">
-        <InlineLoader message="Loading..." className="min-h-[40vh]" />
-      </section>
-    );
+    // return (
+    //   <section className="bg-cream min-h-[60vh] flex items-center justify-center px-4">
+    //     <InlineLoader message="Loading..." className="min-h-[40vh]" />
+    //   </section>
+    // );
   }
 
   if (error) {
@@ -177,7 +177,7 @@ export default function TestimonialPage() {
       : "Guest";
 
   return (
-    <section className="bg-cream min-h-[60vh] py-12 px-4">
+    <section className="bg-cream min-h-[60vh] py-12 px-4 mt-20">
       <div className="max-w-xl mx-auto">
         <Link
           to="/"
