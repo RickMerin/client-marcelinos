@@ -10,7 +10,16 @@ import {
   calculateVenuesLineTotal,
   venueEffectiveUnitPrice,
 } from "@/lib/math/calculate";
-import { Calendar, Pencil, Trash2, CheckCircle2, Plus, Minus, UserCheck, HousePlus } from "lucide-react";
+import {
+  Calendar,
+  Pencil,
+  Trash2,
+  CheckCircle2,
+  Plus,
+  Minus,
+  UserCheck,
+  HousePlus,
+} from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -117,9 +126,7 @@ function capacityLineForGroup(groupRooms: any[]): string | null {
   const minCap = Math.min(...caps);
   const maxCap = Math.max(...caps);
   const gw = maxCap === 1 ? "guest" : "guests";
-  return minCap === maxCap
-    ? `${maxCap} ${gw}`
-    : `${minCap}–${maxCap} ${gw}`;
+  return minCap === maxCap ? `${maxCap} ${gw}` : `${minCap}–${maxCap} ${gw}`;
 }
 
 export function Step3({
@@ -157,10 +164,10 @@ export function Step3({
   );
 
   const { data: roomsResponse, isLoading: roomsLoading } = useApiQuery<any>(
-		["rooms", tempCheckIn, tempCheckOut],
-		roomsUrl,
-		{ enabled: showRooms },
-	);
+    ["rooms", tempCheckIn, tempCheckOut],
+    roomsUrl,
+    { enabled: showRooms },
+  );
 
   const availableRoomsList = useMemo(
     () => extractList(roomsResponse),
@@ -202,10 +209,10 @@ export function Step3({
   };
 
   const { data: blockedDatesData } = useApiQuery<BlockedDatesResponse>(
-		["blocked-dates"],
-		"/blocked-dates",
-		{ enabled: showRooms },
-	);
+    ["blocked-dates"],
+    "/blocked-dates",
+    { enabled: showRooms },
+  );
 
   const blockedDateRows = useMemo(() => {
     const rows =
@@ -234,10 +241,15 @@ export function Step3({
   }, [blockedDateRows]);
 
   const stayRangeModifiers = useMemo(() => {
-    if (bookingType === "venue" || !tempCheckIn || !tempCheckOut) {
-      return undefined;
+    if (bookingType === "room" || bookingType === "both") {
+      if (!tempCheckIn || !tempCheckOut) return undefined;
+      return stayNightRangeModifiers(tempCheckIn, tempCheckOut);
     }
-    return stayNightRangeModifiers(tempCheckIn, tempCheckOut);
+    // For venue bookings, we can highlight the same day or range
+    if (bookingType === "venue" && tempCheckIn && tempCheckOut) {
+      return stayNightRangeModifiers(tempCheckIn, tempCheckOut);
+    }
+    return undefined;
   }, [bookingType, tempCheckIn, tempCheckOut]);
 
   const todayStart = useMemo(
@@ -251,17 +263,17 @@ export function Step3({
 
   /** Check if a date would be disabled for check-in */
   const isCheckInDisabled = (date: Date): boolean => {
-  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-  // disable past dates
-  if (d < todayStart) return true;
+    // disable past dates
+    if (d < todayStart) return true;
 
-  // disable blocked dates
-  if (blockedDates.some((b) => toDayKey(b) === toDayKey(d))) return true;
+    // disable blocked dates
+    if (blockedDates.some((b) => toDayKey(b) === toDayKey(d))) return true;
 
-  // allow all future dates
-  return false;
-};
+    // allow all future dates
+    return false;
+  };
 
   /** Check if a date would be disabled for check-out */
   const isCheckOutDisabled = (date: Date): boolean => {
@@ -273,7 +285,11 @@ export function Step3({
     const ciDate = new Date(tempCheckIn);
     const ciD = startOfDay(ciDate);
     const numNights = diffDays(ciD, d);
-    if (numNights < 1) return true; // checkout must be at least 1 day after checkin
+
+    // For venue bookings, allow same-day check-out (numNights >= 0)
+    // For room/both bookings, require at least 1 night (numNights >= 1)
+    const minNights = bookingType === "venue" ? 0 : 1;
+    if (numNights < minNights) return true;
 
     return stayOverlapsBlocked(ciD, numNights, blockedDates);
   };
@@ -308,23 +324,45 @@ export function Step3({
     return stayOverlapsBlocked(d, numNights, blockedDates);
   };
 
+  const dateRangeErrorMessage = useMemo(() => {
+    if (!tempCheckIn || !tempCheckOut)
+      return "Select both check-in and check-out dates.";
+
+    const ciDate = new Date(tempCheckIn);
+    const coDate = new Date(tempCheckOut);
+    if (Number.isNaN(ciDate.getTime()) || Number.isNaN(coDate.getTime())) {
+      return "Selected dates are invalid. Please choose dates again.";
+    }
+
+    const dayDiff = diffDays(ciDate, coDate);
+    if (bookingType === "room" || bookingType === "both") {
+      if (dayDiff < 1) return "Check-out must be after check-in.";
+      return null;
+    }
+
+    if (dayDiff < 0) return "Check-out cannot be before check-in.";
+    return null;
+  }, [bookingType, tempCheckIn, tempCheckOut]);
+
+  const isDateRangeInvalid = Boolean(dateRangeErrorMessage);
+
   const handleDateUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     setDateError(null);
     if (!updateFormData) return;
 
-    if (
-      bookingType !== "venue" &&
-      new Date(tempCheckOut) <= new Date(tempCheckIn)
-    ) {
-      setDateError("Check-out must be after check-in");
+    if (isDateRangeInvalid) {
+      setDateError(dateRangeErrorMessage ?? "Invalid date range.");
       return;
     }
 
     let nextDays = days;
     if (bookingType === "venue") {
-      setTempCheckOut(tempCheckIn); // Force same day for venues
-      nextDays = 1;
+      // For venue-only bookings, calculate days including both check-in and check-out
+      const ciDate = new Date(tempCheckIn);
+      const coDate = new Date(tempCheckOut || tempCheckIn);
+      const daysDiff = diffDays(ciDate, coDate);
+      nextDays = Math.max(1, daysDiff + 1); // +1 to include both start and end days
     } else {
       nextDays = Math.ceil(
         (new Date(tempCheckOut).getTime() - new Date(tempCheckIn).getTime()) /
@@ -334,7 +372,7 @@ export function Step3({
 
     updateFormData({
       check_in: tempCheckIn,
-      check_out: bookingType === "venue" ? tempCheckIn : tempCheckOut,
+      check_out: tempCheckOut,
       days: Math.max(1, nextDays),
     });
 
@@ -344,8 +382,7 @@ export function Step3({
 
   /** At least one venue must remain when venues are required for the booking flow. */
   const canRemoveVenue =
-    venues.length > 1 ||
-    (bookingType === "both" && rooms.length > 0);
+    venues.length > 1 || (bookingType === "both" && rooms.length > 0);
 
   const roomMatchesSubgroup = useCallback(
     (r: any, type: RoomTypeFilter, inventoryGroupKeyStr: string) => {
@@ -429,7 +466,11 @@ export function Step3({
       const inventoryGroupKeyStr = roomInventoryGroupKey(r);
       const key = `${type}:${inventoryGroupKeyStr}`;
       if (!map.has(key)) {
-        map.set(key, { type, inventoryGroupKey: inventoryGroupKeyStr, groupRooms: [] });
+        map.set(key, {
+          type,
+          inventoryGroupKey: inventoryGroupKeyStr,
+          groupRooms: [],
+        });
       }
       map.get(key)!.groupRooms.push(r);
     }
@@ -459,7 +500,11 @@ export function Step3({
       const inventoryGroupKeyStr = roomInventoryGroupKey(r);
       const key = `${type}:${inventoryGroupKeyStr}`;
       if (!map.has(key)) {
-        map.set(key, { type, inventoryGroupKey: inventoryGroupKeyStr, pool: [] });
+        map.set(key, {
+          type,
+          inventoryGroupKey: inventoryGroupKeyStr,
+          pool: [],
+        });
       }
       map.get(key)!.pool.push(r);
     }
@@ -491,8 +536,7 @@ export function Step3({
   const canDecrementRooms = useCallback(
     (selectedInGroup: number) =>
       selectedInGroup > 0 &&
-      (rooms.length > 1 ||
-        (bookingType === "both" && venues.length > 0)),
+      (rooms.length > 1 || (bookingType === "both" && venues.length > 0)),
     [rooms.length, bookingType, venues.length],
   );
 
@@ -514,686 +558,724 @@ export function Step3({
         : "Confirm your stay dates, rooms, and guest details before payment.";
 
   return (
-		<div className="space-y-8">
-			<div className="space-y-2">
-				<p className="booking-funnel-eyebrow">{bookingKindLabel(bookingType)}</p>
-				<h2 className="landing-section-title">Review Booking Details</h2>
-				<p className="text-sm opacity-80 max-w-2xl text-ink-soft">
-					{stepIntro} Modify your dates or rooms directly below if necessary.
-				</p>
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <p className="booking-funnel-eyebrow">
+          {bookingKindLabel(bookingType)}
+        </p>
+        <h2 className="landing-section-title">Review Booking Details</h2>
+        <p className="text-sm opacity-80 max-w-2xl text-ink-soft">
+          {stepIntro} Modify your dates or rooms directly below if necessary.
+        </p>
 
-				{!hasRooms && bookingType !== "venue" && (
-					<div className="p-3 bg-red-50 text-red-700 text-sm font-semibold border border-red-200 mt-4">
-						You currently have no rooms selected. Please add a room to proceed.
-					</div>
-				)}
-			</div>
+        {!hasRooms && bookingType !== "venue" && (
+          <div className="p-3 bg-red-50 text-red-700 text-sm font-semibold border border-red-200 mt-4">
+            You currently have no rooms selected. Please add a room to proceed.
+          </div>
+        )}
+      </div>
 
-			<div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(auto,380px)] gap-8">
-				<div className="space-y-6">
-					{/* Guest Details Section */}
-					<div
-						className="border bg-white shadow-sm overflow-hidden"
-						style={cardBorder}>
-						<div className="px-5 py-3.5 font-semibold text-cream flex justify-between items-center bg-sea">
-							<div className="flex items-center gap-2">
-								<UserCheck className="w-5 h-5" />
-								<span>Guest Details</span>
-							</div>
-						</div>
-						<div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-							<div>
-								<p className="text-sm font-medium text-ink-soft">Name</p>
-								<p className="font-sm text-ink">
-									{formData.firstName}{" "}
-									{formData.middleName ? `${formData.middleName} ` : ""}
-									{formData.lastName}
-								</p>
-							</div>
-							<div>
-								<p className="text-sm font-medium text-ink-soft">Gender</p>
-								<p className="font-sm text-ink capitalize">
-									{formData.gender || "—"}
-								</p>
-							</div>
-							<div>
-								<p className="text-sm font-medium text-ink-soft">Email</p>
-								<p className="font-sm text-ink">{formData.email}</p>
-							</div>
-							<div>
-								<p className="text-sm font-medium text-ink-soft">Phone</p>
-								<p className="font-sm text-ink">{formData.phone}</p>
-							</div>
-							{formData.address && (
-								<div className="sm:col-span-2">
-									<p className="text-sm font-medium text-ink-soft">Address</p>
-									<p className="font-sm text-ink">
-										{[
-											formData.address,
-											formData.street,
-											formData.city,
-											formData.state,
-											formData.region,
-											formData.zipCode,
-										]
-											.filter(Boolean)
-											.join(", ")}
-									</p>
-								</div>
-							)}
-						</div>
-					</div>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(auto,380px)] gap-8">
+        <div className="space-y-6">
+          {/* Guest Details Section */}
+          <div
+            className="border bg-white shadow-sm overflow-hidden"
+            style={cardBorder}
+          >
+            <div className="px-5 py-3.5 font-semibold text-cream flex justify-between items-center bg-sea">
+              <div className="flex items-center gap-2">
+                <UserCheck className="w-5 h-5" />
+                <span>Guest Details</span>
+              </div>
+            </div>
+            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium text-ink-soft">Name</p>
+                <p className="font-sm text-ink">
+                  {formData.firstName}{" "}
+                  {formData.middleName ? `${formData.middleName} ` : ""}
+                  {formData.lastName}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-ink-soft">Gender</p>
+                <p className="font-sm text-ink capitalize">
+                  {formData.gender || "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-ink-soft">Email</p>
+                <p className="font-sm text-ink">{formData.email}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-ink-soft">Phone</p>
+                <p className="font-sm text-ink">{formData.phone}</p>
+              </div>
+              {formData.address && (
+                <div className="sm:col-span-2">
+                  <p className="text-sm font-medium text-ink-soft">Address</p>
+                  <p className="font-sm text-ink">
+                    {[
+                      formData.address,
+                      formData.street,
+                      formData.city,
+                      formData.state,
+                      formData.region,
+                      formData.zipCode,
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
 
-					{/* Dates Section */}
-					<div
-						className="border bg-white shadow-sm overflow-hidden"
-						style={cardBorder}>
-						<div className="px-5 py-3.5 font-semibold flex justify-between items-center text-cream bg-sea">
-							<div className="flex items-center gap-2">
-								<Calendar className="w-5 h-5" />
-								{bookingType === "venue"
-									? "Event Date"
-									: bookingType === "both"
-										? "Room & Venue Stay"
-										: "Selected Stay"}
-							</div>
-							{!editingDates && updateFormData && (
-								<button
-									onClick={() => setEditingDates(true)}
-									className="p-1.5 hover:bg-white/20 rounded-md transition-colors text-white flex items-center gap-1 text-xs">
-									<Pencil className="w-3.5 h-3.5" /> Edit
-								</button>
-							)}
-						</div>
+          {/* Dates Section */}
+          <div
+            className="border bg-white shadow-sm overflow-hidden"
+            style={cardBorder}
+          >
+            <div className="px-5 py-3.5 font-semibold flex justify-between items-center text-cream bg-sea">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                {bookingType === "venue"
+                  ? "Event Date"
+                  : bookingType === "both"
+                    ? "Room & Venue Stay"
+                    : "Selected Stay"}
+              </div>
+              {!editingDates && updateFormData && (
+                <button
+                  onClick={() => setEditingDates(true)}
+                  className="p-1.5 hover:bg-white/20 rounded-md transition-colors text-white flex items-center gap-1 text-xs"
+                >
+                  <Pencil className="w-3.5 h-3.5" /> Edit
+                </button>
+              )}
+            </div>
 
-						<div className="p-5">
-							{editingDates ? (
-								<form onSubmit={handleDateUpdate} className="space-y-4">
-									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-										{/* Check-in Calendar */}
-										<div className="space-y-1.5">
-											<label className="text-sm font-medium text-ink-soft">
-												Check-in
-											</label>
-											<Popover
-												open={openCalendarField === "check_in"}
-												onOpenChange={(o) =>
-													setOpenCalendarField(o ? "check_in" : null)
-												}>
-												<PopoverTrigger asChild>
-													<button
-														type="button"
-														className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-sea/40 outline-none text-sm text-left">
-														{tempCheckIn
-															? new Date(tempCheckIn).toLocaleDateString(
-																	"en-US",
-																	{
-																		month: "short",
-																		day: "numeric",
-																		year: "numeric",
-																	},
-																)
-															: "Select date"}
-													</button>
-												</PopoverTrigger>
-												<PopoverContent align="start" className="p-0 w-auto">
-													<CalendarWithDisabledReasons
-														mode="single"
-														selected={
-															tempCheckIn ? new Date(tempCheckIn) : undefined
-														}
-														onSelect={(date) => {
-															if (date) {
-																const months = [
-																	"Jan",
-																	"Feb",
-																	"Mar",
-																	"Apr",
-																	"May",
-																	"Jun",
-																	"Jul",
-																	"Aug",
-																	"Sep",
-																	"Oct",
-																	"Nov",
-																	"Dec",
-																];
-																const dateStr = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-																setTempCheckIn(dateStr);
-																setDateError(null);
+            <div className="p-5">
+              {editingDates ? (
+                <form onSubmit={handleDateUpdate} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Check-in Calendar */}
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-ink-soft">
+                        Check-in
+                      </label>
+                      <Popover
+                        open={openCalendarField === "check_in"}
+                        onOpenChange={(o) =>
+                          setOpenCalendarField(o ? "check_in" : null)
+                        }
+                      >
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-sea/40 outline-none text-sm text-left"
+                          >
+                            {tempCheckIn
+                              ? new Date(tempCheckIn).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  },
+                                )
+                              : "Select date"}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="p-0 w-auto">
+                          <CalendarWithDisabledReasons
+                            mode="single"
+                            selected={
+                              tempCheckIn ? new Date(tempCheckIn) : undefined
+                            }
+                            onSelect={(date) => {
+                              if (date) {
+                                const months = [
+                                  "Jan",
+                                  "Feb",
+                                  "Mar",
+                                  "Apr",
+                                  "May",
+                                  "Jun",
+                                  "Jul",
+                                  "Aug",
+                                  "Sep",
+                                  "Oct",
+                                  "Nov",
+                                  "Dec",
+                                ];
+                                const dateStr = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+                                setTempCheckIn(dateStr);
+                                setDateError(null);
+                              }
+                            }}
+                            disabled={isCheckInDisabled}
+                            blockedReasons={blockedReasons}
+                            overlapInvalidReason="Your stay would include blocked dates. Pick another check-in or fewer days."
+                            isOverlapInvalid={isCheckInOverlapInvalid}
+                            {...(stayRangeModifiers
+                              ? {
+                                  modifiers: stayRangeModifiers,
+                                  modifiersClassNames:
+                                    BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
+                                }
+                              : {})}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
 
-																if (bookingType === "venue") {
-																	setTempCheckOut(dateStr);
-																}
-															}
-														}}
-														disabled={isCheckInDisabled}
-														blockedReasons={blockedReasons}
-														overlapInvalidReason="Your stay would include blocked dates. Pick another check-in or fewer days."
-														isOverlapInvalid={isCheckInOverlapInvalid}
-														{...(stayRangeModifiers
-															? {
-																	modifiers: stayRangeModifiers,
-																	modifiersClassNames:
-																		BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
-																}
-															: {})}
-													/>
-												</PopoverContent>
-											</Popover>
-										</div>
-
-										{/* Check-out Calendar */}
-										{bookingType !== "venue" && (
-											<div className="space-y-1.5">
-												<label className="text-sm font-medium text-ink-soft">
-													Check-out
-												</label>
-												<Popover
-													open={openCalendarField === "check_out"}
-													onOpenChange={(o) =>
-														setOpenCalendarField(o ? "check_out" : null)
-													}>
-													<PopoverTrigger asChild>
-														<button
-															type="button"
-															className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-sea/40 outline-none text-sm text-left">
-															{tempCheckOut
-																? new Date(tempCheckOut).toLocaleDateString(
-																		"en-US",
-																		{
-																			month: "short",
-																			day: "numeric",
-																			year: "numeric",
-																		},
-																	)
-																: "Select date"}
-														</button>
-													</PopoverTrigger>
-													<PopoverContent align="start" className="p-0 w-auto">
-														<CalendarWithDisabledReasons
-															mode="single"
-															selected={
-																tempCheckOut
-																	? new Date(tempCheckOut)
-																	: undefined
-															}
-															onSelect={(date) => {
-																if (date) {
-																	const months = [
-																		"Jan",
-																		"Feb",
-																		"Mar",
-																		"Apr",
-																		"May",
-																		"Jun",
-																		"Jul",
-																		"Aug",
-																		"Sep",
-																		"Oct",
-																		"Nov",
-																		"Dec",
-																	];
-																	const dateStr = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-																	setTempCheckOut(dateStr);
-																	setDateError(null);
-																}
-															}}
-															disabled={isCheckOutDisabled}
-															blockedReasons={blockedReasons}
-															overlapInvalidReason="Your stay would include blocked dates. Pick another check-in or fewer days."
-															isOverlapInvalid={isCheckOutOverlapInvalid}
-															{...(stayRangeModifiers
-																? {
-																		modifiers: stayRangeModifiers,
-																		modifiersClassNames:
-																			BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
-																	}
-																: {})}
-														/>
-													</PopoverContent>
-												</Popover>
-											</div>
-										)}
-									</div>
-
-									{dateError && (
-                  <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-                    {dateError}
+                    {/* Check-out Calendar */}
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-ink-soft">
+                        Check-out
+                      </label>
+                      <Popover
+                        open={openCalendarField === "check_out"}
+                        onOpenChange={(o) =>
+                          setOpenCalendarField(o ? "check_out" : null)
+                        }
+                      >
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-sea/40 outline-none text-sm text-left"
+                          >
+                            {tempCheckOut
+                              ? new Date(tempCheckOut).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  },
+                                )
+                              : "Select date"}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="p-0 w-auto">
+                          <CalendarWithDisabledReasons
+                            mode="single"
+                            selected={
+                              tempCheckOut ? new Date(tempCheckOut) : undefined
+                            }
+                            onSelect={(date) => {
+                              if (date) {
+                                const months = [
+                                  "Jan",
+                                  "Feb",
+                                  "Mar",
+                                  "Apr",
+                                  "May",
+                                  "Jun",
+                                  "Jul",
+                                  "Aug",
+                                  "Sep",
+                                  "Oct",
+                                  "Nov",
+                                  "Dec",
+                                ];
+                                const dateStr = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+                                setTempCheckOut(dateStr);
+                                setDateError(null);
+                              }
+                            }}
+                            disabled={isCheckOutDisabled}
+                            blockedReasons={blockedReasons}
+                            overlapInvalidReason="Your booking would include blocked dates. Pick another check-in or check-out."
+                            isOverlapInvalid={isCheckOutOverlapInvalid}
+                            {...(stayRangeModifiers
+                              ? {
+                                  modifiers: stayRangeModifiers,
+                                  modifiersClassNames:
+                                    BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
+                                }
+                              : {})}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </div>
+
+                  {(dateError || dateRangeErrorMessage) && (
+                    <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                      {dateError ?? dateRangeErrorMessage}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 justify-end pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingDates(false);
+                        setTempCheckIn(check_in);
+                        setTempCheckOut(check_out);
+                        setOpenCalendarField(null);
+                        setDateError(null);
+                      }}
+                      className="px-4 py-2 text-sm text-ink-soft hover:bg-sage-muted rounded-md transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isDateRangeInvalid}
+                      className="px-4 py-2 text-sm text-cream rounded-md transition-colors bg-sea hover:bg-forest disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-sea"
+                    >
+                      Save Dates
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  {bookingType === "room" && (
+                    <div>
+                      <p className={labelClass}>Nights</p>
+                      <p className="mt-1 font-medium">
+                        {days ?? "—"} {pluralize(days, "night")}
+                      </p>
+                    </div>
+                  )}
+                  {bookingType === "venue" && (
+                    <div>
+                      <p className={labelClass}>Days</p>
+                      <p className="mt-1 font-medium">
+                        {days ?? "—"} {pluralize(days, "day")}
+                      </p>
+                    </div>
+                  )}
+                  {bookingType === "both" && (
+                    <div>
+                      <p className={labelClass}>Nights</p>
+                      <p className="mt-1 font-medium">
+                        {days ?? "—"} {pluralize(days, "night")}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <p className={labelClass}>
+                      {bookingType === "venue" ? "Event Day" : "Check-in"}
+                    </p>
+                    <p className="mt-1 font-medium text-sea">
+                      {check_in ? `${check_in}` : "—"}
+                    </p>
+                    <p className="text-xs text-ink-soft mt-0.5">
+                      {bookingType === "venue" ? VENUE_CHECK_IN : ROOM_CHECK_IN}
+                    </p>
+                  </div>
+                  {bookingType !== "venue" && (
+                    <div>
+                      <p className={labelClass}>Check-out</p>
+                      <p className="mt-1 font-medium text-sea">
+                        {check_out ? `${check_out}` : "—"}
+                      </p>
+                      <p className="text-xs text-ink-soft mt-0.5">
+                        {ROOM_CHECK_OUT}
+                      </p>
+                    </div>
+                  )}
+                  {bookingType === "venue" && (
+                    <div>
+                      <p className={labelClass}>Check-out</p>
+                      <p className="mt-1 font-medium text-sea">
+                        {check_out ? `${check_out}` : "—"}
+                      </p>
+                      <p className="text-xs text-ink-soft mt-0.5">
+                        {VENUE_CHECK_IN}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Show availability for the selected dates! */}
+              {editingDates && bookingType !== "venue" && (
+                <div className="mt-6 pt-4 border-t border-sand-dark/25">
+                  {roomsLoading ? (
+                    <div className="text-sm text-ink-soft flex items-center gap-2">
+                      <span className="w-4 h-4 rounded-full border-2 border-sea border-t-transparent animate-spin" />{" "}
+                      Gathering availability...
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm font-medium text-sea bg-sage-muted w-fit px-3 py-1.5 rounded-full border border-sage-muted">
+                        <CheckCircle2 className="w-4 h-4" />
+                        {totalBookableUnitsHint}{" "}
+                        {pluralize(totalBookableUnitsHint, "room")} available
+                        for these dates.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Rooms Section */}
+          {hasRooms && (
+            <div
+              className="border bg-white shadow-sm overflow-hidden"
+              style={cardBorder}
+            >
+              <div className="px-5 py-3.5 font-semibold text-cream flex justify-between items-center bg-sea">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <HousePlus className="w-5 h-5" />
+                    <span className="whitespace-nowrap truncate">
+                      Selected Rooms
+                    </span>
+                  </div>
+                  <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full inline-flex items-center whitespace-nowrap leading-none">
+                    {rooms.length} {pluralize(rooms.length, "room")}
+                  </span>
+                </div>
+
+                {bookingType !== "venue" && setSelectedRooms && (
+                  <Popover open={openAddRoom} onOpenChange={setOpenAddRoom}>
+                    <PopoverTrigger asChild>
+                      <button className="py-1 px-2 hover:bg-white/20 rounded-md transition-colors text-white flex items-center gap-1 text-xs">
+                        <Plus className="w-3.5 h-3.5" /> Add Room
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="p-3 w-80">
+                      <div className="space-y-3">
+                        <p className="text-sm font-semibold text-ink">
+                          Add a room:
+                        </p>
+                        <div className="space-y-2 max-h-80 overflow-y-auto">
+                          {addRoomInventoryGroupsNotYetSelected.length > 0 ? (
+                            addRoomInventoryGroupsNotYetSelected.map((g) => {
+                              const rep = g.pool[0];
+                              const prices = g.pool.map(
+                                (r: any) => Number(r.price) || 0,
+                              );
+                              const minP = Math.min(...prices);
+                              const maxP = Math.max(...prices);
+                              const sameP = minP === maxP;
+                              const caps = g.pool
+                                .map((r: any) => Number(r.capacity))
+                                .filter(
+                                  (n: number) => !Number.isNaN(n) && n > 0,
+                                );
+                              const capLine =
+                                caps.length > 0
+                                  ? (() => {
+                                      const minC = Math.min(...caps);
+                                      const maxC = Math.max(...caps);
+                                      const gw =
+                                        maxC === 1 ? "guest" : "guests";
+                                      return minC === maxC
+                                        ? `${maxC} ${gw}`
+                                        : `${minC}–${maxC} ${gw}`;
+                                    })()
+                                  : null;
+                              const selectedInGroup = rooms.filter((r: any) =>
+                                roomMatchesSubgroup(
+                                  r,
+                                  g.type,
+                                  g.inventoryGroupKey,
+                                ),
+                              ).length;
+                              const maxAdd = effectiveMaxUnitsForSubgroup(
+                                g.pool.length,
+                                inventoryGroupAvailability,
+                                g.type,
+                                g.inventoryGroupKey,
+                              );
+                              const canAddMore = selectedInGroup < maxAdd;
+
+                              return (
+                                <button
+                                  key={`${g.type}:${g.inventoryGroupKey}`}
+                                  type="button"
+                                  disabled={!canAddMore}
+                                  title={
+                                    !canAddMore
+                                      ? "No more units available in this group for these dates."
+                                      : undefined
+                                  }
+                                  onClick={() => {
+                                    setQuantityForSubgroup(
+                                      g.type,
+                                      g.inventoryGroupKey,
+                                      selectedInGroup + 1,
+                                    );
+                                    setOpenAddRoom(false);
+                                  }}
+                                  className="w-full text-left p-2 rounded-md border border-sand-dark/35 transition enabled:hover:bg-sage-50 enabled:hover:border-sage-300 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  <p className="text-sm font-semibold text-ink leading-snug">
+                                    {roomTypeAndBedTitle(rep)}
+                                  </p>
+                                  <p className="text-xs text-ink-soft mt-1">
+                                    {capLine && <span>{capLine} • </span>}
+                                    <span className="font-medium text-sea">
+                                      {sameP ? (
+                                        <>
+                                          {pricingFormat(minP)}
+                                          /night
+                                        </>
+                                      ) : (
+                                        <>
+                                          {pricingFormat(minP)} –{" "}
+                                          {pricingFormat(maxP)}/night
+                                        </>
+                                      )}
+                                    </span>
+                                  </p>
+                                </button>
+                              );
+                            })
+                          ) : (
+                            <p className="text-sm text-ink-soft">
+                              {roomsLoading
+                                ? "Loading…"
+                                : addRoomInventoryGroups.length === 0
+                                  ? "No room groups available to add for these dates."
+                                  : "Every group is already in your selection above. Use +/− on each row to change quantities."}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 )}
+              </div>
 
-									<div className="flex gap-2 justify-end pt-2">
-										<button
-											type="button"
-											onClick={() => {
-												setEditingDates(false);
-												setTempCheckIn(check_in);
-												setTempCheckOut(check_out);
-												setOpenCalendarField(null);
-												setDateError(null);
-											}}
-											className="px-4 py-2 text-sm text-ink-soft hover:bg-sage-muted rounded-md transition-colors">
-											Cancel
-										</button>
-										<button
-											type="submit"
-											className="px-4 py-2 text-sm text-cream rounded-md transition-colors bg-sea hover:bg-forest">
-											Save Dates
-										</button>
-									</div>
-								</form>
-							) : (
-								<div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-									{bookingType !== "venue" && (
-										<div>
-											<p className={labelClass}>Nights</p>
-											<p className="mt-1 font-medium">
-												{days ?? "—"} {pluralize(days, "night")}
-											</p>
-										</div>
-									)}
-									<div>
-										<p className={labelClass}>
-											{bookingType === "venue" ? "Event Day" : "Check-in"}
-										</p>
-										<p className="mt-1 font-medium text-sea">
-											{check_in ? `${check_in}` : "—"}
-										</p>
-										<p className="text-xs text-ink-soft mt-0.5">
-										{bookingType === "venue"
-										? VENUE_CHECK_IN
-										: ROOM_CHECK_IN}
-										</p>
-									</div>
-									{bookingType !== "venue" && (
-										<div>
-											<p className={labelClass}>Check-out</p>
-											<p className="mt-1 font-medium text-sea">
-												{check_out ? `${check_out}` : "—"}
-											</p>
-											<p className="text-xs text-ink-soft mt-0.5">
-												{ROOM_CHECK_OUT}
-											</p>
-										</div>
-									)}
-								</div>
-							)}
+              <div className="divide-y divide-sand-dark/25">
+                {groupedRoomRows.map((group) => {
+                  const rep = group.groupRooms[0];
+                  const selectedCount = group.groupRooms.length;
+                  const nightlySelectedSubtotal = calculateTotalPrice(
+                    group.groupRooms,
+                  );
+                  const bookingSubtotal = nightlySelectedSubtotal * safeNights;
+                  const pool = availableRoomsList
+                    .filter(
+                      (r: any) =>
+                        normalizeRoomTypeSlug(r.type) === group.type &&
+                        roomInventoryGroupKey(r) === group.inventoryGroupKey &&
+                        isRoomInventoryAvailable(r),
+                    )
+                    .sort((a: any, b: any) => a.id - b.id);
+                  const maxAvailable = effectiveMaxUnitsForSubgroup(
+                    pool.length,
+                    inventoryGroupAvailability,
+                    group.type,
+                    group.inventoryGroupKey,
+                  );
+                  const prices = pool.map((r: any) => Number(r.price) || 0);
+                  const minPrice = prices.length ? Math.min(...prices) : 0;
+                  const maxPrice = prices.length ? Math.max(...prices) : 0;
+                  const samePrice = minPrice === maxPrice;
+                  const capLine = capacityLineForGroup(group.groupRooms);
+                  const canInc = selectedCount < maxAvailable;
+                  const canDec =
+                    canDecrementRooms(selectedCount) && selectedCount > 0;
 
-							{/* Show availability for the selected dates! */}
-							{editingDates && bookingType !== "venue" && (
-								<div className="mt-6 pt-4 border-t border-sand-dark/25">
-									{roomsLoading ? (
-										<div className="text-sm text-ink-soft flex items-center gap-2">
-											<span className="w-4 h-4 rounded-full border-2 border-sea border-t-transparent animate-spin" />{" "}
-											Gathering availability...
-										</div>
-									) : (
-										<div className="space-y-3">
-											<div className="flex items-center gap-2 text-sm font-medium text-sea bg-sage-muted w-fit px-3 py-1.5 rounded-full border border-sage-muted">
-												<CheckCircle2 className="w-4 h-4" />
-												{totalBookableUnitsHint}{" "}
-												{pluralize(totalBookableUnitsHint, "room")} available
-												for these dates.
-											</div>
-										</div>
-									)}
-								</div>
-							)}
-						</div>
-					</div>
+                  return (
+                    <div
+                      key={`${group.type}:${group.inventoryGroupKey}`}
+                      className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <h4 className="text-lg font-semibold text-ink truncate">
+                          {roomTypeAndBedTitle(rep)}
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm pt-0.5">
+                          {capLine && (
+                            <span className="text-ink-soft px-1.5 py-[1px] border border-sand-dark/35 rounded bg-sand text-xs font-medium">
+                              {capLine}
+                            </span>
+                          )}
+                          <span className="font-medium text-sea">
+                            {samePrice ? (
+                              pricingFormat(minPrice)
+                            ) : (
+                              <>
+                                {pricingFormat(minPrice)}
+                                <span className="font-normal text-ink-soft hover:text-ink-soft">
+                                  {" "}
+                                  – {pricingFormat(maxPrice)}
+                                </span>
+                              </>
+                            )}
+                            <span className="text-ink-soft font-normal">
+                              {" "}
+                              / night
+                            </span>
+                          </span>
+                        </div>
 
-					{/* Rooms Section */}
-					{hasRooms && (
-						<div
-							className="border bg-white shadow-sm overflow-hidden"
-							style={cardBorder}>
-							<div className="px-5 py-3.5 font-semibold text-cream flex justify-between items-center bg-sea">
-								<div className="flex items-center gap-3 min-w-0">
-									<div className="flex items-center gap-2 min-w-0">
-										<HousePlus className="w-5 h-5" />
-										<span className="whitespace-nowrap truncate">
-											Selected Rooms
-										</span>
-									</div>
-									<span className="text-xs bg-white/20 px-2 py-0.5 rounded-full inline-flex items-center whitespace-nowrap leading-none">
-										{rooms.length} {pluralize(rooms.length, "room")}
-									</span>
-								</div>
+                        {bookingType !== "venue" && (
+                          <div className="w-fit mt-1.5 px-3 py-1.5 rounded-md bg-sand border border-sand-dark/35 text-xs text-ink-soft whitespace-nowrap">
+                            <span className="font-semibold text-ink">
+                              {safeNights} {pluralize(safeNights, "night")}
+                            </span>{" "}
+                            × {pricingFormat(nightlySelectedSubtotal)} ={" "}
+                            <span className="font-semibold text-ink">
+                              {pricingFormat(bookingSubtotal)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
 
-								{bookingType !== "venue" && setSelectedRooms && (
-									<Popover open={openAddRoom} onOpenChange={setOpenAddRoom}>
-										<PopoverTrigger asChild>
-											<button className="py-1 px-2 hover:bg-white/20 rounded-md transition-colors text-white flex items-center gap-1 text-xs">
-												<Plus className="w-3.5 h-3.5" /> Add Room
-											</button>
-										</PopoverTrigger>
-										<PopoverContent align="end" className="p-3 w-80">
-											<div className="space-y-3">
-												<p className="text-sm font-semibold text-ink">
-													Add a room:
-												</p>
-												<div className="space-y-2 max-h-80 overflow-y-auto">
-													{addRoomInventoryGroupsNotYetSelected.length > 0 ? (
-														addRoomInventoryGroupsNotYetSelected.map((g) => {
-															const rep = g.pool[0];
-															const prices = g.pool.map(
-																(r: any) => Number(r.price) || 0,
-															);
-															const minP = Math.min(...prices);
-															const maxP = Math.max(...prices);
-															const sameP = minP === maxP;
-															const caps = g.pool
-																.map((r: any) => Number(r.capacity))
-																.filter(
-																	(n: number) => !Number.isNaN(n) && n > 0,
-																);
-															const capLine =
-																caps.length > 0
-																	? (() => {
-																			const minC = Math.min(...caps);
-																			const maxC = Math.max(...caps);
-																			const gw =
-																				maxC === 1 ? "guest" : "guests";
-																			return minC === maxC
-																				? `${maxC} ${gw}`
-																				: `${minC}–${maxC} ${gw}`;
-																		})()
-																	: null;
-															const selectedInGroup = rooms.filter((r: any) =>
-																roomMatchesSubgroup(
-																	r,
-																	g.type,
-																	g.inventoryGroupKey,
-																),
-															).length;
-															const maxAdd = effectiveMaxUnitsForSubgroup(
-																g.pool.length,
-																inventoryGroupAvailability,
-																g.type,
-																g.inventoryGroupKey,
-															);
-															const canAddMore = selectedInGroup < maxAdd;
+                      <div className="flex shrink-0 items-center gap-2 border-t sm:border-none pt-3 sm:pt-0">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted h-9 w-9"
+                          disabled={!canDec}
+                          onClick={() =>
+                            setQuantityForSubgroup(
+                              group.type,
+                              group.inventoryGroupKey,
+                              selectedCount - 1,
+                            )
+                          }
+                          aria-label={`Remove one ${roomTypeAndBedTitle(rep)}`}
+                        >
+                          <Minus className="size-4" />
+                        </Button>
+                        <span
+                          className="min-w-10 text-center font-display text-lg font-semibold tabular-nums text-ink"
+                          aria-live="polite"
+                        >
+                          {selectedCount}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className={cn(
+                            "border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted h-9 w-9",
+                            canInc &&
+                              "border-sea/40 hover:border-sea/60 hover:bg-sage-muted",
+                          )}
+                          disabled={!canInc}
+                          onClick={() =>
+                            setQuantityForSubgroup(
+                              group.type,
+                              group.inventoryGroupKey,
+                              selectedCount + 1,
+                            )
+                          }
+                          aria-label={`Add one ${roomTypeAndBedTitle(rep)}`}
+                        >
+                          <Plus className="size-4 text-sea" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-															return (
-																<button
-																	key={`${g.type}:${g.inventoryGroupKey}`}
-																	type="button"
-																	disabled={!canAddMore}
-																	title={
-																		!canAddMore
-																			? "No more units available in this group for these dates."
-																			: undefined
-																	}
-																	onClick={() => {
-																		setQuantityForSubgroup(
-																			g.type,
-																			g.inventoryGroupKey,
-																			selectedInGroup + 1,
-																		);
-																		setOpenAddRoom(false);
-																	}}
-																	className="w-full text-left p-2 rounded-md border border-sand-dark/35 transition enabled:hover:bg-sage-50 enabled:hover:border-sage-300 disabled:cursor-not-allowed disabled:opacity-50">
-																	<p className="text-sm font-semibold text-ink leading-snug">
-																		{roomTypeAndBedTitle(rep)}
-																	</p>
-																	<p className="text-xs text-ink-soft mt-1">
-																		{capLine && <span>{capLine} • </span>}
-																		<span className="font-medium text-sea">
-																			{sameP ? (
-																				<>
-																					{pricingFormat(minP)}
-																					/night
-																				</>
-																			) : (
-																				<>
-																					{pricingFormat(minP)} –{" "}
-																					{pricingFormat(maxP)}/night
-																				</>
-																			)}
-																		</span>
-																	</p>
-																</button>
-															);
-														})
-													) : (
-														<p className="text-sm text-ink-soft">
-															{roomsLoading
-																? "Loading…"
-																: addRoomInventoryGroups.length === 0
-																	? "No room groups available to add for these dates."
-																	: "Every group is already in your selection above. Use +/− on each row to change quantities."}
-														</p>
-													)}
-												</div>
-											</div>
-										</PopoverContent>
-									</Popover>
-								)}
-							</div>
+          {/* Venues Section */}
+          {hasVenues && (
+            <div
+              className="border bg-white shadow-sm overflow-hidden"
+              style={cardBorder}
+            >
+              <div className="px-5 py-3.5 font-semibold text-cream flex justify-between items-center bg-sea">
+                <span>Selected Venues</span>
+                <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                  {venues.length}
+                </span>
+              </div>
+              <div className="divide-y divide-sand-dark/25">
+                {venues.map((venue: any, index: number) => (
+                  <div
+                    key={index}
+                    className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  >
+                    <div className="space-y-1">
+                      <span className="font-semibold text-ink text-lg">
+                        {venue.name || "—"}
+                      </span>
+                      <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-soft pt-1">
+                        {venue.capacity && (
+                          <span>Up to {venue.capacity} persons</span>
+                        )}
+                        <span className="font-medium text-sea">
+                          {pricingFormat(
+                            venueEffectiveUnitPrice(
+                              venue,
+                              formData.venue_event_type || "wedding",
+                            ),
+                          )}
+                        </span>
+                      </div>
+                    </div>
 
-							<div className="divide-y divide-sand-dark/25">
-								{groupedRoomRows.map((group) => {
-									const rep = group.groupRooms[0];
-									const selectedCount = group.groupRooms.length;
-									const nightlySelectedSubtotal = calculateTotalPrice(
-										group.groupRooms,
-									);
-									const bookingSubtotal = nightlySelectedSubtotal * safeNights;
-									const pool = availableRoomsList
-										.filter(
-											(r: any) =>
-												normalizeRoomTypeSlug(r.type) === group.type &&
-												roomInventoryGroupKey(r) === group.inventoryGroupKey &&
-												isRoomInventoryAvailable(r),
-										)
-										.sort((a: any, b: any) => a.id - b.id);
-									const maxAvailable = effectiveMaxUnitsForSubgroup(
-										pool.length,
-										inventoryGroupAvailability,
-										group.type,
-										group.inventoryGroupKey,
-									);
-									const prices = pool.map((r: any) => Number(r.price) || 0);
-									const minPrice = prices.length ? Math.min(...prices) : 0;
-									const maxPrice = prices.length ? Math.max(...prices) : 0;
-									const samePrice = minPrice === maxPrice;
-									const capLine = capacityLineForGroup(group.groupRooms);
-									const canInc = selectedCount < maxAvailable;
-									const canDec =
-										canDecrementRooms(selectedCount) && selectedCount > 0;
+                    <button
+                      type="button"
+                      disabled={!canRemoveVenue}
+                      title={
+                        !canRemoveVenue
+                          ? "At least one venue must stay selected for this booking."
+                          : undefined
+                      }
+                      onClick={() => handleDeleteVenue(index)}
+                      className="w-full sm:w-auto flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 rounded-md transition disabled:pointer-events-none disabled:opacity-45"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
-									return (
-										<div
-											key={`${group.type}:${group.inventoryGroupKey}`}
-											className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-											<div className="space-y-1.5 flex-1 min-w-0">
-												<h4 className="text-lg font-semibold text-ink truncate">
-													{roomTypeAndBedTitle(rep)}
-												</h4>
-												<div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm pt-0.5">
-													{capLine && (
-														<span className="text-ink-soft px-1.5 py-[1px] border border-sand-dark/35 rounded bg-sand text-xs font-medium">
-															{capLine}
-														</span>
-													)}
-													<span className="font-medium text-sea">
-														{samePrice ? (
-															pricingFormat(minPrice)
-														) : (
-															<>
-																{pricingFormat(minPrice)}
-																<span className="font-normal text-ink-soft hover:text-ink-soft">
-																	{" "}
-																	– {pricingFormat(maxPrice)}
-																</span>
-															</>
-														)}
-														<span className="text-ink-soft font-normal">
-															{" "}
-															/ night
-														</span>
-													</span>
-												</div>
+        {/* Sidebar Summary Placeholder / Order Totals */}
+        <div className="h-fit sticky top-24 bg-sage-muted/70 border border-sage-muted/50 p-6">
+          <h3 className="font-display font-semibold text-xl mb-4 text-ink border-b pb-3">
+            Booking Summary
+          </h3>
 
-												{bookingType !== "venue" && (
-													<div className="w-fit mt-1.5 px-3 py-1.5 rounded-md bg-sand border border-sand-dark/35 text-xs text-ink-soft whitespace-nowrap">
-														<span className="font-semibold text-ink">
-															{safeNights} {pluralize(safeNights, "night")}
-														</span>{" "}
-														× {pricingFormat(nightlySelectedSubtotal)} ={" "}
-														<span className="font-semibold text-ink">
-															{pricingFormat(bookingSubtotal)}
-														</span>
-													</div>
-												)}
-											</div>
+          <div className="space-y-3 mb-6 text-sm">
+            {bookingType !== "venue" && hasRooms && (
+              <div className="flex justify-between">
+                <span className="text-ink-soft">
+                  Rooms ({days} {pluralize(days, "night")})
+                </span>
+                <span className="font-medium text-ink">
+                  {pricingFormat(calculateTotalPrice(rooms) * days)}
+                </span>
+              </div>
+            )}
+            {(bookingType === "venue" || bookingType === "both") &&
+              hasVenues && (
+                <div className="flex justify-between">
+                  <span className="text-ink-soft">Venues</span>
+                  <span className="font-medium text-ink">
+                    {pricingFormat(
+                      calculateVenuesLineTotal(
+                        venues,
+                        formData.venue_event_type || "wedding",
+                      ) * (bookingType === "both" ? days : 1),
+                    )}
+                  </span>
+                </div>
+              )}
+          </div>
 
-											<div className="flex shrink-0 items-center gap-2 border-t sm:border-none pt-3 sm:pt-0">
-												<Button
-													type="button"
-													variant="outline"
-													size="icon"
-													className="border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted h-9 w-9"
-													disabled={!canDec}
-													onClick={() =>
-														setQuantityForSubgroup(
-															group.type,
-															group.inventoryGroupKey,
-															selectedCount - 1,
-														)
-													}
-													aria-label={`Remove one ${roomTypeAndBedTitle(rep)}`}>
-													<Minus className="size-4" />
-												</Button>
-												<span
-													className="min-w-10 text-center font-display text-lg font-semibold tabular-nums text-ink"
-													aria-live="polite">
-													{selectedCount}
-												</span>
-												<Button
-													type="button"
-													variant="outline"
-													size="icon"
-													className={cn(
-														"border-sand-dark/35 bg-white shadow-sm hover:bg-sage-muted h-9 w-9",
-														canInc &&
-															"border-sea/40 hover:border-sea/60 hover:bg-sage-muted",
-													)}
-													disabled={!canInc}
-													onClick={() =>
-														setQuantityForSubgroup(
-															group.type,
-															group.inventoryGroupKey,
-															selectedCount + 1,
-														)
-													}
-													aria-label={`Add one ${roomTypeAndBedTitle(rep)}`}>
-													<Plus className="size-4 text-sea" />
-												</Button>
-											</div>
-										</div>
-									);
-								})}
-							</div>
-						</div>
-					)}
-
-					{/* Venues Section */}
-					{hasVenues && (
-						<div
-							className="border bg-white shadow-sm overflow-hidden"
-							style={cardBorder}>
-							<div className="px-5 py-3.5 font-semibold text-cream flex justify-between items-center bg-sea">
-								<span>Selected Venues</span>
-								<span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
-									{venues.length}
-								</span>
-							</div>
-							<div className="divide-y divide-sand-dark/25">
-								{venues.map((venue: any, index: number) => (
-									<div
-										key={index}
-										className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-										<div className="space-y-1">
-											<span className="font-semibold text-ink text-lg">
-												{venue.name || "—"}
-											</span>
-											<div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-soft pt-1">
-												{venue.capacity && (
-													<span>Up to {venue.capacity} persons</span>
-												)}
-												<span className="font-medium text-sea">
-													{pricingFormat(
-														venueEffectiveUnitPrice(
-															venue,
-															formData.venue_event_type || "wedding",
-														),
-													)}
-												</span>
-											</div>
-										</div>
-
-										<button
-											type="button"
-											disabled={!canRemoveVenue}
-											title={
-												!canRemoveVenue
-													? "At least one venue must stay selected for this booking."
-													: undefined
-											}
-											onClick={() => handleDeleteVenue(index)}
-											className="w-full sm:w-auto flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 rounded-md transition disabled:pointer-events-none disabled:opacity-45">
-											<Trash2 className="w-3.5 h-3.5" /> Remove
-										</button>
-									</div>
-								))}
-							</div>
-						</div>
-					)}
-				</div>
-
-				{/* Sidebar Summary Placeholder / Order Totals */}
-				<div className="h-fit sticky top-24 bg-sage-muted/70 border border-sage-muted/50 p-6">
-					<h3 className="font-display font-semibold text-xl mb-4 text-ink border-b pb-3">
-						Booking Summary
-					</h3>
-
-					<div className="space-y-3 mb-6 text-sm">
-						{bookingType !== "venue" && hasRooms && (
-							<div className="flex justify-between">
-								<span className="text-ink-soft">
-									Rooms ({days} {pluralize(days, "night")})
-								</span>
-								<span className="font-medium text-ink">
-									{pricingFormat(calculateTotalPrice(rooms) * days)}
-								</span>
-							</div>
-						)}
-						{(bookingType === "venue" || bookingType === "both") &&
-							hasVenues && (
-								<div className="flex justify-between">
-									<span className="text-ink-soft">Venues</span>
-									<span className="font-medium text-ink">
-										{pricingFormat(
-											calculateVenuesLineTotal(
-												venues,
-												formData.venue_event_type || "wedding",
-											) * (bookingType === "both" ? days : 1),
-										)}
-									</span>
-								</div>
-							)}
-					</div>
-
-					<div className="border-t border-sand-dark/35 pt-4 flex justify-between items-end">
-						<span className="text-ink-soft font-medium">Total</span>
-						<span className="text-2xl font-bold text-ink">
-							{pricingFormat(formData.grandTotalPrice ?? 0)}
-						</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+          <div className="border-t border-sand-dark/35 pt-4 flex justify-between items-end">
+            <span className="text-ink-soft font-medium">Total</span>
+            <span className="text-2xl font-bold text-ink">
+              {pricingFormat(formData.grandTotalPrice ?? 0)}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
