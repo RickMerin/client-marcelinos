@@ -177,9 +177,12 @@ function EventVenues() {
               ))}
             </div>
 
-            <a href="/venues" className="btn-primary-mockup">
+            <button
+              onClick={() => navigate("/venues")}
+              className="btn-primary-mockup"
+            >
               Inquire About Venues
-            </a>
+            </button>
           </div>
 
           {/* Right: venue cards */}

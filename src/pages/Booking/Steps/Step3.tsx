@@ -249,24 +249,17 @@ export function Step3({
 
   /** Check if a date would be disabled for check-in */
   const isCheckInDisabled = (date: Date): boolean => {
-    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    if (d < todayStart) return true;
-    if (blockedDates.some((b) => toDayKey(b) === toDayKey(d))) return true;
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-    // If checkout is set, check that checkin is before checkout
-    if (tempCheckOut) {
-      const coDate = new Date(tempCheckOut);
-      const coD = startOfDay(coDate);
-      const numNights = diffDays(d, coD);
-      if (numNights < 0) return true;
-    }
+  // disable past dates
+  if (d < todayStart) return true;
 
-    // Check for overlap with blocked dates
-    const numNights = tempCheckOut
-      ? diffDays(d, startOfDay(new Date(tempCheckOut)))
-      : 0;
-    return stayOverlapsBlocked(d, Math.max(0, numNights), blockedDates);
-  };
+  // disable blocked dates
+  if (blockedDates.some((b) => toDayKey(b) === toDayKey(d))) return true;
+
+  // allow all future dates
+  return false;
+};
 
   /** Check if a date would be disabled for check-out */
   const isCheckOutDisabled = (date: Date): boolean => {

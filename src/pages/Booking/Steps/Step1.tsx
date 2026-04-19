@@ -364,9 +364,9 @@ export function Step1({
   const staySameDay = sameCalendarDay(checkIn, checkOut);
   const staySpanDaysRaw = diffDaysBetweenDateStrings(checkIn, checkOut);
   const nightCount =
-    staySpanDaysRaw === null ? null : Math.max(0, staySpanDaysRaw);
+  staySpanDaysRaw === null ? null : Math.max(0, staySpanDaysRaw);
   const dayCountVenueOnly =
-    staySpanDaysRaw === null ? null : Math.max(1, staySpanDaysRaw);
+  staySpanDaysRaw === null ? null : Math.max(1, staySpanDaysRaw + 1);
 
   const stepTitle =
     bookingType === "venue"
