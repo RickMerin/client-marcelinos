@@ -100,10 +100,10 @@ export function BannerCarousel() {
 											transition={{ duration: 0.8, delay: 0.4 }}
 											className="
 												text-base md:text-lg leading-relaxed 
-												text-cream max-w-[520px] mb-5 italic
+												text-cream max-w-[450px] mb-5 italic
 
 												bg-white/0.5 backdrop-blur-sm
-												px-2 py-2 rounded-2xl md:rounded-3xl
+												px-2 py-2 rounded-2xl md:rounded-lg
 												shadow-[0_8px_30px_rgba(0,0,0,0.08)]
 
 												[mask-image:radial-gradient(ellipse_90%_70%_at_center,black_55%,transparent_100%)]
