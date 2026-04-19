@@ -77,12 +77,13 @@ export function BannerCarousel() {
 										<div className="max-w-[720px]">
 											{/* Eyebrow */}
 											<motion.p
-												variants={fadeUp}
-												transition={{ duration: 0.8, ease: "easeOut" }}
-												className="flex items-center gap-3.5 text-[13px] tracking-[0.25em] uppercase text-gold-light  font-medium mb-4">
-												<span className="block w-9 h-[1.5px] bg-gold-light shrink-0" />
-												Hilongos, Leyte, Philippines
-												<span className="block w-9 h-[1.5px] bg-gold-light shrink-0" />
+											variants={fadeUp}
+											transition={{ duration: 0.8, ease: "easeOut" }}
+											className="flex items-center justify-center lg:justify-start gap-3.5 text-[10px] tracking-[0.25em] uppercase text-gold-light font-medium mb-4 text-center lg:text-left"
+											>
+											<span className="block w-9 h-[1.5px] bg-gold-light shrink-0" />
+											Hilongos, Leyte, Philippines
+											<span className="block w-9 h-[1.5px] bg-gold-light shrink-0" />
 											</motion.p>
 
 											{/* Title */}
@@ -95,31 +96,46 @@ export function BannerCarousel() {
 												COMFORTABLE
 											</motion.h1>
 											<motion.p
-												variants={fadeUp}
-												transition={{ duration: 0.8, delay: 0.4 }}
-												className="text-base md:text-lg leading-relaxed text-cream/85 max-w-[480px] mb-5 italic">
-												Experience refined comfort in thoughtfully designed
-												rooms, complemented by quality amenities and warm
-												hospitality.
-											</motion.p>
+  variants={fadeUp}
+  transition={{ duration: 0.8, delay: 0.4 }}
+  className="
+    text-base md:text-lg leading-relaxed 
+    text-cream max-w-[520px] mb-5 italic
 
+    bg-white/0.5 backdrop-blur-sm
+    px-2 py-2 rounded-2xl md:rounded-3xl
+	shadow-[0_8px_30px_rgba(0,0,0,0.08)]
+
+    [mask-image:radial-gradient(ellipse_90%_70%_at_center,black_55%,transparent_100%)]
+    [-webkit-mask-image:radial-gradient(ellipse_90%_70%_at_center,black_55%,transparent_100%)]
+  "
+>
+  Experience refined comfort in thoughtfully designed
+  rooms, complemented by quality amenities and warm
+  hospitality.
+</motion.p>
 											{/* Actions */}
 											<motion.div
 												variants={fadeUp}
 												transition={{ duration: 0.7, delay: 0.6 }}
-												className="flex items-center flex-wrap gap-6 max-md:flex-col max-md:items-start max-md:gap-5 mt-2">
+												className="flex flex-wrap gap-4 
+															max-md:flex-col 
+															max-md:items-center mt-4"
+												>
 												<a
 													href="#rooms"
-													className="btn-primary-mockup max-md:w-full max-md:text-center">
+													className="btn-primary-mockup w-fit min-w-[200px] text-center text-sm py-3 px-6"
+												>
 													Explore Rooms
 												</a>
 
 												<a
 													href="#venues"
-													className="btn-outline-hero-secondary max-md:w-full max-md:text-center">
+													className="btn-outline-hero-secondary w-fit min-w-[200px] text-center text-sm py-3 px-6"
+												>
 													View Venues
 												</a>
-											</motion.div>
+												</motion.div>
 										</div>
 									</motion.div>
 								)}

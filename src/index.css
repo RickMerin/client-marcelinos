@@ -641,7 +641,7 @@
   color: var(--color-ink);
   padding: 0 clamp(28px, 6vw, 40px);
   font-family: var(--font-body);
-  font-size: clamp(12px, 1.13vw, 16px);
+  font-size: clamp(15px, 1.13vw, 16px);
   font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
