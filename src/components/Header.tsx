@@ -345,13 +345,13 @@ export default function Header() {
           <img
             src="/brand-logo.webp"
             alt="Marcelino's Logo"
-            className="h-12 w-12 object-contain"
+            className="h-11 w-11 object-contain drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]"
           />
-          <div className="ml-1 mt-1 leading-tight inline-block">
-            <div className="text-xs -mb-0.75 font-extrabold tracking-widest text-cream font-serif">
+          <div className=" mt-1 leading-tight inline-block text-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">
+            <div className="text-[0.9rem] -mb-0.75 font-extrabold tracking-widest text-cream font-serif">
               MARCELINO'S
             </div>
-            <div className="text-xs text-gold-light tracking-[0.15em] font-medium w-full text-center">
+            <div className="text-[0.9rem] text-gold-light tracking-[0.15em] font-medium w-full text-center">
               RESORT HOTEL
             </div>
           </div>
@@ -365,7 +365,7 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => handleNavClick(item.href)}
-                  className={`relative flex items-center text-[13px] font-medium tracking-[0.15em] uppercase transition-colors duration-300 whitespace-nowrap bg-transparent border-none cursor-pointer ${
+                  className={`relative flex items-center text-[13px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.7)] font-medium tracking-[0.15em] uppercase transition-colors duration-300 whitespace-nowrap bg-transparent border-none cursor-pointer ${
                     isActive(item.sectionId)
                       ? "text-gold-light"
                       : "text-cream/90 hover:text-gold-light"
@@ -391,7 +391,7 @@ export default function Header() {
                   className="relative z-10 text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
                   aria-label="View Cart"
                 >
-                  <Luggage className="w-5 h-5" strokeWidth={1.75} />
+                  <Luggage className="w-5 h-5 drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)]" strokeWidth={1.75} />
                   <span
                     className={`absolute -top-2 -right-3 flex min-h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[10px] font-bold tabular-nums ${
                       cartCount > 0
@@ -585,7 +585,7 @@ export default function Header() {
             className="relative z-10 text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
             aria-label="View Cart"
           >
-            <Luggage className="w-5 h-5" strokeWidth={1.75} />
+            <Luggage className="w-5 h-5 drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)]" strokeWidth={1.75}  />
             <span
               className={`absolute -top-2 -right-3 flex min-h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[10px] font-bold tabular-nums ${
                 cartCount > 0
@@ -598,7 +598,7 @@ export default function Header() {
           </button>
           {/* Hamburger */}
           <button
-            className="flex flex-col justify-center gap-[5px] w-8 h-8 bg-transparent border-none p-1 cursor-pointer z-210"
+            className="flex flex-col justify-center gap-[5px] w-8 h-8 bg-transparent border-none p-1 cursor-pointer z-210 drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]"
             onClick={() => setOpen((o) => !o)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}

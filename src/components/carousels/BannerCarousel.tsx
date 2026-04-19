@@ -96,24 +96,24 @@ export function BannerCarousel() {
 												COMFORTABLE
 											</motion.h1>
 											<motion.p
-  variants={fadeUp}
-  transition={{ duration: 0.8, delay: 0.4 }}
-  className="
-    text-base md:text-lg leading-relaxed 
-    text-cream max-w-[520px] mb-5 italic
+											variants={fadeUp}
+											transition={{ duration: 0.8, delay: 0.4 }}
+											className="
+												text-base md:text-lg leading-relaxed 
+												text-cream max-w-[520px] mb-5 italic
 
-    bg-white/0.5 backdrop-blur-sm
-    px-2 py-2 rounded-2xl md:rounded-3xl
-	shadow-[0_8px_30px_rgba(0,0,0,0.08)]
+												bg-white/0.5 backdrop-blur-sm
+												px-2 py-2 rounded-2xl md:rounded-3xl
+												shadow-[0_8px_30px_rgba(0,0,0,0.08)]
 
-    [mask-image:radial-gradient(ellipse_90%_70%_at_center,black_55%,transparent_100%)]
-    [-webkit-mask-image:radial-gradient(ellipse_90%_70%_at_center,black_55%,transparent_100%)]
-  "
->
-  Experience refined comfort in thoughtfully designed
-  rooms, complemented by quality amenities and warm
-  hospitality.
-</motion.p>
+												[mask-image:radial-gradient(ellipse_90%_70%_at_center,black_55%,transparent_100%)]
+												[-webkit-mask-image:radial-gradient(ellipse_90%_70%_at_center,black_55%,transparent_100%)]
+											"
+											>
+											Experience refined comfort in thoughtfully designed
+											rooms, complemented by quality amenities and warm
+											hospitality.
+											</motion.p>
 											{/* Actions */}
 											<motion.div
 												variants={fadeUp}
