@@ -341,7 +341,9 @@ const SinglePage = () => {
   const [isAddAnimating, setIsAddAnimating] = useState(false);
   const [isImageZoomOpen, setIsImageZoomOpen] = useState(false);
 
-  const images = roomImages(selectedItem as unknown as Record<string, unknown>);
+ const images = selectedItem
+  ? roomImages(selectedItem as unknown as Record<string, unknown>)
+  : [];
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const hasGallery = images.length > 1;
   const mainImage =
@@ -371,9 +373,11 @@ const SinglePage = () => {
   );
   void bedExtra;
 
-  const priceVal = isVenuePage
+const priceVal = selectedItem
+  ? isVenuePage
     ? venueStartingDisplayPrice(selectedItem as unknown as VenuePriceItem)
-    : Number(selectedItem?.price) || 0;
+    : Number(selectedItem.price) || 0
+  : 0;
   const propertyLocation = "Hilongos, Leyte, Philippines";
 
   const stayDatesLabel = useMemo(() => {
@@ -772,19 +776,19 @@ const SinglePage = () => {
         {isLoading ? (
           <SinglePageSkeleton />
         ) : error ? (
-          <div className="rounded-[4px] border border-red-200/60 bg-red-50 p-5 text-red-900 shadow-sm">
+          <div className="rounded-lg border border-red-200/60 bg-red-50 p-5 text-red-900 shadow-sm">
             Unable to load {availableLabel} right now. Please try again later.
           </div>
         ) : (
           <div className="space-y-14">
             {selectedItem && (
-              <div className="relative mx-auto w-full max-w-[1120px]" ref={detailRef}>
+              <div className="relative mx-auto w-full max-w-280" ref={detailRef}>
                 <div className="grid gap-5 lg:grid-cols-[1.35fr_0.95fr] items-stretch">
                   <div className="h-full flex flex-col">
                     {/* Gallery (match reference: big image + 3-up thumbnails) */}
-                    <div className="h-full flex flex-col rounded-[8px] bg-white border border-sand-dark/60 shadow-[0_8px_24px_rgba(15,31,26,0.08)] overflow-hidden">
+                    <div className="h-full flex flex-col rounded-xl bg-white border border-sand-dark/60 shadow-[0_8px_24px_rgba(15,31,26,0.08)] overflow-hidden">
                       <div
-                        className="relative flex-1 min-h-[220px] sm:min-h-[310px] w-full bg-sand cursor-zoom-in"
+                        className="relative flex-1 min-h-55 sm:min-h-77.5 w-full bg-sand cursor-zoom-in"
                         onClick={() => setIsImageZoomOpen(true)}
                       >
                         <div
@@ -792,7 +796,7 @@ const SinglePage = () => {
                           style={{ backgroundImage: `url(${mainImage})` }}
                         />
                         <div
-                          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-dark/65 via-dark/10 to-transparent"
+                          className="pointer-events-none absolute inset-0 bg-linear-to-t from-dark/65 via-dark/10 to-transparent"
                           aria-hidden
                         />
                         <div className="absolute bottom-2 right-2 z-10 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium text-ink shadow-sm">
@@ -850,7 +854,7 @@ const SinglePage = () => {
 
                   {/* Sticky sidebar panel (WordPress theme vibe) */}
                   <aside>
-                    <div className="h-full flex flex-col rounded-[8px] border border-sand-dark/60 bg-white p-4 md:p-5 shadow-[0_8px_24px_rgba(15,31,26,0.08)] space-y-3.5">
+                    <div className="h-full flex flex-col rounded-xl border border-sand-dark/60 bg-white p-4 md:p-5 shadow-[0_8px_24px_rgba(15,31,26,0.08)] space-y-3.5">
                       {selectedItem.type && (
                         <div className="inline-flex">
                           <RoomTypeBadge type={selectedItem.type} isTitle />
@@ -881,10 +885,38 @@ const SinglePage = () => {
                           </span>
                         )} */}
                       </div>
-                      <div className="font-semibold text-sea text-xl leading-none">
-                        {pricingFormat(priceVal)}
-                      </div>
-
+                     {isVenuePage ? (
+                        <div className="space-y-1 text-sm md:text-base">
+                          {selectedItem.wedding_price && (
+                            <div className="flex justify-between text-black">
+                              <span>Wedding:</span>
+                              <span className="font-semibold text-sea">
+                                {pricingFormat(Number(selectedItem.wedding_price))}
+                              </span>
+                            </div>
+                          )}
+                          {selectedItem.birthday_price && (
+                            <div className="flex justify-between text-black">
+                              <span>Birthday:</span>
+                              <span className="font-semibold text-sea">
+                                {pricingFormat(Number(selectedItem.birthday_price))}
+                              </span>
+                            </div>
+                          )}
+                          {selectedItem.meeting_staff_price && (
+                            <div className="flex justify-between text-black">
+                              <span>Seminar/Meeting:</span>
+                              <span className="font-semibold text-sea">
+                                {pricingFormat(Number(selectedItem.meeting_staff_price))}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="font-semibold text-sea text-xl leading-none">
+                          {pricingFormat(priceVal)}
+                        </div>
+                      )}
                       <div className="flex items-start gap-2 text-md md:text-sm text-black">
                         <MapPin className="h-4 w-4 mt-0.5" />
                         <span>{propertyLocation}</span>
@@ -940,7 +972,7 @@ const SinglePage = () => {
                         </div>
                       </div>
 
-                      <div className="rounded-[8px] bg-sand p-2.5 border border-sand-dark/60">
+                      <div className="rounded-xl bg-sand p-2.5 border border-sand-dark/60">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
                           Add to cart
                         </div>
@@ -1111,7 +1143,7 @@ const SinglePage = () => {
 
       {isImageZoomOpen && (
         <div
-          className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm p-4 md:p-10"
+          className="fixed inset-0 z-1000 bg-black/80 backdrop-blur-sm p-4 md:p-10"
           onClick={() => setIsImageZoomOpen(false)}
         >
           <button
