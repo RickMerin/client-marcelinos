@@ -317,11 +317,10 @@ function formatReceiptDate(value?: string, includeTime = true): string {
   });
 }
 
-/** Down payment deadline is always shown as 12:00 PM on the due date. */
+/** Formats `unpaid_expires_at` ISO (source of truth: Booking::unpaidExpiresAt, 9:00 PM Manila on check-in day). */
 function formatDownPaymentDeadline(value?: string): string {
   const parsed = parseDateInput(value);
   if (!parsed) return value ?? "—";
-  parsed.setHours(12, 0, 0, 0);
   return parsed.toLocaleString("en-PH", {
     year: "numeric",
     month: "long",
@@ -329,6 +328,7 @@ function formatDownPaymentDeadline(value?: string): string {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
+    timeZone: "Asia/Manila",
   });
 }
 
@@ -359,19 +359,28 @@ function leadDaysBetweenBookingAndCheckIn(
   return Math.round(diffMs / (86400 * 1000));
 }
 
-/** Matches backend Booking::unpaidExpiresAt when explicit ISO is omitted. */
+/** Fallback when API omits `unpaid_expires_at`: check-in calendar day at 21:00 local (align with Booking::unpaidExpiresAt). */
+function checkInDayNinePmLocal(checkInStr: string | undefined): Date | null {
+  const parsed = parseDateInput(checkInStr);
+  if (!parsed) return null;
+  return new Date(
+    parsed.getFullYear(),
+    parsed.getMonth(),
+    parsed.getDate(),
+    21,
+    0,
+    0,
+    0,
+  );
+}
+
 function computeUnpaidExpiresIso(
   explicit: string | null | undefined,
-  createdAtStr: string | undefined,
-  days: number,
+  checkInStr: string | undefined,
 ): string | null {
   if (explicit) return explicit;
-  const base = parseDateInput(createdAtStr);
-  if (!base) return null;
-  const d = new Date(base.getTime());
-  d.setDate(d.getDate() + days);
-  d.setHours(12, 0, 0, 0);
-  return d.toISOString();
+  const d = checkInDayNinePmLocal(checkInStr);
+  return d ? d.toISOString() : null;
 }
 
 function getNightsFromDates(
@@ -620,11 +629,9 @@ export function Step5(props: Props) {
 		Number(receipt?.balance ?? displayGrandTotal - amountPaid),
 	);
 
-  const unpaidExpiryDays = isFromApi ? (receipt?.unpaid_expiry_days ?? 3) : 3;
   const unpaidExpiresIso = computeUnpaidExpiresIso(
     isFromApi ? receipt?.unpaid_expires_at : undefined,
-    createdAt,
-    unpaidExpiryDays,
+    checkIn,
   );
   const minLeadDays =
     receipt?.down_payment_notice_min_lead_days ??
@@ -1064,11 +1071,10 @@ export function Step5(props: Props) {
 								{showLegacyThreeDayDepositBlock && (
 									<p className="text-amber-900/90 border-l-2 border-amber-500 pl-2 leading-relaxed">
 										<strong>Next step:</strong> Pay your deposit by{" "}
-										<strong>{formattedDownPaymentDue}</strong> (within{" "}
-										{unpaidExpiryDays} days of booking) so this reservation
+										<strong>{formattedDownPaymentDue}</strong> so this reservation
 										stays confirmed. The amounts and schedule are in the payment
-										summary. Unpaid bookings may be cancelled after the
-										deadline.
+										summary. Unpaid bookings may be cancelled after 9:00 PM
+										(Philippine time) on your check-in date if not settled.
 									</p>
 								)}
 								{showMessengerDepositBlock && (
@@ -1079,7 +1085,7 @@ export function Step5(props: Props) {
 											us on Facebook Messenger. Click the button below to open
 											the chat. Please attach your proof of payment in the
 											message so we can verify your deposit. Unpaid bookings may
-											be cancelled after 12:00 PM (Philippine time) on your
+											be cancelled after 9:00 PM (Philippine time) on your
 											check-in date if not settled.
 										</p>
 										<a

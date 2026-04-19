@@ -42,13 +42,13 @@ export interface BookingConflictResponse {
 
 /** API response shape for GET /bookings/receipt/:token or GET /bookings/reference/:reference */
 export interface BookingReferenceResponse {
-	/** ISO 8601 — unpaid bookings must be settled by this time (matches Booking::unpaidExpiresAt). */
+	/** ISO 8601 — settle by 9:00 PM Asia/Manila on the check-in calendar day (matches Booking::unpaidExpiresAt). */
 	unpaid_expires_at?: string | null;
 	unpaid_expiry_days?: number;
 	/** True when check-in is far enough ahead to show the 3-day / down-payment policy on the receipt. */
 	down_payment_notice_applies?: boolean;
 	down_payment_notice_min_lead_days?: number;
-	/** True when check-in is strictly after today (Manila): Messenger settlement, no 3-day deadline line. */
+	/** True when check-in is strictly after today (Manila): Messenger settlement instructions. */
 	use_messenger_deposit_instructions?: boolean;
 	payment?: {
 		method?: string;
@@ -160,7 +160,7 @@ export interface BookingReceipt {
 	};
 	subtotal: string;
 	grand_total: string;
-	/** ISO 8601 — deadline for required down payment (3 days from booking creation). */
+	/** ISO 8601 — settle by 9:00 PM Asia/Manila on the check-in calendar day. */
 	unpaid_expires_at?: string | null;
 	unpaid_expiry_days?: number;
 	down_payment_notice_applies?: boolean;
