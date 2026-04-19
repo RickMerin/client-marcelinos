@@ -186,7 +186,7 @@ export function Step4({
         <h3 className="font-display text-lg font-semibold text-sea">
           Online Payment Awareness
         </h3>
-        <p className="max-w-2xl mx-auto text-sm leading-relaxed opacity-85 text-ink-soft">
+        <p className="max-w-2xl mx-auto text-sm leading-relaxed opacity-85 text-black">
           Guests are encouraged to pay online through secure methods such as
           GCash, PayMaya, PayPal, or bank transfer for a fast and convenient
           transaction. Please double-check all payment details before sending,
@@ -215,10 +215,11 @@ export function Step4({
           <img src={cash} alt="Cash" loading="lazy" className="w-13 h-13" />
           <div className="space-y-1">
             <h4 className="font-semibold text-sea">Pay in Cash</h4>
-            <p className="text-sm leading-relaxed opacity-85 text-ink-soft">
-              You can pay directly at the resort upon check-in.  
-              A down payment is required within 24 hours to secure your booking, 
-              even if you choose to pay the remaining balance in cash upon arrival.
+            <p className="text-sm leading-relaxed opacity-85 text-black">
+             You may pay directly at the resort upon check-in for same-day bookings. 
+             For advance bookings, a down payment is required immediately after booking to secure your reservation. 
+             It must be settled before 9:00 PM on the same day, otherwise the booking may be cancelled. 
+             The remaining balance can be paid in cash upon arrival.
             </p>
           </div>
         </label>
