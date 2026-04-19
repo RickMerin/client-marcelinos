@@ -345,7 +345,7 @@ export default function Header() {
           <img
             src="/brand-logo.webp"
             alt="Marcelino's Logo"
-            className="h-11 w-11 object-contain drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]"
+            className="h-11 w-11 object-contain drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)]"
           />
           <div className=" mt-1 leading-tight inline-block text-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">
             <div className="text-[0.9rem] -mb-0.75 font-extrabold tracking-widest text-cream font-serif">

@@ -34,7 +34,7 @@ Define an object with `title`, `description`, `path`, and optionally `keywords` 
 
 ```ts
 const MY_PAGE_SEO = {
-  title: "Page Title | Marcelino's Resort and Hotel | Hilongos, Leyte",
+  title: "Page Title | Marcelino's Resort Hotel | Hilongos, Leyte",
   description: "One or two sentences describing this page for search and social.",
   path: "/my-page",
   keywords: "optional, comma, separated, keywords",
@@ -64,7 +64,7 @@ For a component that is only ever mounted on one route, you can pass the config 
 ```tsx
 export default function TestimonialPage() {
   usePageSEO({
-    title: "Guest Reviews | Marcelino's Resort and Hotel",
+    title: "Guest Reviews | Marcelino's Resort Hotel",
     description: "Read what our guests say about their stay at Marcelino's.",
     path: "/testimonial",
   });
@@ -82,9 +82,9 @@ The booking page only sets SEO when the path is `/create-booking` (not on the re
 import { usePageSEO } from "@/hooks/usePageSEO";
 
 const CREATE_BOOKING_SEO = {
-  title: "Book Your Stay | Marcelino's Resort and Hotel | Hilongos, Leyte",
+  title: "Book Your Stay | Marcelino's Resort Hotel | Hilongos, Leyte",
   description:
-    "Reserve your room or event at Marcelino's Resort and Hotel. Choose dates, venue, and accommodations in Hilongos, Leyte, Philippines. Secure booking in a few steps.",
+    "Reserve your room or event at Marcelino's Resort Hotel. Choose dates, venue, and accommodations in Hilongos, Leyte, Philippines. Secure booking in a few steps.",
   path: "/create-booking",
   keywords:
     "book Marcelinos, reserve hotel Hilongos Leyte, Marcelinos booking, resort reservation Philippines, event venue booking",
@@ -112,7 +112,7 @@ On unmount or when the hook is called with `null`, the previous values are resto
 
 ## Tips
 
-- **Title:** Include the page topic and site name, e.g. `"Page Topic | Marcelino's Resort and Hotel | Hilongos, Leyte"`.
+- **Title:** Include the page topic and site name, e.g. `"Page Topic | Marcelino's Resort Hotel | Hilongos, Leyte"`.
 - **Description:** Keep it under ~155 characters; make it specific to the page.
 - **Path:** Must match the route path exactly (e.g. `"/testimonial"`, `"/privacy-policy"`).
 - **Home page:** The default SEO is in `index.html`; you can still call `usePageSEO` from the Home component if you want to override it from the app.

@@ -11,7 +11,7 @@ export default function ModalDesign({ onAccept }: ModalDesignProps) {
           Welcome
         </p>
         <h2 className="font-serif text-2xl font-semibold leading-tight md:text-3xl">
-          Marcelino&apos;s Resort and Hotel
+          Marcelino&apos;s Resort Hotel
         </h2>
         <p className="mt-1 text-xs tracking-[0.14em] uppercase text-[#e6d3a3]">
           Hilongos, Leyte
