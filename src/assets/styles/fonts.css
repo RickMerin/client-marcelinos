@@ -1,5 +1,10 @@
 /* ---------------------------------------------
-   Poppins Font Family (Local)
+   Mockup fonts: Cormorant Garamond + Jost (Google Fonts)
+   --------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
+
+/* ---------------------------------------------
+   Poppins Font Family (Local) — kept for fallback
    Weights: 100–900 | Styles: normal + italic
    --------------------------------------------- */
 
@@ -161,8 +166,8 @@
    --------------------------------------------- */
 
 body {
-  font-family: "Poppins", sans-serif;
-  font-weight: 400; /* Regular weight */
+  font-family: "Jost", "Poppins", sans-serif;
+  font-weight: 300;
   line-height: 1.6;
-  color: var(--foreground);
+  color: var(--color-ink, #1F2937);
 }

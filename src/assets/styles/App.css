@@ -1,7 +1,7 @@
 :root {
-  --primary-color: #3490dc;
-  --default-color: #fbc848;
-  --default-color-hover: #e6b84f;
+  --primary-color: #2F5D50;
+  --default-color: #C6A15B;
+  --default-color-hover: #E6D3A3;
 }
 
 * {
@@ -14,11 +14,11 @@
 }
 
 .yellow-bg {
-  background-color: #fbc848;
+  background-color: #C6A15B;
 }
 
 .yellow-bg:hover {
-  background-color: #f6c02b;
+  background-color: #E6D3A3;
 }
 
 /* Loaders – brand-colored, used by components/ui/loader.tsx */
@@ -27,8 +27,8 @@
   --loader-active: var(--default-color);
 }
 .loader-brand-green {
-  --loader-track: color-mix(in oklch, #1f5d1e 30%, transparent);
-  --loader-active: #1f5d1e;
+  --loader-track: color-mix(in oklch, #2F5D50 30%, transparent);
+  --loader-active: #2F5D50;
 }
 .loader-brand-primary {
   --loader-track: color-mix(in oklch, var(--primary-color) 30%, transparent);
@@ -36,11 +36,11 @@
 }
 
 .green {
-  color: #1f5d1e;
+  color: #2F5D50;
 }
 
 .green-bg {
-  background-color: #1f5d1e;
+  background-color: #2F5D50;
 }
 
 .header {
@@ -52,25 +52,6 @@
   display: none !important;
 }
 
-
-/* #about {
-  scroll-margin-top: 50px;
-} */
-/* #services {
-  scroll-margin-top: 60px;
-}
-#gallery {
-  scroll-margin-top: 50px;
-}
-#rooms {
-  scroll-margin-top: 75px;
-}
-#faq {
-  scroll-margin-top: 120px;
-}
-#reviews {
-  scroll-margin-top: 75px;
-} */
 .custom-scroll::-webkit-scrollbar {
   width: 6px;
 }

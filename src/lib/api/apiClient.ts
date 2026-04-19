@@ -9,8 +9,12 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 const env = import.meta.env.VITE_ENV;
 const apiUrlDev = import.meta.env.VITE_API_URL_DEV;
 const apiUrlProd = import.meta.env.VITE_API_URL_PROD;
+const isLocalHost =
+  typeof window !== "undefined" &&
+  ["localhost", "127.0.0.1"].includes(window.location.hostname.toLowerCase());
 
-const baseURL = env === "production" ? apiUrlProd : apiUrlDev; // Dynamic base URL based on environment
+const baseURL =
+  env === "production" && !isLocalHost ? apiUrlProd : apiUrlDev; // Keep localhost pointed to local API
 
 const apiKey = import.meta.env.VITE_API_KEY;
 

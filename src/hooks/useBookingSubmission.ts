@@ -1,9 +1,14 @@
-import { BookingResponse, BookingConflictResponse } from "@/types/booking.types";
+import {
+  BookingResponse,
+  BookingConflictResponse,
+} from "@/types/booking.types";
 import { FormData } from "@/types/booking.types";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
 import { buildBookingPayload } from "@/lib/utils/booking.utils";
 
-type ErrorWithResponse = Error & { response?: { data?: BookingConflictResponse } };
+type ErrorWithResponse = Error & {
+  response?: { data?: BookingConflictResponse };
+};
 
 function formatConflictMessage(error: ErrorWithResponse): string {
   const msg = error.message;
@@ -13,8 +18,20 @@ function formatConflictMessage(error: ErrorWithResponse): string {
   if (data.conflicts.rooms?.length) {
     parts.push(`Rooms: ${data.conflicts.rooms.map((r) => r.name).join(", ")}`);
   }
+  if (data.conflicts.room_lines?.length) {
+    parts.push(
+      data.conflicts.room_lines
+        .map(
+          (l) =>
+            `${l.room_type} (${l.requested} requested, ${l.available} available)`,
+        )
+        .join("; "),
+    );
+  }
   if (data.conflicts.venues?.length) {
-    parts.push(`Venues: ${data.conflicts.venues.map((v) => v.name).join(", ")}`);
+    parts.push(
+      `Venues: ${data.conflicts.venues.map((v) => v.name).join(", ")}`,
+    );
   }
   return parts.join("\n");
 }

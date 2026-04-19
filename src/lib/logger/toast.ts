@@ -9,25 +9,26 @@ export interface ToastPayload {
 
 const baseOptions: ToastOptions = {
 	position: "top-right",
-	autoClose: 3500,
+	autoClose: 3200,
 	hideProgressBar: false,
 	closeOnClick: true,
 	pauseOnHover: true,
 	draggable: true,
-	theme: "colored",
+	pauseOnFocusLoss: false,
+	theme: "light",
 	transition: Slide,
 };
 
 const resolveVariantOptions = (variant: ToastVariant): ToastOptions => {
 	switch (variant) {
 		case "success":
-			return { type: "success" };
+			return { type: "success", autoClose: 2600 };
 		case "error":
-			return { type: "error" };
+			return { type: "error", autoClose: 4500 };
 		case "warning":
-			return { type: "warning" };
+			return { type: "warning", autoClose: 3800 };
 		case "info":
-			return { type: "info" };
+			return { type: "info", autoClose: 3200 };
 		case "default":
 		default:
 			return { type: "default" };

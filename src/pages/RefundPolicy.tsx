@@ -14,7 +14,7 @@ function RefundPolicy() {
 
   return (
     <div id="refund-policy" className="min-h-screen bg-neutral-50">
-      <article className="mx-auto max-w-3xl px-4 py-10 md:py-14">
+      <article className="mx-auto max-w-3xl px-4 pt-28 pb-10 md:pt-36 md:pb-14">
         <header className="mb-8">
           <h1 className="font-display text-3xl font-bold tracking-tight text-green-900 md:text-4xl">
             Refund Policy
@@ -30,7 +30,7 @@ function RefundPolicy() {
               1. Introduction
             </h2>
             <p>
-              Marcelinos Hotel & Resort (“we,” “our,” or “Marcelinos”) is
+              Marcelino's Hotel & Resort (“we,” “our,” or “Marcelino's”) is
               committed to clear and fair refund and cancellation practices.
               This Refund Policy explains when and how we handle refunds for
               room and venue bookings at our property in Hilongos, Leyte,
@@ -54,8 +54,8 @@ function RefundPolicy() {
               A <strong>50% cash down payment</strong> is required to confirm
               your reservation. This down payment is{" "}
               <strong>non-refundable</strong>. If you cancel your booking for
-              any reason, the 50% down payment will not be returned. We encourage
-              you to confirm your travel plans before completing your
+              any reason, the 50% down payment will not be returned. We
+              encourage you to confirm your travel plans before completing your
               reservation.
             </p>
           </section>
@@ -79,12 +79,13 @@ function RefundPolicy() {
               4. Late Cancellations
             </h2>
             <p>
-              Cancellations made within <strong>24 hours of the check-in
-              date</strong> may incur additional fees or may not be eligible for
-              a refund of the refundable portion. We will assess each situation
-              and inform you of any extra charges. To avoid late cancellation
-              fees, please notify us as soon as you know you need to cancel or
-              change your dates.
+              Cancellations made within{" "}
+              <strong>24 hours of the check-in date</strong> may incur
+              additional fees or may not be eligible for a refund of the
+              refundable portion. We will assess each situation and inform you
+              of any extra charges. To avoid late cancellation fees, please
+              notify us as soon as you know you need to cancel or change your
+              dates.
             </p>
           </section>
 
@@ -131,7 +132,7 @@ function RefundPolicy() {
 
           <section>
             <h2 className="font-display text-xl font-semibold text-green-900">
-              8. Changes by Marcelinos
+              8. Changes by Marcelino's
             </h2>
             <p>
               If we are unable to honor your reservation (e.g., due to
@@ -150,7 +151,7 @@ function RefundPolicy() {
               If you have questions about this Refund Policy or need to cancel
               or request a refund, please contact us through our website’s
               contact form or at the contact details provided on our homepage
-              (Marcelinos Hotel & Resort, Hilongos, Leyte, Philippines).
+              (Marcelino's Hotel & Resort, Hilongos, Leyte, Philippines).
             </p>
           </section>
         </div>

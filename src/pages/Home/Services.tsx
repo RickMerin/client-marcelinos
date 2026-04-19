@@ -1,68 +1,79 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Hotel, Umbrella, ConciergeBell, Coffee } from "lucide-react";
+import {
+	Hotel,
+	CalendarDays,
+	Search,
+	FileText,
+	type LucideIcon,
+} from "lucide-react";
+
+const services: {
+	Icon: LucideIcon;
+	title: string;
+	description: string;
+}[] = [
+	{
+		Icon: Hotel,
+		title: "Hotel Booking",
+		description:
+			"Easily browse and reserve hotel rooms online. View room details, availability, and pricing — all in one place.",
+	},
+	{
+		Icon: CalendarDays,
+		title: "Event Reservation",
+		description:
+			"Book a space for events such as meetings, celebrations, or gatherings, with real-time availability and complete booking information.",
+	},
+	{
+		Icon: Search,
+		title: "Availability Checking",
+		description:
+			"Check available spaces in real time based on selected dates, ensuring accurate and up-to-date booking options.",
+	},
+	{
+		Icon: FileText,
+		title: "Booking Summary",
+		description:
+			"Provides a clear overview of booking details including selected stay, chosen space, and booking total before confirmation.",
+	},
+];
 
 function Services() {
-  // 🟢 Static data for your service cards
-  const services = [
-    {
-      icon: <Hotel size={48} />,
-      title: "Hotel Booking",
-      description:
-        "Easily browse and reserve hotel rooms online. View room details, availability, and pricing — all in one place.",
-    },
-    {
-      icon: <Umbrella size={48} />,
-      title: "Resort Packages",
-      description:
-        "Choose from exclusive resort deals that include accommodations, dining, and leisure activities designed for relaxation.",
-    },
-    {
-      icon: <ConciergeBell size={48} />,
-      title: "24/7 Concierge",
-      description:
-        "Access round-the-clock assistance for your travel needs — from booking transportation to arranging special requests.",
-    },
-    {
-      icon: <Coffee size={48} />,
-      title: "Dining Experience",
-      description:
-        "Enjoy fine dining with curated menus from top chefs, available through pre-booked meal packages or on-site restaurants.",
-    },
-  ];
+	return (
+		<div className="text-center" aria-labelledby="services-heading">
+			<div className="section-eyebrow justify-center">Resort Life</div>
 
-  return (
-    <section
-      id="services"
-      className="w-full"
-      aria-labelledby="services-heading">
-      <h2
-        id="services-heading"
-        className="font-display text-3xl font-bold tracking-tight text-center mb-12 text-(--color-charcoal)">
-        <span className="green">OUR </span>
-        <span className="yellow">SERVICES</span>
-      </h2>
+			<h2
+				id="services-heading"
+				className="font-display text-fluid-h2 font-light mb-4 text-ink">
+				Everything You <em className="italic text-forest">Need</em>
+			</h2>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-        {services.map((service, index) => (
-          <Card
-            key={index}
-            className="landing-premium-card landing-card-interactive group w-full min-h-[220px] rounded-2xl text-center cursor-pointer flex flex-col items-center justify-center transition-all duration-300 hover:scale-[1.03] hover:bg-(--color-cream) hover:text-green-900 hover:border-amber-200/60 focus-within:ring-2 focus-within:ring-(--color-sage) focus-within:ring-offset-2">
-            <CardContent className="flex flex-col items-center justify-center text-center p-6">
-              <div className="text-white/95 mb-3 group-hover:scale-110 transition-transform duration-300">
-                {service.icon}
-              </div>
-              <h3 className="font-display text-lg font-semibold mb-2 text-inherit">
-                {service.title}
-              </h3>
-              <p className="text-sm leading-relaxed opacity-90 text-inherit">
-                {service.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </section>
-  );
+			<p className="text-lg leading-relaxed text-black max-w-[560px] mx-auto mb-16">
+				Enjoy a complete resort experience without ever leaving the property.
+			</p>
+
+			<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1">
+				{services.map((service, index) => (
+					<div
+						key={index}
+						className="group bg-forest px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14 text-center transition-all duration-300 hover:bg-dark cursor-default">
+						{/* Icon */}
+						<service.Icon className="w-10 h-10 mb-5 mx-auto text-sand group-hover:text-cream transition-colors duration-300" />
+
+						{/* Title */}
+						<h3 className="font-display text-fluid-subtitle font-normal text-sand mb-3 transition-colors duration-300 group-hover:text-cream">
+							{service.title}
+						</h3>
+
+						{/* Description */}
+						<p className="text-base leading-relaxed text-sand transition-colors duration-300 group-hover:text-cream/70">
+							{service.description}
+						</p>
+					</div>
+				))}
+			</div>
+		</div>
+	);
 }
 
 export default Services;

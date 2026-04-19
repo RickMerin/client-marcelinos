@@ -1,10 +1,21 @@
-import { useRef, useLayoutEffect, useMemo } from "react";
+import { useRef, useLayoutEffect, useMemo, useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import CardItem from "@/components/cards/CardItem";
 import EventVenueSkeleton from "@/components/skeleton/EventVenueSkeleton";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { useNavigate } from "react-router-dom";
+import {
+  venueStartingDisplayPrice,
+  type VenuePriceItem,
+} from "@/lib/math/calculate";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,7 +29,9 @@ interface VenueItem {
   name?: string;
   description?: string;
   capacity?: number;
-  price?: number;
+  wedding_price?: number;
+  birthday_price?: number;
+  meeting_staff_price?: number;
   featured_image?: string | null;
   gallery?: string[];
 }
@@ -33,23 +46,40 @@ const REVEAL_DURATION = 0.6;
 const STAGGER_DELAY = 0.12;
 const REVEAL_EASE = "power2.out";
 
+function getVenueCarouselThreshold(viewportWidth: number): number {
+  if (viewportWidth < 640) return 1;
+  return 2;
+}
+
 function EventVenues() {
   const sectionRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
+  const [viewportWidth, setViewportWidth] = useState<number>(() =>
+    typeof window === "undefined" ? 1280 : window.innerWidth,
+  );
 
   const {
-    data: venuesResponse,
-    isLoading,
-    error,
-  } = useApiQuery<ApiListResponse<VenueItem>>(
-    ["venues", "home"],
-    "/venues?is_all=1",
-  );
+		data: venuesResponse,
+		isLoading,
+		error,
+	} = useApiQuery<ApiListResponse<VenueItem>>(
+		["venues", "home"],
+		"/venues?is_all=1&limit=12",
+	);
 
   const venueList = useMemo(
     () => extractList(venuesResponse),
     [venuesResponse],
   );
+
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const venueCarouselThreshold = getVenueCarouselThreshold(viewportWidth);
+  const shouldUseVenueCarousel = venueList.length > venueCarouselThreshold;
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -95,16 +125,21 @@ function EventVenues() {
     <section
       ref={sectionRef}
       className="w-full"
-      aria-labelledby="venues-heading">
-      <h2
-        id="venues-heading"
-        className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
-        <span className="text-green-900">EVENT </span>
-        <span className="text-yellow-500">VENUES</span>
-      </h2>
+      aria-labelledby="venues-heading"
+    >
+      {/* Header */}
+      <div className="mb-12">
+        <div className="section-eyebrow">Event Spaces</div>
+        <h2
+          id="venues-heading"
+          className="font-display text-fluid-h2 font-light leading-[1.1] text-ink"
+        >
+          Host Your <em className="italic text-gold">Perfect</em> Event
+        </h2>
+      </div>
 
       {error && (
-        <p className="text-sm text-red-600 text-center mb-6 font-medium">
+        <p className="text-base text-red-600 text-center mb-6 font-medium">
           Error loading venues.
         </p>
       )}
@@ -112,39 +147,102 @@ function EventVenues() {
       {isLoading ? (
         <EventVenueSkeleton />
       ) : venueList.length === 0 ? (
-        <p className="text-sm text-center text-(--color-charcoal) opacity-80">
+        <p className="text-base text-center text-ink-soft opacity-80">
           No venues available.
         </p>
       ) : (
-        <div
-          className={`mx-auto grid gap-8 px-6
-            ${
-              venueList.length === 1
-                ? "max-w-md grid-cols-1"
-                : venueList.length === 2
-                ? "max-w-3xl grid-cols-1 sm:grid-cols-2"
-                : "max-w-7xl grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-            }
-          `}
-        >
-            {venueList.map((venue) => (
-            <div key={venue.id} className="venue-card-wrap">
-              <CardItem
-                id={venue.id}
-                name={venue.name}
-                capacity={venue.capacity}
-                price={venue.price}
-                description={venue.description}
-                featured_image={venue.featured_image}
-                gallery={venue.gallery}
-                onClick={() =>
-                  navigate(`/venues/${venue.id}`, {
-                    state: { venue },
-                  })
-                }
-              />
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[1fr_1.25fr] gap-12 lg:gap-18 items-start">
+          {/* Left: venue text + features */}
+          <div>
+            <p className="text-lg leading-relaxed text-black mb-10 max-w-[65ch]">
+              From intimate weddings to grand corporate gatherings, our versatile
+              venues transform your vision into an unforgettable experience in the
+              heart of Leyte.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-12">
+              {[
+                { icon: "🌿", title: "Garden Pavilion", text: "Up to 50 guests, open-air" },
+                { icon: "🏛️", title: "Grand Function Hall", text: "Air-conditioned 50 pax, Non Air-conditioned 80 pax" },
+              ].map((feat) => (
+                <div key={feat.title} className="flex items-start gap-3.5">
+                  <div className="w-[36px] h-[36px] shrink-0 bg-gold rounded-full flex items-center justify-center text-base text-ink">
+                    {feat.icon}
+                  </div>
+                  <div className="text-base leading-relaxed text-black">
+                    <strong className="block font-medium text-blacks mb-0.5">{feat.title}</strong>
+                    {feat.text}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+
+            <button
+              onClick={() => navigate("/venues")}
+              className="btn-primary-mockup"
+            >
+              Inquire About Venues
+            </button>
+          </div>
+
+          {/* Right: venue cards */}
+          {shouldUseVenueCarousel ? (
+            <div className="relative min-w-0 overflow-visible">
+              <Carousel opts={{ align: "start", loop: true }} className="w-full px-4 sm:px-8 md:px-10">
+                <CarouselContent className="-ml-4">
+                  {venueList.map((venue) => (
+                    <CarouselItem
+                      key={venue.id}
+                      className="min-w-0 basis-full pl-4 sm:basis-1/2"
+                    >
+                      <div className="venue-card-wrap">
+                        <CardItem
+                          id={venue.id}
+                          name={venue.name}
+                          capacity={venue.capacity}
+                          price={venueStartingDisplayPrice(venue as VenuePriceItem)}
+                          description={venue.description}
+                          featured_image={venue.featured_image}
+                          gallery={venue.gallery}
+                          onClick={() =>
+                            navigate(`/venues/${venue.id}`, { state: { venue } })
+                          }
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+
+                <CarouselPrevious className="left-2 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 backdrop-blur-sm text-gray-700 hover:bg-white sm:left-0 sm:-translate-x-1/2" />
+                <CarouselNext className="right-2 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 backdrop-blur-sm text-gray-700 hover:bg-white sm:right-0 sm:translate-x-1/2" />
+              </Carousel>
+            </div>
+          ) : (
+            <div
+              className={`min-w-0 grid gap-6 ${
+                venueList.length === 1
+                  ? "grid-cols-1 max-w-md"
+                  : "grid-cols-1 sm:grid-cols-2"
+              }`}
+            >
+              {venueList.map((venue) => (
+                <div key={venue.id} className="venue-card-wrap">
+                  <CardItem
+                    id={venue.id}
+                    name={venue.name}
+                    capacity={venue.capacity}
+                    price={venueStartingDisplayPrice(venue as VenuePriceItem)}
+                    description={venue.description}
+                    featured_image={venue.featured_image}
+                    gallery={venue.gallery}
+                    onClick={() =>
+                      navigate(`/venues/${venue.id}`, { state: { venue } })
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>

@@ -1,34 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageCircle, X, ChevronRight } from "lucide-react";
+import { API } from "@/lib/api/apiClient";
 
 type Message = {
   from: "bot" | "user";
   text: string;
 };
 
-const FAQS_INITIAL = [
+type BubbleChatFaq = {
+  id: number;
+  question: string;
+  answer: string;
+  sort_order?: number;
+};
+
+type BubbleChatFaqResponse = {
+  success?: boolean;
+  data?: BubbleChatFaq[];
+};
+
+const FAQS_FALLBACK: BubbleChatFaq[] = [
   {
+    id: 1,
     question: "What payment methods do you accept?",
     answer:
       "Currently, we only accept cash payments. Online and digital payment options are not available at this time.",
   },
   {
+    id: 2,
     question: "What is your check-in and check-out time?",
     answer: "Check-in starts at 12:00 PM, and check-out is until 10:00 AM.",
   },
   {
+    id: 3,
     question: "Is Wi-Fi available in all rooms?",
     answer:
       "Yes, complimentary high-speed Wi-Fi is available in all rooms and public areas.",
   },
   {
+    id: 4,
     question: "Is there a cancellation fee?",
     answer:
       "Cancellations made within 24 hours of the check-in date may incur a fee. Please review your booking details for more information.",
   },
   {
+    id: 5,
     question: "Do you have facilities for events or meetings?",
     answer:
       "Yes, we have function and event spaces suitable for meetings, parties, and small gatherings. Contact our events team for more details.",
@@ -45,10 +63,47 @@ export default function BubbleChat() {
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
-  const [faqs, setFaqs] = useState(FAQS_INITIAL);
+  const [faqs, setFaqs] = useState<BubbleChatFaq[]>(FAQS_FALLBACK);
 
-  const handleFaqClick = (faq: typeof FAQS_INITIAL[number]) => {
-    setFaqs((prev) => prev.filter((f) => f.question !== faq.question));
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadFaqs = async () => {
+      try {
+        const response = await API.get<BubbleChatFaqResponse>("/bubble-chat-faqs");
+        const items = Array.isArray(response?.data)
+          ? response.data
+              .filter(
+                (item) =>
+                  typeof item?.question === "string" &&
+                  item.question.trim().length > 0 &&
+                  typeof item?.answer === "string" &&
+                  item.answer.trim().length > 0,
+              )
+              .map((item, index) => ({
+                id: item.id ?? index + 1,
+                question: item.question,
+                answer: item.answer,
+                sort_order: item.sort_order ?? 0,
+              }))
+          : [];
+
+        if (!isMounted || items.length === 0) return;
+        setFaqs(items);
+      } catch {
+        // Keep fallback questions when API is unavailable.
+      }
+    };
+
+    void loadFaqs();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleFaqClick = (faq: BubbleChatFaq) => {
+    setFaqs((prev) => prev.filter((f) => f.id !== faq.id));
     setMessages((prev) => [...prev, { from: "user", text: faq.question }]);
     setIsTyping(true);
 

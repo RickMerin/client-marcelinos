@@ -1,6 +1,6 @@
 # WebSocket Setup & Process Guide
 
-This README explains how real-time updates work in Marcelinos (Laravel Reverb + Laravel Echo), the process flow from start to finish, and how to add a new WebSocket event.
+This README explains how real-time updates work in Marcelinos (Pusher + Laravel Echo), the process flow from start to finish, and how to add a new WebSocket event.
 
 ---
 
@@ -18,7 +18,7 @@ This README explains how real-time updates work in Marcelinos (Laravel Reverb + 
 
 | Consumer | Mechanism | Purpose |
 |----------|-----------|---------|
-| **React frontend** (public site) | **WebSocket** (Reverb + Echo) | Live updates when data changes (rooms, venues, booking status, etc.) so users see changes without refreshing. |
+| **React frontend** (public site) | **WebSocket** (Pusher + Echo) | Live updates when data changes (rooms, venues, booking status, etc.) so users see changes without refreshing. |
 | **Filament admin** | **Polling** (e.g. table every 10s) | Keeps admin tables/data fresh. Filament does **not** use the WebSocket. |
 
 So: **WebSocket is for the React app only.** When you change something in Filament (or via the API), the backend broadcasts an event; the React client receives it over the WebSocket and refetches data so the public site stays in sync.
@@ -29,7 +29,7 @@ So: **WebSocket is for the React app only.** When you change something in Filame
 
 ```
 ┌──────────────────┐                    ┌──────────────────┐                    ┌──────────────────┐
-│  Admin / API     │   dispatch event   │  Queue worker    │   push to Reverb   │  Laravel Reverb  │
+│  Admin / API     │   dispatch event   │  Queue worker    │   push to Pusher  │  Pusher service │
 │  (Filament, etc.)│ ─────────────────► │  (queue:work)    │ ─────────────────► │  (WS server)     │
 └──────────────────┘                    └──────────────────┘                    └────────┬─────────┘
          │                                                                               │
@@ -52,8 +52,8 @@ So: **WebSocket is for the React app only.** When you change something in Filame
 
 1. **Something changes** — e.g. admin updates a room in Filament, or booking status changes via Observer.
 2. **Backend dispatches a broadcast event** — e.g. `RoomsUpdated::dispatch()`. The event is **queued** (not sent immediately).
-3. **Queue worker** runs `php artisan queue:work`, picks up the job, and sends the event to **Reverb**.
-4. **Reverb** (WebSocket server) pushes the event to every browser tab that is subscribed to that channel (e.g. `rooms`).
+3. **Queue worker** runs `php artisan queue:work`, picks up the job, and sends the event to **Pusher**.
+4. **Pusher** (WebSocket server) pushes the event to every browser tab that is subscribed to that channel (e.g. `rooms`).
 5. **React** — Laravel Echo receives the event. Your hooks (e.g. `useRealtimeGlobalSubscriber`) run `queryClient.invalidateQueries()` and `refetchQueries()` for the matching query key.
 6. **UI** — Any component that uses a query with that key refetches and re-renders, so the user sees the new data without reloading.
 
@@ -67,27 +67,25 @@ So: **WebSocket is for the React app only.** When you change something in Filame
 
 **1. Environment (`.env`)**
 
-- Set **`BROADCAST_CONNECTION=reverb`**. If this is `log` or missing, events are only logged and never reach the client.
-- Configure Reverb (example for local dev):
+- Set **`BROADCAST_CONNECTION=pusher`**. If this is `log` or missing, events are only logged and never reach the client.
+- Configure Pusher (example for local dev / self-hosted-compatible websockets):
 
 ```env
-REVERB_APP_ID=marcelinos-app
-REVERB_APP_KEY=local-key
-REVERB_APP_SECRET=local-secret
-REVERB_HOST=localhost
-REVERB_PORT=8080
-REVERB_SCHEME=http
-REVERB_SERVER_HOST=0.0.0.0
-REVERB_SERVER_PORT=8080
-REVERB_ALLOWED_ORIGINS=*
+PUSHER_APP_ID=marcelinos-app
+PUSHER_APP_KEY=local-key
+PUSHER_APP_SECRET=local-secret
+PUSHER_APP_CLUSTER=ap1
+PUSHER_HOST=
+PUSHER_PORT=443
+PUSHER_SCHEME=https
 ```
 
 **2. Run the required processes**
 
 | Process | Command | Purpose |
 |--------|---------|---------|
-| **Reverb** | `php artisan reverb:start` | WebSocket server; delivers events to the browser |
-| **Queue worker** | `php artisan queue:work` | Processes the queue; sends broadcast events to Reverb |
+| **Pusher** | (managed/self-hosted) | WebSocket server; delivers events to the browser |
+| **Queue worker** | `php artisan queue:work` | Processes the queue; sends broadcast events to Pusher |
 
 - **Windows:** Run each in a separate terminal (or use WSL and the script below).
 - **Linux / cPanel:** One command starts everything:
@@ -118,18 +116,17 @@ VITE_WS_SCHEME=http
 
 **2. Echo and hooks**
 
-- **`src/lib/realtime/echo.ts`** — Creates the Echo client (Pusher protocol) and connects to Reverb. `getEcho()` returns `null` if env is missing (realtime disabled).
+- **`src/lib/realtime/echo.ts`** — Creates the Echo client (Pusher protocol) and connects to your Pusher-compatible websocket endpoint. `getEcho()` returns `null` if env is missing (realtime disabled).
 - **Private channels:** Echo sends the request to `/broadcasting/auth` with the token (default: `localStorage.getItem('token')`). You can set a custom token getter with `setEchoTokenGetter()`. After login, call `disconnectEcho()` so the next subscription uses the new token.
 - **`useRealtimeEvent`** — Subscribe to one channel and one event (e.g. booking receipt page).
 - **`useRealtimeGlobalSubscriber`** — Mounted in `App.tsx`; subscribes to public channels (rooms, venues, gallery, reviews, blocked-dates) and invalidates/refetches the matching query keys so the whole app stays in sync without reload.
 
 ### 3.3 Checklist: “Is WebSocket working?”
 
-- [ ] `BROADCAST_CONNECTION=reverb` in `be-marcelinos/.env`
-- [ ] Reverb running: `php artisan reverb:start`
+- [ ] `BROADCAST_CONNECTION=pusher` in `be-marcelinos/.env`
 - [ ] Queue worker running: `php artisan queue:work`
 - [ ] Frontend has WS env (or defaults) so `getEcho()` is not null
-- [ ] No CORS issues: `REVERB_ALLOWED_ORIGINS` includes your frontend origin
+- [ ] No CORS/auth issues: `/broadcasting/auth` is reachable from the frontend
 
 ---
 
@@ -294,4 +291,4 @@ useRealtimeEvent({
 | Full technical doc | `be-marcelinos/documentation/realtime-websocket.md` |
 | Services start/stop | `be-marcelinos/documentation/deployment-services.md` |
 
-**Troubleshooting:** If the React app does not update without reload, verify: `BROADCAST_CONNECTION=reverb`, Reverb and queue worker are running, and frontend has `VITE_WS_KEY` / `VITE_WS_HOST` (or defaults) so `getEcho()` is not null.
+**Troubleshooting:** If the React app does not update without reload, verify: `BROADCAST_CONNECTION=pusher`, the queue worker is running, and frontend has `VITE_WS_KEY` / `VITE_WS_HOST` (or defaults) so `getEcho()` is not null.

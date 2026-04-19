@@ -1,27 +1,40 @@
-import { Facebook, ArrowRight } from "lucide-react";
+import { FacebookIcon } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 
 function Footer() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const first_link = [
-    { name: "Home", href: "#home" },
-    { name: "About", href: "#about" },
+  const exploreLinks = [
+    { name: "About Us", href: "#about" },
     { name: "Rooms", href: "#rooms" },
-    { name: "Venues", href: "#venues" },
+    { name: "Event Venues", href: "#venues" },
     { name: "Services", href: "#services" },
     { name: "Gallery", href: "#gallery" },
-    { name: "Review", href: "#reviews" },
   ];
 
-  const second_link = [
-    { name: "Refund Policy", href: "/refund-policy" },
-    { name: "Terms & Conditions", href: "/terms-and-conditions" },
-    { name: "Privacy Policy", href: "/privacy-policy" },
-    // { name: "FAQs", href: "/faqs" },
-    // { name: "Careers", href: "/careers" }, //for future expansion
-    { name: "Sitemap", href: "/sitemap" },
+  const infoLinks = [
+    { name: "Blog", href: "/blog", isRoute: true },
+    { name: "Privacy Policy", href: "/privacy-policy", isRoute: true },
+    { name: "Refund Policy", href: "/refund-policy", isRoute: true },
+    {
+      name: "Terms and Conditions",
+      href: "/terms-and-conditions",
+      isRoute: true,
+    },
+    { name: "Rules and Regulation", href: "/rules-regulation", isRoute: true },
+    { name: "Contact", href: "#contact" },
+  ];
+
+  const contactLinks = [
+    { name: "Hilongos, Leyte, Philippines", href: "#location" },
+    { name: "09063034150", href: "tel:09063034150" },
+    { name: "09541865049", href: "tel:09541865049" },
+    {
+      name: "marcelinosresorthotel@gmail.com",
+      href: "mailto:marcelinosresorthotel@gmail.com",
+    },
+    { name: "Book Direct", href: "#booking-section" },
   ];
 
   const handleSectionClick = (e: React.MouseEvent, hash: string) => {
@@ -43,94 +56,131 @@ function Footer() {
     }
   };
 
+  const renderLink = (link: {
+    name: string;
+    href: string;
+    isRoute?: boolean;
+  }) => {
+    if (link.isRoute) {
+      return (
+        <Link
+          to={link.href}
+          className="text-base text-white no-underline transition-colors duration-300 hover:text-gold-light"
+        >
+          {link.name}
+        </Link>
+      );
+    }
+    if (link.href.startsWith("#")) {
+      return (
+        <button
+          type="button"
+          onClick={(e) => handleSectionClick(e, link.href)}
+          className="text-base text-white bg-transparent border-none p-0 cursor-pointer text-left transition-colors duration-300 hover:text-gold-light font-inherit"
+        >
+          {link.name}
+        </button>
+      );
+    }
+    return (
+      <a
+        href={link.href}
+        className="text-base text-white no-underline transition-colors duration-300 hover:text-gold-light"
+      >
+        {link.name}
+      </a>
+    );
+  };
+
   return (
-    <footer className="bg-black px-4 py-10 text-white space-y-4">
-      <div className="container mx-auto grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4">
-        {/* ---------------------------------- */}
-        {/* <section className="col-span-3 md:col-span-1 mb-5 md:mb-0">
-          <h3 className="yellow md:text-lg font-bold">
-            Marcelino's Resort Hotel
-          </h3>
-          <p>
-            Experience luxury and comfort at its finest. Subscribe to our
-            newsletter for exclusive offers and updates.
-          </p>
-          <ContactForm />
-        </section> */}
-
-        {/* ----------------------------------- */}
-
-        <section className="col-span-1 md:col-span-1">
-          <h3 className="yellow md:text-lg font-bold">Contact Info</h3>
-          <ul className="mt-4">
-            <li>
-              <p>09********</p>
-            </li>
-            <li>
-              <p>09********</p>
-            </li>
-          </ul>
-          <p className="my-5">Hilongos, Leyte</p>
-          <div className="flex gap-3">
-            <Link
-              to="https://www.facebook.com/profile.php?id=61557457680496"
-              target="_blank"
-              rel="noopener noreferrer">
-              <Facebook className="yellow" size={30} />
-            </Link>
-            {/* <Link to="https://www.instagram.com/marcelinosplace/">
-              <Instagram className="yellow" size={30} />
-            </Link>
-            <Link to="https://x.com/marcelinosplace">
-              <Twitter className="yellow" size={30} />
-            </Link> */}
+    <footer className="bg-dark pt-20 pb-10 px-4 lg:px-16 xl:px-20 text-white">
+      <div className="max-w-[1200px] mx-auto">
+        <div className="grid grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-x-6 gap-y-12 lg:gap-14 mb-16">
+          {/* Brand */}
+          <div className="col-span-2 lg:col-span-1">
+            <a
+              href="/"
+              className="font-display text-[24px] font-normal text-gold-light tracking-[0.04em] no-underline block mb-5"
+            >
+              Marcelino's <span className=" italic">Resort Hotel</span>
+            </a>
+            <p className="text-base leading-relaxed mb-6">
+              A tropical sanctuary offering resort living, event venues, and
+              Filipino warmth in Hilongos, Leyte, Philippines.
+            </p>
+            <div className="flex gap-3">
+              <a
+                href="https://www.facebook.com/profile.php?id=61557457680496"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white no-underline transition-all duration-300 hover:text-gold-light hover:-translate-y-0.5"
+                aria-label="Facebook"
+              >
+                <FacebookIcon size={24} />
+              </a>
+            </div>
           </div>
-        </section>
 
-        {/* ----------------------------------- */}
+          {/* Explore */}
+          <div className="col-span-1">
+            <h4 className="text-[13px] tracking-[0.2em] uppercase text-gold-light font-medium mb-6">
+              Explore
+            </h4>
+            <ul className="list-none flex flex-col gap-3">
+              {exploreLinks.map((link) => (
+                <li key={link.name}>{renderLink(link)}</li>
+              ))}
+            </ul>
+          </div>
 
-        <section>
-          <h3 className="yellow md:text-lg font-bold">Quick Links</h3>
-          <ul className="mt-4 space-y-2">
-            {first_link.map((link) => (
-              <li key={link.name} className="flex items-center gap-2">
-                <ArrowRight size={16} className="yellow" />
-                <button
-                  type="button"
-                  onClick={(e) => handleSectionClick(e, link.href)}
-                  className="hover:underline text-sm text-left bg-transparent border-none p-0 cursor-pointer text-white font-inherit">
-                  {link.name}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
+          {/* Information */}
+          <div className="col-span-1">
+            <h4 className="text-[13px] tracking-[0.2em] uppercase text-gold-light font-medium mb-6">
+              Information
+            </h4>
+            <ul className="list-none flex flex-col gap-3">
+              {infoLinks.map((link) => (
+                <li key={link.name}>{renderLink(link)}</li>
+              ))}
+            </ul>
+          </div>
 
-        {/* ----------------------------------- */}
+          {/* Contact */}
+          <div className="col-span-2 md:col-span-1 lg:col-span-1">
+            <h4 className="text-[13px] tracking-[0.2em] uppercase text-gold-light font-medium mb-6">
+              Contact
+            </h4>
+            <ul className="list-none flex flex-col gap-3">
+              {contactLinks.map((link) => (
+                <li key={link.name}>{renderLink(link)}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
 
-        <section>
-          <h3 className="yellow md:text-lg font-bold">Quick Links</h3>
-          <ul className="mt-4 space-y-2">
-            {second_link.map((link) => (
-              <li key={link.name} className="flex items-center gap-2">
-                <ArrowRight size={16} className="yellow" />
-                <Link
-                  to={link.href}
-                  className="hover:underline text-sm text-white no-underline">
-                  {link.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {/* Bottom */}
+        <div className="border-t border-cream/8 pt-8 flex justify-between items-center flex-wrap gap-4 text-sm max-md:flex-col max-md:items-start max-md:gap-3">
+          <p>
+            © {new Date().getFullYear()} Marcelino's Resort Hotel. All rights
+            reserved.
+          </p>
+          <p>
+            <Link
+              to="/privacy-policy"
+              className="text-white no-underline hover:text-gold-light transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            {" · "}
+            <Link
+              to="/terms-and-conditions"
+              className="text-white no-underline hover:text-gold-light transition-colors"
+            >
+              Terms and Conditions
+            </Link>
+          </p>
+        </div>
       </div>
-      <hr className=" border-white/20 mx-auto my-10" />
-      <p className="text-center text-sm text-white/80">
-        <small>
-          &copy; {new Date().getFullYear()} Marcelino's Place | All Rights
-          Reserved.
-        </small>
-      </p>
     </footer>
   );
 }

@@ -49,7 +49,7 @@ function FAQ() {
       <div className="w-full">
         <h2
           id="faq-heading"
-          className="font-display text-3xl font-bold tracking-tight mb-6 text-center text-(--color-charcoal)">
+          className="font-display text-fluid-h2 font-bold tracking-tight mb-6 text-center text-(--color-charcoal)">
           <span className="green">FREQUENTLY</span>{" "}
           <span className="yellow">ASKED</span>{" "}
           <span className="green">QUESTIONS</span>
@@ -68,7 +68,7 @@ function FAQ() {
                     onClick={() => handleToggle(index)}
                     aria-expanded={activeIndex === index}
                     aria-controls={`faq-answer-${index}`}
-                    className="w-full flex justify-between items-center gap-4 p-4 text-left text-sm font-medium text-(--color-charcoal) hover:bg-sage-muted/40 transition-colors rounded-t-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--color-sage)"
+                    className="w-full flex justify-between items-center gap-4 p-5 text-left text-base font-medium text-(--color-charcoal) hover:bg-sage-muted/40 transition-colors rounded-t-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--color-sage)"
                     itemProp="name"
                     type="button">
                     <span className="leading-snug">{faq.question}</span>
@@ -102,7 +102,7 @@ function FAQ() {
                       transition={{ duration: 0.3, ease: "easeInOut" }}
                       className="overflow-hidden">
                       <div
-                        className="p-4 text-sm leading-relaxed text-(--color-charcoal) opacity-90 border-t border-(--color-sage-muted) bg-cream/50"
+                        className="p-5 text-base leading-relaxed text-(--color-charcoal) opacity-90 border-t border-(--color-sage-muted) bg-cream/50"
                         itemProp="text">
                         {faq.answer}
                       </div>

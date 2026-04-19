@@ -4,19 +4,27 @@ export interface ModalDesignProps {
 
 export default function ModalDesign({ onAccept }: ModalDesignProps) {
   return (
-    <>
+    <div className="mx-auto w-full max-w-xl text-center">
       {/* HEADER */}
-      <div className="text-xl font-bold mt-3 mb-3 md:mb-5 text-white">
-        <h2>Welcome to Marcelino's </h2>
-        <h2>Resort and Hotel</h2>
-        <h2>Hilongos, Leyte</h2>
+      <div className="mb-3 text-white md:mb-4">
+        <p className="mb-1.5 text-[10px] tracking-[0.24em] uppercase text-[#e6d3a3]">
+          Welcome
+        </p>
+        <h2 className="font-serif text-2xl font-semibold leading-tight md:text-3xl">
+          Marcelino&apos;s Resort Hotel
+        </h2>
+        <p className="mt-1 text-xs tracking-[0.14em] uppercase text-[#e6d3a3]">
+          Hilongos, Leyte
+        </p>
       </div>
 
-      <p className="text-white text-xs">Thank you for visiting Marcelino's!</p>
+      <p className="mb-3 text-xs text-[#f6f7f5]">
+        Thank you for visiting Marcelino&apos;s.
+      </p>
 
       {/* INTRO */}
-      <div className="text-xs mb-4 flex justify-center md:mb-8 text-white">
-        <p className="max-w-[80vw]">
+      <div className="mb-4 flex justify-center text-xs text-[#f6f7f5]/90 md:mb-5">
+        <p className="max-w-[620px] rounded-md border border-[#e6d3a3]/20 bg-white/5 px-3 py-2.5 leading-relaxed">
           Please be informed that we currently do not have a swimming pool or
           restaurant, as our resort is new and still improving to serve you
           better.
@@ -24,36 +32,38 @@ export default function ModalDesign({ onAccept }: ModalDesignProps) {
       </div>
 
       {/* ASSURANCE */}
-      <div className="text-xl font-semibold mb-3 text-white">
+      <div className="mb-2.5 text-2xl font-semibold text-[#e6d3a3]">
         <h3>What we can assure you:</h3>
       </div>
 
-      <div className="text-xs mb-6 text-white">
-        <p>- Clean and well-maintained surroundings -</p>
-        <p>- Safe and secure environment -</p>
-        <p>- Peaceful and not noisy -</p>
-        <p>- Cool, green, and relaxing atmosphere -</p>
+      <div className="mb-5 text-xs text-[#f6f7f5]/95">
+        <div className="mx-auto max-w-[620px] rounded-md border border-[#e6d3a3]/20 bg-white/5 px-3 py-2.5">
+          <p>- Clean and well-maintained surroundings -</p>
+          <p>- Safe and secure environment -</p>
+          <p>- Peaceful and not noisy -</p>
+          <p>- Cool, green, and relaxing atmosphere -</p>
+        </div>
       </div>
 
       {/* APPRECIATION MESSAGE */}
-      <div className="text-xs mb-6 flex justify-center text-white">
-        <p className="max-w-[80vw]">
+      <div className="mb-5 flex justify-center text-xs text-[#f6f7f5]/90">
+        <p className="max-w-[620px] leading-relaxed">
           We truly appreciate your understanding and support as we continue to
           grow. Your comfort and relaxation remain our priority.
         </p>
       </div>
 
       {/* QUOTE / TAGLINE */}
-      <div className="text-sm mb-6 yellow italic">
-        “Marcelino’s — where nature and tranquility meet.”
+      <div className="mb-5 text-xs italic text-[#e6d3a3]">
+        "Marcelino&apos;s - where nature and tranquility meet."
       </div>
 
       {/* ACCEPT BUTTON */}
       <button
-        className="rounded bg-yellow-600 px-6 py-2 text-white hover:bg-yellow-800 transition"
+        className="rounded-[4px] bg-[#c6a15b] px-7 py-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#0f1f1a] transition-colors hover:bg-[#e6d3a3]"
         onClick={onAccept}>
         Accept
       </button>
-    </>
+    </div>
   );
 }

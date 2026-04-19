@@ -1,8 +1,14 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
+import { Pagination, EffectCoverflow, Autoplay } from "swiper/modules";
+
+// @ts-ignore
 import "swiper/css";
+// @ts-ignore
 import "swiper/css/pagination";
+// @ts-ignore
+import "swiper/css/effect-coverflow";
+
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { endpoints, queryKeys } from "@/lib/api/endpoints";
 import GallerySkeleton from "@/components/skeleton/GallerySkeleton";
@@ -22,16 +28,38 @@ const ImageCarousel: React.FC = () => {
     data: galleriesResponse,
     isLoading,
     error,
-  } = useApiQuery<ApiResponse>([...queryKeys.galleries.all], endpoints.galleries);
+  } = useApiQuery<ApiResponse>(
+    [...queryKeys.galleries.all],
+    endpoints.galleries,
+  );
 
   const galleries = galleriesResponse?.data ?? [];
 
+  // Duplicate galleries ONLY if there are too few images to loop properly.
+  // If there are plenty of images (say, more than 5), Swiper natively handles loop duplication.
+  // This prevents unnecessary DOM bloat if the API returns 50+ images at once.
+  let infiniteGalleries = galleries.map((g) => ({
+    ...g,
+    uniqueId: `orig-${g.id}`,
+  }));
+  if (galleries.length > 0 && galleries.length < 6) {
+    infiniteGalleries = [
+      ...galleries.map((g) => ({ ...g, uniqueId: `a-${g.id}` })),
+      ...galleries.map((g) => ({ ...g, uniqueId: `b-${g.id}` })),
+      ...galleries.map((g) => ({ ...g, uniqueId: `c-${g.id}` })),
+    ];
+  }
+
   const galleryHeading = (
-    <h2
-      id="gallery-heading"
-      className="font-display text-3xl font-bold tracking-tight text-center mb-10 text-(--color-charcoal)">
-      <span className="green">OUR</span> <span className="yellow">GALLERY</span>
-    </h2>
+    <div className="text-center mb-12">
+      <div className="section-eyebrow justify-center">Our Gallery</div>
+      <h2
+        id="gallery-heading"
+        className="font-display text-fluid-h2 font-light text-ink"
+      >
+        Capture the <em className="italic text-forest">Moments</em>
+      </h2>
+    </div>
   );
 
   if (isLoading) {
@@ -47,7 +75,7 @@ const ImageCarousel: React.FC = () => {
     return (
       <section className="w-full text-center" aria-labelledby="gallery-heading">
         {galleryHeading}
-        <p className="text-sm text-red-600 font-medium">
+        <p className="text-base text-red-600 font-medium">
           Failed to load gallery.
         </p>
       </section>
@@ -58,7 +86,7 @@ const ImageCarousel: React.FC = () => {
     return (
       <section className="w-full text-center" aria-labelledby="gallery-heading">
         {galleryHeading}
-        <p className="text-sm text-center text-(--color-charcoal) opacity-80">
+        <p className="text-base text-center text-ink-soft opacity-80">
           No gallery available.
         </p>
       </section>
@@ -70,42 +98,42 @@ const ImageCarousel: React.FC = () => {
       {galleryHeading}
 
       <Swiper
-        spaceBetween={20}
-        slidesPerView={3}
+        effect={"coverflow"}
+        grabCursor={true}
+        centeredSlides={true}
+        slidesPerView={"auto"}
+        modules={[EffectCoverflow, Pagination, Autoplay]}
         pagination={{ clickable: true }}
-        loop={false}
-        breakpoints={{
-          320: { slidesPerView: 1 },
-          640: { slidesPerView: 2 },
-          1024: { slidesPerView: 3 },
+        loop={true}
+        speed={800} // Slows down the transition to make it smooth and graceful
+        autoplay={{
+          delay: 3000, // Waits 3 seconds before auto-scrolling
+          disableOnInteraction: false, // Allows auto-scroll to resume even after you interrupt it by swiping manually
         }}
-        modules={[Pagination]}
+        coverflowEffect={{
+          rotate: 0,
+          stretch: -20, // Adjusted for just a slight overlap on the sides
+          depth: 120, // Keeps the side images clearly underneath without being too far back
+          modifier: 1, // Standardizes the distance between cards uniformly
+          slideShadows: true,
+          scale: 0.9,
+        }}
+        className="w-full pt-10 pb-16"
         style={{
-          width: "90%",
-          maxWidth: "1200px",
           margin: "0 auto",
-          paddingBottom: "50px",
-        }}>
-        {galleries.map((item) => (
-          <SwiperSlide key={item.id}>
-            <div
-              style={{
-                width: "100%",
-                height: "350px",
-                overflow: "hidden",
-                borderRadius: "15px",
-                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-              }}>
+        }}
+      >
+        {infiniteGalleries.map((item) => (
+          <SwiperSlide
+            key={item.uniqueId}
+            className="flex items-center justify-center rounded-[1.5rem] overflow-hidden bg-white shadow-xl aspect-square border-2 sm:border-4 border-white/50 !w-[280px] !h-[280px] lg:!w-[360px] lg:!h-[360px] xl:!w-[400px] xl:!h-[400px] cursor-pointer"
+          >
+            <div className="w-full h-full group">
               <img
                 src={item.image}
                 alt={`Gallery ${item.id}`}
                 loading="lazy"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  display: "block",
-                }}
+                className="w-full h-full object-cover block transition-transform duration-700 ease-out group-hover:scale-105"
               />
             </div>
           </SwiperSlide>

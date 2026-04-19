@@ -1,0 +1,14 @@
+# SPA fallback for React Router — required for direct loads and refresh on paths like /rooms.
+# Copied to dist/ by Vite. Works on Apache and LiteSpeed (Hostinger hPanel).
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Serve existing files and directories as-is (assets, favicon, etc.)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # All other requests → single-page app shell
+  RewriteRule ^ index.html [L]
+</IfModule>

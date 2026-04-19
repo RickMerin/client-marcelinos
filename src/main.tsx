@@ -2,9 +2,10 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./assets/styles/fonts.css";
-import "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/api/queryClient.ts";
+import { reportClientError } from "./lib/monitoring/reportClientError";
 
 // Only allow search engine indexing on production/root domain; noindex on testing/staging
 const productionHosts = (import.meta.env.VITE_PRODUCTION_HOST ?? "")
@@ -18,6 +19,45 @@ if (typeof document !== "undefined") {
   if (robotsMeta) {
     robotsMeta.setAttribute("content", allowIndexing ? "index, follow" : "noindex, nofollow");
   }
+}
+
+if (typeof window !== "undefined") {
+	window.addEventListener("error", (event) => {
+		const err = event.error;
+		const message =
+			err instanceof Error
+				? err.message
+				: typeof event.message === "string"
+					? event.message
+					: "window error";
+		const stack =
+			err instanceof Error
+				? err.stack
+				: event.filename
+					? `${event.filename}:${event.lineno}:${event.colno}`
+					: undefined;
+		reportClientError({
+			message,
+			stack,
+			source: "window.onerror",
+		});
+	});
+
+	window.addEventListener("unhandledrejection", (event) => {
+		const reason = event.reason;
+		const message =
+			reason instanceof Error
+				? reason.message
+				: typeof reason === "string"
+					? reason
+					: "Unhandled promise rejection";
+		const stack = reason instanceof Error ? reason.stack : undefined;
+		reportClientError({
+			message,
+			stack,
+			source: "unhandledrejection",
+		});
+	});
 }
 
 createRoot(document.getElementById("root")!).render(

@@ -4,17 +4,17 @@ import { useScrollToTop } from "@/hooks/useScrollToTop";
 function PrivacyPolicy() {
   useScrollToTop();
   usePageSEO({
-    title: "Privacy Policy | Marcelinos Hotel & Resort",
+    title: "Privacy Policy | Marcelino's Hotel & Resort",
     description:
-      "Privacy Policy for Marcelinos Hotel & Resort in Hilongos, Leyte. How we collect, use, and protect your data when you book rooms, contact us, or leave a review.",
+      "Privacy Policy for Marcelino's Hotel & Resort in Hilongos, Leyte. How we collect, use, and protect your data when you book rooms, contact us, or leave a review.",
     path: "/privacy-policy",
     keywords:
-      "privacy policy, Marcelinos, hotel resort Hilongos Leyte, data protection, booking privacy",
+      "privacy policy, Marcelino's, hotel resort Hilongos Leyte, data protection, booking privacy",
   });
 
   return (
     <div id="privacy-policy" className="min-h-screen bg-neutral-50">
-      <article className="mx-auto max-w-3xl px-4 py-10 md:py-14">
+      <article className="mx-auto max-w-3xl px-4 pt-28 pb-10 md:pt-36 md:pb-14">
         <header className="mb-8">
           <h1 className="font-display text-3xl font-bold tracking-tight text-green-900 md:text-4xl">
             Privacy Policy
@@ -30,13 +30,13 @@ function PrivacyPolicy() {
               1. Introduction
             </h2>
             <p>
-              Marcelinos Hotel & Resort (“we,” “our,” or “Marcelinos”) operates
-              this website and related booking and contact services. We are
-              committed to protecting your privacy. This Privacy Policy explains
-              what information we collect when you use our website (including
-              when you make a reservation, contact us, or leave a review), how
-              we use and store it, and your rights regarding your data. Our
-              services are offered from Hilongos, Leyte, Philippines.
+              Marcelino's Hotel & Resort (“we,” “our,” or “Marcelino's”)
+              operates this website and related booking and contact services. We
+              are committed to protecting your privacy. This Privacy Policy
+              explains what information we collect when you use our website
+              (including when you make a reservation, contact us, or leave a
+              review), how we use and store it, and your rights regarding your
+              data. Our services are offered from Hilongos, Leyte, Philippines.
             </p>
           </section>
 
@@ -44,7 +44,10 @@ function PrivacyPolicy() {
             <h2 className="font-display text-xl font-semibold text-green-900">
               2. Information We Collect
             </h2>
-            <p>We collect information you provide directly and data that is stored temporarily in your browser.</p>
+            <p>
+              We collect information you provide directly and data that is
+              stored temporarily in your browser.
+            </p>
             <ul className="list-disc pl-6 space-y-1">
               <li>
                 <strong>Booking and reservation:</strong> When you create a
@@ -70,9 +73,9 @@ function PrivacyPolicy() {
                 experience, we temporarily store reservation details (e.g.,
                 dates, selected rooms) in your browser’s local storage. This
                 data expires after a short period (e.g., 30 minutes) or is
-                cleared when you complete or abandon a booking. We may also store
-                a simple flag (e.g., that you have seen the welcome message) so
-                we do not show it again.
+                cleared when you complete or abandon a booking. We may also
+                store a simple flag (e.g., that you have seen the welcome
+                message) so we do not show it again.
               </li>
             </ul>
           </section>
@@ -84,11 +87,24 @@ function PrivacyPolicy() {
             <p>We use the information we collect to:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Process and manage your room and venue reservations.</li>
-              <li>Send you booking confirmations and receipts (e.g., reference number and booking details).</li>
+              <li>
+                Send you booking confirmations and receipts (e.g., reference
+                number and booking details).
+              </li>
               <li>Respond to your contact form inquiries.</li>
-              <li>Verify and publish testimonials or reviews (when you choose to submit them).</li>
-              <li>Improve our website and booking flow (e.g., by using temporarily stored reservation data so you can complete a booking without losing your progress).</li>
-              <li>Comply with applicable laws and protect our rights and the security of our systems.</li>
+              <li>
+                Verify and publish testimonials or reviews (when you choose to
+                submit them).
+              </li>
+              <li>
+                Improve our website and booking flow (e.g., by using temporarily
+                stored reservation data so you can complete a booking without
+                losing your progress).
+              </li>
+              <li>
+                Comply with applicable laws and protect our rights and the
+                security of our systems.
+              </li>
             </ul>
           </section>
 
@@ -193,7 +209,7 @@ function PrivacyPolicy() {
               If you have questions about this Privacy Policy or our handling of
               your personal data, please contact us through our website’s
               contact form or at the contact details provided on our homepage
-              (Marcelinos Hotel & Resort, Hilongos, Leyte, Philippines).
+              (Marcelino's Hotel & Resort, Hilongos, Leyte, Philippines).
             </p>
           </section>
         </div>

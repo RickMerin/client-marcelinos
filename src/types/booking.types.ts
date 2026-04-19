@@ -1,9 +1,22 @@
 export type Gender = "male" | "female" | "other";
 
+/** Drives date rules on the hero form and pricing (room nights vs single-day venue). */
+export type BookingKind = "room" | "venue" | "both";
+
+/** Venue event tier; each venue has separate amounts for wedding, birthday, and Meeting/Seminar. */
+export type VenueEventType = "wedding" | "birthday" | "meeting_staff";
+
+/** Room inventory `type` values (matches backend `rooms.type` enum). */
+export type RoomTypeFilter = "standard" | "family" | "deluxe";
+
 export interface BookingResponse {
   message: string;
   guest?: unknown;
-  booking?: { reference_number: string; [key: string]: unknown };
+  booking?: {
+    reference_number: string;
+    receipt_token?: string;
+    [key: string]: unknown;
+  };
   /** @deprecated use booking instead */
   bookings?: Array<{ reference_number: string; [key: string]: unknown }>;
   total_price?: number;
@@ -18,93 +31,168 @@ export interface BookingConflictResponse {
   conflicts?: {
     rooms?: Array<{ id: number; name: string }>;
     venues?: Array<{ id: number; name: string }>;
+    room_lines?: Array<{
+      room_type: string;
+      inventory_group_key: string;
+      requested: number;
+      available: number;
+    }>;
   };
 }
 
-/** API response shape for GET /bookings/reference/:reference */
+/** API response shape for GET /bookings/receipt/:token or GET /bookings/reference/:reference */
 export interface BookingReferenceResponse {
-  booking?: {
-    reference_number: string;
-    status?: string;
-    check_in?: string;
-    check_out?: string;
-    no_of_days?: number;
-    total_price?: string | number;
-    created_at?: string;
-    guest?: {
-      first_name?: string;
-      middle_name?: string | null;
-      last_name?: string;
-      email?: string;
-      contact_num?: string;
-      street?: string;
-      barangay?: string;
-      municipality?: string;
-      province?: string;
-      region?: string;
-      [key: string]: unknown;
-    };
-    rooms?: Array<{
-      name?: string;
-      type?: string;
-      capacity?: number;
-      price?: string | number;
-      [key: string]: unknown;
-    }>;
-    venues?: Array<{
-      name?: string;
-      capacity?: number;
-      price?: string | number;
-      [key: string]: unknown;
-    }>;
-    [key: string]: unknown;
-  };
-  qr_code_url?: string | null;
-  /** True when a testimonial/site review has already been submitted for this booking. */
-  has_testimonial?: boolean;
+	/** ISO 8601 — settle by 9:00 PM Asia/Manila on the check-in calendar day (matches Booking::unpaidExpiresAt). */
+	unpaid_expires_at?: string | null;
+	unpaid_expiry_days?: number;
+	/** True when check-in is far enough ahead to show the 3-day / down-payment policy on the receipt. */
+	down_payment_notice_applies?: boolean;
+	down_payment_notice_min_lead_days?: number;
+	/** True when check-in is strictly after today (Manila): Messenger settlement instructions. */
+	use_messenger_deposit_instructions?: boolean;
+	payment?: {
+		method?: string;
+		plan?: string;
+		invoice_id?: string;
+		invoice_url?: string;
+		can_retry?: boolean;
+		amount_paid?: number;
+		balance?: number;
+		amount_due_now?: number;
+	};
+	booking?: {
+		reference_number: string;
+		/** Opaque public id for receipt URL (UUID). */
+		receipt_token?: string;
+		status?: string;
+		check_in?: string;
+		check_out?: string;
+		no_of_days?: number;
+		venue_event_type?: string | null;
+		total_price?: string | number;
+		payment_method?: string;
+		online_payment_plan?: string;
+		xendit_invoice_id?: string;
+		xendit_invoice_url?: string;
+		created_at?: string;
+		guest?: {
+			first_name?: string;
+			middle_name?: string | null;
+			last_name?: string;
+			email?: string;
+			contact_num?: string;
+			street?: string;
+			barangay?: string;
+			municipality?: string;
+			province?: string;
+			region?: string;
+			[key: string]: unknown;
+		};
+		rooms?: Array<{
+			name?: string;
+			type?: string;
+			capacity?: number;
+			price?: string | number;
+			[key: string]: unknown;
+		}>;
+		venues?: Array<{
+			name?: string;
+			capacity?: number;
+			price?: string | number;
+			[key: string]: unknown;
+		}>;
+		[key: string]: unknown;
+	};
+	qr_code_url?: string | null;
+	/** True when a testimonial/site review has already been submitted for this booking. */
+	has_testimonial?: boolean;
 }
 
-/** API response shape for GET /booking-receipt/:reference */
+/** Receipt view model for Step5 (from booking API payload). */
 export interface BookingReceipt {
-  /** QR code image URL for check-in */
-  qr_code_url?: string | null;
-  reference_number: string;
-  created_at: string;
-  booking_status: string;
-  check_in: string;
-  check_out: string;
-  issued_on: string;
-  nights: number;
-  guest_name: string;
-  guest_email: string;
-  guest_contact: string;
-  guest_address: string;
-  /** Multiple rooms (API now returns array) */
-  rooms?: Array<{
-    name: string;
-    type: string;
-    capacity: number;
-    price: number | string;
-  }>;
-  /** Multiple venues */
-  venues?: Array<{ name: string; capacity: number; price: number | string }>;
-  /** @deprecated use rooms instead */
-  room?: {
-    number: number | null;
-    type: string;
-    capacity: number;
-    price: string;
-  };
-  subtotal: string;
-  grand_total: string;
+	/** QR code image URL for check-in */
+	qr_code_url?: string | null;
+	reference_number: string;
+	created_at: string;
+	booking_status: string;
+	check_in: string;
+	check_out: string;
+	issued_on: string;
+	nights: number;
+	guest_name: string;
+	guest_email: string;
+	guest_contact: string;
+	guest_address: string;
+	/** Assigned physical rooms (optional until staff assigns). */
+	rooms?: Array<{
+		name: string;
+		type: string;
+		capacity: number;
+		price: number | string;
+		bed_specifications?: string[];
+	}>;
+	/** Requested room types from guest checkout (no room name yet). */
+	room_lines?: Array<{
+		room_type: string;
+		inventory_group_key: string;
+		quantity: number;
+		unit_price_per_night: number | string;
+	}>;
+	/** True when stay includes accommodation (show check-in/out times on receipt). */
+	has_room_stay?: boolean;
+	/** Multiple venues */
+	venues?: Array<{
+		name: string;
+		capacity: number;
+		price?: number | string;
+		wedding_price?: number | string;
+		birthday_price?: number | string;
+		meeting_staff_price?: number | string;
+	}>;
+	/** Stored when the booking includes venues */
+	venue_event_type?: string | null;
+	/** @deprecated use rooms instead */
+	room?: {
+		number: number | null;
+		type: string;
+		capacity: number;
+		price: string;
+	};
+	subtotal: string;
+	grand_total: string;
+	/** ISO 8601 — settle by 9:00 PM Asia/Manila on the check-in calendar day. */
+	unpaid_expires_at?: string | null;
+	unpaid_expiry_days?: number;
+	down_payment_notice_applies?: boolean;
+	down_payment_notice_min_lead_days?: number;
+	use_messenger_deposit_instructions?: boolean;
+	payment_method?: string;
+	online_payment_plan?: string;
+	invoice_id?: string;
+	invoice_url?: string;
+	can_retry_payment?: boolean;
+	amount_paid?: number;
+	balance?: number;
+	amount_due_now?: number;
 }
 
 export interface FormData {
   reference_number?: string;
   current_step: number;
+  /** What the guest is booking: stay only, event space only, or both */
+  booking_type: BookingKind;
+  /** For `both`: calendar day of the venue/event (same-day use). Used for venue availability API. */
+  venue_event_date: string;
+  /** Required when `venues` is non-empty; drives venue line pricing. */
+  venue_event_type: VenueEventType | "";
   check_in: string;
   check_out: string;
   days: number;
+  /**
+   * For `room` and `both`: which room types to show on step 1 (one or more).
+   * Ignored for `venue`-only bookings.
+   */
+  room_type_filters: RoomTypeFilter[];
   rooms: any[];
   venues: any[];
 
@@ -126,6 +214,7 @@ export interface FormData {
   newsletter: boolean;
   notifications: boolean;
   paymentMethod: string;
+  onlinePaymentPlan: "" | "full" | `partial_${number}`;
 
   totalPrice: number;
   grandTotalPrice: number;
@@ -141,14 +230,25 @@ export interface PersonalDetails {
   address: string;
 }
 
+/** Collapsed room-type lines for POST /bookings (no specific room id). */
+export interface RoomLinePayload {
+  room_type: string;
+  inventory_group_key: string;
+  quantity: number;
+  unit_price: number;
+}
+
 export interface BookingPayload {
   reference_number?: string;
   payment_method?: string;
+  online_payment_plan?: "full" | `partial_${number}`;
   check_in: string;
   check_out: string;
   days: number;
-  rooms: number[];
+  /** Guest booking: room type + bed-spec lines (staff assigns physical rooms later). */
+  room_lines?: RoomLinePayload[];
   venues?: number[];
+  venue_event_type?: string;
   total_price: number;
   grand_total_price?: number;
   first_name: string;

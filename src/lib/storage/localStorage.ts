@@ -73,6 +73,7 @@ const BOOKING_KEYS = [
   "reservationDate",
   "reservationDetails",
   "reservationDetails.personal",
+  "reservationDetails.personal.phAddress",
 ] as const;
 
 /**
@@ -80,4 +81,12 @@ const BOOKING_KEYS = [
  */
 export const clearBookingStorage = () => {
   BOOKING_KEYS.forEach((key) => localStorage.removeItem(key));
+};
+
+/**
+ * Clears persisted cart items after a successful booking.
+ */
+export const clearCartStorage = () => {
+  localStorage.removeItem("cartItems");
+  window.dispatchEvent(new Event("cart-updated"));
 };
