@@ -18,7 +18,6 @@ export const routes = [
   { path: "/login", component: RedirectToBackend },
   { path: "/", component: Home },
   { path: "/testimonial", component: Testimonial },
-  { path: "*", component: NotFound },
   { path: "/privacy-policy", component: PrivacyPolicy },
   { path: "/terms-and-conditions", component: Terms },
   {path: "/rules-regulation", component: RulesandRegulation },
@@ -35,4 +34,5 @@ export const routes = [
   { path: "/rooms/:roomId", component: SinglePage },
   { path: "/venues", component: SinglePage },
   { path: "/venues/:venueId", component: SinglePage },
+  { path: "*", component: NotFound },
 ];
