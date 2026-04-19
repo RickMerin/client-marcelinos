@@ -437,9 +437,20 @@ const priceVal = selectedItem
   }, [selectedItem?.id]);
 
   const playLeafFlightToCart = (sourceEl?: HTMLElement | null) => {
-    const cartButton = document.querySelector(
-      'button[aria-label="View Cart"]',
-    ) as HTMLElement | null;
+    const cartButtons = Array.from(
+      document.querySelectorAll('button[aria-label="View Cart"]'),
+    ) as HTMLElement[];
+    const cartButton =
+      cartButtons.find((button) => {
+        const rect = button.getBoundingClientRect();
+        const style = window.getComputedStyle(button);
+        return (
+          rect.width > 0 &&
+          rect.height > 0 &&
+          style.display !== "none" &&
+          style.visibility !== "hidden"
+        );
+      }) ?? null;
     if (!sourceEl || !cartButton) return;
 
     const start = sourceEl.getBoundingClientRect();
