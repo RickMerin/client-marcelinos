@@ -162,6 +162,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
   const [openCalendarField, setOpenCalendarField] = React.useState<
     string | null
   >(null);
+  const suppressNextCalendarCloseRef = React.useRef<string | null>(null);
 
   // ✅ derive default values from fields
   const defaultValues = Object.fromEntries(
@@ -578,7 +579,10 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                           <Popover
                             open={openCalendarField === field.name}
                             onOpenChange={(o) =>
-                              setOpenCalendarField(o ? field.name : null)
+                              suppressNextCalendarCloseRef.current ===
+                                field.name && !o
+                                ? (suppressNextCalendarCloseRef.current = null)
+                                : setOpenCalendarField(o ? field.name : null)
                             }
                           >
                             <PopoverTrigger asChild>
@@ -614,9 +618,25 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                             </PopoverTrigger>
                             <PopoverContent
                               align="center"
-                              className="-mt-[30px] p-0"
+                              className="-mt-7.5 p-0"
                             >
                               <Calendar
+                                defaultMonth={
+                                  field.name === "check_out"
+                                    ? (() => {
+                                        const ci = form.getValues(
+                                          "check_in" as Path<z.output<T>>,
+                                        );
+                                        return ci
+                                          ? new Date(ci as string | Date)
+                                          : inputField.value
+                                            ? new Date(inputField.value)
+                                            : undefined;
+                                      })()
+                                    : inputField.value
+                                      ? new Date(inputField.value)
+                                      : undefined
+                                }
                                 mode="single"
                                 selected={inputField.value}
                                 onSelect={(date) => {
@@ -633,6 +653,8 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                       newCo as any,
                                       { shouldValidate: true },
                                     );
+                                    suppressNextCalendarCloseRef.current =
+                                      "check_out";
                                     setOpenCalendarField("check_out");
                                   } else if (
                                     field.name === "check_out" &&
@@ -657,8 +679,10 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                         );
                                       }
                                     }
+                                    suppressNextCalendarCloseRef.current = null;
                                     setOpenCalendarField(null);
                                   } else {
+                                    suppressNextCalendarCloseRef.current = null;
                                     setOpenCalendarField(null);
                                   }
                                 }}
@@ -689,7 +713,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                             className={cn(
                               "flex justify-center items-center",
                               field.itemClassName?.includes("booking-bar-reset")
-                                ? "mt-0 w-full min-h-[48px] lg:min-h-[52px] lg:flex-1"
+                                ? "mt-0 w-full min-h-12 lg:min-h-13 lg:flex-1"
                                 : "mt-5",
                             )}
                           >
@@ -764,7 +788,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                             tabIndex={-1}
                             className={cn(
                               field.itemClassName?.includes("booking-bar-field")
-                                ? "cursor-default border-0 bg-transparent text-center font-normal shadow-none select-none !h-auto min-h-0"
+                                ? "cursor-default border-0 bg-transparent text-center font-normal shadow-none select-none h-auto! min-h-0"
                                 : "cursor-default bg-muted/50 text-center font-medium",
                               field.className,
                             )}
@@ -802,7 +826,7 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
           <Button
             type="submit"
             disabled={submitDisabled}
-            className="w-full sm:w-auto max-w-full bg-gold hover:bg-gold-light text-ink font-semibold text-[14px] tracking-[0.15em] uppercase whitespace-nowrap px-8 py-3.5 rounded-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 min-h-[52px]"
+            className="w-full sm:w-auto max-w-full bg-gold hover:bg-gold-light text-ink font-semibold text-[14px] tracking-[0.15em] uppercase whitespace-nowrap px-8 py-3.5 rounded-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 min-h-13"
           >
             {submitLabel}
           </Button>
