@@ -55,6 +55,8 @@ interface Props {
 const ROOM_CHECK_IN = "12:00 PM";
 const ROOM_CHECK_OUT = "10:00 AM";
 
+const VENUE_CHECK_IN = "8:00 AM";
+
 /** Local calendar date as YYYY-MM-DD (avoid `toISOString()` shifting the day in non-UTC zones). */
 function toDayKey(d: Date): string {
   const y = d.getFullYear();
@@ -799,7 +801,9 @@ export function Step3({
 											{check_in ? `${check_in}` : "—"}
 										</p>
 										<p className="text-xs text-ink-soft mt-0.5">
-											{ROOM_CHECK_IN}
+										{bookingType === "venue"
+										? VENUE_CHECK_IN
+										: ROOM_CHECK_IN}
 										</p>
 									</div>
 									{bookingType !== "venue" && (
