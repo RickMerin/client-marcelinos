@@ -104,6 +104,17 @@ export default function RescheduleBookingContent({
     return undefined;
   });
 
+  const currentCheckInDate = useMemo(() => {
+    if (!currentCheckIn) return null;
+    const d = new Date(currentCheckIn);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }, [currentCheckIn]);
+
+  const currentCheckOutDate = useMemo(() => {
+    if (!currentCheckInDate) return null;
+    return addDays(currentCheckInDate, currentDays);
+  }, [currentCheckInDate, currentDays]);
+
   type BlockedDatesResponse = {
     success?: boolean;
     data?: Array<{ date: string; reason?: string | null }>;
@@ -126,17 +137,45 @@ export default function RescheduleBookingContent({
       .filter((row) => row.date);
   }, [data]);
 
+  const currentStayDateKeys = useMemo(() => {
+    if (!currentCheckInDate || !currentCheckOutDate) return new Set<string>();
+
+    const keys = new Set<string>();
+    const cursor = new Date(
+      currentCheckInDate.getFullYear(),
+      currentCheckInDate.getMonth(),
+      currentCheckInDate.getDate(),
+    );
+    const last = new Date(
+      currentCheckOutDate.getFullYear(),
+      currentCheckOutDate.getMonth(),
+      currentCheckOutDate.getDate(),
+    );
+
+    while (cursor <= last) {
+      keys.add(toDayKey(cursor));
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return keys;
+  }, [currentCheckInDate, currentCheckOutDate]);
+
+  const effectiveBlockedDateRows = useMemo(() => {
+    if (currentStayDateKeys.size === 0) return blockedDateRows;
+    return blockedDateRows.filter((row) => !currentStayDateKeys.has(row.date));
+  }, [blockedDateRows, currentStayDateKeys]);
+
   const blockedDates = useMemo(() => {
-    return blockedDateRows.map((d) => new Date(d.date + "T12:00:00"));
-  }, [blockedDateRows]);
+    return effectiveBlockedDateRows.map((d) => new Date(d.date + "T12:00:00"));
+  }, [effectiveBlockedDateRows]);
 
   const blockedReasons = useMemo(() => {
     const map: Record<string, string> = {};
-    blockedDateRows.forEach((d) => {
+    effectiveBlockedDateRows.forEach((d) => {
       map[d.date] = d.reason ?? "Unavailable";
     });
     return map;
-  }, [blockedDateRows]);
+  }, [effectiveBlockedDateRows]);
 
   const todayStart = useMemo(
     () => new Date(new Date().setHours(0, 0, 0, 0)),
@@ -235,10 +274,6 @@ export default function RescheduleBookingContent({
   };
 
   const newCheckOut = selectedDate ? addDays(selectedDate, days) : null;
-  const currentCheckInDate = currentCheckIn ? new Date(currentCheckIn) : null;
-  const currentCheckOutDate = currentCheckInDate
-    ? addDays(currentCheckInDate, currentDays)
-    : null;
 
   return (
     <div className="flex flex-col md:flex-row max-h-[85vh] overflow-y-auto md:overflow-hidden w-full bg-white/85 text-gray-800 backdrop-blur-md relative z-10">
