@@ -154,7 +154,10 @@ export function MultiStepForm() {
 					)}
 					{formData.current_step === 5 && (
 						<motion.div key="step5" {...stepMotion}>
-							<Step5 formData={formData} />
+							<Step5
+								formData={formData}
+								depositPercent={paymentSettings.partialPaymentPercent}
+							/>
 						</motion.div>
 					)}
 				</AnimatePresence>

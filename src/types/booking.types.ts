@@ -48,6 +48,8 @@ export interface BookingReferenceResponse {
 	/** True when check-in is far enough ahead to show the 3-day / down-payment policy on the receipt. */
 	down_payment_notice_applies?: boolean;
 	down_payment_notice_min_lead_days?: number;
+	/** Deposit share of total from admin payment settings (partial_payment_options[0]). */
+	down_payment_percent?: number;
 	/** True when check-in is strictly after today (Manila): Messenger settlement instructions. */
 	use_messenger_deposit_instructions?: boolean;
 	payment?: {
@@ -165,6 +167,8 @@ export interface BookingReceipt {
 	unpaid_expiry_days?: number;
 	down_payment_notice_applies?: boolean;
 	down_payment_notice_min_lead_days?: number;
+	/** Deposit share of total from admin payment settings. */
+	down_payment_percent?: number;
 	use_messenger_deposit_instructions?: boolean;
 	payment_method?: string;
 	online_payment_plan?: string;

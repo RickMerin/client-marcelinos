@@ -32,6 +32,8 @@ import { toast } from "@/lib/logger/toast";
 
 interface Step5FormDataProps {
 	formData: any;
+	/** Admin payment policy deposit % (from GET /payment-settings); defaults if omitted. */
+	depositPercent?: number;
 	receiptData?: never;
 	onlinePaymentAction?: {
 		visible: boolean;
@@ -332,10 +334,8 @@ function formatDownPaymentDeadline(value?: string): string {
   });
 }
 
-/** Share of grand total due as down payment (must match your payment policy). */
-const DOWN_PAYMENT_RATE = 0.3;
-const DOWN_PAYMENT_PERCENT_LABEL = `${Math.round(DOWN_PAYMENT_RATE * 100)}%`;
-const REMAINING_AFTER_DOWN_PERCENT_LABEL = `${Math.round((1 - DOWN_PAYMENT_RATE) * 100)}%`;
+/** Fallback when receipt API or wizard omits admin deposit percent. */
+const DEFAULT_DEPOSIT_PERCENT = 30;
 
 /** Bold emphasis for key peso amounts. */
 const AMOUNT_PRIMARY = "font-bold tabular-nums text-ink";
@@ -668,7 +668,13 @@ export function Step5(props: Props) {
 
   const showDepositSplit =
     showMessengerDepositBlock || showLegacyThreeDayDepositBlock;
-  const downPaymentAmount = displayGrandTotal * DOWN_PAYMENT_RATE;
+  const depositPercent = isFromApi
+    ? (receipt?.down_payment_percent ?? DEFAULT_DEPOSIT_PERCENT)
+    : ((props as Step5FormDataProps).depositPercent ?? DEFAULT_DEPOSIT_PERCENT);
+  const downPaymentRate = depositPercent / 100;
+  const downPaymentPercentLabel = `${depositPercent}%`;
+  const remainingAfterDownPercentLabel = `${100 - depositPercent}%`;
+  const downPaymentAmount = displayGrandTotal * downPaymentRate;
   const balanceAfterDownPayment = Math.max(
     0,
     displayGrandTotal - downPaymentAmount,
@@ -869,7 +875,7 @@ export function Step5(props: Props) {
 											valueClassName="font-semibold text-amber-800"
 										/>
 										<ReceiptRow
-											label={`Deposit (${DOWN_PAYMENT_PERCENT_LABEL} of total)`}
+											label={`Deposit (${downPaymentPercentLabel} of total)`}
 											value={pricingFormat(downPaymentAmount)}
 											valueClassName={AMOUNT_PRIMARY}
 										/>
@@ -877,7 +883,7 @@ export function Step5(props: Props) {
 								)}
 								{showMessengerDepositBlock && (
 									<ReceiptRow
-										label={`Deposit (${DOWN_PAYMENT_PERCENT_LABEL} of total)`}
+										label={`Deposit (${downPaymentPercentLabel} of total)`}
 										value={pricingFormat(downPaymentAmount)}
 										valueClassName={AMOUNT_PRIMARY}
 									/>
@@ -1081,7 +1087,7 @@ export function Step5(props: Props) {
 									<div className="text-ink border-l-2 border-gold pl-2 space-y-3 leading-relaxed">
 										<p>
 											<strong>Next step:</strong> To settle your{" "}
-											{DOWN_PAYMENT_PERCENT_LABEL} down payment, please message
+											{downPaymentPercentLabel} down payment, please message
 											us on Facebook Messenger. Click the button below to open
 											the chat. Please attach your proof of payment in the
 											message so we can verify your deposit. Unpaid bookings may
@@ -1116,7 +1122,7 @@ export function Step5(props: Props) {
 											</p>
 											<div className="flex justify-between items-center gap-2 text-ink">
 												<span className="opacity-90">
-													Due now — deposit ({DOWN_PAYMENT_PERCENT_LABEL})
+													Due now — deposit ({downPaymentPercentLabel})
 												</span>
 												<span className={AMOUNT_PRIMARY}>
 													{pricingFormat(downPaymentAmount)}
@@ -1125,7 +1131,7 @@ export function Step5(props: Props) {
 											<div className="flex justify-between items-center gap-2 text-ink-soft">
 												<span className="opacity-90">
 													Due later — balance (
-													{REMAINING_AFTER_DOWN_PERCENT_LABEL})
+													{remainingAfterDownPercentLabel})
 												</span>
 												<span className={AMOUNT_SECONDARY}>
 													{pricingFormat(balanceAfterDownPayment)}
