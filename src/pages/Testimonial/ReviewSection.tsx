@@ -59,7 +59,7 @@ function normalizeReview(item: unknown): Review {
 function extractReviews(response: ReviewApiResponse): Review[] {
   if (Array.isArray(response)) return response.map(normalizeReview);
 
-  if (response && "reviews" in response && Array.isArray(response.reviews)) {
+  if (response && typeof response === "object" && "reviews" in response && Array.isArray(response.reviews)) {
     return response.reviews.map(normalizeReview);
   }
 
