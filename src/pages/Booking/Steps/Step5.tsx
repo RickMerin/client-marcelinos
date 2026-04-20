@@ -402,6 +402,30 @@ function getNightsFromDates(
   return Math.max(0, bookedDays - 1);
 }
 
+function buildMessengerChatUrl(baseUrl: string, message: string): string {
+  const safeBaseUrl = (baseUrl ?? "").trim();
+  if (!safeBaseUrl) return "";
+  const encodedMessage = encodeURIComponent(message);
+
+  try {
+    const parsed = new URL(safeBaseUrl);
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    const pageTarget = parsed.pathname.replace(/^\/+/, "");
+
+    // Some environments report certificate issues on m.me; use facebook web inbox route.
+    const normalizedUrl =
+      host === "m.me" && pageTarget
+        ? new URL(`https://www.facebook.com/messages/t/${pageTarget}`)
+        : parsed;
+
+    normalizedUrl.searchParams.set("text", message);
+    return normalizedUrl.toString();
+  } catch {
+    const separator = safeBaseUrl.includes("?") ? "&" : "?";
+    return `${safeBaseUrl}${separator}text=${encodedMessage}`;
+  }
+}
+
 export function Step5(props: Props) {
   const navigate = useNavigate();
 
@@ -684,6 +708,24 @@ export function Step5(props: Props) {
     : "—";
 
   const [isDownloading, setIsDownloading] = useState(false);
+  const messengerMessageLines = [
+    "Hello Marcelino's Resort Hotel!",
+    "",
+    `I would like to settle my ${downPaymentPercentLabel} deposit for this booking.`,
+    `Reference No.: ${referenceNumber || "—"}`,
+    `Guest Name: ${guestName || "—"}`,
+    `Check-in: ${formattedCheckIn || "—"}`,
+    `Check-out: ${formattedCheckOut || "—"}`,
+    `Reservation Total: ${pricingFormat(displayGrandTotal)}`,
+    `Deposit Amount (${downPaymentPercentLabel}): ${pricingFormat(downPaymentAmount)}`,
+    "",
+    "Thank you!",
+  ];
+  const messengerPrefilledMessage = messengerMessageLines.join("\n");
+  const messengerChatUrlWithMessage = buildMessengerChatUrl(
+    MESSENGER_CHAT_URL,
+    messengerPrefilledMessage,
+  );
 
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
 
@@ -1095,7 +1137,7 @@ export function Step5(props: Props) {
 											check-in date if not settled.
 										</p>
 										<a
-											href={MESSENGER_CHAT_URL}
+											href={messengerChatUrlWithMessage || MESSENGER_CHAT_URL}
 											target="_blank"
 											rel="noopener noreferrer"
 											className="inline-flex items-center gap-2 rounded-lg bg-[#0084FF] px-3 py-2 text-white text-xs font-semibold shadow-sm hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0084FF]">
