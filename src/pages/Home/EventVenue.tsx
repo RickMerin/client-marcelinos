@@ -71,7 +71,6 @@ function EventVenues() {
     () => extractList(venuesResponse),
     [venuesResponse],
   );
-
   useEffect(() => {
     const onResize = () => setViewportWidth(window.innerWidth);
     window.addEventListener("resize", onResize);
@@ -127,17 +126,6 @@ function EventVenues() {
       className="w-full"
       aria-labelledby="venues-heading"
     >
-      {/* Header */}
-      <div className="mb-12">
-        <div className="section-eyebrow">Event Spaces</div>
-        <h2
-          id="venues-heading"
-          className="font-display text-fluid-h2 font-light leading-[1.1] text-ink"
-        >
-          Host Your <em className="italic text-gold">Perfect</em> Event
-        </h2>
-      </div>
-
       {error && (
         <p className="text-base text-red-600 text-center mb-6 font-medium">
           Error loading venues.
@@ -151,43 +139,36 @@ function EventVenues() {
           No venues available.
         </p>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[1fr_1.25fr] gap-12 lg:gap-18 items-start">
-          {/* Left: venue text + features */}
-          <div>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.25fr] gap-2 lg:gap-18 items-start lg:items-center">
+          {/* Left: venue text */}
+          <div className="order-1 lg:self-center">
+            <div className="mb-5">
+              <div className="section-eyebrow">Event Spaces</div>
+              <h2
+                id="venues-heading"
+                className="font-display text-fluid-h2 font-light leading-[1.1] text-ink"
+              >
+                Host Your <em className="italic text-gold">Perfect</em> Event
+              </h2>
+            </div>
+
             <p className="text-lg leading-relaxed text-black mb-10 max-w-[65ch]">
               From intimate weddings to grand corporate gatherings, our versatile
               venues transform your vision into an unforgettable experience in the
               heart of Leyte.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-12">
-              {[
-                { icon: "🌿", title: "Garden Pavilion", text: "Up to 50 guests, open-air" },
-                { icon: "🏛️", title: "Grand Function Hall", text: "Air-conditioned 50 pax, Non Air-conditioned 80 pax" },
-              ].map((feat) => (
-                <div key={feat.title} className="flex items-start gap-3.5">
-                  <div className="w-[36px] h-[36px] shrink-0 bg-gold rounded-full flex items-center justify-center text-base text-ink">
-                    {feat.icon}
-                  </div>
-                  <div className="text-base leading-relaxed text-black">
-                    <strong className="block font-medium text-blacks mb-0.5">{feat.title}</strong>
-                    {feat.text}
-                  </div>
-                </div>
-              ))}
-            </div>
-
             <button
               onClick={() => navigate("/venues")}
               className="btn-primary-mockup"
             >
-              Inquire About Venues
+              View All Venues
             </button>
           </div>
 
           {/* Right: venue cards */}
           {shouldUseVenueCarousel ? (
-            <div className="relative min-w-0 overflow-visible">
+            <div className="order-2 relative min-w-0 overflow-visible lg:self-center">
               <Carousel opts={{ align: "start", loop: true }} className="w-full px-4 sm:px-8 md:px-10">
                 <CarouselContent className="-ml-4">
                   {venueList.map((venue) => (
@@ -219,7 +200,7 @@ function EventVenues() {
             </div>
           ) : (
             <div
-              className={`min-w-0 grid gap-6 ${
+              className={`order-2 min-w-0 lg:self-center grid gap-6 ${
                 venueList.length === 1
                   ? "grid-cols-1 max-w-md"
                   : "grid-cols-1 sm:grid-cols-2"
