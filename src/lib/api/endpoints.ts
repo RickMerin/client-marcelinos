@@ -23,6 +23,7 @@ export const endpoints = {
   galleries: "/galleries",
   blogPosts: "/blog-posts",
   blogPostBySlug: (slug: string) => `/blog-posts/${encodeURIComponent(slug)}`,
+  reviews: "/reviews",
   maintenanceMode: "/maintenance-mode",
   paymentSettings: "/payment-settings",
 } as const;
