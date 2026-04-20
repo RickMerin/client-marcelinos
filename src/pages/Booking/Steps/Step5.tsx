@@ -865,7 +865,7 @@ export function Step5(props: Props) {
 								</p>
 								<div className="mt-1 text-xs space-y-0.5 opacity-80">
 									<address>
-										Mabini ST. Easter Barangay Poblacion, Hilongos, Philippines,
+										Mabini ST. Eastern Barangay Poblacion, Hilongos, Philippines,
 										6524
 									</address>
 									<p>Phone: 09063034150</p>
