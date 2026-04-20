@@ -640,12 +640,21 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                 mode="single"
                                 selected={inputField.value}
                                 onSelect={(date) => {
-                                  inputField.onChange(date);
-                                  if (field.name === "check_in" && date) {
+                                  const selectedDate = date
+                                    ? startOfDay(new Date(date))
+                                    : undefined;
+
+                                  if (
+                                    field.name === "check_in" &&
+                                    selectedDate
+                                  ) {
+                                    // Set check-in date
+                                    inputField.onChange(selectedDate);
+
+                                    // Auto-calculate and set check-out
                                     const minOff =
                                       field.minCheckOutOffsetDays ?? 1;
-                                    const newCi = startOfDay(new Date(date));
-                                    const newCo = new Date(newCi);
+                                    const newCo = new Date(selectedDate);
                                     newCo.setDate(newCo.getDate() + minOff);
 
                                     form.setValue(
@@ -658,27 +667,37 @@ export function FormWrapper<T extends z.ZodType<any, any>>({
                                     setOpenCalendarField("check_out");
                                   } else if (
                                     field.name === "check_out" &&
-                                    date
+                                    selectedDate
                                   ) {
                                     const ci = form.getValues(
                                       "check_in" as Path<z.output<T>>,
                                     );
+
+                                    // Validate check-out relative to check-in
+                                    let finalCheckOut = selectedDate;
                                     if (ci) {
                                       const ciDate = new Date(
                                         ci as string | Date,
                                       );
+                                      const ciNorm = startOfDay(ciDate);
                                       const minOff =
                                         field.minCheckOutOffsetDays ?? 1;
-                                      if (diffDays(ciDate, date) < minOff) {
-                                        const newCi = new Date(date);
-                                        newCi.setDate(newCi.getDate() - minOff);
-                                        form.setValue(
-                                          "check_in" as Path<z.output<T>>,
-                                          newCi as any,
-                                          { shouldValidate: true },
+                                      const dayDiff = diffDays(
+                                        ciNorm,
+                                        selectedDate,
+                                      );
+
+                                      // Only adjust if selected date violates minimum offset
+                                      if (dayDiff < minOff) {
+                                        finalCheckOut = new Date(ciNorm);
+                                        finalCheckOut.setDate(
+                                          finalCheckOut.getDate() + minOff,
                                         );
                                       }
                                     }
+
+                                    // Apply the final validated date
+                                    inputField.onChange(finalCheckOut);
                                     suppressNextCalendarCloseRef.current = null;
                                     setOpenCalendarField(null);
                                   } else {
