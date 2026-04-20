@@ -183,7 +183,7 @@ function LoaderShell({
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: "18px",
+                gap: "10px",
               }}
             >
               <img
@@ -194,36 +194,14 @@ function LoaderShell({
                 style={{ height: 48, width: "auto", objectFit: "contain" }}
               />
 
-              <div style={{ textAlign: "center" }}>
-                <div
-                  style={{
-                    fontFamily: '"Cormorant Garamond", serif',
-                    fontWeight: 300,
-                    fontStyle: "italic",
-                    fontSize: "2rem",
-                    letterSpacing: "0.22em",
-                    color: "#B5893A",
-                    textTransform: "uppercase",
-                    lineHeight: 1.15,
-                  }}
-                >
-                  Marcelino&apos;s
+            <div className=" mt-1 leading-tight inline-block text-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">
+                <div className="text-[0.9rem] -mb-0.75 font-extrabold tracking-widest text-cream font-serif">
+                  MARCELINO'S
                 </div>
-                <div
-                  style={{
-                    marginTop: "6px",
-                    fontFamily: '"Jost", sans-serif',
-                    fontWeight: 200,
-                    fontSize: "0.62rem",
-                    letterSpacing: "0.42em",
-                    color: "#7A8C6E",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Resort & Hotel
+                <div className="text-[0.9rem] text-gold-light tracking-[0.15em] font-medium w-full text-center">
+                  RESORT HOTEL
                 </div>
               </div>
-
               <div
                 style={{
                   width: 48,

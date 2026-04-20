@@ -141,7 +141,7 @@ function EventVenues() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.25fr] gap-2 lg:gap-18 items-start lg:items-center">
           {/* Left: venue text */}
-          <div className="order-1 lg:self-center">
+          <div className="order-1 px-4 lg:self-center">
             <div className="mb-5">
               <div className="section-eyebrow">Event Spaces</div>
               <h2
@@ -152,7 +152,7 @@ function EventVenues() {
               </h2>
             </div>
 
-            <p className="text-lg leading-relaxed text-black mb-10 max-w-[65ch]">
+            <p className="text-lg leading-relaxed text-black mb-5 max-w-[65ch]">
               From intimate weddings to grand corporate gatherings, our versatile
               venues transform your vision into an unforgettable experience in the
               heart of Leyte.
@@ -160,7 +160,7 @@ function EventVenues() {
 
             <button
               onClick={() => navigate("/venues")}
-              className="btn-primary-mockup"
+              className="btn-primary-mockup mb-5"
             >
               View All Venues
             </button>

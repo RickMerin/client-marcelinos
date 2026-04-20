@@ -34,7 +34,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 const App = () => {
   useRealtimeGlobalSubscriber();
   const [isLoadingMaintenance, setIsLoadingMaintenance] = useState(true);
-  const [showGlobalLoader, setShowGlobalLoader] = useState(true);
+  const [showGlobalLoader, setShowGlobalLoader] = useState(false);
   const [isLoaderExiting, setIsLoaderExiting] = useState(false);
   const [maintenance, setMaintenance] = useState({
     enabled: false,
@@ -118,6 +118,19 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    if (!isLoadingMaintenance || showGlobalLoader) return;
+
+    const delayedLoaderTimer = window.setTimeout(() => {
+      setIsLoaderExiting(false);
+      setShowGlobalLoader(true);
+    }, 450);
+
+    return () => {
+      window.clearTimeout(delayedLoaderTimer);
+    };
+  }, [isLoadingMaintenance, showGlobalLoader]);
+
+  useEffect(() => {
     if (!isLoadingMaintenance && showGlobalLoader) {
       setIsLoaderExiting(true);
       const exitTimer = window.setTimeout(() => {
@@ -130,7 +143,7 @@ const App = () => {
     }
   }, [isLoadingMaintenance, showGlobalLoader]);
 
-  if (showGlobalLoader || isLoadingMaintenance) {
+  if (showGlobalLoader) {
     return <GlobalSplash isExiting={isLoaderExiting} />;
   }
 
