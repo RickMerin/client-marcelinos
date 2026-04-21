@@ -457,6 +457,9 @@ export function Step5(props: Props) {
   const bookingStatus = isFromApi
     ? receipt?.booking_status
     : form?.booking_status;
+  const bookingStatusResolved = bookingStatus ?? "reserved";
+  const paymentStatus =
+    (isFromApi ? receipt?.payment_status : form?.payment_status) ?? "unpaid";
 
   const checkIn = isFromApi ? receipt?.check_in : form?.check_in;
   const checkOut = isFromApi ? receipt?.check_out : form?.check_out;
@@ -534,9 +537,10 @@ export function Step5(props: Props) {
       : paymentMethod || undefined;
 
   const isCancelled =
-    bookingStatus === "cancelled" || bookingStatus === "completed"; //for display purposes, treat completed same as cancelled since booking is no longer active
-  const isCancel = bookingStatus === "completed"; //for downloading receipt only, hide cancel button if already completed
-  const isRescheduled = bookingStatus === "rescheduled";
+    bookingStatusResolved === "cancelled" ||
+    bookingStatusResolved === "completed"; //for display purposes, treat completed same as cancelled since booking is no longer active
+  const isCancel = bookingStatusResolved === "completed"; //for downloading receipt only, hide cancel button if already completed
+  const isRescheduled = bookingStatusResolved === "rescheduled";
 
   const cancelBooking = useApiMutation<void>("patch", {
     onError: (err: Error & { response?: { data?: { message?: string } } }) => {
@@ -551,10 +555,10 @@ export function Step5(props: Props) {
   const [isProcessingReschedule, setIsProcessingReschedule] = useState(false);
 
   useEffect(() => {
-    if (bookingStatus === "rescheduled") {
+    if (bookingStatusResolved === "rescheduled") {
       setIsProcessingReschedule(false);
     }
-  }, [bookingStatus]);
+  }, [bookingStatusResolved]);
 
   const roomsFromApi =
     receipt != null
@@ -676,22 +680,23 @@ export function Step5(props: Props) {
       ? receipt.down_payment_notice_applies
       : downPaymentNoticeAppliesFromSchedule;
 
-  const statusLower = String(bookingStatus ?? "").toLowerCase();
+  const bookingStatusLower = String(bookingStatusResolved ?? "").toLowerCase();
+  const paymentStatusLower = String(paymentStatus ?? "").toLowerCase();
   const hideBookingActionButtons =
-    statusLower === "occupied" || statusLower === "completed";
+    bookingStatusLower === "occupied" || bookingStatusLower === "completed";
   const useMessengerFromApi =
     isFromApi && receipt?.use_messenger_deposit_instructions === true;
 
   const showMessengerDepositBlock =
     isFromApi &&
     !isCancelled &&
-    statusLower === "unpaid" &&
+    paymentStatusLower === "unpaid" &&
     useMessengerFromApi;
 
   const showLegacyThreeDayDepositBlock =
     isFromApi &&
     !isCancelled &&
-    statusLower === "unpaid" &&
+    paymentStatusLower === "unpaid" &&
     unpaidExpiresIso != null &&
     downPaymentNoticeApplies &&
     !useMessengerFromApi;
@@ -767,19 +772,34 @@ export function Step5(props: Props) {
   };
 
   const getBookingStatusColor = (status: string) => {
-    switch (status) {
+    switch (String(status).toLowerCase()) {
       case "complete":
+      case "completed":
         return "bg-green-100 text-green-800";
       case "cancelled":
         return "bg-red-100 text-red-800";
       case "pending":
         return "bg-yellow-100 text-yellow-800";
       case "confirmed":
+      case "reserved":
         return "bg-sage-muted text-sea";
       case "occupied":
         return "bg-green-100 text-green-800";
       case "rescheduled":
         return "bg-purple-100 text-purple-800";
+      default:
+        return "bg-sand text-ink";
+    }
+  };
+
+  const getPaymentStatusColor = (status: string) => {
+    switch (String(status).toLowerCase()) {
+      case "paid":
+        return "bg-green-100 text-green-800";
+      case "partial":
+        return "bg-amber-100 text-amber-800";
+      case "unpaid":
+        return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-sand text-ink";
     }
@@ -907,16 +927,29 @@ export function Step5(props: Props) {
               </div>
               <div className="space-y-1.5 sm:text-right">
                 <ReceiptRow
-                  label="Status"
-                  value={bookingStatus}
+                  label="Stay status"
+                  value={bookingStatusResolved}
                   valueClassName={
-                    bookingStatus
+                    bookingStatusResolved
                       ? `font-semibold ${getBookingStatusColor(
-                          bookingStatus,
+                          bookingStatusResolved,
                         )} px-2 py-0.5 rounded inline-block capitalize`
                       : "font-semibold"
                   }
                 />
+                {isFromApi && (
+                  <ReceiptRow
+                    label="Payment status"
+                    value={paymentStatus}
+                    valueClassName={
+                      paymentStatus
+                        ? `font-semibold ${getPaymentStatusColor(
+                            paymentStatus,
+                          )} px-2 py-0.5 rounded inline-block capitalize`
+                        : "font-semibold"
+                    }
+                  />
+                )}
                 {showLegacyThreeDayDepositBlock && (
                   <>
                     <ReceiptRow

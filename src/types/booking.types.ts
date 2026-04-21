@@ -66,6 +66,9 @@ export interface BookingReferenceResponse {
 		reference_number: string;
 		/** Opaque public id for receipt URL (UUID). */
 		receipt_token?: string;
+		booking_status?: string;
+		payment_status?: string;
+		/** @deprecated merged into booking_status + payment_status */
 		status?: string;
 		check_in?: string;
 		check_out?: string;
@@ -117,6 +120,7 @@ export interface BookingReceipt {
 	reference_number: string;
 	created_at: string;
 	booking_status: string;
+	payment_status: string;
 	check_in: string;
 	check_out: string;
 	issued_on: string;
@@ -222,6 +226,9 @@ export interface FormData {
 
   totalPrice: number;
   grandTotalPrice: number;
+  /** Set when booking is created from API response (optional). */
+  booking_status?: string;
+  payment_status?: string;
 }
 
 export interface PersonalDetails {
