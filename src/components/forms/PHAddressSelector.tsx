@@ -328,13 +328,19 @@ function LocalAddressForm({
 type Props = {
   value: string;
   onChange: (nextAddress: string) => void;
+  onAddressTypeChange?: (addressType: "local" | "international") => void;
   disabled?: boolean;
 };
 
 const sortByName = (items: PSGCOption[]) =>
   [...items].sort((a, b) => a.name.localeCompare(b.name));
 
-export function PHAddressSelector({ value, onChange, disabled }: Props) {
+export function PHAddressSelector({
+  value,
+  onChange,
+  onAddressTypeChange,
+  disabled,
+}: Props) {
   const stored = useMemo(() => {
     const raw = getFromLocalStorage(STORAGE_KEY);
     return raw as StoredPHAddress | null;
@@ -516,6 +522,7 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
 
   const handleSelectLocal = () => {
     dispatch({ type: "SET_ADDRESS_TYPE", addressType: "local" });
+    onAddressTypeChange?.("local");
     onChange(computedAddress);
   };
 
@@ -524,6 +531,7 @@ export function PHAddressSelector({ value, onChange, disabled }: Props) {
       type: "SET_ADDRESS_TYPE",
       addressType: "international",
     });
+    onAddressTypeChange?.("international");
     onChange(internationalAddress);
   };
 

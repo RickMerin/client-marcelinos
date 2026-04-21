@@ -1,5 +1,5 @@
 import { FormData, type VenueEventType } from "@/types/booking.types";
-import { personalDetailsSchema } from "@/lib/validators/personalDetails.schema";
+import { createPersonalDetailsSchema } from "@/lib/validators/personalDetails.schema";
 import { generateReferenceId } from "@/lib/utils/booking.utils";
 
 const VENUE_EVENT_TYPES = new Set<VenueEventType>([
@@ -15,6 +15,10 @@ function hasValidVenueEventType(formData: FormData): boolean {
   return VENUE_EVENT_TYPES.has(t);
 }
 
+function hasValidLocalPhone(phone: string): boolean {
+  return /^09\d{9}$/.test((phone ?? "").trim());
+}
+
 /**
  * Custom hook for booking form validation logic
  */
@@ -22,6 +26,18 @@ export const useBookingValidation = (
   formData: FormData,
   updateFormData: (updates: Partial<FormData>) => void,
 ) => {
+  const isInternationalAddress = (() => {
+    if (typeof window === "undefined") return false;
+    try {
+      const raw = localStorage.getItem("reservationDetails.personal.phAddress");
+      if (!raw) return false;
+      const parsed = JSON.parse(raw) as { addressType?: "local" | "international" };
+      return parsed.addressType === "international";
+    } catch {
+      return false;
+    }
+  })();
+
   const personalDetails = {
     firstName: formData.firstName,
     middleName: formData.middleName,
@@ -47,7 +63,17 @@ export const useBookingValidation = (
         return formData.rooms.length > 0 || formData.venues.length > 0;
       }
       case 2:
-        return personalDetailsSchema.safeParse(personalDetails).success;
+        if (
+          !createPersonalDetailsSchema(isInternationalAddress).safeParse(
+            personalDetails,
+          ).success
+        ) {
+          return false;
+        }
+        if (!isInternationalAddress && !hasValidLocalPhone(formData.phone)) {
+          return false;
+        }
+        return true;
       case 3: {
         const t = formData.booking_type ?? "room";
         const hasSelection =

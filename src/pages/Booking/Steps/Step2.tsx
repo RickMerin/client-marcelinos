@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { PHAddressSelector } from "@/components/forms/PHAddressSelector";
 
 import {
-  personalDetailsSchema,
+  createPersonalDetailsSchema,
   type PersonalDetailsFormValues,
 } from "@/lib/validators/personalDetails.schema";
 
@@ -38,6 +38,7 @@ interface Props {
 }
 
 const STORAGE_KEY = "reservationDetails.personal";
+const ADDRESS_STORAGE_KEY = "reservationDetails.personal.phAddress";
 
 export function Step2({ formData, onUpdate, onValuesChange }: Props) {
   const saved = getFromLocalStorage(STORAGE_KEY);
@@ -46,8 +47,17 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
   const toUpper = (v: string) =>
     v != null && v !== "" ? String(v).toUpperCase() : v;
 
+  const isInternationalAddress = () => {
+    const storedAddress = getFromLocalStorage(ADDRESS_STORAGE_KEY) as
+      | { addressType?: "local" | "international" }
+      | null;
+    return storedAddress?.addressType === "international";
+  };
+
+  const [isInternational, setIsInternational] = useState(isInternationalAddress());
+
   const form = useForm<PersonalDetailsFormValues>({
-    resolver: zodResolver(personalDetailsSchema),
+    resolver: zodResolver(createPersonalDetailsSchema(isInternationalAddress())),
     defaultValues: {
       ...raw,
       firstName: toUpper(raw.firstName) ?? "",
@@ -75,6 +85,8 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
   /* ---------- sync current values to parent (so Continue stays disabled when gender empty) ---------- */
   useEffect(() => {
     const sub = form.watch((values) => {
+      const schema = createPersonalDetailsSchema(isInternationalAddress());
+
       onValuesChange?.({
         firstName: values.firstName,
         middleName: values.middleName ?? null,
@@ -87,9 +99,10 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
         email: values.email,
         address: values.address,
       });
-      if (form.formState.isValid) {
+      const parsedResult = schema.safeParse(values);
+      if (parsedResult.success) {
         try {
-          const parsed = personalDetailsSchema.parse(values);
+          const parsed = parsedResult.data;
           onUpdate(parsed);
           saveToLocalStorage(STORAGE_KEY, parsed);
         } catch (e) {
@@ -244,7 +257,14 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className={labelClass}>
-                        Phone Number {requiredMark}
+                        Phone Number{" "}
+                        {isInternational ? (
+                          <span className="text-muted-foreground font-normal">
+                            (optional for foreign)
+                          </span>
+                        ) : (
+                          requiredMark
+                        )}
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -303,6 +323,9 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                         <PHAddressSelector
                           value={field.value ?? ""}
                           onChange={(next) => field.onChange(next || "")}
+                          onAddressTypeChange={(addressType) =>
+                            setIsInternational(addressType === "international")
+                          }
                         />
                         <input
                           type="hidden"
