@@ -6,7 +6,7 @@ const envMessenger = import.meta.env.VITE_MESSENGER_URL as string | undefined;
 export const MESSENGER_CHAT_URL =
   typeof envMessenger === "string" && envMessenger.trim() !== ""
     ? envMessenger.trim()
-    : "https://m.me/1019614364578719";
+    : "https://m.me/61557457680496";
 
 /** Default: all room types visible until the guest narrows the list. */
 export const DEFAULT_ROOM_TYPE_FILTERS: RoomTypeFilter[] = [
