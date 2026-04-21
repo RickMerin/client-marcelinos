@@ -27,6 +27,44 @@ function isReceiptTokenUuid(value: string): boolean {
   return UUID_RE.test(value);
 }
 
+/** Map deprecated merged `status` when API has not yet sent split fields. */
+function splitLegacyBookingStatus(merged: string | undefined): {
+  booking_status: string;
+  payment_status: string;
+} {
+  const s = String(merged ?? "").toLowerCase();
+  const paymentFromStay = (stay: string): string => {
+    if (stay === "occupied" || stay === "completed") return "paid";
+    return "unpaid";
+  };
+  if (
+    s === "unpaid" ||
+    s === "partial" ||
+    s === "paid" ||
+    s === "occupied" ||
+    s === "completed" ||
+    s === "cancelled" ||
+    s === "rescheduled"
+  ) {
+    const booking_status =
+      s === "occupied"
+        ? "occupied"
+        : s === "completed"
+          ? "completed"
+          : s === "cancelled"
+            ? "cancelled"
+            : s === "rescheduled"
+              ? "rescheduled"
+              : "reserved";
+    const payment_status =
+      s === "unpaid" || s === "partial" || s === "paid"
+        ? s
+        : paymentFromStay(s);
+    return { booking_status, payment_status };
+  }
+  return { booking_status: "reserved", payment_status: "unpaid" };
+}
+
 /** Transform GET /bookings/receipt/:token (or legacy reference) response into BookingReceipt format for Step5 */
 function toBookingReceipt(
   res: BookingReferenceResponse,
@@ -61,9 +99,12 @@ function toBookingReceipt(
 	const balance = Number(
 		res.payment?.balance ?? Math.max(0, Number(total) || 0),
 	);
-	const amountDueNow = Number(
+  const amountDueNow = Number(
 		res.payment?.amount_due_now ?? Math.max(0, Number(total) || 0),
 	);
+  const legacy = splitLegacyBookingStatus(b.status);
+  const booking_status = b.booking_status ?? legacy.booking_status;
+  const payment_status = b.payment_status ?? legacy.payment_status;
   return {
 		reference_number: b.reference_number ?? "",
 		unpaid_expires_at: res.unpaid_expires_at ?? null,
@@ -73,7 +114,8 @@ function toBookingReceipt(
 		down_payment_percent: res.down_payment_percent,
 		use_messenger_deposit_instructions: res.use_messenger_deposit_instructions,
 		created_at: b.created_at ?? "",
-		booking_status: b.status ?? "unpaid",
+		booking_status,
+		payment_status,
 		check_in: b.check_in ?? "",
 		check_out: b.check_out ?? "",
 		issued_on: b.created_at ?? new Date().toISOString(),
@@ -310,17 +352,17 @@ export function BookingReceiptPage({
     </div>
   ) : null;
 
-  const statusLower = String(receipt.booking_status ?? "").toLowerCase();
+  const paymentStatusLower = String(receipt.payment_status ?? "").toLowerCase();
   const hasSuccessParam = paymentStatus === "success";
   const payInFull =
 		!hasSuccessParam &&
 		receipt.payment_method === "online" &&
 		receipt.can_retry_payment === true &&
-		(statusLower === "unpaid" || statusLower === "partial");
+		(paymentStatusLower === "unpaid" || paymentStatusLower === "partial");
 
   const dueNowAmount = Math.max(0, Number(receipt.amount_due_now ?? 0));
 	const paymentActionLabel = (() => {
-		if (statusLower === "partial") {
+		if (paymentStatusLower === "partial") {
 			return `Pay Remaining Balance Online (${dueNowAmount > 0 ? `₱${dueNowAmount.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Amount Pending"})`;
 		}
 		if (String(receipt.online_payment_plan ?? "").startsWith("partial_")) {
