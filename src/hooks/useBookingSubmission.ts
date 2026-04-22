@@ -4,7 +4,10 @@ import {
 } from "@/types/booking.types";
 import { FormData } from "@/types/booking.types";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
-import { buildBookingPayload } from "@/lib/utils/booking.utils";
+import {
+  buildBookingPayload,
+  type BuildBookingPayloadOptions,
+} from "@/lib/utils/booking.utils";
 
 type ErrorWithResponse = Error & {
   response?: { data?: BookingConflictResponse };
@@ -52,11 +55,12 @@ export const useBookingSubmission = () => {
     formData: FormData,
     onSuccess?: (response: BookingResponse) => void,
     onError?: (error: unknown) => void,
+    security?: BuildBookingPayloadOptions,
   ) => {
     try {
       const response = (await createBooking.mutateAsync({
         url: "/bookings",
-        body: buildBookingPayload(formData),
+        body: buildBookingPayload(formData, security),
       })) as BookingResponse;
 
       if (onSuccess) {

@@ -60,38 +60,62 @@ export function MultiStepForm() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (captchaToken: string, websiteHoneypot: string) => {
     if (!isStepComplete(2) || !isStepComplete(4)) {
       alert("Please complete required fields.");
       return;
     }
 
-    await submitBooking(formData, (response) => {
-      // Keep booking form storage until receipt flow completes, but clear cart immediately
-      // after successful booking creation so guest selections don't linger.
-      clearCartStorage();
+    await submitBooking(
+      formData,
+      (response) => {
+        // Keep booking form storage until receipt flow completes, but clear cart immediately
+        // after successful booking creation so guest selections don't linger.
+        clearCartStorage();
 
-      // Online payment: redirect to Xendit payment page
-      if (response?.payment_url) {
-        window.location.href = response.payment_url;
-        return;
-      }
-      const receiptToken =
-        response?.booking?.receipt_token ??
-        (response?.bookings?.[0] as { receipt_token?: string } | undefined)
-          ?.receipt_token;
-      const referenceNumber =
-        response?.booking?.reference_number ??
-        response?.bookings?.[0]?.reference_number ??
-        formData.reference_number;
-      if (receiptToken) {
-        navigate(`/booking-receipt/${receiptToken}`);
-      } else if (referenceNumber) {
-        navigate(`/booking-receipt/${referenceNumber}`);
-      } else {
-        goToStep(5);
-      }
-    });
+        if (response?.email_verification_required) {
+          const receiptToken =
+            response?.booking?.receipt_token ??
+            (response?.bookings?.[0] as { receipt_token?: string } | undefined)
+              ?.receipt_token;
+          const referenceNumber =
+            response?.booking?.reference_number ??
+            response?.bookings?.[0]?.reference_number ??
+            formData.reference_number;
+          if (receiptToken) {
+            navigate(`/booking-receipt/${encodeURIComponent(receiptToken)}`);
+          } else if (referenceNumber) {
+            navigate(`/booking-receipt/${encodeURIComponent(referenceNumber)}`);
+          } else {
+            goToStep(5);
+          }
+          return;
+        }
+
+        // Online payment: redirect to Xendit payment page
+        if (response?.payment_url) {
+          window.location.href = response.payment_url;
+          return;
+        }
+        const receiptToken =
+          response?.booking?.receipt_token ??
+          (response?.bookings?.[0] as { receipt_token?: string } | undefined)
+            ?.receipt_token;
+        const referenceNumber =
+          response?.booking?.reference_number ??
+          response?.bookings?.[0]?.reference_number ??
+          formData.reference_number;
+        if (receiptToken) {
+          navigate(`/booking-receipt/${receiptToken}`);
+        } else if (referenceNumber) {
+          navigate(`/booking-receipt/${referenceNumber}`);
+        } else {
+          goToStep(5);
+        }
+      },
+      undefined,
+      { captchaToken, website: websiteHoneypot },
+    );
   };
 
   return (

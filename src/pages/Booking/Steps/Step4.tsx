@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Modal from "@/components/modals/Modal";
 import PaymentConfirmContent from "@/components/modals/PolicyDisclaimer";
+import { useTurnstile } from "@/hooks/useTurnstile";
 
 import cashless from "@/assets/img/cashless-payment-svgrepo-com.svg";
 import cash from "@/assets/img/cash.webp";
@@ -21,7 +22,7 @@ interface Step4Props {
     partialPaymentPercent: number;
   };
   onBack: () => void;
-  onProceed: () => void;
+  onProceed: (captchaToken: string, websiteHoneypot: string) => void;
   isSubmitting?: boolean;
 }
 
@@ -35,6 +36,14 @@ export function Step4({
   onProceed,
   isSubmitting = false,
 }: Step4Props) {
+  const {
+    containerRef: captchaRef,
+    token: captchaToken,
+    error: captchaError,
+    setError: setCaptchaError,
+    reset: resetCaptcha,
+  } = useTurnstile({ size: "flexible" });
+  const [honeypot, setHoneypot] = useState("");
   const [isProceedModalOpen, setIsProceedModalOpen] = useState(false);
   const [isPaymentPlanModalOpen, setIsPaymentPlanModalOpen] = useState(false);
   const [isOnlinePaymentEnabled, setIsOnlinePaymentEnabled] = useState(
@@ -167,12 +176,21 @@ export function Step4({
     setIsProceedModalOpen(true);
   };
 
+  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as
+    | string
+    | undefined;
+
   const handleConfirmProceed = () => {
+    if (turnstileSiteKey && !captchaToken) {
+      setCaptchaError("Please verify you're not a robot.");
+      return;
+    }
+    setCaptchaError("");
     // Keep modal open so the button loader is visible during submit
     toast.success({
       content: "Payment method locked in! Finalizing your booking now.",
     });
-    onProceed(); // FINAL proceed – on success we navigate away; on error modal stays, user can Cancel
+    onProceed(captchaToken ?? "", honeypot);
   };
 
   return (
@@ -329,12 +347,42 @@ export function Step4({
       {/* Proceed Confirmation Modal – stay open during submit so loader is visible */}
       <Modal
         open={isProceedModalOpen}
-        onClose={isSubmitting ? () => {} : () => setIsProceedModalOpen(false)}
+        onClose={
+          isSubmitting
+            ? () => {}
+            : () => {
+                setIsProceedModalOpen(false);
+                resetCaptcha();
+              }
+        }
         showCloseButton={!isSubmitting}
         contentClassName="relative w-full max-w-3xl mx-4 overflow-hidden rounded-xl border border-[#d7c089]/25 bg-[#0c2c27]/95 px-5 py-6 text-center shadow-2xl backdrop-blur-sm md:px-8 md:py-8"
         backgroundImage={undefined}>
+        <input
+          type="text"
+          name="website"
+          autoComplete="off"
+          tabIndex={-1}
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+          className="pointer-events-none absolute left-[-9999px] h-px w-px opacity-0"
+          aria-hidden
+        />
+        {turnstileSiteKey ? (
+          <div className="mb-4 flex min-h-16 justify-center">
+            <div ref={captchaRef} className="min-w-0" />
+          </div>
+        ) : null}
+        {captchaError ? (
+          <p className="mb-3 text-sm text-red-300">{captchaError}</p>
+        ) : null}
         <PaymentConfirmContent
-          onCancel={() => !isSubmitting && setIsProceedModalOpen(false)}
+          onCancel={() => {
+            if (!isSubmitting) {
+              setIsProceedModalOpen(false);
+              resetCaptcha();
+            }
+          }}
           onConfirm={handleConfirmProceed}
           isSubmitting={isSubmitting}
         />

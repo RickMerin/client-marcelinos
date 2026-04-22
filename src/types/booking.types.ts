@@ -34,7 +34,9 @@ export interface BookingResponse {
   bookings?: Array<{ reference_number: string; [key: string]: unknown }>;
   total_price?: number;
   /** Xendit payment page URL (present when payment_method is 'online') */
-  payment_url?: string;
+  payment_url?: string | null;
+  /** True until the guest opens the signed link from their email */
+  email_verification_required?: boolean;
 }
 
 /** API 422 response when date range conflicts with existing booking */
@@ -125,6 +127,8 @@ export interface BookingReferenceResponse {
 	qr_code_url?: string | null;
 	/** True when a testimonial/site review has already been submitted for this booking. */
 	has_testimonial?: boolean;
+	/** From API when booking is not yet email-confirmed */
+	email_verification_required?: boolean;
 }
 
 /** Receipt view model for Step5 (from booking API payload). */
@@ -160,6 +164,7 @@ export interface BookingReceipt {
 	}>;
 	/** True when stay includes accommodation (show check-in/out times on receipt). */
 	has_room_stay?: boolean;
+	email_verification_required?: boolean;
 	/** Multiple venues */
 	venues?: Array<{
 		name: string;
@@ -295,4 +300,7 @@ export interface BookingPayload {
   newsletter: boolean;
   notifications: boolean;
   city: string | null;
+  captcha_token?: string;
+  /** Honeypot — must stay empty */
+  website?: string;
 }
