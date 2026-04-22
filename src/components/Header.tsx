@@ -122,6 +122,8 @@ export default function Header() {
   const hasValidStayForBooking =
     Boolean(stayWindow?.checkIn && stayWindow?.checkOut) &&
     Number(stayWindow?.days) > 0;
+  const shouldHideLuggageIcon =
+    location.pathname.includes("/booking-receipt/");
 
   const headerRef = useRef<HTMLElement>(null);
   const scrollingToRef = useRef<string | null>(null);
@@ -383,7 +385,8 @@ export default function Header() {
               </li>
             );
           })}
-          <li className="relative z-220 flex items-center">
+          {!shouldHideLuggageIcon && (
+            <li className="relative z-220 flex items-center">
             <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
               <SheetTrigger asChild>
                 <button
@@ -406,7 +409,7 @@ export default function Header() {
 
               <SheetContent
                 side="right"
-                className="w-full max-w-[100vw] sm:max-w-lg bg-cream overflow-y-auto z-[9999] flex flex-col p-0 border-l border-sand-dark/60"
+                  className="w-full max-w-[100vw] sm:max-w-lg bg-cream overflow-y-auto z-9999 flex flex-col p-0 border-l border-sand-dark/60"
               >
                 <SheetHeader className="px-6 py-5 border-b border-sand-dark/50 sticky top-0 bg-cream z-10 text-left gap-4">
                   <div className="flex items-start justify-between gap-3">
@@ -574,28 +577,31 @@ export default function Header() {
                 </div>
               </SheetContent>
             </Sheet>
-          </li>
+            </li>
+          )}
         </ul>
 
         {/* Mobile quick actions */}
         <div className="relative z-220 flex items-center gap-5 lg:hidden">
-          <button
-            type="button"
-            onClick={() => setIsCartOpen(true)}
-            className="relative z-10 text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
-            aria-label="View Cart"
-          >
-            <Luggage className="w-5 h-5 drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)]" strokeWidth={1.75}  />
-            <span
-              className={`absolute -top-2 -right-3 flex min-h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[10px] font-bold tabular-nums ${
-                cartCount > 0
-                  ? "bg-emerald-600 text-white"
-                  : "border border-cream/35 bg-dark/80 text-cream/90"
-              }`}
+          {!shouldHideLuggageIcon && (
+            <button
+              type="button"
+              onClick={() => setIsCartOpen(true)}
+              className="relative z-10 text-cream/90 hover:text-gold-light transition-colors duration-300 cursor-pointer"
+              aria-label="View Cart"
             >
-              {cartCount}
-            </span>
-          </button>
+              <Luggage className="w-5 h-5 drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)]" strokeWidth={1.75} />
+              <span
+                className={`absolute -top-2 -right-3 flex min-h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[10px] font-bold tabular-nums ${
+                  cartCount > 0
+                    ? "bg-emerald-600 text-white"
+                    : "border border-cream/35 bg-dark/80 text-cream/90"
+                }`}
+              >
+                {cartCount}
+              </span>
+            </button>
+          )}
           {/* Hamburger */}
           <button
             className="flex flex-col justify-center gap-[5px] w-8 h-8 bg-transparent border-none p-1 cursor-pointer z-210 drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]"
