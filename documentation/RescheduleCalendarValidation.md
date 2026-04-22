@@ -6,6 +6,18 @@ This document explains the logic used in the rescheduling flow, specifically in 
 
 When a guest chooses to reschedule an existing booking, they only select a **new check-in date**, while the system carries over the duration (number of nights/days) from their original booking. Because it's a fixed-duration reschedule, the checking logic needs to verify that the **entire future block** starting from the selected new check-in date is available.
 
+### Booking-type date rules (reschedule)
+
+- `room` and `both` bookings keep the existing night-based behavior:
+  - `days` is treated as a night span.
+  - `check_out = check_in + days`.
+  - Minimum effective span is 1 night.
+- `venue` bookings use same-day-friendly day-based behavior:
+  - `days` is treated as an inclusive day count.
+  - Effective date span is `days - 1` for range math.
+  - `check_out = check_in + (days - 1)`.
+  - This means `days = 1` now produces a valid same-day booking (`check_in === check_out`).
+
 ## Core Validation Logic
 
 ### 1. Fetching Blocked Dates (`useApiQuery`)
@@ -57,6 +69,8 @@ function stayOverlapsBlocked(
 ```
 
 If **any day** within the loop matches a blocked date in the Set, the entire stay is invalid.
+
+For venue reschedules, the helper still runs the same way, but the input span changes to the effective inclusive span (`days - 1`). This is what enables same-day venue dates without changing overlap safety checks.
 
 ### 4. Disabling Dates on the Calendar (`isDateDisabled`)
 
@@ -144,6 +158,7 @@ Guests can increase/decrease reschedule duration via +/- controls.
 
 - Label adapts by booking type (`Number of Nights` vs `Number of Days`)
 - Decrement is disabled at minimum value of 1
+- For `venue` bookings, `1` means same-day (`check_in === check_out`)
 - Every change re-evaluates overlap invalid states and disabled dates in real time
 
 ### 6. OTP Verification for Reschedule Submission

@@ -55,6 +55,7 @@ export default function RescheduleBookingContent({
   bookingType?: BookingKind;
 }) {
   const isVenueBooking = bookingType === "venue" || bookingType === "both";
+  const allowsSameDayReschedule = bookingType === "venue";
   const durationLabel = isVenueBooking ? "Number of Days" : "Number of Nights";
   const formatDurationText = (count: number) =>
     `${count} ${isVenueBooking ? (count === 1 ? "day" : "days") : count === 1 ? "night" : "nights"}`;
@@ -90,6 +91,18 @@ export default function RescheduleBookingContent({
 
   const [days, setDays] = useState(currentDays);
 
+  // Venue-only uses inclusive dates: 1 day means check-in and check-out are the same day.
+  const selectedStaySpanDays = useMemo(
+    () => (allowsSameDayReschedule ? Math.max(0, days - 1) : days),
+    [allowsSameDayReschedule, days],
+  );
+
+  const currentStaySpanDays = useMemo(
+    () =>
+      allowsSameDayReschedule ? Math.max(0, currentDays - 1) : currentDays,
+    [allowsSameDayReschedule, currentDays],
+  );
+
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(() => {
     if (currentCheckIn) {
       const d = new Date(currentCheckIn);
@@ -106,8 +119,8 @@ export default function RescheduleBookingContent({
 
   const currentCheckOutDate = useMemo(() => {
     if (!currentCheckInDate) return null;
-    return addDays(currentCheckInDate, currentDays);
-  }, [currentCheckInDate, currentDays]);
+    return addDays(currentCheckInDate, currentStaySpanDays);
+  }, [currentCheckInDate, currentStaySpanDays]);
 
   type BlockedDatesResponse = {
     success?: boolean;
@@ -181,9 +194,9 @@ export default function RescheduleBookingContent({
       const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
       if (d < todayStart) return true;
       if (blockedDates.some((b) => toDayKey(b) === toDayKey(d))) return true;
-      return stayOverlapsBlocked(d, days, blockedDates);
+      return stayOverlapsBlocked(d, selectedStaySpanDays, blockedDates);
     },
-    [todayStart, blockedDates, days],
+    [todayStart, blockedDates, selectedStaySpanDays],
   );
 
   const isOverlapInvalid = useCallback(
@@ -191,17 +204,28 @@ export default function RescheduleBookingContent({
       const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
       if (d < todayStart) return false;
       if (blockedDates.some((b) => toDayKey(b) === toDayKey(d))) return false;
-      return stayOverlapsBlocked(d, days, blockedDates);
+      return stayOverlapsBlocked(d, selectedStaySpanDays, blockedDates);
     },
-    [todayStart, blockedDates, days],
+    [todayStart, blockedDates, selectedStaySpanDays],
   );
 
   const stayRangeModifiers = useMemo(() => {
     if (!selectedDate) return undefined;
-    return stayNightRangeModifiers(selectedDate, addDays(selectedDate, days));
-  }, [selectedDate, days]);
+    return stayNightRangeModifiers(
+      selectedDate,
+      addDays(selectedDate, selectedStaySpanDays),
+    );
+  }, [selectedDate, selectedStaySpanDays]);
 
   const otpDigits = otp.replace(/\D/g, "").slice(0, 6);
+
+  const payloadCheckIn = selectedDate ? toDayKey(selectedDate) : "";
+  const payloadCheckOut = selectedDate
+    ? allowsSameDayReschedule && selectedStaySpanDays === 0
+      ? // Keep same calendar day for venue 1-day bookings while satisfying strict "after" validation.
+        `${payloadCheckIn} 23:59:59`
+      : toDayKey(addDays(selectedDate, selectedStaySpanDays))
+    : "";
 
   const handleSendOtp = async () => {
     if (!referenceNumber || resendIn > 0 || sendOtp.isPending) return;
@@ -224,7 +248,7 @@ export default function RescheduleBookingContent({
       return;
     }
 
-    if (stayOverlapsBlocked(selectedDate, days, blockedDates)) {
+    if (stayOverlapsBlocked(selectedDate, selectedStaySpanDays, blockedDates)) {
       toast.error({
         content:
           "Your selected stay overlaps with blocked dates. Please adjust your dates.",
@@ -245,9 +269,15 @@ export default function RescheduleBookingContent({
       await rescheduleBooking.mutateAsync({
         url: `/bookings/${referenceNumber}/reschedule`,
         body: {
-          check_in: toDayKey(selectedDate),
-          check_out: toDayKey(addDays(selectedDate, days)),
+          check_in: payloadCheckIn,
+          check_out: payloadCheckOut,
           days: days,
+          ...(allowsSameDayReschedule
+            ? {
+                booking_type: "venue",
+                venue_event_date: payloadCheckIn,
+              }
+            : {}),
           otp: otpDigits,
         },
       });
@@ -267,7 +297,9 @@ export default function RescheduleBookingContent({
     }
   };
 
-  const newCheckOut = selectedDate ? addDays(selectedDate, days) : null;
+  const newCheckOut = selectedDate
+    ? addDays(selectedDate, selectedStaySpanDays)
+    : null;
 
   return (
     <div className="relative z-10 mx-auto flex w-full max-w-260 max-h-[90vh] flex-col overflow-y-auto rounded-2xl border border-cream/15 bg-dark/95 text-cream backdrop-blur-md xl:max-h-[78vh] xl:flex-row xl:overflow-hidden">
@@ -412,7 +444,11 @@ export default function RescheduleBookingContent({
               </div>
             </div>
             {selectedDate &&
-              stayOverlapsBlocked(selectedDate, days, blockedDates) && (
+              stayOverlapsBlocked(
+                selectedDate,
+                selectedStaySpanDays,
+                blockedDates,
+              ) && (
                 <div className="text-xs text-red-600 bg-red-50 p-2.5 rounded-lg font-medium flex items-start gap-2 mt-2 border border-red-100">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <p>
@@ -582,7 +618,11 @@ export default function RescheduleBookingContent({
             disabled={
               isSubmitting ||
               !selectedDate ||
-              stayOverlapsBlocked(selectedDate, days, blockedDates) ||
+              stayOverlapsBlocked(
+                selectedDate,
+                selectedStaySpanDays,
+                blockedDates,
+              ) ||
               !otpSent ||
               otpDigits.length !== 6 ||
               sendOtp.isPending

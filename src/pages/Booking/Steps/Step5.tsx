@@ -411,8 +411,7 @@ function getNightsFromDates(
   checkOutValue?: string,
   fallback = 0,
 ): number {
-  // Receipt rule: nights are displayed as booked days minus one.
-  const fallbackNights = Math.max(0, Math.round(fallback) - 1);
+  const fallbackNights = Math.max(1, Math.round(fallback));
   const checkInDate = parseDateInput(checkInValue);
   const checkOutDate = parseDateInput(checkOutValue);
 
@@ -422,7 +421,47 @@ function getNightsFromDates(
   if (diffMs <= 0) return fallbackNights;
 
   const bookedDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-  return Math.max(0, bookedDays - 1);
+  return Math.max(1, bookedDays);
+}
+
+function getInclusiveDaysFromDates(
+  checkInValue?: string,
+  checkOutValue?: string,
+  fallback = 0,
+): number {
+  const fallbackDays = Math.max(1, Math.round(fallback));
+  const checkInDate = parseDateInput(checkInValue);
+  const checkOutDate = parseDateInput(checkOutValue);
+
+  if (!checkInDate || !checkOutDate) return fallbackDays;
+
+  const ciDay = Date.UTC(
+    checkInDate.getFullYear(),
+    checkInDate.getMonth(),
+    checkInDate.getDate(),
+  );
+  const coDay = Date.UTC(
+    checkOutDate.getFullYear(),
+    checkOutDate.getMonth(),
+    checkOutDate.getDate(),
+  );
+  const diffMs = coDay - ciDay;
+  if (diffMs < 0) return fallbackDays;
+
+  const inclusiveDays = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
+  return Math.max(1, inclusiveDays);
+}
+
+function addCalendarDaysIso(
+  dateValue: string | undefined,
+  daysToAdd: number,
+): string | undefined {
+  const parsed = parseDateInput(dateValue);
+  if (!parsed) return undefined;
+
+  const next = new Date(parsed);
+  next.setDate(next.getDate() + daysToAdd);
+  return next.toISOString();
 }
 
 function buildMessengerChatUrl(baseUrl: string, message: string): string {
@@ -486,12 +525,10 @@ export function Step5(props: Props) {
 
   const checkIn = isFromApi ? receipt?.check_in : form?.check_in;
   const checkOut = isFromApi ? receipt?.check_out : form?.check_out;
-  const nights =
-    isFromApi &&
-    receipt?.nights != null &&
-    !Number.isNaN(Number(receipt.nights))
-      ? Math.max(0, Number(receipt.nights))
-      : getNightsFromDates(checkIn, checkOut, receipt?.nights ?? 0);
+  const durationFallback = isFromApi
+    ? Number(receipt?.nights ?? 0)
+    : Number(form?.days ?? 0);
+  const stayNights = getNightsFromDates(checkIn, checkOut, durationFallback);
 
   const bookingType = isFromApi
     ? (() => {
@@ -499,11 +536,28 @@ export function Step5(props: Props) {
           (receipt?.rooms?.length ?? 0) > 0 ||
           (receipt?.room_lines?.length ?? 0) > 0;
         const hasVenues = (receipt?.venues?.length ?? 0) > 0;
+        const hasRoomStay = receipt?.has_room_stay === true;
+        // Trust backend room-stay flag first when available.
+        if (hasVenues && receipt?.has_room_stay === false) return "venue";
         if (hasRooms && hasVenues) return "both";
+        if (hasVenues && hasRoomStay) return "both";
         if (hasVenues) return "venue";
         return "room";
       })()
     : (form?.booking_type ?? "room");
+
+  const isVenueOnlyBooking =
+    bookingType === "venue" ||
+    (isFromApi &&
+      receipt?.has_room_stay === false &&
+      (receipt?.venues?.length ?? 0) > 0);
+
+  const venueDays = getInclusiveDaysFromDates(
+    checkIn,
+    checkOut,
+    durationFallback,
+  );
+  const billingDuration = isVenueOnlyBooking ? venueDays : stayNights;
 
   const guestName = isFromApi
     ? receipt?.guest_name
@@ -533,7 +587,13 @@ export function Step5(props: Props) {
 
   const formattedCreatedAt = formatReceiptDate(createdAt);
   const formattedCheckIn = formatReceiptDate(checkIn, includeRoomTimes);
-  const formattedCheckOut = formatReceiptDate(checkOut, includeRoomTimes);
+  const displayCheckOutValue = isVenueOnlyBooking
+    ? (addCalendarDaysIso(checkIn, Math.max(0, venueDays - 1)) ?? checkOut)
+    : checkOut;
+  const formattedCheckOut = formatReceiptDate(
+    displayCheckOutValue,
+    includeRoomTimes,
+  );
   const formattedIssuedOn = formatReceiptDate(issuedOn);
   const paymentMethod = isFromApi
     ? receipt?.payment_method
@@ -658,8 +718,8 @@ export function Step5(props: Props) {
       : (form?.grandTotalPrice ?? 0);
 
   const nightsForPricing = isFromApi
-    ? Math.max(1, receipt?.nights ?? 1)
-    : Math.max(1, form?.days ?? 1);
+    ? Math.max(1, billingDuration)
+    : Math.max(1, form?.days ?? billingDuration);
 
   const roomsTotal = rooms.reduce((sum: number, r: any) => {
     const p =
@@ -676,13 +736,16 @@ export function Step5(props: Props) {
   const roomsGrandTotal = roomsTotal * nightsForPricing;
   const venuesGrandTotal = venuesLinePerNight * nightsForPricing;
   const calculatedGrandTotal = roomsGrandTotal + venuesGrandTotal;
-  const displayGrandTotal =
-    isFromApi && receipt ? grandTotal : calculatedGrandTotal;
+  const shouldUseCalculatedVenueTotals = isVenueOnlyBooking;
+  const displayGrandTotal = shouldUseCalculatedVenueTotals
+    ? calculatedGrandTotal
+    : isFromApi && receipt
+      ? grandTotal
+      : calculatedGrandTotal;
   const amountPaid = Math.max(0, Number(receipt?.amount_paid ?? 0));
-  const remainingBalance = Math.max(
-    0,
-    Number(receipt?.balance ?? displayGrandTotal - amountPaid),
-  );
+  const remainingBalance = shouldUseCalculatedVenueTotals
+    ? Math.max(0, displayGrandTotal - amountPaid)
+    : Math.max(0, Number(receipt?.balance ?? displayGrandTotal - amountPaid));
 
   const unpaidExpiresIso = computeUnpaidExpiresIso(
     isFromApi ? receipt?.unpaid_expires_at : undefined,
@@ -938,7 +1001,7 @@ export function Step5(props: Props) {
                 <ReceiptRow label="Check-out" value={formattedCheckOut} />
                 <ReceiptRow
                   label={bookingType === "venue" ? "Days" : "Nights"}
-                  value={String(nights)}
+                  value={String(billingDuration)}
                 />
                 {venues.length > 0 && (
                   <>
@@ -1063,7 +1126,7 @@ export function Step5(props: Props) {
                             typeof room.price === "number"
                               ? room.price
                               : parseFloat(String(room.price || 0));
-                          const qty = nights || 1;
+                          const qty = stayNights || 1;
                           const title =
                             room.kind === "line"
                               ? formatRoomLineTitle({
@@ -1475,7 +1538,7 @@ export function Step5(props: Props) {
           onClose={() => setIsRescheduleModalOpen(false)}
           onSuccess={() => setIsProcessingReschedule(true)}
           currentCheckIn={checkIn}
-          currentDays={nights || 1}
+          currentDays={billingDuration || 1}
           bookingType={bookingType}
         />
       </Modal>
