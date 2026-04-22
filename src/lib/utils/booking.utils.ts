@@ -324,11 +324,20 @@ const parseLocalPHAddress = (address: string): ParsedLocalPHAddress | null => {
   return { barangay, municipality, province, region };
 };
 
+export type BuildBookingPayloadOptions = {
+  captchaToken?: string | null;
+  /** Honeypot field — leave empty for real users */
+  website?: string;
+};
+
 /**
  * Builds the booking payload for API submission (matches backend POST /bookings).
  * check_in/check_out must be in "M d, Y" format (e.g. Jan 20, 2026).
  */
-export const buildBookingPayload = (formData: FormData): BookingPayload => {
+export const buildBookingPayload = (
+  formData: FormData,
+  options?: BuildBookingPayloadOptions,
+): BookingPayload => {
   const storedAddress = getFromLocalStorage(PH_ADDRESS_STORAGE_KEY) as StoredPHAddress | null;
   const isIntl = storedAddress?.addressType === "international";
   const validInternationalCountry = isIntl
@@ -344,7 +353,12 @@ export const buildBookingPayload = (formData: FormData): BookingPayload => {
   const barangay =
     isIntl ? null : parsedLocal?.barangay || formData.address || null;
 
+  const captcha = options?.captchaToken?.trim();
+  const websiteHoneypot = options?.website ?? "";
+
   return {
+    ...(captcha ? { captcha_token: captcha } : {}),
+    website: websiteHoneypot,
     reference_number: formData.reference_number ?? undefined,
     payment_method: formData.paymentMethod || "cash",
     ...(formData.paymentMethod === "online" && formData.onlinePaymentPlan

@@ -959,6 +959,19 @@ export function Step5(props: Props) {
 
           {/* Main content */}
           <div className="px-6 py-6 sm:px-8 sm:py-7 space-y-6 text-sm">
+            {(isFromApi &&
+              (receipt?.email_verification_required === true ||
+                bookingStatusResolved === "pending_verification")) ? (
+              <div
+                role="status"
+                className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                <p className="font-semibold">Confirm your booking by email</p>
+                <p className="mt-1 opacity-90">
+                  We sent a secure link to <strong>{guestEmail}</strong>. Your reservation is not
+                  active until you open that link. You can refresh this page after confirming.
+                </p>
+              </div>
+            ) : null}
             {/* Invoice to / from */}
             <div className="grid sm:grid-cols-2 gap-6">
               <div>

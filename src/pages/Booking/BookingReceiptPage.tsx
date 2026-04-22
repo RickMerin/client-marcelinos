@@ -167,6 +167,7 @@ function toBookingReceipt(
 		subtotal: total,
 		grand_total: total,
 		qr_code_url: res.qr_code_url ?? null,
+		email_verification_required: Boolean(res.email_verification_required),
 		payment_method: paymentMethod,
 		online_payment_plan: paymentPlan,
 		invoice_id: invoiceId,
