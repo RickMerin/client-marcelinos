@@ -41,6 +41,7 @@ function splitLegacyBookingStatus(merged: string | undefined): {
     s === "unpaid" ||
     s === "partial" ||
     s === "paid" ||
+    s === "refunded" ||
     s === "occupied" ||
     s === "completed" ||
     s === "cancelled" ||
@@ -57,7 +58,10 @@ function splitLegacyBookingStatus(merged: string | undefined): {
               ? "rescheduled"
               : "reserved";
     const payment_status =
-      s === "unpaid" || s === "partial" || s === "paid"
+      s === "unpaid" ||
+      s === "partial" ||
+      s === "paid" ||
+      s === "refunded"
         ? s
         : paymentFromStay(s);
     return { booking_status, payment_status };
@@ -255,7 +259,11 @@ export function BookingReceiptPage({
 					`/bookings/receipt/${encodeURIComponent(receiptToken)}/payment-status`,
 				);
 				const nextStatus = String(statusRes?.data?.status ?? "").toLowerCase();
-				if (nextStatus === "paid" || nextStatus === "partial") {
+				if (
+					nextStatus === "paid" ||
+					nextStatus === "partial" ||
+					nextStatus === "refunded"
+				) {
 					void refetchReceipt();
 				}
 			} catch {

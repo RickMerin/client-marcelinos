@@ -824,6 +824,8 @@ export function Step5(props: Props) {
         return "bg-amber-100 text-amber-800";
       case "unpaid":
         return "bg-yellow-100 text-yellow-800";
+      case "refunded":
+        return "bg-rose-100 text-rose-800";
       default:
         return "bg-sand text-ink";
     }

@@ -10,7 +10,6 @@ import { routes } from "./routes/route";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ScrollNav from "./components/ScrollNav";
-import { GlobalSplash } from "./components/GlobalSplash";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { useRealtimeGlobalSubscriber } from "@/hooks/useRealtimeGlobalSubscriber";
 import { ToastContainer } from "react-toastify";
@@ -33,9 +32,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => {
   useRealtimeGlobalSubscriber();
-  const [isLoadingMaintenance, setIsLoadingMaintenance] = useState(true);
-  const [showGlobalLoader, setShowGlobalLoader] = useState(false);
-  const [isLoaderExiting, setIsLoaderExiting] = useState(false);
+  const [, setIsLoadingMaintenance] = useState(true);
   const [maintenance, setMaintenance] = useState({
     enabled: false,
     variant: "resort-hero",
@@ -116,36 +113,6 @@ const App = () => {
       active = false;
     };
   }, []);
-
-  useEffect(() => {
-    if (!isLoadingMaintenance || showGlobalLoader) return;
-
-    const delayedLoaderTimer = window.setTimeout(() => {
-      setIsLoaderExiting(false);
-      setShowGlobalLoader(true);
-    }, 450);
-
-    return () => {
-      window.clearTimeout(delayedLoaderTimer);
-    };
-  }, [isLoadingMaintenance, showGlobalLoader]);
-
-  useEffect(() => {
-    if (!isLoadingMaintenance && showGlobalLoader) {
-      setIsLoaderExiting(true);
-      const exitTimer = window.setTimeout(() => {
-        setShowGlobalLoader(false);
-      }, 600);
-
-      return () => {
-        window.clearTimeout(exitTimer);
-      };
-    }
-  }, [isLoadingMaintenance, showGlobalLoader]);
-
-  if (showGlobalLoader) {
-    return <GlobalSplash isExiting={isLoaderExiting} />;
-  }
 
   if (maintenance.enabled) {
     return (
