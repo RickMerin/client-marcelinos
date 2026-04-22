@@ -104,6 +104,7 @@ export const useBookingForm = () => {
   // Keep localStorage synced with formData
   useEffect(() => {
     saveToLocalStorage("reservationDetails", formData, BOOKING_EXPIRATION);
+    window.dispatchEvent(new Event("reservation-details-updated"));
   }, [formData]);
 
   // Autoload from localStorage when mounted (in case user refreshes)

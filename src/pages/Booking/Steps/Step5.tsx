@@ -334,6 +334,29 @@ function formatDownPaymentDeadline(value?: string): string {
   });
 }
 
+function getManilaDateKey(value: string | Date): string {
+  const date = typeof value === "string" ? parseDateInput(value) : value;
+  if (!date) return "";
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Manila",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return formatter.format(date);
+}
+
+function getDeadlineDayLabel(deadlineIso?: string | null): string {
+  const parsedDeadline = parseDateInput(deadlineIso ?? undefined);
+  if (!parsedDeadline) return "tomorrow";
+  const deadlineKey = getManilaDateKey(parsedDeadline);
+  const nowKey = getManilaDateKey(new Date());
+  if (!deadlineKey || !nowKey) return "tomorrow";
+
+  if (deadlineKey === nowKey) return "today";
+  return "tomorrow";
+}
+
 /** Fallback when receipt API or wizard omits admin deposit percent. */
 const DEFAULT_DEPOSIT_PERCENT = 30;
 
@@ -717,6 +740,7 @@ export function Step5(props: Props) {
   const formattedDownPaymentDue = unpaidExpiresIso
     ? formatDownPaymentDeadline(unpaidExpiresIso)
     : "—";
+  const unpaidCancellationDayLabel = getDeadlineDayLabel(unpaidExpiresIso);
 
   const [isDownloading, setIsDownloading] = useState(false);
   const messengerMessageLines = [
@@ -1179,8 +1203,8 @@ export function Step5(props: Props) {
                       on Facebook Messenger. Click the button below to open the
                       chat. Please attach your proof of payment in the message
                       so we can verify your deposit. Unpaid bookings may be
-                      cancelled after 9:00 PM (Philippine time) on your check-in
-                      date if not settled.
+                      cancelled after 9:00 PM (Philippine time) on{" "}
+                      {unpaidCancellationDayLabel} if not settled.
                     </p>
                     <a
                       href={messengerChatUrlWithMessage || MESSENGER_CHAT_URL}
