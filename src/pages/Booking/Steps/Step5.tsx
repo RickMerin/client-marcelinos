@@ -1436,6 +1436,7 @@ export function Step5(props: Props) {
         open={isCancelModalOpen}
         onClose={() => !isSubmitting && setIsCancelModalOpen(false)}
         showCloseButton={!isSubmitting}
+        contentClassName="relative w-full max-w-3xl mx-4 overflow-hidden rounded-xl border border-[#d7c089]/25 bg-[#0c2c27]/95 px-5 py-6 text-center shadow-2xl backdrop-blur-sm md:px-8 md:py-8"
       >
         <CancelBookingContent
           referenceNumber={referenceNumber || ""}
