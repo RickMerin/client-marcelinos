@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 import { ButtonLoader } from "@/components/ui/loader";
 import { useTurnstile } from "@/hooks/useTurnstile";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
+import { useApiQuery } from "@/lib/api/queries/useApiQuery";
 import { endpoints } from "@/lib/api/endpoints";
 import { toast } from "@/lib/logger/toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const contactSchema = z.object({
   full_name: z.string().trim()
@@ -54,7 +56,30 @@ const contactSchema = z.object({
 
 type FormData = z.infer<typeof contactSchema>;
 
+interface ConversationRef {
+  id: number;
+  token: string;
+  status: string;
+  subject: string;
+}
+
+interface ContactMessage {
+  id: number;
+  sender_type: "client" | "admin";
+  sender_name: string;
+  body: string;
+  sent_via: "web" | "admin_panel" | "email_out";
+  created_at: string | null;
+}
+
+interface ContactMessagesResponse {
+  success: boolean;
+  conversation: ConversationRef;
+  messages: ContactMessage[];
+}
+
 function ContactForm() {
+  const queryClient = useQueryClient();
   const {
     containerRef: captchaRef,
     token: captchaToken,
@@ -73,10 +98,17 @@ function ContactForm() {
 
   const [formErrors, setFormErrors] =
     useState<Partial<Record<keyof FormData, string>>>({});
+  const [conversation, setConversation] = useState<ConversationRef | null>(null);
+  const [followUpMessage, setFollowUpMessage] = useState("");
 
-  const contactMutation = useApiMutation("post", {
-    onSuccess: () => {
-      toast.success({ content: "Message sent! We'll get back to you soon." });
+  const contactMutation = useApiMutation<{
+    success: boolean;
+    message: string;
+    conversation: ConversationRef;
+  }>("post", {
+    onSuccess: (response) => {
+      toast.success({ content: "Conversation started. You can keep messaging us here." });
+      setConversation(response.conversation);
       setFormData({ full_name: "", email: "", phone: "", subject: "", message: "" });
       setFormErrors({});
       resetCaptcha();
@@ -93,6 +125,41 @@ function ContactForm() {
         "Oops, something went wrong. Please try again later.";
       toast.error({ content: errorMessage });
       resetCaptcha();
+    },
+  });
+
+  const conversationQueryKey = useMemo(
+    () => (conversation ? ["contact", "thread", String(conversation.id)] : ["contact", "thread", "idle"]),
+    [conversation]
+  );
+
+  const conversationQuery = useApiQuery<ContactMessagesResponse>(
+    conversationQueryKey,
+    conversation
+      ? endpoints.contactMessages(conversation.id, conversation.token)
+      : "/contact/0/messages?token=idle",
+    {
+      enabled: Boolean(conversation),
+      refetchInterval: conversation ? 5000 : false,
+      refetchIntervalInBackground: true,
+      refetchOnWindowFocus: true,
+    }
+  );
+
+  const appendMutation = useApiMutation<{
+    success: boolean;
+    message: string;
+    data: ContactMessage;
+  }>("post", {
+    onSuccess: () => {
+      setFollowUpMessage("");
+      if (!conversation) return;
+      void queryClient.invalidateQueries({ queryKey: ["contact", "thread", String(conversation.id)] });
+      void queryClient.refetchQueries({ queryKey: ["contact", "thread", String(conversation.id)] });
+    },
+    onError: (error: unknown) => {
+      const err = error as { message?: string };
+      toast.error({ content: err.message ?? "Failed to send message." });
     },
   });
 
@@ -144,8 +211,85 @@ function ContactForm() {
     });
   };
 
+  const handleFollowUpSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!conversation) return;
+    const message = followUpMessage.trim();
+    if (!message) return;
+
+    appendMutation.mutate({
+      url: endpoints.contactAppendMessage(conversation.id),
+      body: {
+        token: conversation.token,
+        message,
+      },
+    });
+  };
+
   const fieldClass =
     "border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow w-full min-h-[48px]";
+
+  if (conversation) {
+    const messages = conversationQuery.data?.messages ?? [];
+
+    return (
+      <div className="flex w-full justify-center">
+        <div className="w-full max-w-4xl overflow-hidden rounded-2xl border border-(--color-sage-muted) bg-white shadow-lg">
+          <div className="border-b border-(--color-sage-muted) px-6 py-4">
+            <p className="text-sm text-charcoal/70">Subject: {conversation.subject}</p>
+            <p className="text-xs text-charcoal/60">
+              Conversation status: {conversationQuery.data?.conversation.status ?? conversation.status}
+            </p>
+          </div>
+
+          <div className="max-h-[420px] space-y-3 overflow-y-auto bg-cream/30 px-6 py-5">
+            {conversationQuery.isLoading ? (
+              <p className="text-sm text-charcoal/70">Loading conversation...</p>
+            ) : messages.length === 0 ? (
+              <p className="text-sm text-charcoal/70">No messages yet.</p>
+            ) : (
+              messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`max-w-[85%] rounded-xl px-4 py-3 ${
+                    message.sender_type === "client"
+                      ? "ml-auto bg-gold-light text-dark"
+                      : "bg-white text-charcoal border border-(--color-sage-muted)"
+                  }`}
+                >
+                  <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{message.sender_name}</p>
+                  <p className="mt-1 whitespace-pre-line text-sm">{message.body}</p>
+                  <p className="mt-2 text-[11px] opacity-60">
+                    {message.created_at ? new Date(message.created_at).toLocaleString() : ""}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+
+          <form onSubmit={handleFollowUpSubmit} className="space-y-3 border-t border-(--color-sage-muted) px-6 py-4">
+            <textarea
+              value={followUpMessage}
+              onChange={(event) => setFollowUpMessage(event.target.value)}
+              rows={4}
+              placeholder="Send a follow-up message..."
+              className="w-full resize-y rounded-xl border border-(--color-sage-muted) px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow"
+            />
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={appendMutation.isPending || !followUpMessage.trim()}
+                className="inline-flex items-center justify-center rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold uppercase text-dark transition-colors hover:bg-gold-light disabled:cursor-not-allowed disabled:bg-gold-light"
+              >
+                {appendMutation.isPending ? <ButtonLoader /> : "Send Message"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex w-full justify-center">
