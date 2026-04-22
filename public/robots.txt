@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://marcelinos-resort-hotel.com/sitemap.xml

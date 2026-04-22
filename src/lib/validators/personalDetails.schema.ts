@@ -24,7 +24,11 @@ export const createPersonalDetailsSchema = (isInternational = false) =>
     phone: z
       .string()
       .optional()
-      .transform((v) => (v ?? "").trim().toUpperCase()),
+      .transform((v) => {
+        // Keep argument consumed so strict TS noUnusedParameters passes.
+        void isInternational;
+        return (v ?? "").trim().toUpperCase();
+      }),
 
     email: z
       .string()
@@ -38,4 +42,7 @@ export const createPersonalDetailsSchema = (isInternational = false) =>
 
 export const personalDetailsSchema = createPersonalDetailsSchema(false);
 
-export type PersonalDetailsFormValues = z.infer<typeof personalDetailsSchema>;
+type PersonalDetailsSchema = ReturnType<typeof createPersonalDetailsSchema>;
+
+export type PersonalDetailsFormValues = z.input<PersonalDetailsSchema>;
+export type PersonalDetailsParsedValues = z.output<PersonalDetailsSchema>;
