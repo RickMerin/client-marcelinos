@@ -270,16 +270,16 @@ export default function RescheduleBookingContent({
   const newCheckOut = selectedDate ? addDays(selectedDate, days) : null;
 
   return (
-    <div className="mx-auto flex w-full max-w-260 flex-col overflow-y-auto rounded-2xl bg-white/85 text-gray-800 backdrop-blur-md relative z-10 max-h-[82vh] md:flex-row md:overflow-hidden md:max-h-[78vh]">
+    <div className="relative z-10 mx-auto flex w-full max-w-260 max-h-[90vh] flex-col overflow-y-auto rounded-2xl border border-cream/15 bg-dark/95 text-cream backdrop-blur-md xl:max-h-[78vh] xl:flex-row xl:overflow-hidden">
       {/* Left side: Calendar Selection */}
-      <div className="flex-1 w-full border-emerald-900/10 p-5 md:border-r md:overflow-y-auto md:p-6">
+      <div className="flex-1 w-full border-cream/15 p-5 xl:border-r xl:overflow-y-auto xl:p-6">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
-            <h2 className="flex items-center gap-2 text-xl font-bold text-emerald-900 md:text-2xl">
-              <CalendarDays className="h-5 w-5 text-emerald-600 md:h-6 md:w-6" />
+            <h2 className="flex items-center gap-2 text-xl font-bold text-white md:text-2xl">
+              <CalendarDays className="h-5 w-5 text-gold-light md:h-6 md:w-6" />
               Reschedule Booking
             </h2>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-cream/80">
               Choose a new date and duration for your stay.
             </p>
           </div>
@@ -288,36 +288,58 @@ export default function RescheduleBookingContent({
         <div className="space-y-5">
           {/* Calendar Picker */}
           <div className="space-y-3">
-            <label className="text-sm font-semibold text-gray-700 block">
+            <label className="block text-sm font-semibold text-cream/90">
               Select Check-in Date
             </label>
-            <div className="relative overflow-hidden rounded-xl border border-emerald-900/10 bg-white/80 p-2 shadow-sm backdrop-blur-sm sm:p-4">
+            <div className="relative overflow-hidden rounded-xl border border-emerald-900/20 bg-white/92 p-2 text-gray-900 shadow-sm backdrop-blur-sm sm:p-4">
               {isDatesLoading && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-[1px]">
-                  <div className="flex h-full w-full flex-col gap-4 p-4 pt-12 animate-pulse">
-                    <div className="mx-auto mb-4 h-6 w-1/3 rounded bg-slate-200/50"></div>
-                    <div className="mb-4 grid grid-cols-7 gap-2">
-                      {Array.from({ length: 7 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="mx-1 h-4 rounded bg-slate-200/50"
-                        ></div>
-                      ))}
+                <div className="absolute inset-0 z-10 rounded-xl bg-white/60 backdrop-blur-[1px] p-3 sm:p-4">
+                  <div className="grid h-full w-full gap-4 animate-pulse lg:grid-cols-[minmax(0,1.7fr)_minmax(14rem,0.75fr)]">
+                    <div className="min-h-0 rounded-lg border border-slate-200/70 bg-white/70 p-3">
+                      <div className="mx-auto mb-3 h-5 w-32 rounded bg-slate-200/60" />
+                      <div className="mb-3 grid grid-cols-7 gap-2">
+                        {Array.from({ length: 7 }).map((_, i) => (
+                          <div
+                            key={`weekday-${i}`}
+                            className="h-3 rounded bg-slate-200/60"
+                          />
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-7 gap-2">
+                        {Array.from({ length: 35 }).map((_, i) => (
+                          <div
+                            key={`day-${i}`}
+                            className="h-8 rounded-md bg-slate-200/60"
+                          />
+                        ))}
+                      </div>
                     </div>
-                    <div className="grid flex-1 grid-cols-7 gap-2">
-                      {Array.from({ length: 35 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="m-0.5 h-full rounded bg-slate-200/50"
-                        ></div>
-                      ))}
+
+                    <div className="flex min-h-0 flex-col gap-3 lg:justify-between">
+                      <div className="rounded-lg border border-slate-200/70 bg-white/70 p-3">
+                        <div className="mb-3 h-4 w-16 rounded bg-slate-200/60" />
+                        <div className="space-y-2">
+                          <div className="h-6 w-full rounded-full bg-slate-200/60" />
+                          <div className="h-6 w-full rounded-full bg-slate-200/60" />
+                          <div className="h-6 w-full rounded-full bg-slate-200/60" />
+                        </div>
+                      </div>
+
+                      <div className="rounded-lg border border-slate-200/70 bg-white/70 p-3 text-center">
+                        <div className="mx-auto mb-2 h-3 w-24 rounded bg-slate-200/60" />
+                        <div className="inline-flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-slate-200/60" />
+                          <div className="h-6 w-8 rounded bg-slate-200/60" />
+                          <div className="h-8 w-8 rounded-full bg-slate-200/60" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              <div className="grid gap-4 md:grid-cols-[minmax(0,1.7fr)_minmax(14rem,0.75fr)] md:items-stretch">
-                <div className="min-w-0 flex justify-center">
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(14rem,0.75fr)] lg:items-stretch">
+                <div className="min-w-0 flex justify-center text-gray-900">
                   <CalendarWithDisabledReasons
                     mode="single"
                     selected={selectedDate}
@@ -326,7 +348,7 @@ export default function RescheduleBookingContent({
                     blockedReasons={blockedReasons}
                     isOverlapInvalid={isOverlapInvalid}
                     reasonStyle="soft"
-                    className="mx-auto"
+                    className="mx-auto text-gray-900"
                     {...(stayRangeModifiers
                       ? {
                           modifiers: stayRangeModifiers,
@@ -337,8 +359,8 @@ export default function RescheduleBookingContent({
                   />
                 </div>
 
-                <div className="flex h-full flex-col gap-3 text-[11px] leading-relaxed text-gray-600 md:justify-between">
-                  <div className="rounded-lg border border-emerald-900/10 bg-white/70 px-3 py-2.5">
+                <div className="flex h-full flex-col gap-3 text-[11px] leading-relaxed text-gray-600 lg:justify-between">
+                  <div className="rounded-lg border border-emerald-900/20 bg-emerald-900/5 px-3 py-2.5">
                     <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
                       <p className="font-semibold text-gray-700">Legend</p>
                       <p className="text-[10px] text-gray-500">
@@ -361,11 +383,11 @@ export default function RescheduleBookingContent({
                     </div>
                   </div>
 
-                  <div className="rounded-lg border border-emerald-900/10 bg-white/70 px-3 py-2.5 shadow-sm">
+                  <div className="rounded-lg border border-emerald-900/20 bg-emerald-900/5 px-3 py-2.5 shadow-sm text-center">
                     <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
                       {durationLabel}
                     </p>
-                    <div className="mt-1 flex items-center gap-2">
+                    <div className="mt-1 inline-flex items-center justify-center gap-2">
                       <button
                         disabled={days <= 1}
                         onClick={() => setDays((d) => Math.max(1, d - 1))}
@@ -374,7 +396,7 @@ export default function RescheduleBookingContent({
                       >
                         <Minus className="h-3.5 w-3.5 text-gray-600" />
                       </button>
-                      <div className="min-w-8 flex-1 text-center text-base font-semibold tabular-nums text-gray-800">
+                      <div className="w-8 text-center text-base font-semibold tabular-nums text-gray-800">
                         {days}
                       </div>
                       <button
@@ -404,15 +426,15 @@ export default function RescheduleBookingContent({
       </div>
 
       {/* Right side: Summary & Action */}
-      <div className="w-full bg-emerald-50/70 flex shrink-0 flex-col gap-5 justify-between p-5 md:w-72 md:p-6 backdrop-blur-md border-t md:border-t-0 border-emerald-900/10 md:overflow-y-auto">
+      <div className="w-full bg-dark/75 flex shrink-0 flex-col gap-5 justify-between p-5 xl:w-72 xl:p-6 backdrop-blur-md border-t xl:border-t-0 border-cream/15 xl:overflow-y-auto">
         <div>
-          <h3 className="text-base font-bold text-emerald-950 mb-4 border-b border-emerald-900/10 pb-2 md:text-lg">
+          <h3 className="text-base font-bold text-white mb-4 border-b border-cream/15 pb-2 lg:text-lg">
             Stay Summary
           </h3>
 
           <div className="space-y-4">
             {/* Current Stay */}
-            <div className="rounded-lg border border-emerald-900/10 bg-white/80 p-3 shadow-sm backdrop-blur-sm md:p-4">
+            <div className="rounded-lg border border-emerald-900/20 bg-white/85 p-3 shadow-sm backdrop-blur-sm lg:p-4">
               <div className="mb-2 flex items-center justify-between gap-2">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
                   Original Stay
@@ -447,7 +469,7 @@ export default function RescheduleBookingContent({
 
             {/* New Stay */}
             <div
-              className={`rounded-lg border p-3 transition-all duration-200 md:p-4 ${selectedDate ? "border-emerald-200 bg-emerald-50 shadow-sm" : "border-dashed border-gray-200 bg-white opacity-60"}`}
+              className={`rounded-lg border p-3 transition-all duration-200 lg:p-4 ${selectedDate ? "border-emerald-800/35 bg-emerald-100/70 shadow-sm" : "border-dashed border-emerald-900/20 bg-white/85 opacity-60"}`}
             >
               <p
                 className={`mb-2 text-[10px] font-bold uppercase tracking-wider ${selectedDate ? "text-emerald-700" : "text-gray-400"}`}
@@ -483,8 +505,8 @@ export default function RescheduleBookingContent({
                   </div>
                 </>
               ) : (
-                <div className="flex flex-col items-center gap-2 py-3 text-center text-sm text-gray-400 md:py-4">
-                  <CalendarDays className="h-5 w-5 opacity-30 md:h-6 md:w-6" />
+                <div className="flex flex-col items-center gap-2 py-3 text-center text-sm text-gray-400 lg:py-4">
+                  <CalendarDays className="h-5 w-5 opacity-30 lg:h-6 lg:w-6" />
                   <p className="text-xs leading-tight">
                     Select a date from
                     <br />
@@ -496,8 +518,8 @@ export default function RescheduleBookingContent({
           </div>
         </div>
 
-        <div className="mt-6 space-y-3 border-t border-gray-200 pt-5 md:mt-8 md:pt-6">
-          <div className="rounded-lg border border-emerald-200/80 bg-emerald-50/50 p-3 text-left md:p-4">
+        <div className="mt-6 space-y-3 border-t border-cream/15 pt-5 lg:mt-8 lg:pt-6">
+          <div className="rounded-lg border border-emerald-800/30 bg-emerald-100/55 p-3 text-left lg:p-4">
             <p className="mb-1 text-xs font-bold text-emerald-900">
               Email verification
             </p>
@@ -583,7 +605,7 @@ export default function RescheduleBookingContent({
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="w-full py-2 px-4 text-gray-600 hover:text-gray-900 rounded-xl font-semibold transition hover:bg-gray-100 disabled:opacity-50 text-sm"
+            className="w-full py-2 px-4 text-cream hover:text-white rounded-xl font-semibold transition hover:bg-cream/10 disabled:opacity-50 text-sm"
           >
             Keep Original Dates
           </button>
