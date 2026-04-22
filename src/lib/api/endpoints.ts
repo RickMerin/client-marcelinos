@@ -16,6 +16,10 @@ export const endpoints = {
   venueById: (id: string | number) => `/venues/${id}`,
   blockedDates: "/blocked-dates",
   contact: "/contact",
+  contactMessages: (conversationId: number | string, token: string) =>
+    `/contact/${conversationId}/messages?token=${encodeURIComponent(token)}`,
+  contactAppendMessage: (conversationId: number | string) =>
+    `/contact/${conversationId}/messages`,
   testimonialByReference: (reference: string) =>
     `/bookings/reference/${reference}/review`,
   testimonialByReceiptToken: (token: string) =>
@@ -66,5 +70,9 @@ export const queryKeys = {
   },
   reviews: {
     all: ["reviews"] as const,
+  },
+  contact: {
+    thread: (conversationId: number | string) =>
+      ["contact", "thread", String(conversationId)] as const,
   },
 } as const;
