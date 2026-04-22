@@ -18,6 +18,7 @@ import { PHAddressSelector } from "@/components/forms/PHAddressSelector";
 import {
   createPersonalDetailsSchema,
   type PersonalDetailsFormValues,
+  type PersonalDetailsParsedValues,
 } from "@/lib/validators/personalDetails.schema";
 
 import {
@@ -33,7 +34,7 @@ type Step2FormData = Omit<PersonalDetailsFormValues, "gender"> & {
 
 interface Props {
   formData: Step2FormData;
-  onUpdate: (data: PersonalDetailsFormValues) => void;
+  onUpdate: (data: PersonalDetailsParsedValues) => void;
   onValuesChange?: (updates: Partial<FormData>) => void;
 }
 
@@ -56,7 +57,11 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
 
   const [isInternational, setIsInternational] = useState(isInternationalAddress());
 
-  const form = useForm<PersonalDetailsFormValues>({
+  const form = useForm<
+    PersonalDetailsFormValues,
+    unknown,
+    PersonalDetailsParsedValues
+  >({
     resolver: zodResolver(createPersonalDetailsSchema(isInternationalAddress())),
     defaultValues: {
       ...raw,
@@ -142,7 +147,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                 Your name
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField<PersonalDetailsFormValues, "firstName">
+                <FormField
                   control={form.control}
                   name="firstName"
                   render={({ field }) => (
@@ -164,7 +169,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                     </FormItem>
                   )}
                 />
-                <FormField<PersonalDetailsFormValues, "lastName">
+                <FormField
                   control={form.control}
                   name="lastName"
                   render={({ field }) => (
@@ -186,7 +191,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                     </FormItem>
                   )}
                 />
-                <FormField<PersonalDetailsFormValues, "middleName">
+                <FormField
                   control={form.control}
                   name="middleName"
                   render={({ field }) => (
@@ -215,7 +220,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
 
             {/* Gender */}
             <div>
-              <FormField<PersonalDetailsFormValues, "gender">
+              <FormField
                 control={form.control}
                 name="gender"
                 render={({ field }) => (
@@ -251,7 +256,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                 Contact details
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField<PersonalDetailsFormValues, "phone">
+                <FormField
                   control={form.control}
                   name="phone"
                   render={({ field }) => (
@@ -281,7 +286,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                     </FormItem>
                   )}
                 />
-                <FormField<PersonalDetailsFormValues, "email">
+                <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
@@ -310,7 +315,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
               <h3 className="font-display text-lg font-semibold mb-4 text-ink">
                 Address
               </h3>
-              <FormField<PersonalDetailsFormValues, "address">
+              <FormField
                 control={form.control}
                 name="address"
                 render={({ field }) => (
