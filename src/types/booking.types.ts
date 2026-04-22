@@ -9,6 +9,19 @@ export type VenueEventType = "wedding" | "birthday" | "meeting_staff";
 /** Room inventory `type` values (matches backend `rooms.type` enum). */
 export type RoomTypeFilter = "standard" | "family" | "deluxe";
 
+export type BedSpecificationValue =
+  | string
+  | {
+      specification?: string;
+      label?: string;
+      name?: string;
+      type?: string;
+      bed_type?: string;
+      value?: string;
+      quantity?: number | string;
+      [key: string]: unknown;
+    };
+
 export interface BookingResponse {
   message: string;
   guest?: unknown;
@@ -98,6 +111,7 @@ export interface BookingReferenceResponse {
 			type?: string;
 			capacity?: number;
 			price?: string | number;
+			bed_specifications?: BedSpecificationValue[];
 			[key: string]: unknown;
 		}>;
 		venues?: Array<{
@@ -135,7 +149,7 @@ export interface BookingReceipt {
 		type: string;
 		capacity: number;
 		price: number | string;
-		bed_specifications?: string[];
+		bed_specifications?: BedSpecificationValue[];
 	}>;
 	/** Requested room types from guest checkout (no room name yet). */
 	room_lines?: Array<{

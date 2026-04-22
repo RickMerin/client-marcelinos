@@ -130,7 +130,7 @@ function toBookingReceipt(
 			capacity: r.capacity ?? 0,
 			price: r.price ?? 0,
 			bed_specifications: Array.isArray(r.bed_specifications)
-				? (r.bed_specifications as string[])
+				? r.bed_specifications
 				: [],
 		})),
 		room_lines: Array.isArray(b.room_lines)

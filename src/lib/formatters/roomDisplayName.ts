@@ -14,11 +14,44 @@ export function roomTypeDisplayLabel(type: string | undefined | null): string {
 
 /** Bed spec line including optional modifiers (same rules as quantity cards). */
 export function bedSpecificationLine(room: {
-  bed_specifications?: string[] | null;
+  bed_specifications?: Array<string | Record<string, unknown>> | null;
 }): string | null {
   const specs = room?.bed_specifications;
   if (!Array.isArray(specs) || specs.length === 0) return null;
-  const base = specs.filter(Boolean).join(", ");
+  const normalizeSpec = (entry: string | Record<string, unknown>): string => {
+    if (typeof entry === "string") return entry.trim();
+
+    const candidate = [
+      entry.specification,
+      entry.label,
+      entry.name,
+      entry.bed_type,
+      entry.type,
+      entry.value,
+    ].find((v) => typeof v === "string" && String(v).trim() !== "");
+
+    const label = typeof candidate === "string" ? candidate.trim() : "";
+    if (!label) return "";
+
+    const qtyRaw = entry.quantity;
+    const qty =
+      typeof qtyRaw === "number"
+        ? qtyRaw
+        : typeof qtyRaw === "string"
+          ? Number(qtyRaw)
+          : NaN;
+    if (!Number.isFinite(qty) || qty <= 0) return label;
+
+    const roundedQty = Math.round(qty);
+    const hasLeadingQty = /^\d+(\.\d+)?\s/.test(label);
+    return hasLeadingQty ? label : `${roundedQty} ${label}`;
+  };
+
+  const base = specs
+    .map(normalizeSpec)
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .join(", ");
   if (!base) return null;
   return base;
 }
@@ -29,7 +62,7 @@ export function bedSpecificationLine(room: {
  */
 export function roomInventoryGroupKey(room: {
   description?: string | null;
-  bed_specifications?: string[] | null;
+  bed_specifications?: Array<string | Record<string, unknown>> | null;
 }): string {
   const bedLine = bedSpecificationLine(room);
   if (bedLine) return `spec:${bedLine}`;
@@ -43,7 +76,7 @@ export function roomInventoryGroupKey(room: {
 export function roomTypeAndBedTitle(room: {
   type?: string | null;
   description?: string | null;
-  bed_specifications?: string[] | null;
+  bed_specifications?: Array<string | Record<string, unknown>> | null;
 }): string {
   const typeLabel = roomTypeDisplayLabel(room?.type);
   const bed = bedSpecificationLine(room);
@@ -60,7 +93,7 @@ export function assignedRoomBillingTitle(room: {
   name?: string | null;
   type?: string | null;
   description?: string | null;
-  bed_specifications?: string[] | null;
+  bed_specifications?: Array<string | Record<string, unknown>> | null;
 }): string {
   const inner = roomTypeAndBedTitle(room);
   const name = (room.name ?? "").trim() || "Room";
