@@ -15,6 +15,8 @@ type Props = React.ComponentProps<typeof Calendar> & {
   overlapInvalidReason?: string;
   /** Returns true if this date is disabled only due to overlap (not blocked, not past) */
   isOverlapInvalid?: (date: Date) => boolean;
+  /** Softens disabled-day styling for a friendlier calendar presentation. */
+  reasonStyle?: "default" | "soft";
 };
 
 const EMPTY_BLOCKED_REASONS: Record<string, string> = {};
@@ -25,6 +27,7 @@ type DayWithReasonProps = React.ComponentProps<typeof DayButton> & {
   setActiveTooltipDate: React.Dispatch<React.SetStateAction<string | null>>;
   overlapInvalidReason?: string;
   isOverlapInvalid?: (date: Date) => boolean;
+  reasonStyle?: "default" | "soft";
 };
 
 function DayWithReason({
@@ -36,6 +39,7 @@ function DayWithReason({
   setActiveTooltipDate,
   overlapInvalidReason,
   isOverlapInvalid,
+  reasonStyle = "default",
   ...dayProps
 }: DayWithReasonProps) {
   const dateKey = day.isoDate;
@@ -100,7 +104,7 @@ function DayWithReason({
     (isBlocked || isOverlap) && tooltipReason && showTooltip
       ? createPortal(
           <div
-            className="fixed rounded-md bg-green-700/95 px-3 py-2 text-sm text-white leading-normal shadow-lg z-[9999]"
+            className="fixed rounded-md bg-green-700/95 px-3 py-2 text-sm text-white leading-normal shadow-lg z-9999"
             style={{
               top: position.top,
               left: position.left,
@@ -114,6 +118,23 @@ function DayWithReason({
           document.body,
         )
       : null;
+
+  const disabledStyleClassName =
+    reasonStyle === "soft"
+      ? isBookingConflict
+        ? "bg-slate-100 text-slate-500 ring-1 ring-inset ring-slate-200 cursor-not-allowed hover:bg-slate-200/80 focus:bg-slate-200/80 opacity-90"
+        : isBlocked
+          ? "bg-red-500 text-white ring-1 ring-inset ring-red-600/50 cursor-not-allowed hover:bg-red-600 focus:bg-red-600"
+          : isOverlap
+            ? "bg-amber-50 text-amber-900 ring-1 ring-inset ring-amber-200 cursor-not-allowed hover:bg-amber-100/80 focus:bg-amber-100/80"
+            : ""
+      : isBlocked && !isBookingConflict
+        ? "bg-red-500 mx-px text-white cursor-not-allowed hover:bg-red-600 focus:bg-red-600"
+        : isBookingConflict
+          ? "bg-gray-200 text-gray-500 line-through opacity-70 cursor-not-allowed mx-px hover:bg-gray-300"
+          : isOverlap
+            ? "line-through opacity-70 cursor-not-allowed"
+            : "";
 
   return (
     <div
@@ -145,22 +166,17 @@ function DayWithReason({
             !isBlocked &&
             !isOverlap && [
               /* Solid fill over ghost’s bg-white so the whole day reads as colored */
-              "!bg-emerald-100 !text-gray-800 shadow-none",
-              "hover:!bg-emerald-200/95 focus-visible:!bg-emerald-200/95 active:!bg-emerald-200/95",
-              "dark:!bg-emerald-500/35 dark:!text-emerald-50 dark:hover:!bg-emerald-500/45",
+              "bg-emerald-100! text-gray-800! shadow-none",
+              "hover:bg-emerald-200/95! focus-visible:bg-emerald-200/95! active:bg-emerald-200/95!",
+              "dark:bg-emerald-500/35! dark:text-emerald-50! dark:hover:bg-emerald-500/45!",
             ],
           selectedInStayRange && [
-            "!bg-emerald-200 !text-emerald-950 font-semibold z-2",
+            "bg-emerald-200! text-emerald-950! font-semibold z-2",
             "ring-1 ring-inset ring-emerald-600/30",
-            "hover:!bg-emerald-200 focus-visible:!bg-emerald-200",
-            "dark:!bg-emerald-600/55 dark:!text-white dark:ring-emerald-400/40",
+            "hover:bg-emerald-200! focus-visible:bg-emerald-200!",
+            "dark:bg-emerald-600/55! dark:text-white! dark:ring-emerald-400/40",
           ],
-          isBlocked &&
-            !isBookingConflict &&
-            "bg-red-500 mx-px text-white cursor-not-allowed hover:bg-red-600 focus:bg-red-600",
-          isBookingConflict &&
-            "bg-gray-200 text-gray-500 line-through opacity-70 cursor-not-allowed mx-px hover:bg-gray-300",
-          isOverlap && "line-through opacity-70 cursor-not-allowed",
+          disabledStyleClassName,
         )}
       />
       {tooltipEl}
@@ -172,6 +188,7 @@ export function CalendarWithDisabledReasons({
   blockedReasons = EMPTY_BLOCKED_REASONS,
   overlapInvalidReason,
   isOverlapInvalid,
+  reasonStyle = "default",
   components,
   ...props
 }: Props) {
@@ -201,6 +218,7 @@ export function CalendarWithDisabledReasons({
             setActiveTooltipDate={setActiveTooltipDate}
             overlapInvalidReason={overlapInvalidReason}
             isOverlapInvalid={isOverlapInvalid}
+            reasonStyle={reasonStyle}
           />
         ),
       }}

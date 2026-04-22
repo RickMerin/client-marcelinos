@@ -87,3 +87,93 @@ If a day is inherently available but selecting it would cause the stay to overla
 ### Submission Validation Check
 
 Finally, as an extra layer of security before sending the API `MUTATION` request, we verify the `stayOverlapsBlocked` helper manually on form submission. If the logic fails, a toast error is fired preventing the request.
+
+---
+
+## Reschedule UI and Interaction Enhancements
+
+This section documents the newer UX improvements made on top of the base validation logic.
+
+### 1. Stay Highlight Includes Checkout Day
+
+The reschedule calendar uses shared stay-range modifiers from `src/lib/calendar/stayRange.ts`.
+
+The visual range now includes both boundaries:
+
+- Check-in day is highlighted
+- Checkout day is highlighted
+- Intermediate days are highlighted as the middle band
+
+This improves clarity for guests when selecting and reviewing a full stay range.
+
+### 2. Legend and Date State Semantics
+
+The reschedule screen includes a legend panel next to the calendar to explain date states:
+
+- Blocked or booked
+- Would overlap this stay
+- Your selected stay
+
+In the actual calendar UI (`CalendarWithDisabledReasons.tsx`), blocked dates now render in red for stronger visual distinction.
+
+### 3. Date-State Rendering and Tooltips
+
+`src/components/calendar/CalendarWithDisabledReasons.tsx` supports a presentation mode (`reasonStyle="soft"`) used by reschedule.
+
+Date state behavior:
+
+- Blocked date: disabled, red style, tooltip reason from blocked-date API
+- Fully booked date: disabled, distinct conflict style
+- Overlap-invalid date: disabled with overlap style and overlap reason
+- Selected stay range: highlighted using shared stay modifiers
+
+Users can click disabled dates to view the exact reason in a tooltip.
+
+### 4. Calendar + Right Rail Layout
+
+The calendar area in `RescheduleBookingContent.tsx` uses a two-column desktop layout:
+
+- Left: main calendar (larger width)
+- Right: legend and duration controls stacked vertically
+
+The right panel keeps legend and increment controls organized while preserving focus on the calendar.
+
+### 5. Duration (Nights/Days) Controls
+
+Guests can increase/decrease reschedule duration via +/- controls.
+
+- Label adapts by booking type (`Number of Nights` vs `Number of Days`)
+- Decrement is disabled at minimum value of 1
+- Every change re-evaluates overlap invalid states and disabled dates in real time
+
+### 6. OTP Verification for Reschedule Submission
+
+Reschedule submission requires a 6-digit OTP.
+
+Flow summary:
+
+1. User sends OTP via `/bookings/{reference}/otp/send`
+2. Countdown-based resend guard is applied (`OTP_RESEND_SECONDS`)
+3. Submission requires:
+   - selected date
+   - valid non-overlapping stay range
+   - sent OTP and 6-digit code
+4. Reschedule request sent to `/bookings/{reference}/reschedule`
+
+This ensures both date validity and verification security before applying schedule changes.
+
+### 7. Responsive/Mobile Summary Improvements
+
+The stay summary section (Original Stay / New Stay) was compacted for better mobile usability:
+
+- Shorter card height
+- Clearer check-in/check-out display
+- Reduced scrolling burden
+
+These are presentation updates and do not alter reschedule rules or API payload behavior.
+
+### Files Involved
+
+- `src/components/modals/RescheduleBookingContent.tsx`
+- `src/components/calendar/CalendarWithDisabledReasons.tsx`
+- `src/lib/calendar/stayRange.ts`

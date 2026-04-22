@@ -5,13 +5,7 @@ import { toast } from "@/lib/logger/toast";
 import { ButtonLoader } from "@/components/ui/loader";
 import { CalendarWithDisabledReasons } from "@/components/calendar/CalendarWithDisabledReasons";
 import { format, addDays } from "date-fns";
-import {
-  CalendarDays,
-  ArrowRight,
-  Minus,
-  Plus,
-  AlertCircle,
-} from "lucide-react";
+import { CalendarDays, Minus, Plus, AlertCircle } from "lucide-react";
 import { BookingKind } from "@/types/booking.types";
 import { toBlockedDateKey } from "@/lib/utils/booking.utils";
 import {
@@ -276,94 +270,124 @@ export default function RescheduleBookingContent({
   const newCheckOut = selectedDate ? addDays(selectedDate, days) : null;
 
   return (
-    <div className="flex flex-col md:flex-row max-h-[85vh] overflow-y-auto md:overflow-hidden w-full bg-white/85 text-gray-800 backdrop-blur-md relative z-10">
+    <div className="mx-auto flex w-full max-w-260 flex-col overflow-y-auto rounded-2xl bg-white/85 text-gray-800 backdrop-blur-md relative z-10 max-h-[82vh] md:flex-row md:overflow-hidden md:max-h-[78vh]">
       {/* Left side: Calendar Selection */}
-      <div className="flex-1 p-6 md:p-8 md:border-r border-emerald-900/10 md:overflow-y-auto w-full">
-        <div className="mb-6 flex justify-between items-start">
+      <div className="flex-1 w-full border-emerald-900/10 p-5 md:border-r md:overflow-y-auto md:p-6">
+        <div className="mb-4 flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-bold text-emerald-900 flex items-center gap-2">
-              <CalendarDays className="w-6 h-6 text-emerald-600" />
+            <h2 className="flex items-center gap-2 text-xl font-bold text-emerald-900 md:text-2xl">
+              <CalendarDays className="h-5 w-5 text-emerald-600 md:h-6 md:w-6" />
               Reschedule Booking
             </h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="mt-1 text-sm text-gray-500">
               Choose a new date and duration for your stay.
             </p>
           </div>
         </div>
 
-        <div className="space-y-6">
-          {/* Days Counter */}
-          <div className="space-y-3">
-            <label className="text-sm font-semibold text-gray-700 block">
-              {durationLabel}
-            </label>
-            <div className="flex items-center gap-3">
-              <button
-                disabled={days <= 1}
-                onClick={() => setDays((d) => Math.max(1, d - 1))}
-                className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                title="Decrease days"
-              >
-                <Minus className="w-4 h-4 text-gray-600" />
-              </button>
-              <div className="text-lg font-semibold w-8 text-center tabular-nums">
-                {days}
-              </div>
-              <button
-                onClick={() => setDays((d) => d + 1)}
-                className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
-                title="Increase days"
-              >
-                <Plus className="w-4 h-4 text-emerald-600" />
-              </button>
-            </div>
-          </div>
-
+        <div className="space-y-5">
           {/* Calendar Picker */}
           <div className="space-y-3">
             <label className="text-sm font-semibold text-gray-700 block">
               Select Check-in Date
             </label>
-            <div className="border border-emerald-900/10 rounded-xl p-2 sm:p-4 shadow-sm bg-white/80 backdrop-blur-sm min-h-[350px] relative w-full overflow-hidden flex justify-center">
+            <div className="relative overflow-hidden rounded-xl border border-emerald-900/10 bg-white/80 p-2 shadow-sm backdrop-blur-sm sm:p-4">
               {isDatesLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-10 backdrop-blur-[1px] rounded-xl">
-                  <div className="w-full h-full p-4 flex flex-col gap-4 animate-pulse pt-12">
-                    <div className="h-6 bg-slate-200/50 rounded w-1/3 mx-auto mb-4"></div>
-                    <div className="grid grid-cols-7 gap-2 mb-4">
+                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-[1px]">
+                  <div className="flex h-full w-full flex-col gap-4 p-4 pt-12 animate-pulse">
+                    <div className="mx-auto mb-4 h-6 w-1/3 rounded bg-slate-200/50"></div>
+                    <div className="mb-4 grid grid-cols-7 gap-2">
                       {Array.from({ length: 7 }).map((_, i) => (
                         <div
                           key={i}
-                          className="h-4 bg-slate-200/50 rounded mx-1"
+                          className="mx-1 h-4 rounded bg-slate-200/50"
                         ></div>
                       ))}
                     </div>
-                    <div className="grid grid-cols-7 gap-2 flex-1">
+                    <div className="grid flex-1 grid-cols-7 gap-2">
                       {Array.from({ length: 35 }).map((_, i) => (
                         <div
                           key={i}
-                          className="h-full bg-slate-200/50 rounded m-0.5"
+                          className="m-0.5 h-full rounded bg-slate-200/50"
                         ></div>
                       ))}
                     </div>
                   </div>
                 </div>
               )}
-              <CalendarWithDisabledReasons
-                mode="single"
-                selected={selectedDate}
-                onSelect={(d) => d && setSelectedDate(d)}
-                disabled={isDateDisabled}
-                blockedReasons={blockedReasons}
-                isOverlapInvalid={isOverlapInvalid}
-                className="mx-auto"
-                {...(stayRangeModifiers
-                  ? {
-                      modifiers: stayRangeModifiers,
-                      modifiersClassNames:
-                        BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
-                    }
-                  : {})}
-              />
+
+              <div className="grid gap-4 md:grid-cols-[minmax(0,1.7fr)_minmax(14rem,0.75fr)] md:items-stretch">
+                <div className="min-w-0 flex justify-center">
+                  <CalendarWithDisabledReasons
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(d) => d && setSelectedDate(d)}
+                    disabled={isDateDisabled}
+                    blockedReasons={blockedReasons}
+                    isOverlapInvalid={isOverlapInvalid}
+                    reasonStyle="soft"
+                    className="mx-auto"
+                    {...(stayRangeModifiers
+                      ? {
+                          modifiers: stayRangeModifiers,
+                          modifiersClassNames:
+                            BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES,
+                        }
+                      : {})}
+                  />
+                </div>
+
+                <div className="flex h-full flex-col gap-3 text-[11px] leading-relaxed text-gray-600 md:justify-between">
+                  <div className="rounded-lg border border-emerald-900/10 bg-white/70 px-3 py-2.5">
+                    <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+                      <p className="font-semibold text-gray-700">Legend</p>
+                      <p className="text-[10px] text-gray-500">
+                        Tap a disabled date for details
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2 py-1 text-rose-900 ring-1 ring-inset ring-rose-200">
+                        <span className="h-2 w-2 rounded-full bg-rose-500" />
+                        Blocked or Fully Booked
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-1 text-emerald-900 ring-1 ring-inset ring-emerald-200">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        Your selected stay
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-1 text-amber-900 ring-1 ring-inset ring-amber-200">
+                        <span className="h-2 w-2 rounded-full bg-amber-500" />
+                        Would overlap this stay
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-emerald-900/10 bg-white/70 px-3 py-2.5 shadow-sm">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                      {durationLabel}
+                    </p>
+                    <div className="mt-1 flex items-center gap-2">
+                      <button
+                        disabled={days <= 1}
+                        onClick={() => setDays((d) => Math.max(1, d - 1))}
+                        className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        title="Decrease days"
+                      >
+                        <Minus className="h-3.5 w-3.5 text-gray-600" />
+                      </button>
+                      <div className="min-w-8 flex-1 text-center text-base font-semibold tabular-nums text-gray-800">
+                        {days}
+                      </div>
+                      <button
+                        onClick={() => setDays((d) => d + 1)}
+                        className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 transition-colors hover:bg-gray-50"
+                        title="Increase days"
+                      >
+                        <Plus className="h-3.5 w-3.5 text-emerald-600" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             {selectedDate &&
               stayOverlapsBlocked(selectedDate, days, blockedDates) && (
@@ -380,88 +404,87 @@ export default function RescheduleBookingContent({
       </div>
 
       {/* Right side: Summary & Action */}
-      <div className="w-full md:w-80 bg-emerald-50/70 flex shrink-0 flex-col gap-6 justify-between p-6 md:p-8 backdrop-blur-md border-t md:border-t-0 border-emerald-900/10 md:overflow-y-auto">
+      <div className="w-full bg-emerald-50/70 flex shrink-0 flex-col gap-5 justify-between p-5 md:w-72 md:p-6 backdrop-blur-md border-t md:border-t-0 border-emerald-900/10 md:overflow-y-auto">
         <div>
-          <h3 className="text-lg font-bold text-emerald-950 mb-6 border-b border-emerald-900/10 pb-2">
+          <h3 className="text-base font-bold text-emerald-950 mb-4 border-b border-emerald-900/10 pb-2 md:text-lg">
             Stay Summary
           </h3>
 
-          <div className="space-y-5">
+          <div className="space-y-4">
             {/* Current Stay */}
-            <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-emerald-900/10 shadow-sm">
-              <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-3">
-                Original Stay
-              </p>
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex-1">
-                  <p className="text-[10px] text-gray-500 uppercase font-medium">
+            <div className="rounded-lg border border-emerald-900/10 bg-white/80 p-3 shadow-sm backdrop-blur-sm md:p-4">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                  Original Stay
+                </p>
+                <span className="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                  {formatDurationText(currentDays)}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-medium uppercase text-gray-500">
                     Check-in
                   </p>
-                  <p className="font-semibold text-gray-700 text-sm mt-0.5">
+                  <p className="mt-0.5 truncate text-sm font-semibold text-gray-700">
                     {currentCheckInDate
                       ? format(currentCheckInDate, "MMM d, yyyy")
                       : "—"}
                   </p>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-300 shrink-0" />
-                <div className="flex-1 text-right">
-                  <p className="text-[10px] text-gray-500 uppercase font-medium">
+                <div className="min-w-0 text-right">
+                  <p className="text-[10px] font-medium uppercase text-gray-500">
                     Check-out
                   </p>
-                  <p className="font-semibold text-gray-700 text-sm mt-0.5">
+                  <p className="mt-0.5 truncate text-sm font-semibold text-gray-700">
                     {currentCheckOutDate
                       ? format(currentCheckOutDate, "MMM d, yyyy")
                       : "—"}
                   </p>
                 </div>
               </div>
-              <div className="mt-3 pt-3 border-t border-gray-100 text-right">
-                <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded-md">
-                  {formatDurationText(currentDays)}
-                </span>
-              </div>
             </div>
 
             {/* New Stay */}
             <div
-              className={`p-4 rounded-xl border-2 transition-all duration-200 ${selectedDate ? "bg-emerald-50 border-emerald-200 shadow-sm" : "bg-white border-dashed border-gray-200 opacity-60"}`}
+              className={`rounded-lg border p-3 transition-all duration-200 md:p-4 ${selectedDate ? "border-emerald-200 bg-emerald-50 shadow-sm" : "border-dashed border-gray-200 bg-white opacity-60"}`}
             >
               <p
-                className={`text-[11px] font-bold uppercase tracking-wider mb-3 ${selectedDate ? "text-emerald-700" : "text-gray-400"}`}
+                className={`mb-2 text-[10px] font-bold uppercase tracking-wider ${selectedDate ? "text-emerald-700" : "text-gray-400"}`}
               >
                 New Stay
               </p>
 
               {selectedDate ? (
                 <>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex-1">
-                      <p className="text-[10px] text-emerald-600/70 uppercase font-medium">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="sr-only">New stay duration</span>
+                    <span className="ml-auto rounded-md bg-emerald-100/50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                      {formatDurationText(days)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-medium uppercase text-emerald-600/70">
                         Check-in
                       </p>
-                      <p className="font-bold text-emerald-900 text-sm mt-0.5">
+                      <p className="mt-0.5 truncate text-sm font-bold text-emerald-900">
                         {format(selectedDate, "MMM d, yyyy")}
                       </p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-emerald-300 shrink-0" />
-                    <div className="flex-1 text-right">
-                      <p className="text-[10px] text-emerald-600/70 uppercase font-medium">
+                    <div className="min-w-0 text-right">
+                      <p className="text-[10px] font-medium uppercase text-emerald-600/70">
                         Check-out
                       </p>
-                      <p className="font-bold text-emerald-900 text-sm mt-0.5">
+                      <p className="mt-0.5 truncate text-sm font-bold text-emerald-900">
                         {newCheckOut ? format(newCheckOut, "MMM d, yyyy") : "—"}
                       </p>
                     </div>
                   </div>
-                  <div className="mt-3 pt-3 border-t border-emerald-100/50 text-right">
-                    <span className="text-xs text-emerald-700 font-bold bg-emerald-100/50 px-2 py-1 rounded-md">
-                      {formatDurationText(days)}
-                    </span>
-                  </div>
                 </>
               ) : (
-                <div className="py-4 text-center text-gray-400 text-sm flex flex-col items-center gap-2">
-                  <CalendarDays className="w-6 h-6 opacity-30" />
+                <div className="flex flex-col items-center gap-2 py-3 text-center text-sm text-gray-400 md:py-4">
+                  <CalendarDays className="h-5 w-5 opacity-30 md:h-6 md:w-6" />
                   <p className="text-xs leading-tight">
                     Select a date from
                     <br />
@@ -473,9 +496,9 @@ export default function RescheduleBookingContent({
           </div>
         </div>
 
-        <div className="mt-8 space-y-3 pt-6 border-t border-gray-200">
-          <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/50 p-4 text-left">
-            <p className="text-xs font-bold text-emerald-900 mb-1">
+        <div className="mt-6 space-y-3 border-t border-gray-200 pt-5 md:mt-8 md:pt-6">
+          <div className="rounded-lg border border-emerald-200/80 bg-emerald-50/50 p-3 text-left md:p-4">
+            <p className="mb-1 text-xs font-bold text-emerald-900">
               Email verification
             </p>
             <p className="text-[11px] text-gray-600 mb-2">

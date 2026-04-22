@@ -259,3 +259,40 @@ To test boundary conditions:
 ### Files Modified
 
 - `src/components/forms/FormWrapper.tsx` — Calendar `onSelect` handler for check-out field
+
+---
+
+## Update: Inclusive Check-in/Check-out Highlight (Landing + Reschedule)
+
+### Goal
+
+Make the visible stay highlight include the checkout date so users clearly see the full selected range.
+
+### What Changed
+
+The shared stay-range helper was updated from a half-open visual range (`[check_in, check_out)`) to an inclusive visual range (`[check_in, check_out]`).
+
+- Start of highlight: check-in day
+- End of highlight: checkout day
+- Middle cells: days strictly between check-in and checkout
+
+This affects every calendar view that uses `stayNightRangeModifiers`, including:
+
+- Landing booking bar date pickers (`FormWrapper.tsx`)
+- Reschedule modal calendar (`RescheduleBookingContent.tsx`)
+
+### Implementation Details
+
+In `src/lib/calendar/stayRange.ts`:
+
+1. End boundary was shifted from `lastNight` to `lastDay`.
+2. `booking_stay_end` now matches checkout day.
+3. `booking_stay_middle` now spans days between check-in and checkout.
+
+This is a display-layer change only. Booking validation, blocked-date checks, and submission semantics remain unchanged.
+
+### Files Involved
+
+- `src/lib/calendar/stayRange.ts`
+- `src/components/forms/FormWrapper.tsx`
+- `src/components/modals/RescheduleBookingContent.tsx`

@@ -19,8 +19,8 @@ function sameCalendarDay(a: Date, b: Date): boolean {
 }
 
 /**
- * Modifiers for hotel stay nights in [check_in, check_out) — each calendar night
- * of the stay, for range highlighting on single-date pickers.
+ * Modifiers for the visible stay range in [check_in, check_out] — the full
+ * calendar span shown on the date pickers, including the checkout day.
  */
 export function stayNightRangeModifiers(
   checkIn: Date | string | null | undefined,
@@ -36,25 +36,23 @@ export function stayNightRangeModifiers(
   const nightCount = Math.round((e.getTime() - s.getTime()) / 86400000);
   if (nightCount < 1) return undefined;
 
-  const lastNight = new Date(s);
-  lastNight.setDate(lastNight.getDate() + nightCount - 1);
+  const lastDay = new Date(s);
+  lastDay.setDate(lastDay.getDate() + nightCount);
 
   const matchers: Record<string, Matcher> = {};
 
   matchers.booking_stay_single = (date: Date) =>
     nightCount === 1 && sameCalendarDay(date, s);
 
-  matchers.booking_stay_start = (date: Date) =>
-    nightCount > 1 && sameCalendarDay(date, s);
+  matchers.booking_stay_start = (date: Date) => sameCalendarDay(date, s);
 
-  matchers.booking_stay_end = (date: Date) =>
-    nightCount > 1 && sameCalendarDay(date, lastNight);
+  matchers.booking_stay_end = (date: Date) => sameCalendarDay(date, lastDay);
 
   matchers.booking_stay_middle = (date: Date) => {
-    if (nightCount <= 2) return false;
+    if (nightCount <= 1) return false;
     const t = startOfDayLocal(date).getTime();
     const first = s.getTime();
-    const last = lastNight.getTime();
+    const last = lastDay.getTime();
     return t > first && t < last;
   };
 
@@ -67,10 +65,11 @@ export function stayNightRangeModifiers(
  */
 const STAY_BAND = "bg-emerald-100 text-gray-800 border-0";
 
-export const BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES: Record<string, string> = {
-  booking_stay_single: `rounded-lg ${STAY_BAND} font-medium aria-disabled:opacity-40`,
-  /* Overlap neighbors by 1px so backgrounds meet and the bar does not “stutter” */
-  booking_stay_start: `rounded-l-lg rounded-r-none ${STAY_BAND} relative z-[1] -mr-px aria-disabled:opacity-40`,
-  booking_stay_middle: `rounded-none ${STAY_BAND} relative z-0 -mx-px w-[calc(100%+2px)] max-w-none aria-disabled:opacity-40`,
-  booking_stay_end: `rounded-r-lg rounded-l-none ${STAY_BAND} relative z-[1] -ml-px aria-disabled:opacity-40`,
-};
+export const BOOKING_STAY_RANGE_MODIFIERS_CLASS_NAMES: Record<string, string> =
+  {
+    booking_stay_single: `rounded-lg ${STAY_BAND} font-medium aria-disabled:opacity-40`,
+    /* Overlap neighbors by 1px so backgrounds meet and the bar does not “stutter” */
+    booking_stay_start: `rounded-l-lg rounded-r-none ${STAY_BAND} relative z-[1] -mr-px aria-disabled:opacity-40`,
+    booking_stay_middle: `rounded-none ${STAY_BAND} relative z-0 -mx-px w-[calc(100%+2px)] max-w-none aria-disabled:opacity-40`,
+    booking_stay_end: `rounded-r-lg rounded-l-none ${STAY_BAND} relative z-[1] -ml-px aria-disabled:opacity-40`,
+  };
