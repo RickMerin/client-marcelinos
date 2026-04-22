@@ -124,7 +124,7 @@ function DayWithReason({
       ? isBookingConflict
         ? "bg-slate-100 text-slate-500 ring-1 ring-inset ring-slate-200 cursor-not-allowed hover:bg-slate-200/80 focus:bg-slate-200/80 opacity-90"
         : isBlocked
-          ? "bg-rose-50 text-rose-900 ring-1 ring-inset ring-rose-200 cursor-not-allowed hover:bg-rose-100/80 focus:bg-rose-100/80"
+          ? "bg-red-500 text-white ring-1 ring-inset ring-red-600/50 cursor-not-allowed hover:bg-red-600 focus:bg-red-600"
           : isOverlap
             ? "bg-amber-50 text-amber-900 ring-1 ring-inset ring-amber-200 cursor-not-allowed hover:bg-amber-100/80 focus:bg-amber-100/80"
             : ""

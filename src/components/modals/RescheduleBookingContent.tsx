@@ -5,13 +5,7 @@ import { toast } from "@/lib/logger/toast";
 import { ButtonLoader } from "@/components/ui/loader";
 import { CalendarWithDisabledReasons } from "@/components/calendar/CalendarWithDisabledReasons";
 import { format, addDays } from "date-fns";
-import {
-  CalendarDays,
-  ArrowRight,
-  Minus,
-  Plus,
-  AlertCircle,
-} from "lucide-react";
+import { CalendarDays, Minus, Plus, AlertCircle } from "lucide-react";
 import { BookingKind } from "@/types/booking.types";
 import { toBlockedDateKey } from "@/lib/utils/booking.utils";
 import {
@@ -354,7 +348,7 @@ export default function RescheduleBookingContent({
                     <div className="flex flex-wrap gap-2">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2 py-1 text-rose-900 ring-1 ring-inset ring-rose-200">
                         <span className="h-2 w-2 rounded-full bg-rose-500" />
-                        Blocked or booked
+                        Blocked or Fully Booked
                       </span>
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-1 text-emerald-900 ring-1 ring-inset ring-emerald-200">
                         <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -419,10 +413,15 @@ export default function RescheduleBookingContent({
           <div className="space-y-4">
             {/* Current Stay */}
             <div className="rounded-lg border border-emerald-900/10 bg-white/80 p-3 shadow-sm backdrop-blur-sm md:p-4">
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                Original Stay
-              </p>
-              <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-2">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                  Original Stay
+                </p>
+                <span className="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                  {formatDurationText(currentDays)}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
                 <div className="min-w-0">
                   <p className="text-[10px] font-medium uppercase text-gray-500">
                     Check-in
@@ -433,7 +432,6 @@ export default function RescheduleBookingContent({
                       : "—"}
                   </p>
                 </div>
-                <ArrowRight className="h-4 w-4 shrink-0 text-gray-300 self-center sm:self-auto" />
                 <div className="min-w-0 text-right">
                   <p className="text-[10px] font-medium uppercase text-gray-500">
                     Check-out
@@ -444,11 +442,6 @@ export default function RescheduleBookingContent({
                       : "—"}
                   </p>
                 </div>
-              </div>
-              <div className="mt-3 border-t border-gray-100 pt-3 text-right">
-                <span className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500">
-                  {formatDurationText(currentDays)}
-                </span>
               </div>
             </div>
 
@@ -464,7 +457,13 @@ export default function RescheduleBookingContent({
 
               {selectedDate ? (
                 <>
-                  <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-2">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="sr-only">New stay duration</span>
+                    <span className="ml-auto rounded-md bg-emerald-100/50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                      {formatDurationText(days)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="min-w-0">
                       <p className="text-[10px] font-medium uppercase text-emerald-600/70">
                         Check-in
@@ -473,7 +472,6 @@ export default function RescheduleBookingContent({
                         {format(selectedDate, "MMM d, yyyy")}
                       </p>
                     </div>
-                    <ArrowRight className="h-4 w-4 shrink-0 text-emerald-300 self-center sm:self-auto" />
                     <div className="min-w-0 text-right">
                       <p className="text-[10px] font-medium uppercase text-emerald-600/70">
                         Check-out
@@ -482,11 +480,6 @@ export default function RescheduleBookingContent({
                         {newCheckOut ? format(newCheckOut, "MMM d, yyyy") : "—"}
                       </p>
                     </div>
-                  </div>
-                  <div className="mt-3 border-t border-emerald-100/50 pt-3 text-right">
-                    <span className="rounded-md bg-emerald-100/50 px-2 py-1 text-xs font-bold text-emerald-700">
-                      {formatDurationText(days)}
-                    </span>
                   </div>
                 </>
               ) : (
