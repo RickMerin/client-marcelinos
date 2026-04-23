@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { FormWrapper } from "./FormWrapper";
+import { toast } from "@/lib/logger/toast";
 
 const contactSchema = z.object({
   full_name: z
@@ -54,7 +55,7 @@ export default function ContactForm() {
       throw new Error(result.message || "Failed to submit form.");
     }
 
-    alert("Submitted successfully.");
+    toast.success({ content: "Submitted successfully." });
   };
 
   return (

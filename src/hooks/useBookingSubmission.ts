@@ -8,6 +8,7 @@ import {
   buildBookingPayload,
   type BuildBookingPayloadOptions,
 } from "@/lib/utils/booking.utils";
+import { toast } from "@/lib/logger/toast";
 
 type ErrorWithResponse = Error & {
   response?: { data?: BookingConflictResponse };
@@ -74,7 +75,9 @@ export const useBookingSubmission = () => {
           error instanceof Error
             ? formatConflictMessage(error as ErrorWithResponse)
             : "Failed to complete booking.";
-        alert(message);
+        toast.error({
+          content: message,
+        });
       }
     }
   };
