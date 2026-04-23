@@ -1,6 +1,46 @@
+/**
+ * Room and Venue About Section
+ * room data count is dynamic from the backend
+ * venue data count is dynamic from the backend
+ * guest rating is static data
+ */
+
+
+import { useMemo } from "react";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
+import { useApiQuery } from "@/lib/api/queries/useApiQuery";
+
+
+interface ApiListResponse<T> {
+  success?: boolean;
+  data?: T[];
+}
+
+interface RoomItem {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+}
+
+interface VenueItem {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+}
 
 function About() {
+  const { data: roomData, isLoading: roomLoading, error: roomError } = useApiQuery<ApiListResponse<RoomItem>>(
+    ["rooms", "home"],
+    "/rooms?is_all=1&limit=12",
+  );
+  const { data: venueData, isLoading: venueLoading, error: venueError } = useApiQuery<ApiListResponse<VenueItem>>(
+    ["venues", "home"],
+    "/venues?is_all=1&limit=12",
+  );
+  const roomCount = useMemo(() => roomData?.data?.length ?? 0, [roomData, roomLoading, roomError]);
+  const venueCount = useMemo(() => venueData?.data?.length ?? 0, [venueData, venueLoading, venueError]);
   return (
 		<div
 			className="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-20 xl:gap-24 items-center"
@@ -31,7 +71,7 @@ function About() {
 				<div className="flex flex-wrap gap-12 mt-12">
 					<div className="flex flex-col gap-1.5">
 						<span className="font-display text-fluid-stat font-light leading-none text-gold">
-							14
+							{roomLoading ? "??" : roomError ? <p className="text-base text-red-600 text-center mb-6 font-medium">Error loading rooms.</p> : roomCount}
 						</span>
 						<span className="text-[13px] tracking-[0.15em] uppercase text-ink-soft font-medium">
 							Rooms
@@ -39,7 +79,7 @@ function About() {
 					</div>
 					<div className="flex flex-col gap-1.5">
 						<span className="font-display text-fluid-stat font-light leading-none text-gold">
-							2
+							{venueLoading ? "??" : venueError ? <p className="text-base text-red-600 text-center mb-6 font-medium">Error loading venues.</p> : venueCount}
 						</span>
 						<span className="text-[13px] tracking-[0.15em] uppercase text-ink-soft font-medium">
 							Event Venues
@@ -47,7 +87,7 @@ function About() {
 					</div>
 					<div className="flex flex-col gap-1.5">
 						<span className="font-display text-fluid-stat font-light leading-none text-gold">
-							★4.8
+							★4.9
 						</span>
 						<span className="text-[13px] tracking-[0.15em] uppercase text-ink-soft font-medium">
 							Guest Rating
