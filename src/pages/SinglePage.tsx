@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import SinglePageSkeleton from "@/components/skeleton/SinglePageSkeleton";
+import SinglePageSkeleton, {
+  SinglePageExploreSkeleton,
+} from "@/components/skeleton/SinglePageSkeleton";
 import CardItem from "@/components/cards/CardItem";
 import Section from "@/components/Section";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
@@ -30,8 +32,10 @@ import {
   venueStartingDisplayPrice,
 } from "@/lib/math/calculate";
 import type { VenuePriceItem } from "@/lib/math/calculate";
+import { StayDateRangeSheet } from "@/components/booking/StayDateRangeSheet";
 import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
 import { getActiveStayDates } from "@/lib/utils/bookingDates";
+import { resolveBookingBarKind } from "@/lib/utils/bookingBarDates";
 import {
   pruneCartItemsToAvailability,
   syncCartToReservationDetails,
@@ -104,14 +108,33 @@ const SinglePage = () => {
     venue?: ListingItem;
   } | null;
   const detailRef = useRef<HTMLDivElement>(null);
+  const [datesSheetOpen, setDatesSheetOpen] = useState(false);
+  const [reservationDateEpoch, setReservationDateEpoch] = useState(0);
 
   const isVenuePage = location.pathname.startsWith("/venues");
   const stateItem = state?.room ?? state?.venue;
   const basePath = isVenuePage ? "/venues" : "/rooms";
 
+  useEffect(() => {
+    const bump = () => setReservationDateEpoch((e) => e + 1);
+    window.addEventListener("reservation-date-updated", bump);
+    window.addEventListener("storage", bump);
+    window.addEventListener("cart-updated", bump);
+    return () => {
+      window.removeEventListener("reservation-date-updated", bump);
+      window.removeEventListener("storage", bump);
+      window.removeEventListener("cart-updated", bump);
+    };
+  }, []);
+
   const stayDates = useMemo(
     () => getActiveStayDates(),
-    [location.key, location.pathname],
+    [location.key, location.pathname, reservationDateEpoch],
+  );
+
+  const bookingBarKind = useMemo(
+    () => resolveBookingBarKind(isVenuePage),
+    [isVenuePage, reservationDateEpoch],
   );
 
   const roomsUrl = useMemo(
@@ -750,18 +773,25 @@ const priceVal = selectedItem
                     </span>
                     <button
                       type="button"
-                      onClick={() => navigate("/")}
+                      onClick={() => setDatesSheetOpen(true)}
                       className="ml-1 rounded-full border-none bg-transparent p-0 text-[11px] font-semibold uppercase tracking-[0.12em] text-sea underline underline-offset-2 cursor-pointer"
                     >
                       Change
                     </button>
                   </div>
                 ) : (
-                  <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-dashed border-sand-dark/70 bg-white/70 px-3 py-1.5 text-xs font-medium text-ink-soft">
-                    <CalendarRange className="h-3.5 w-3.5" />
-                    <span>
-                      Pick dates on the home page to see live availability.
+                  <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center rounded-full border border-dashed border-sand-dark/70 bg-white/70 px-3 py-1.5 text-xs font-medium text-ink-soft sm:gap-3">
+                    <span className="inline-flex items-center gap-2">
+                      <CalendarRange className="h-3.5 w-3.5 shrink-0" />
+                      <span>Pick your stay dates to see live availability.</span>
                     </span>
+                    <button
+                      type="button"
+                      onClick={() => setDatesSheetOpen(true)}
+                      className="w-fit rounded-full border-none bg-transparent p-0 text-[11px] font-semibold uppercase tracking-[0.12em] text-sea underline underline-offset-2 cursor-pointer self-start sm:self-center"
+                    >
+                      Select dates
+                    </button>
                   </div>
                 )}
               </div>
@@ -784,9 +814,9 @@ const priceVal = selectedItem
           selectedItem ? "pt-28 md:pt-32 lg:pt-36" : "pt-8 md:pt-10 lg:pt-12",
         )}
       >
-        {isLoading ? (
+        {isLoading && !selectedItem ? (
           <SinglePageSkeleton />
-        ) : error ? (
+        ) : !isLoading && error ? (
           <div className="rounded-lg border border-red-200/60 bg-red-50 p-5 text-red-900 shadow-sm">
             Unable to load {availableLabel} right now. Please try again later.
           </div>
@@ -797,7 +827,7 @@ const priceVal = selectedItem
                 <div className="grid gap-5 lg:grid-cols-[1.35fr_0.95fr] items-stretch">
                   <div className="h-full flex flex-col">
                     {/* Gallery (match reference: big image + 3-up thumbnails) */}
-                    <div className="h-full flex flex-col rounded-xl bg-white border border-sand-dark/60 shadow-[0_8px_24px_rgba(15,31,26,0.08)] overflow-hidden">
+                    <div className="h-full flex flex-col bg-white border border-sand-dark/60 shadow-[0_8px_24px_rgba(15,31,26,0.08)] overflow-hidden">
                       <div
                         className="relative flex-1 min-h-55 sm:min-h-77.5 w-full bg-sand cursor-zoom-in"
                         onClick={() => setIsImageZoomOpen(true)}
@@ -865,7 +895,7 @@ const priceVal = selectedItem
 
                   {/* Sticky sidebar panel (WordPress theme vibe) */}
                   <aside>
-                    <div className="h-full flex flex-col rounded-xl border border-sand-dark/60 bg-white p-4 md:p-5 shadow-[0_8px_24px_rgba(15,31,26,0.08)] space-y-3.5">
+                    <div className="h-full flex flex-col border border-sand-dark/60 bg-white p-4 md:p-5 shadow-[0_8px_24px_rgba(15,31,26,0.08)] space-y-3.5">
                       {selectedItem.type && (
                         <div className="inline-flex">
                           <RoomTypeBadge type={selectedItem.type} isTitle />
@@ -946,19 +976,28 @@ const priceVal = selectedItem
                           </span>
                           <button
                             type="button"
-                            onClick={() => navigate("/")}
+                            onClick={() => setDatesSheetOpen(true)}
                             className="text-[11px] font-semibold uppercase tracking-[0.12em] text-sea underline underline-offset-2 bg-transparent border-none cursor-pointer p-0"
                           >
                             Change
                           </button>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 rounded-[6px] border border-dashed border-sand-dark/70 bg-sand/40 px-2.5 py-2 text-[12px] text-ink-soft">
-                          <CalendarRange className="h-4 w-4" />
-                          <span>
-                            Set check-in and check-out on the home page to see
-                            live availability.
+                        <div className="flex flex-col gap-1.5 rounded-[6px] border border-dashed border-sand-dark/70 bg-sand/40 px-2.5 py-2 text-[12px] text-ink-soft sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+                          <span className="inline-flex items-start gap-2">
+                            <CalendarRange className="h-4 w-4 shrink-0" />
+                            <span>
+                              Choose check-in and check-out to see live
+                              availability.
+                            </span>
                           </span>
+                          <button
+                            type="button"
+                            onClick={() => setDatesSheetOpen(true)}
+                            className="w-fit text-[11px] font-semibold uppercase tracking-[0.12em] text-sea underline underline-offset-2 bg-transparent border-none cursor-pointer p-0 self-end sm:self-center shrink-0"
+                          >
+                            Select dates
+                          </button>
                         </div>
                       )}
 
@@ -1079,6 +1118,9 @@ const priceVal = selectedItem
               </div>
             )}
 
+            {isLoading && selectedItem ? (
+              <SinglePageExploreSkeleton />
+            ) : (
             <div className="space-y-6">
               <div className="flex items-end justify-between gap-6 flex-wrap">
                 <div>
@@ -1148,9 +1190,17 @@ const priceVal = selectedItem
                 </div>
               )}
             </div>
+            )}
           </div>
         )}
       </Section>
+
+      <StayDateRangeSheet
+        open={datesSheetOpen}
+        onOpenChange={setDatesSheetOpen}
+        kind={bookingBarKind}
+        storageEpoch={reservationDateEpoch}
+      />
 
       {isImageZoomOpen && (
         <div
