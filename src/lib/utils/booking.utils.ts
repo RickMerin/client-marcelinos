@@ -378,7 +378,7 @@ export const buildBookingPayload = (
     middle_name: formData.middleName || null,
     last_name: formData.lastName || "N/A",
     email: formData.email,
-    contact_num: isIntl ? formData.phone || "" : formData.phone || "0000000000",
+    contact_num: (formData.phone || "").trim(),
     gender: formData.gender || "male",
     is_international: isIntl,
     country: isIntl ? validInternationalCountry : "Philippines",

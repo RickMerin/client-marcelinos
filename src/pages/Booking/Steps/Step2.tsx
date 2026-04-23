@@ -62,7 +62,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
     unknown,
     PersonalDetailsParsedValues
   >({
-    resolver: zodResolver(createPersonalDetailsSchema(isInternationalAddress())),
+    resolver: zodResolver(createPersonalDetailsSchema(isInternational)),
     defaultValues: {
       ...raw,
       firstName: toUpper(raw.firstName) ?? "",
@@ -90,7 +90,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
   /* ---------- sync current values to parent (so Continue stays disabled when gender empty) ---------- */
   useEffect(() => {
     const sub = form.watch((values) => {
-      const schema = createPersonalDetailsSchema(isInternationalAddress());
+      const schema = createPersonalDetailsSchema(isInternational);
 
       onValuesChange?.({
         firstName: values.firstName,
@@ -117,7 +117,13 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
     });
 
     return () => sub.unsubscribe();
-  }, [form, onUpdate, onValuesChange]);
+  }, [form, isInternational, onUpdate, onValuesChange]);
+
+  useEffect(() => {
+    if (!isInternational) return;
+    // Foreign guests are not required to provide local contact number.
+    form.setValue("phone", "", { shouldValidate: true, shouldDirty: true });
+  }, [form, isInternational]);
 
   const labelClass =
     "text-sm font-medium text-ink-soft [&>.text-muted]:opacity-70";
@@ -255,37 +261,35 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
               <h3 className="font-display text-lg font-semibold mb-4 text-ink">
                 Contact details
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className={labelClass}>
-                        Phone Number{" "}
-                        {isInternational ? (
-                          <span className="text-muted-foreground font-normal">
-                            (optional for foreign)
-                          </span>
-                        ) : (
-                          requiredMark
-                        )}
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          type="tel"
-                          onChange={(e) =>
-                            field.onChange(e.target.value.toUpperCase())
-                          }
-                          placeholder="09XX XXX XXXX"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div
+                className={`grid grid-cols-1 gap-4 ${
+                  isInternational ? "sm:grid-cols-1" : "sm:grid-cols-2"
+                }`}>
+                {!isInternational && (
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={labelClass}>
+                          Phone Number {requiredMark}
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? ""}
+                            type="tel"
+                            onChange={(e) =>
+                              field.onChange(e.target.value.toUpperCase())
+                            }
+                            placeholder="09XX XXX XXXX"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <FormField
                   control={form.control}
                   name="email"

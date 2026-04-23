@@ -1,6 +1,7 @@
 import { FormData, type VenueEventType } from "@/types/booking.types";
 import { createPersonalDetailsSchema } from "@/lib/validators/personalDetails.schema";
 import { generateReferenceId } from "@/lib/utils/booking.utils";
+import { getFromLocalStorage } from "@/lib/storage/localStorage";
 
 const VENUE_EVENT_TYPES = new Set<VenueEventType>([
   "wedding",
@@ -26,17 +27,12 @@ export const useBookingValidation = (
   formData: FormData,
   updateFormData: (updates: Partial<FormData>) => void,
 ) => {
-  const isInternationalAddress = (() => {
-    if (typeof window === "undefined") return false;
-    try {
-      const raw = localStorage.getItem("reservationDetails.personal.phAddress");
-      if (!raw) return false;
-      const parsed = JSON.parse(raw) as { addressType?: "local" | "international" };
-      return parsed.addressType === "international";
-    } catch {
-      return false;
-    }
-  })();
+  const isInternationalAddress = (): boolean => {
+    const parsed = getFromLocalStorage("reservationDetails.personal.phAddress") as
+      | { addressType?: "local" | "international" }
+      | null;
+    return parsed?.addressType === "international";
+  };
 
   const personalDetails = {
     firstName: formData.firstName,
@@ -64,13 +60,13 @@ export const useBookingValidation = (
       }
       case 2:
         if (
-          !createPersonalDetailsSchema(isInternationalAddress).safeParse(
+          !createPersonalDetailsSchema(isInternationalAddress()).safeParse(
             personalDetails,
           ).success
         ) {
           return false;
         }
-        if (!isInternationalAddress && !hasValidLocalPhone(formData.phone)) {
+        if (!isInternationalAddress() && !hasValidLocalPhone(formData.phone)) {
           return false;
         }
         return true;

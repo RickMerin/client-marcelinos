@@ -368,14 +368,6 @@ export function Step4({
           className="pointer-events-none absolute left-[-9999px] h-px w-px opacity-0"
           aria-hidden
         />
-        {turnstileSiteKey ? (
-          <div className="mb-4 flex min-h-16 justify-center">
-            <div ref={captchaRef} className="min-w-0" />
-          </div>
-        ) : null}
-        {captchaError ? (
-          <p className="mb-3 text-sm text-red-300">{captchaError}</p>
-        ) : null}
         <PaymentConfirmContent
           onCancel={() => {
             if (!isSubmitting) {
@@ -385,6 +377,12 @@ export function Step4({
           }}
           onConfirm={handleConfirmProceed}
           isSubmitting={isSubmitting}
+          captchaSlot={
+            turnstileSiteKey ? (
+              <div className="min-h-16 min-w-0 [&>div]:mx-auto" ref={captchaRef} />
+            ) : null
+          }
+          captchaError={captchaError}
         />
       </Modal>
     </div>

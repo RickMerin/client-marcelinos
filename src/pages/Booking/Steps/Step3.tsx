@@ -142,6 +142,22 @@ export function Step3({
   const hasRooms = rooms.length > 0;
   const hasVenues = venues.length > 0;
   const showRooms = bookingType !== "venue";
+  const [isInternational, setIsInternational] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem("reservationDetails.personal.phAddress");
+      if (!raw) {
+        setIsInternational(false);
+        return;
+      }
+      const parsed = JSON.parse(raw) as { addressType?: "local" | "international" };
+      setIsInternational(parsed.addressType === "international");
+    } catch {
+      setIsInternational(false);
+    }
+  }, []);
 
   // Editing state
   const [editingDates, setEditingDates] = useState(false);
@@ -609,7 +625,9 @@ export function Step3({
               </div>
               <div>
                 <p className="text-sm font-medium text-ink-soft">Phone</p>
-                <p className="font-sm text-ink">{formData.phone}</p>
+                <p className="font-sm text-ink">
+                  {isInternational ? "Not required (Foreign guest)" : formData.phone || "—"}
+                </p>
               </div>
               {formData.address && (
                 <div className="sm:col-span-2">

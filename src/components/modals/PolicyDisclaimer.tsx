@@ -1,18 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ButtonLoader } from "@/components/ui/loader";
 
 interface PaymentPolicyConfirmContentProps {
   onCancel: () => void;
   onConfirm: () => void;
   isSubmitting?: boolean;
+  captchaSlot?: ReactNode;
+  captchaError?: string;
 }
 
 export default function PaymentPolicyConfirmContent({
   onCancel,
   onConfirm,
   isSubmitting = false,
+  captchaSlot,
+  captchaError = "",
 }: PaymentPolicyConfirmContentProps) {
   const [secondsLeft, setSecondsLeft] = useState(5);
 
@@ -31,17 +35,30 @@ export default function PaymentPolicyConfirmContent({
   return (
     <div className="flex flex-col max-h-[70vh] text-white">
       {/* HEADER */}
-      <div className="mt-2 mb-4 md:mb-5 text-center">
-        <p className="text-[11px] tracking-[0.22em] uppercase text-[#e6d3a3] mb-2">
+      <div className="mt-1 mb-3 text-center md:mt-2 md:mb-5">
+        <p className="mb-1 text-[10px] tracking-[0.16em] uppercase text-[#e6d3a3] sm:mb-2 sm:text-[11px] sm:tracking-[0.22em]">
           Confirmation
         </p>
-        <h2 className="text-2xl md:text-3xl font-semibold font-serif">
+        <h2 className="text-[1.45rem] font-semibold font-serif sm:text-2xl md:text-3xl">
           Booking Policy
         </h2>
-        <p className="text-xs text-white/80 mt-2 max-w-xl mx-auto">
+        <p className="mt-1.5 max-w-xl mx-auto text-[11px] text-white/80 sm:mt-2 sm:text-xs">
           Review the terms and conditions to understand the booking guidelines
           and policies.
         </p>
+        {captchaSlot ? (
+          <div className="mt-3 rounded-lg border border-[#e6d3a3]/30 bg-black/15 px-2.5 py-2.5 sm:mt-4 sm:px-3 sm:py-3">
+            <p className="mb-1.5 text-[10px] uppercase tracking-[0.1em] text-[#e6d3a3]/90 sm:mb-2 sm:text-[11px] sm:tracking-[0.12em]">
+              Security Verification
+            </p>
+            <div className="flex justify-center">{captchaSlot}</div>
+            {captchaError ? (
+              <p className="mt-1.5 text-[11px] text-red-300 sm:mt-2 sm:text-xs">
+                {captchaError}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       {/* SCROLLABLE BODY */}
