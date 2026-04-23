@@ -80,22 +80,22 @@ function DayWithReason({
 
   React.useLayoutEffect(() => {
     if (!showTooltip || !tooltipReason || !cellRef.current) return;
+
     const rect = cellRef.current.getBoundingClientRect();
     const padding = 8;
     const tooltipMaxWidth = Math.min(320, window.innerWidth - 24);
-    const left = rect.left + rect.width / 2 - tooltipMaxWidth / 2;
-    const clampedLeft = Math.max(
-      padding,
-      Math.min(left, window.innerWidth - tooltipMaxWidth - padding),
-    );
+    const left = rect.left + rect.width / 2;
     const spaceAbove = rect.top;
     const spaceBelow = window.innerHeight - rect.bottom;
     const preferAbove = spaceAbove >= spaceBelow;
     const anchorY = preferAbove ? rect.top - padding : rect.bottom + padding;
+
     setPosition({
       top: anchorY,
-      left: clampedLeft,
-      transform: preferAbove ? "translateY(-100%)" : "none",
+      left: left,
+      transform: preferAbove
+        ? "translate(-50%, -100%)"
+        : "translate(-50%, 0)",
       width: tooltipMaxWidth,
     });
   }, [showTooltip, tooltipReason]);
@@ -104,7 +104,7 @@ function DayWithReason({
     (isBlocked || isOverlap) && tooltipReason && showTooltip
       ? createPortal(
           <div
-            className="fixed rounded-md bg-green-700/95 px-3 py-2 text-sm text-white leading-normal shadow-lg z-9999"
+            className="fixed rounded-md bg-green-700/95 px-3 py-2 text-sm text-white text-center leading-normal shadow-lg z-9999"
             style={{
               top: position.top,
               left: position.left,
@@ -148,7 +148,6 @@ function DayWithReason({
     >
       <Button
         {...dayProps}
-        /* ghost variant is bg-white by default — that hid the stay-range mint behind “white tiles” */
         variant="ghost"
         size="icon"
         onClick={(e) => {
@@ -165,7 +164,6 @@ function DayWithReason({
           inStayRangeHighlight &&
             !isBlocked &&
             !isOverlap && [
-              /* Solid fill over ghost’s bg-white so the whole day reads as colored */
               "bg-emerald-100! text-gray-800! shadow-none",
               "hover:bg-emerald-200/95! focus-visible:bg-emerald-200/95! active:bg-emerald-200/95!",
               "dark:bg-emerald-500/35! dark:text-emerald-50! dark:hover:bg-emerald-500/45!",
