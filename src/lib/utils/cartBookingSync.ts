@@ -1,4 +1,5 @@
 import {
+  alignFormDataToBookingType,
   effectiveMaxUnitsForSubgroup,
   extractInventoryGroupAvailability,
   isRoomInventoryAvailable,
@@ -6,19 +7,15 @@ import {
   normalizeRoomTypeSlug,
   sortRoomSelectionStable,
 } from "@/lib/utils/booking.utils";
+import { deriveBookingKindFromCart } from "@/lib/utils/bookingBarDates";
 import {
   bedSpecificationLine,
   roomInventoryGroupKey,
   roomTypeAndBedTitle,
 } from "@/lib/formatters/roomDisplayName";
-import type { RoomTypeFilter } from "@/types/booking.types";
+import type { BookingKind, RoomTypeFilter } from "@/types/booking.types";
 import type { FormData } from "@/types/booking.types";
 import { defaultFormData } from "@/lib/constants/booking.constants";
-import {
-  calculateGrandTotalPrice,
-  calculateTotalPrice,
-  calculateVenuesLineTotal,
-} from "@/lib/math/calculate";
 import {
   BOOKING_EXPIRATION,
   getFromLocalStorage,
@@ -216,10 +213,15 @@ export function reconcileFormDataFromCart(
   roomList: any[],
   venueList: any[],
   roomsResponse?: unknown,
-): { rooms: any[]; venues: any[] } {
+): { rooms: any[] | undefined; venues: any[] | undefined } {
   const rooms: any[] = [];
   const venues: any[] = [];
-  if (!Array.isArray(items) || items.length === 0) return { rooms, venues };
+  if (!Array.isArray(items) || items.length === 0) {
+    return { rooms: [], venues: [] };
+  }
+
+  const hasRoomInCart = items.some((e) => e?.itemType === "room");
+  const hasVenueInCart = items.some((e) => e?.itemType === "venue");
 
   const igRows = extractInventoryGroupAvailability(roomsResponse);
   const takenRoomIds = new Set<number>();
@@ -267,8 +269,16 @@ export function reconcileFormDataFromCart(
   }
 
   return {
-    rooms: sortRoomSelectionStable(rooms) as any[],
-    venues,
+    rooms: !hasRoomInCart
+      ? []
+      : roomList.length === 0
+        ? undefined
+        : (sortRoomSelectionStable(rooms) as any[]),
+    venues: !hasVenueInCart
+      ? []
+      : venueList.length === 0
+        ? undefined
+        : venues,
   };
 }
 
@@ -292,6 +302,10 @@ export function pruneCartItemsToAvailability(
     if (!entry || typeof entry !== "object") continue;
 
     if (entry.itemType === "venue") {
+      if (venueList.length === 0) {
+        next.push(entry);
+        continue;
+      }
       const v = venueList.find((x: any) => String(x.id) === String(entry.id));
       if (!v || !isVenueInventoryAvailable(v)) continue;
       const q = Math.min(Math.max(0, Number(entry.quantity) || 0), 1);
@@ -301,6 +315,10 @@ export function pruneCartItemsToAvailability(
     }
 
     if (entry.itemType === "room") {
+      if (roomList.length === 0) {
+        next.push(entry);
+        continue;
+      }
       const r = roomList.find((x: any) => String(x.id) === String(entry.id));
       if (!r || !isRoomInventoryAvailable(r)) continue;
       const t = normalizeRoomTypeSlug(entry.type || r.type) as
@@ -326,15 +344,16 @@ export function pruneCartItemsToAvailability(
 }
 
 /**
- * Rewrites `reservationDetails.rooms` and `reservationDetails.venues` to match
- * the current cart (expanded through inventory), so decrements from the cart
- * drawer or SinglePage flow into the booking funnel's persisted state.
+ * Rewrites `reservationDetails` to match the current cart (expanded through
+ * inventory), derives `booking_type` from cart lines when present, aligns room
+ * vs venue fields, and patches `reservationDate.booking_type` so the funnel
+ * stays consistent with luggage.
  */
 export function syncCartToReservationDetails(
   roomList: any[],
   venueList: any[],
   roomsResponse?: unknown,
-): void {
+): FormData {
   const stored = getFromLocalStorage("reservationDetails") as
     | Partial<FormData>
     | null;
@@ -351,27 +370,37 @@ export function syncCartToReservationDetails(
     roomsResponse,
   );
 
-  const venueEventType = base.venue_event_type || "wedding";
-  const totalPrice =
-    calculateTotalPrice(rooms) +
-    calculateVenuesLineTotal(venues, venueEventType);
-  const grandTotalPrice = calculateGrandTotalPrice(
-    rooms,
-    base.days,
-    venues,
-    base.booking_type,
-    venueEventType,
-  );
+  const cartKind = deriveBookingKindFromCart();
+  const kind = (cartKind ?? base.booking_type) as BookingKind;
 
-  saveToLocalStorage(
-    "reservationDetails",
-    {
-      ...base,
-      rooms,
-      venues,
-      totalPrice,
-      grandTotalPrice,
-    },
-    BOOKING_EXPIRATION,
-  );
+  const merged: FormData = {
+    ...base,
+    ...(rooms !== undefined ? { rooms } : {}),
+    ...(venues !== undefined ? { venues } : {}),
+  };
+  const aligned = alignFormDataToBookingType(merged, kind);
+
+  saveToLocalStorage("reservationDetails", aligned, BOOKING_EXPIRATION);
+
+  if (cartKind != null && typeof window !== "undefined") {
+    const rd = getFromLocalStorage("reservationDate") as Record<
+      string,
+      unknown
+    > | null;
+    if (rd && Number(rd.days) > 0) {
+      const nextRd: Record<string, unknown> = { ...rd, booking_type: kind };
+      if (kind === "both") {
+        const ci = rd.check_in as string | undefined;
+        if (ci && !rd.venue_event_date) {
+          nextRd.venue_event_date = ci;
+        }
+      } else if (kind === "room" || kind === "venue") {
+        delete nextRd.venue_event_date;
+      }
+      saveToLocalStorage("reservationDate", nextRd, BOOKING_EXPIRATION);
+      window.dispatchEvent(new Event("reservation-date-updated"));
+    }
+  }
+
+  return aligned;
 }

@@ -38,6 +38,7 @@ import {
 } from "@/lib/formatters/roomDisplayName";
 import { venueEffectiveUnitPrice } from "@/lib/math/calculate";
 import type { VenueEventType } from "@/types/booking.types";
+import { deriveBookingKindFromCart } from "@/lib/utils/bookingBarDates";
 
 interface ApiListResponse<T> {
   success?: boolean;
@@ -53,10 +54,11 @@ interface Props {
     check_out: string;
     rooms: any[];
     venues: any[];
+    room_type_filters?: RoomTypeFilter[];
+    totalPrice?: number;
+    grandTotalPrice?: number;
   };
   updateFormData: (updates: Partial<FormData>) => void;
-  setSelectedRooms: (rooms: any[]) => void;
-  setSelectedVenues: (venues: any[]) => void;
 }
 
 function RoomCardSkeleton() {
@@ -136,10 +138,9 @@ function VenueCardSkeleton() {
 export function Step1({
   formData,
   updateFormData,
-  setSelectedRooms,
-  setSelectedVenues,
 }: Props) {
   const [recentlyUnselectedCount, setRecentlyUnselectedCount] = useState(0);
+  const [cartRev, setCartRev] = useState(0);
   const bookingType = formData.booking_type ?? "room";
   const checkIn = formData.check_in || "";
   const checkOut = formData.check_out || "";
@@ -147,8 +148,26 @@ export function Step1({
   const venueRangeStart = checkIn;
   const venueRangeEnd = checkOut;
 
-  const showRooms = bookingType !== "venue";
-  const showVenues = bookingType !== "room";
+  useEffect(() => {
+    const onCart = () => setCartRev((n) => n + 1);
+    window.addEventListener("cart-updated", onCart);
+    return () => window.removeEventListener("cart-updated", onCart);
+  }, []);
+
+  const cartDerivedKind = useMemo(
+    () => deriveBookingKindFromCart(),
+    [cartRev, bookingType],
+  );
+
+  /** Fetch inventory for any line type present in luggage, even if `booking_type` lags one frame. */
+  const showRooms =
+    bookingType !== "venue" ||
+    cartDerivedKind === "both" ||
+    cartDerivedKind === "room";
+  const showVenues =
+    bookingType !== "room" ||
+    cartDerivedKind === "both" ||
+    cartDerivedKind === "venue";
 
   const roomsUrl = useMemo(
     () => buildAvailabilityUrl("/rooms", checkIn, checkOut),
@@ -314,25 +333,60 @@ export function Step1({
       const { rooms: nextRooms, venues: nextVenues } =
         reconcileFormDataFromCart(items, roomList, venueList, roomsResponse);
 
+      const effNextRooms = nextRooms ?? formData.rooms;
+      const effNextVenues = nextVenues ?? formData.venues;
+
       const prevSorted = sortRoomSelectionStable(formData.rooms);
-      const roomChanged = roomSelectionsDiffer(prevSorted, nextRooms);
+      const roomChanged = roomSelectionsDiffer(
+        prevSorted,
+        sortRoomSelectionStable(effNextRooms),
+      );
       const venueChanged =
-        venueIdsKey(nextVenues) !== venueIdsKey(formData.venues);
+        venueIdsKey(effNextVenues) !== venueIdsKey(formData.venues);
 
       if (roomChanged) {
-        setSelectedRooms(nextRooms);
-        if (nextRooms.length < formData.rooms.length) {
+        if (
+          nextRooms != null &&
+          nextRooms.length < formData.rooms.length
+        ) {
           setRecentlyUnselectedCount(formData.rooms.length - nextRooms.length);
         }
       } else if (recentlyUnselectedCount !== 0) {
         setRecentlyUnselectedCount(0);
       }
 
-      if (venueChanged) {
-        setSelectedVenues(nextVenues);
-      }
+      const aligned = syncCartToReservationDetails(
+        roomList,
+        venueList,
+        roomsResponse,
+      );
 
-      syncCartToReservationDetails(roomList, venueList, roomsResponse);
+      const roomFiltersEqual =
+        JSON.stringify(aligned.room_type_filters ?? []) ===
+        JSON.stringify(formData.room_type_filters ?? []);
+
+      const patchNeeded =
+        roomChanged ||
+        venueChanged ||
+        aligned.booking_type !== (formData.booking_type ?? "room") ||
+        aligned.venue_event_date !== (formData.venue_event_date ?? "") ||
+        aligned.venue_event_type !== (formData.venue_event_type ?? "") ||
+        aligned.totalPrice !== formData.totalPrice ||
+        aligned.grandTotalPrice !== formData.grandTotalPrice ||
+        !roomFiltersEqual;
+
+      if (patchNeeded) {
+        updateFormData({
+          booking_type: aligned.booking_type,
+          rooms: aligned.rooms,
+          venues: aligned.venues,
+          room_type_filters: aligned.room_type_filters,
+          venue_event_date: aligned.venue_event_date,
+          venue_event_type: aligned.venue_event_type,
+          totalPrice: aligned.totalPrice,
+          grandTotalPrice: aligned.grandTotalPrice,
+        });
+      }
     };
 
     reconcile();
@@ -350,8 +404,13 @@ export function Step1({
     roomsResponse,
     formData.rooms,
     formData.venues,
-    setSelectedRooms,
-    setSelectedVenues,
+    formData.booking_type,
+    formData.venue_event_date,
+    formData.venue_event_type,
+    formData.totalPrice,
+    formData.grandTotalPrice,
+    formData.room_type_filters,
+    updateFormData,
     recentlyUnselectedCount,
   ]);
 

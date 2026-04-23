@@ -17,6 +17,7 @@ import {
   alignFormDataToBookingType,
   parseRoomTypeFilters,
 } from "@/lib/utils/booking.utils";
+import { deriveBookingKindFromCart } from "@/lib/utils/bookingBarDates";
 import { API } from "@/lib/api/apiClient";
 import { endpoints } from "@/lib/api/endpoints";
 
@@ -31,6 +32,19 @@ function normalizeStoredVenueEventType(
   if (!v) return "";
   if (v === "seminar") return "meeting_staff";
   return v as FormData["venue_event_type"];
+}
+
+function resolveBookingTypeInit(args: {
+  reservationDate: ReturnType<typeof getFromLocalStorage>;
+  storedFormData: ReturnType<typeof getFromLocalStorage>;
+}): FormData["booking_type"] {
+  return (
+    deriveBookingKindFromCart() ??
+    (args.reservationDate?.booking_type as FormData["booking_type"]) ??
+    (args.storedFormData as Partial<FormData> | null | undefined)
+      ?.booking_type ??
+    defaultFormData.booking_type
+  );
 }
 
 /**
@@ -48,10 +62,10 @@ export const useBookingForm = () => {
     navigate("/");
   }
 
-	const bookingTypeInit =
-		(reservationDate?.booking_type as FormData["booking_type"]) ||
-		storedFormData?.booking_type ||
-		defaultFormData.booking_type;
+	const bookingTypeInit = resolveBookingTypeInit({
+		reservationDate,
+		storedFormData,
+	});
 
   const initialFormData: FormData = {
 		...defaultFormData,
@@ -119,14 +133,18 @@ export const useBookingForm = () => {
           merged.venue_event_type,
         );
       }
+      const rd = getFromLocalStorage("reservationDate");
+      const effectiveKind = resolveBookingTypeInit({
+        reservationDate: rd,
+        storedFormData: saved,
+      });
       setFormData((prev) =>
         alignFormDataToBookingType(
-          { ...prev, ...merged, booking_type: bookingTypeInit },
-          bookingTypeInit,
+          { ...prev, ...merged, booking_type: effectiveKind },
+          effectiveKind,
         ),
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- align once on mount; bookingTypeInit is from initial reservationDate
   }, []);
 
   // Redirect if no reservation date (must start from home booking bar)
@@ -275,8 +293,9 @@ export const useBookingForm = () => {
   const setOnlinePaymentPlan = (plan: FormData["onlinePaymentPlan"]) =>
     setFormData((prev) => ({ ...prev, onlinePaymentPlan: plan }));
 
-  const updateFormData = (updates: Partial<FormData>) =>
+  const updateFormData = useCallback((updates: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
+  }, []);
 
   const goToStep = (step: number) =>
     setFormData((prev) => ({ ...prev, current_step: step }));
