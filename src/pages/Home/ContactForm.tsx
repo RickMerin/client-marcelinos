@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { ButtonLoader } from "@/components/ui/loader";
 import { useTurnstile } from "@/hooks/useTurnstile";
@@ -78,8 +79,66 @@ interface ContactMessagesResponse {
   messages: ContactMessage[];
 }
 
+type ContactThreadItem =
+  | { kind: "date"; id: string; label: string }
+  | { kind: "message"; id: number; message: ContactMessage; isGroupStart: boolean };
+
+function getSenderInitial(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed) return "?";
+  return trimmed[0]!.toUpperCase();
+}
+
+function formatMessageTime(createdAt: string | null): string {
+  if (!createdAt) return "";
+  return new Date(createdAt).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+function formatDayLabel(createdAt: string | null): string {
+  if (!createdAt) return "—";
+  return new Date(createdAt).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function buildContactThreadItems(messages: ContactMessage[]): ContactThreadItem[] {
+  const items: ContactThreadItem[] = [];
+  let lastDay: string | null = null;
+  let prevSender: "client" | "admin" | null = null;
+
+  for (const message of messages) {
+    const day = message.created_at
+      ? new Date(message.created_at).toISOString().slice(0, 10)
+      : "unknown";
+    if (day !== lastDay) {
+      lastDay = day;
+      prevSender = null;
+      items.push({
+        kind: "date",
+        id: `date-${day}-${message.id}`,
+        label: formatDayLabel(message.created_at),
+      });
+    }
+    const isGroupStart = prevSender !== message.sender_type;
+    items.push({ kind: "message", id: message.id, message, isGroupStart });
+    prevSender = message.sender_type;
+  }
+  return items;
+}
+
 function ContactForm() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const hasHandledResumeQueryRef = useRef(false);
+  const resumedFromLinkRef = useRef(false);
+  const pendingResumeStripRef = useRef(false);
   const {
     containerRef: captchaRef,
     token: captchaToken,
@@ -145,6 +204,69 @@ function ContactForm() {
       refetchOnWindowFocus: true,
     }
   );
+
+  useEffect(() => {
+    const idRaw = searchParams.get("contact");
+    const token = searchParams.get("token");
+    if (idRaw === null && token === null) {
+      return;
+    }
+    if (hasHandledResumeQueryRef.current) {
+      return;
+    }
+    hasHandledResumeQueryRef.current = true;
+
+    if (!idRaw || !token) {
+      navigate({ pathname: "/", hash: "contact" }, { replace: true });
+      return;
+    }
+
+    const id = Number.parseInt(idRaw, 10);
+    if (!Number.isFinite(id) || id <= 0) {
+      navigate({ pathname: "/", hash: "contact" }, { replace: true });
+      return;
+    }
+
+    resumedFromLinkRef.current = true;
+    pendingResumeStripRef.current = true;
+    setConversation({ id, token, status: "", subject: "" });
+    const scrollTimer = window.setTimeout(() => {
+      document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+    }, 120);
+    return () => clearTimeout(scrollTimer);
+  }, [searchParams, navigate]);
+
+  useEffect(() => {
+    if (!resumedFromLinkRef.current) {
+      return;
+    }
+    if (!conversationQuery.isError) {
+      return;
+    }
+    toast.error({
+      content:
+        (conversationQuery.error as Error | undefined)?.message ||
+        "This conversation link is invalid or has expired.",
+    });
+    setConversation(null);
+    resumedFromLinkRef.current = false;
+    pendingResumeStripRef.current = false;
+    navigate({ pathname: "/", hash: "contact" }, { replace: true });
+  }, [conversationQuery.isError, conversationQuery.error, navigate]);
+
+  useEffect(() => {
+    if (!pendingResumeStripRef.current) {
+      return;
+    }
+    if (!conversationQuery.isSuccess || !conversationQuery.data?.success) {
+      return;
+    }
+    const c = conversationQuery.data.conversation;
+    pendingResumeStripRef.current = false;
+    resumedFromLinkRef.current = false;
+    setConversation(c);
+    navigate({ pathname: "/", hash: "contact" }, { replace: true });
+  }, [conversationQuery.isSuccess, conversationQuery.data, navigate]);
 
   const appendMutation = useApiMutation<{
     success: boolean;
@@ -230,57 +352,129 @@ function ContactForm() {
   const fieldClass =
     "border border-(--color-sage-muted) rounded-xl px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow w-full min-h-[48px]";
 
-  if (conversation) {
-    const messages = conversationQuery.data?.messages ?? [];
+  const messageList = conversation ? (conversationQuery.data?.messages ?? []) : [];
+  const threadItems = useMemo(() => buildContactThreadItems(messageList), [messageList]);
 
+  if (conversation) {
     return (
-      <div className="flex w-full justify-center">
-        <div className="w-full max-w-4xl overflow-hidden rounded-2xl border border-(--color-sage-muted) bg-white shadow-lg">
-          <div className="border-b border-(--color-sage-muted) px-6 py-4">
-            <p className="text-sm text-charcoal/70">Subject: {conversation.subject}</p>
-            <p className="text-xs text-charcoal/60">
+      <div className="flex w-full min-h-0 justify-center px-3 sm:px-0">
+        <div className="flex w-full max-w-4xl min-h-0 flex-col overflow-hidden rounded-2xl border border-(--color-sage-muted) bg-white shadow-lg">
+          <div className="shrink-0 border-b border-(--color-sage-muted) px-4 py-4 sm:px-6">
+            <h2 className="text-sm font-semibold text-charcoal">Conversation</h2>
+            <p className="mt-2 text-sm text-charcoal/70">
+              Subject:{" "}
+              {conversationQuery.data?.conversation.subject ||
+                (conversationQuery.isLoading ? "…" : conversation.subject) ||
+                "—"}
+            </p>
+            <p className="mt-1 text-xs text-charcoal/60">
               Conversation status: {conversationQuery.data?.conversation.status ?? conversation.status}
             </p>
           </div>
 
-          <div className="max-h-[420px] space-y-3 overflow-y-auto bg-cream/30 px-6 py-5">
+          <div className="min-h-0 max-h-[min(32rem,70dvh)] flex-1 overflow-y-auto bg-white px-4 py-4 pr-3 sm:px-6 sm:py-5">
             {conversationQuery.isLoading ? (
               <p className="text-sm text-charcoal/70">Loading conversation...</p>
-            ) : messages.length === 0 ? (
+            ) : messageList.length === 0 ? (
               <p className="text-sm text-charcoal/70">No messages yet.</p>
             ) : (
-              messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`max-w-[85%] rounded-xl px-4 py-3 ${
-                    message.sender_type === "client"
-                      ? "ml-auto bg-gold-light text-dark"
-                      : "bg-white text-charcoal border border-(--color-sage-muted)"
-                  }`}
-                >
-                  <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{message.sender_name}</p>
-                  <p className="mt-1 whitespace-pre-line text-sm">{message.body}</p>
-                  <p className="mt-2 text-[11px] opacity-60">
-                    {message.created_at ? new Date(message.created_at).toLocaleString() : ""}
-                  </p>
-                </div>
-              ))
+              <div className="flex flex-col">
+                {threadItems.map((item) => {
+                  if (item.kind === "date") {
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-charcoal/50"
+                      >
+                        <span className="h-px min-w-0 flex-1 bg-(--color-sage-muted)" />
+                        <span className="shrink-0">{item.label}</span>
+                        <span className="h-px min-w-0 flex-1 bg-(--color-sage-muted)" />
+                      </div>
+                    );
+                  }
+
+                  const { message, isGroupStart } = item;
+                  const isClient = message.sender_type === "client";
+                  const initial = getSenderInitial(message.sender_name);
+
+                  if (isClient) {
+                    return (
+                      <div
+                        key={message.id}
+                        className={`flex items-end justify-end gap-2 ${isGroupStart ? "mt-2" : "mt-1"}`}
+                      >
+                        <div className="flex min-w-0 max-w-[75%] flex-col items-end">
+                          {isGroupStart ? (
+                            <p className="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-charcoal/60">
+                              {message.sender_name}
+                            </p>
+                          ) : null}
+                          <div className="rounded-2xl rounded-br-sm bg-gold-light px-3 py-2 text-sm leading-relaxed text-dark shadow-sm">
+                            <p className="whitespace-pre-line wrap-break-word">{message.body}</p>
+                          </div>
+                          <p className="mt-1 px-1 text-[11px] text-charcoal/60">
+                            {formatMessageTime(message.created_at)}
+                          </p>
+                        </div>
+                        {isGroupStart ? (
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold/25 text-xs font-semibold text-forest">
+                            {initial}
+                          </div>
+                        ) : (
+                          <div className="h-8 w-8 shrink-0" aria-hidden />
+                        )}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={message.id}
+                      className={`flex items-end justify-start gap-2 ${isGroupStart ? "mt-2" : "mt-1"}`}
+                    >
+                      {isGroupStart ? (
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-forest/15 text-xs font-semibold text-forest">
+                          {initial}
+                        </div>
+                      ) : (
+                        <div className="h-8 w-8 shrink-0" aria-hidden />
+                      )}
+                      <div className="flex min-w-0 max-w-[75%] flex-col items-start">
+                        {isGroupStart ? (
+                          <p className="mb-1 px-1 text-[11px] font-semibold uppercase tracking-wide text-charcoal/60">
+                            {message.sender_name}
+                          </p>
+                        ) : null}
+                        <div className="rounded-2xl rounded-bl-sm bg-forest px-3 py-2 text-sm leading-relaxed text-white shadow-sm">
+                          <p className="whitespace-pre-line wrap-break-word">{message.body}</p>
+                        </div>
+                        <p className="mt-1 px-1 text-[11px] text-charcoal/60">
+                          {formatMessageTime(message.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
 
-          <form onSubmit={handleFollowUpSubmit} className="space-y-3 border-t border-(--color-sage-muted) px-6 py-4">
-            <textarea
-              value={followUpMessage}
-              onChange={(event) => setFollowUpMessage(event.target.value)}
-              rows={4}
-              placeholder="Send a follow-up message..."
-              className="w-full resize-y rounded-xl border border-(--color-sage-muted) px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow"
-            />
-            <div className="flex justify-end">
+          <form
+            onSubmit={handleFollowUpSubmit}
+            className="shrink-0 space-y-3 border-t border-(--color-sage-muted) px-4 py-4 sm:px-6"
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <textarea
+                value={followUpMessage}
+                onChange={(event) => setFollowUpMessage(event.target.value)}
+                rows={4}
+                placeholder="Send a follow-up message..."
+                className="min-h-0 w-full flex-1 resize-y rounded-xl border border-(--color-sage-muted) px-4 py-3 text-(--color-charcoal) placeholder:text-charcoal/50 placeholder:italic focus:outline-none focus:ring-2 focus:ring-(--color-sage) focus:border-transparent transition-shadow"
+              />
               <button
                 type="submit"
                 disabled={appendMutation.isPending || !followUpMessage.trim()}
-                className="inline-flex items-center justify-center rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold uppercase text-dark transition-colors hover:bg-gold-light disabled:cursor-not-allowed disabled:bg-gold-light"
+                className="inline-flex w-full shrink-0 items-center justify-center rounded-full bg-gold px-5 py-2.5 text-sm font-semibold uppercase text-dark transition-colors hover:bg-gold-light disabled:cursor-not-allowed disabled:bg-gold-light sm:w-auto sm:rounded-xl"
               >
                 {appendMutation.isPending ? <ButtonLoader /> : "Send Message"}
               </button>

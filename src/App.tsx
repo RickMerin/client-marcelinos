@@ -143,6 +143,12 @@ const App = () => {
       <Router>
         <Suspense>
           <Routes>
+            <Route
+              path="/contact"
+              element={
+                <Navigate to={{ pathname: "/", hash: "contact" }} replace />
+              }
+            />
             <Route path="/maintenance" element={<Navigate to="/" replace />} />
             {routes.map(({ path, component: Component }, index) => (
               <Route
