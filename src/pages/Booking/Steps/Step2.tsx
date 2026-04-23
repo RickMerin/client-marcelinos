@@ -282,9 +282,12 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                             onChange={(e) =>
                               field.onChange(e.target.value.toUpperCase())
                             }
-                            placeholder="09XX XXX XXXX"
+                            placeholder="09XXXXXXXXXX"
                           />
                         </FormControl>
+                        <p className="italic text-xs text-yellow-500 mt-1">
+                        A valid Phone Number is required for booking verification
+                      </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -304,10 +307,13 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                           value={field.value ?? ""}
                           type="email"
                           onChange={(e) => field.onChange(e.target.value)}
-                          placeholder="you@example.com"
+                          placeholder="name@domain.com"
                         />
                       </FormControl>
                       <FormMessage />
+                      <p className="italic text-xs text-yellow-500 mt-1">
+                        A valid email address is required for booking verification
+                      </p>
                     </FormItem>
                   )}
                 />
