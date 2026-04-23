@@ -60,7 +60,7 @@ export function MultiStepForm() {
     }
   };
 
-  const handleSubmit = async (captchaToken: string, websiteHoneypot: string) => {
+  const handleSubmit = async (websiteHoneypot: string) => {
     if (!isStepComplete(2) || !isStepComplete(4)) {
       alert("Please complete required fields.");
       return;
@@ -114,7 +114,7 @@ export function MultiStepForm() {
         }
       },
       undefined,
-      { captchaToken, website: websiteHoneypot },
+      { website: websiteHoneypot },
     );
   };
 
