@@ -94,6 +94,11 @@ function toBookingReceipt(
     : [];
   const guestAddress = addressParts.length > 0 ? addressParts.join(", ") : "—";
   const total = b.total_price != null ? String(b.total_price) : "0";
+  const specialDiscountValueNum = Number(b.special_discount_value ?? 0);
+  const specialDiscountOriginalTotalNum = Number(
+    b.special_discount_original_total_price ?? 0,
+  );
+  const specialDiscountAmountNum = Number(b.special_discount_amount_applied ?? 0);
   const paymentMethod = res.payment?.method ?? b.payment_method ?? "cash";
   const paymentPlan = res.payment?.plan ?? b.online_payment_plan ?? "";
   const invoiceId = res.payment?.invoice_id ?? b.xendit_invoice_id ?? "";
@@ -166,6 +171,18 @@ function toBookingReceipt(
 		venue_event_type: b.venue_event_type ?? null,
 		subtotal: total,
 		grand_total: total,
+		special_discount_type: b.special_discount_type ?? null,
+		special_discount_value: Number.isFinite(specialDiscountValueNum)
+			? specialDiscountValueNum
+			: 0,
+		special_discount_original_total_price: Number.isFinite(
+			specialDiscountOriginalTotalNum,
+		)
+			? specialDiscountOriginalTotalNum
+			: 0,
+		special_discount_amount_applied: Number.isFinite(specialDiscountAmountNum)
+			? specialDiscountAmountNum
+			: 0,
 		qr_code_url: res.qr_code_url ?? null,
 		email_verification_required: Boolean(res.email_verification_required),
 		payment_method: paymentMethod,

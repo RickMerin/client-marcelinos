@@ -467,24 +467,39 @@ function addCalendarDaysIso(
 function buildMessengerChatUrl(baseUrl: string, message: string): string {
   const safeBaseUrl = (baseUrl ?? "").trim();
   if (!safeBaseUrl) return "";
-  const encodedMessage = encodeURIComponent(message);
+
+  try {
+    const parsed = new URL(safeBaseUrl);
+    // Keep configured deep links (ex: m.me) untouched so mobile clients can open Messenger app directly.
+    parsed.searchParams.set("text", message);
+    return parsed.toString();
+  } catch {
+    const separator = safeBaseUrl.includes("?") ? "&" : "?";
+    return `${safeBaseUrl}${separator}text=${encodeURIComponent(message)}`;
+  }
+}
+
+function buildMessengerAppUrl(baseUrl: string): string {
+  const safeBaseUrl = (baseUrl ?? "").trim();
+  if (!safeBaseUrl) return "";
 
   try {
     const parsed = new URL(safeBaseUrl);
     const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
-    const pageTarget = parsed.pathname.replace(/^\/+/, "");
 
-    // Some environments report certificate issues on m.me; use facebook web inbox route.
-    const normalizedUrl =
-      host === "m.me" && pageTarget
-        ? new URL(`https://www.facebook.com/messages/t/${pageTarget}`)
-        : parsed;
+    let pageTarget = "";
+    if (host === "m.me") {
+      pageTarget = parsed.pathname.replace(/^\/+/, "");
+    } else if (host === "facebook.com" || host === "fb.com") {
+      const path = parsed.pathname.replace(/^\/+/, "");
+      const matched = /^messages\/t\/([^/?#]+)/i.exec(path);
+      if (matched?.[1]) pageTarget = matched[1];
+    }
 
-    normalizedUrl.searchParams.set("text", message);
-    return normalizedUrl.toString();
+    if (!pageTarget) return "";
+    return `fb-messenger://user-thread/${encodeURIComponent(pageTarget)}`;
   } catch {
-    const separator = safeBaseUrl.includes("?") ? "&" : "?";
-    return `${safeBaseUrl}${separator}text=${encodedMessage}`;
+    return "";
   }
 }
 
@@ -742,6 +757,28 @@ export function Step5(props: Props) {
     : isFromApi && receipt
       ? grandTotal
       : calculatedGrandTotal;
+  const discountType = String(receipt?.special_discount_type ?? "").toLowerCase();
+  const discountValue = Math.max(0, Number(receipt?.special_discount_value ?? 0));
+  const discountAmount = Math.max(
+    0,
+    Number(receipt?.special_discount_amount_applied ?? 0),
+  );
+  const discountedOriginalTotalRaw = Math.max(
+    0,
+    Number(receipt?.special_discount_original_total_price ?? 0),
+  );
+  const discountedOriginalTotal =
+    discountedOriginalTotalRaw > 0
+      ? discountedOriginalTotalRaw
+      : Math.max(0, displayGrandTotal + discountAmount);
+  const hasDiscountedPricing =
+    isFromApi &&
+    discountAmount > 0 &&
+    discountedOriginalTotal > displayGrandTotal + 0.009;
+  const discountBadgeText =
+    discountType === "percent"
+      ? `${discountValue}% OFF`
+      : `- ${pricingFormat(discountAmount)}`;
   const amountPaid = Math.max(0, Number(receipt?.amount_paid ?? 0));
   const remainingBalance = shouldUseCalculatedVenueTotals
     ? Math.max(0, displayGrandTotal - amountPaid)
@@ -824,6 +861,40 @@ export function Step5(props: Props) {
     MESSENGER_CHAT_URL,
     messengerPrefilledMessage,
   );
+  const messengerAppUrl = buildMessengerAppUrl(MESSENGER_CHAT_URL);
+  const handleOpenMessenger = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!messengerAppUrl || typeof window === "undefined") return;
+
+    event.preventDefault();
+    let fallbackTriggered = false;
+    const fallbackDelayMs = 900;
+    const fallbackTimer = window.setTimeout(() => {
+      fallbackTriggered = true;
+      window.open(
+        messengerChatUrlWithMessage || MESSENGER_CHAT_URL,
+        "_blank",
+        "noopener,noreferrer",
+      );
+    }, fallbackDelayMs);
+
+    const clearFallback = () => {
+      if (!fallbackTriggered) {
+        window.clearTimeout(fallbackTimer);
+      }
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", clearFallback);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        clearFallback();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", clearFallback, { once: true });
+    window.location.href = messengerAppUrl;
+  };
 
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
 
@@ -929,6 +1000,11 @@ export function Step5(props: Props) {
                   Marcelino&apos;s Resort Hotel
                 </p>
                 <p className="text-sm opacity-80 truncate">Billing Statement</p>
+                {hasDiscountedPricing ? (
+                  <span className="mt-1 inline-block rounded-full bg-gold px-2 py-0.5 text-[10px] font-semibold tracking-wide text-ink">
+                    Discounted
+                  </span>
+                ) : null}
               </div>
             </div>
             {/* Invoice Section */}
@@ -1288,6 +1364,7 @@ export function Step5(props: Props) {
                       href={messengerChatUrlWithMessage || MESSENGER_CHAT_URL}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={handleOpenMessenger}
                       className="inline-flex items-center gap-2 rounded-lg bg-[#0084FF] px-3 py-2 text-white text-xs font-semibold shadow-sm hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0084FF]"
                     >
                       <MessengerGlyph className="size-5 shrink-0" aria-hidden />
@@ -1340,12 +1417,28 @@ export function Step5(props: Props) {
                     </>
                   ) : (
                     <>
+                      {hasDiscountedPricing ? (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="opacity-80">Original total</span>
+                            <span className="tabular-nums line-through opacity-70">
+                              {pricingFormat(discountedOriginalTotal)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-emerald-700">
+                            <span className="opacity-90">Discount ({discountBadgeText})</span>
+                            <span className="tabular-nums">
+                              - {pricingFormat(discountAmount)}
+                            </span>
+                          </div>
+                        </>
+                      ) : null}
                       <div className="flex justify-between">
                         <span className="opacity-80">Tax (0%)</span>
                         <span className="tabular-nums">{pricingFormat(0)}</span>
                       </div>
                       <div className="flex justify-between border-t border-sand-dark/35 pt-2 mt-1 font-semibold text-base">
-                        <span>Total</span>
+                        <span>{hasDiscountedPricing ? "Discounted total" : "Total"}</span>
                         <span className="tabular-nums text-sea">
                           {pricingFormat(displayGrandTotal)}
                         </span>

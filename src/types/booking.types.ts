@@ -90,6 +90,10 @@ export interface BookingReferenceResponse {
 		no_of_days?: number;
 		venue_event_type?: string | null;
 		total_price?: string | number;
+		special_discount_type?: string | null;
+		special_discount_value?: string | number | null;
+		special_discount_original_total_price?: string | number | null;
+		special_discount_amount_applied?: string | number | null;
 		payment_method?: string;
 		online_payment_plan?: string;
 		xendit_invoice_id?: string;
@@ -185,6 +189,10 @@ export interface BookingReceipt {
 	};
 	subtotal: string;
 	grand_total: string;
+	special_discount_type?: string | null;
+	special_discount_value?: number;
+	special_discount_original_total_price?: number;
+	special_discount_amount_applied?: number;
 	/** ISO 8601 — settle by 9:00 PM Asia/Manila on the check-in calendar day. */
 	unpaid_expires_at?: string | null;
 	unpaid_expiry_days?: number;
