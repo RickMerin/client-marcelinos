@@ -3,6 +3,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 function ReviewSectionSkeleton() {
   return (
     <div className="max-w-[760px] mx-auto text-center">
+      <div className="flex justify-center gap-1.5 mt-8">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton
+            key={i}
+            className="w-4 h-4 rounded-sm bg-cream/15"
+          />
+        ))}
+      </div>
       <blockquote className="my-8 space-y-3">
         <Skeleton className="h-[clamp(18px,2.2vw,28px)] w-full max-w-[640px] mx-auto rounded-md bg-cream/15" />
         <Skeleton className="h-[clamp(18px,2.2vw,28px)] w-11/12 max-w-[580px] mx-auto rounded-md bg-cream/15" />

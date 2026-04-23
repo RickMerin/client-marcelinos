@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import ReviewSectionSkeleton from "@/components/skeleton/ReviewSectionSkeleton";
 import { useApiQuery } from "@/lib/api/queries/useApiQuery";
+import { Star } from "lucide-react";
 
 interface Review {
   guest_name: string | null;
@@ -24,7 +25,7 @@ function pickString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value : null;
 }
 
-function pickNumber(value: unknown): number {
+function pickRating(value: unknown): number {
   const numeric =
     typeof value === "number"
       ? value
@@ -32,7 +33,42 @@ function pickNumber(value: unknown): number {
         ? Number(value)
         : NaN;
   if (!Number.isFinite(numeric)) return 0;
-  return Math.max(0, Math.min(5, Math.round(numeric)));
+  const clamped = Math.max(0, Math.min(5, numeric));
+  return Math.round(clamped * 2) / 2;
+}
+
+function formatRating(rating: number): string {
+  if (Number.isInteger(rating)) return String(rating);
+  return rating.toFixed(1);
+}
+
+function StarRating({ rating }: { rating: number }) {
+  const safe = Math.max(0, Math.min(5, rating));
+  return (
+    <div
+      className="flex justify-center gap-1.5 mt-8"
+      aria-label={`Rating: ${formatRating(safe)} out of 5`}
+    >
+      {Array.from({ length: 5 }).map((_, idx) => {
+        const value = idx + 1;
+        const state = safe >= value ? "full" : safe >= value - 0.5 ? "half" : "empty";
+
+        return (
+          <span key={idx} className="relative inline-block w-4 h-4">
+            <Star className="w-4 h-4 text-cream/30" aria-hidden="true" />
+            {state === "full" && (
+              <Star className="absolute inset-0 w-4 h-4 text-yellow-400 fill-yellow-400" aria-hidden="true" />
+            )}
+            {state === "half" && (
+              <span className="absolute inset-0 overflow-hidden w-1/2">
+                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" aria-hidden="true" />
+              </span>
+            )}
+          </span>
+        );
+      })}
+    </div>
+  );
 }
 
 function normalizeReview(item: unknown): Review {
@@ -42,7 +78,7 @@ function normalizeReview(item: unknown): Review {
       pickString(source.guest_name) ??
       pickString(source.guestName) ??
       pickString(source.name),
-    rating: pickNumber(source.rating ?? source.stars ?? source.rate),
+    rating: pickRating(source.rating ?? source.stars ?? source.rate),
     title: pickString(source.title) ?? "",
     comment:
       pickString(source.comment) ??
@@ -134,6 +170,7 @@ function ClientReviews() {
 
       {!isLoading && !isError && current && (
         <>
+          <StarRating rating={current.rating} />
           <blockquote
             className="font-display text-fluid-quote font-light italic leading-normal text-cream my-8 transition-all duration-600"
             key={currentIdx}
