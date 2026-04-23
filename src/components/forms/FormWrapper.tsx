@@ -85,7 +85,7 @@ function isInvalidCheckIn(
   return stayOverlapsBlocked(date, nights, blockedDates, mode);
 }
 
-type Field = {
+export type FormWrapperField = {
   name: string;
   /** Applied to the wrapping FormItem (e.g. `sm:col-span-2` for full-width row). */
   itemClassName?: string;
@@ -132,7 +132,7 @@ type CaptchaConfig = {
 
 interface FormWrapperProps<T extends z.ZodType<any, any>> {
   schema: T;
-  fields: Field[];
+  fields: FormWrapperField[];
   onSubmit: SubmitHandler<z.infer<T>>;
   submitLabel?: string;
   className?: string;
