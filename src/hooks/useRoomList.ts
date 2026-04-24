@@ -3,9 +3,17 @@ function buildAvailabilityUrl(
   base: string,
   checkIn: string,
   checkOut: string,
+  extra: Record<string, string> = {},
 ): string {
   if (checkIn && checkOut) {
-    return `${base}?check_in=${encodeURIComponent(checkIn)}&check_out=${encodeURIComponent(checkOut)}`;
+    const extraQs = new URLSearchParams();
+    for (const [k, v] of Object.entries(extra)) {
+      if (v) extraQs.set(k, v);
+    }
+    const q = extraQs.toString();
+    return `${base}?check_in=${encodeURIComponent(checkIn)}&check_out=${encodeURIComponent(checkOut)}${
+      q ? `&${q}` : ""
+    }`;
   }
   return `${base}?is_all=1`;
 }

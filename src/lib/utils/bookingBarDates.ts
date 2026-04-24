@@ -35,6 +35,24 @@ export function deriveBookingKindFromCart(): BookingKind | null {
   }
 }
 
+/**
+ * Combine the guest's chosen booking type (from the home bar or stored form) with
+ * the cart line types. A deliberate "Room + Venue" (`both`) is never narrowed
+ * to `room` or `venue` just because the cart only has one line type. Cart can
+ * still set `both` when it contains both room and venue lines.
+ */
+export function mergeBookingKindWithCart(
+  explicitKind: BookingKind | undefined | null,
+  cartKind: BookingKind | null,
+  fallback: BookingKind = "room",
+): BookingKind {
+  if (explicitKind === "both") return "both";
+  if (cartKind === "both") return "both";
+  if (cartKind === "room" || cartKind === "venue") return cartKind;
+  if (explicitKind === "room" || explicitKind === "venue") return explicitKind;
+  return fallback;
+}
+
 export function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
@@ -238,12 +256,12 @@ export function applyBookingBarOnChangeFields(
  * initial `kind` (cart + stored reservation + route fallback).
  */
 export function resolveBookingBarKind(isVenuePage: boolean): BookingKind {
-  const cartDriven = deriveBookingKindFromCart();
-  if (cartDriven) return cartDriven;
   const reservationDate =
     (getFromLocalStorage("reservationDate") as { booking_type?: BookingKind } | null) ??
     {};
-  const fromStored = reservationDate.booking_type;
-  if (fromStored) return fromStored;
-  return isVenuePage ? "venue" : "room";
+  return mergeBookingKindWithCart(
+    reservationDate.booking_type,
+    deriveBookingKindFromCart(),
+    isVenuePage ? "venue" : "room",
+  );
 }

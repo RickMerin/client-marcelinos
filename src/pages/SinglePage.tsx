@@ -144,6 +144,7 @@ const SinglePage = () => {
         : "/rooms?is_all=1&limit=80",
     [stayDates],
   );
+  const venueEventTypeForList = "wedding";
   const venuesUrl = useMemo(
     () =>
       stayDates
@@ -151,6 +152,7 @@ const SinglePage = () => {
             "/venues",
             stayDates.checkIn,
             stayDates.checkOut,
+            { venue_event_type: venueEventTypeForList },
           )
         : "/venues?is_all=1&limit=60",
     [stayDates],
@@ -166,7 +168,12 @@ const SinglePage = () => {
   const venuesQueryKey = useMemo(
     () =>
       stayDates
-        ? ["venues", stayDates.checkIn, stayDates.checkOut]
+        ? [
+            "venues",
+            stayDates.checkIn,
+            stayDates.checkOut,
+            venueEventTypeForList,
+          ]
         : ["venues", "browse", "single-page"],
     [stayDates],
   );
