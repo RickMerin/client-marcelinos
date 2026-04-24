@@ -347,6 +347,60 @@ export function pruneCartItemsToAvailability(
 }
 
 /**
+ * When the guest changes booking kind on the home bar (Room Stay, Venue Only, or
+ * Room + Venue), remove incompatible `cartItems` lines and align persisted
+ * `reservationDate` and `reservationDetails`. For `both`, all cart lines are kept.
+ * Order: cart → `reservationDate` → `reservationDetails` so
+ * {@link mergeReservationDetailsWithActiveBar} sees the updated kind.
+ */
+export function applyHomeBarBookingKindToLocalStorage(
+  kind: BookingKind,
+): void {
+  if (typeof window === "undefined") return;
+
+  const items = readCartItems();
+  const nextItems =
+    kind === "room"
+      ? items.filter((e) => e?.itemType === "room")
+      : kind === "venue"
+        ? items.filter((e) => e?.itemType === "venue")
+        : items;
+
+  if (JSON.stringify(nextItems) !== JSON.stringify(items)) {
+    writeCartItems(nextItems);
+  }
+
+  const existing =
+    (getFromLocalStorage("reservationDate") as Record<string, unknown> | null) ??
+    {};
+  const nextRd: Record<string, unknown> = { ...existing, booking_type: kind };
+  if (Number(existing.days) > 0) {
+    if (kind === "both") {
+      const ci = existing.check_in as string | undefined;
+      if (ci && !existing.venue_event_date) {
+        nextRd.venue_event_date = ci;
+      }
+    } else {
+      delete nextRd.venue_event_date;
+    }
+  } else if (kind !== "both") {
+    delete nextRd.venue_event_date;
+  }
+  saveToLocalStorage("reservationDate", nextRd, BOOKING_EXPIRATION);
+  window.dispatchEvent(new Event("reservation-date-updated"));
+
+  const stored = getFromLocalStorage("reservationDetails") as
+    | Partial<FormData>
+    | null;
+  if (stored) {
+    const merged = mergeReservationDetailsWithActiveBar(stored);
+    const aligned = alignFormDataToBookingType(merged, kind);
+    saveToLocalStorage("reservationDetails", aligned, BOOKING_EXPIRATION);
+    window.dispatchEvent(new Event("reservation-details-updated"));
+  }
+}
+
+/**
  * Rewrites `reservationDetails` to match the current cart (expanded through
  * inventory), derives `booking_type` from cart lines when present, aligns room
  * vs venue fields, and patches `reservationDate.booking_type` so the funnel

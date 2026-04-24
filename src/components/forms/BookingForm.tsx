@@ -15,6 +15,7 @@ import {
   mergeBookingKindWithCart,
   persistBarReservation,
 } from "@/lib/utils/bookingBarDates";
+import { applyHomeBarBookingKindToLocalStorage } from "@/lib/utils/cartBookingSync";
 import BookingBarSkeleton from "@/components/skeleton/BookingBarSkeleton";
 
 const KIND_OPTIONS: { value: BookingKind; label: string }[] = [
@@ -72,7 +73,11 @@ export default function BookingForm() {
         <div className="booking-kind-select-wrap w-full max-w-full">
           <select
             value={kind}
-            onChange={(e) => setKind(e.target.value as BookingKind)}
+            onChange={(e) => {
+              const next = e.target.value as BookingKind;
+              applyHomeBarBookingKindToLocalStorage(next);
+              setKind(next);
+            }}
             className="booking-kind-select bg-transparent border-none outline-none font-display text-cream w-full min-w-0 cursor-pointer appearance-none text-center"
             style={{ fontFamily: "var(--font-display)" }}
           >
