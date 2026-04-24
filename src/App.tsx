@@ -11,6 +11,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ScrollNav from "./components/ScrollNav";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { GlobalSplash } from "./components/GlobalSplash";
 import { useRealtimeGlobalSubscriber } from "@/hooks/useRealtimeGlobalSubscriber";
 import { ToastContainer } from "react-toastify";
 import { API } from "./lib/api/apiClient";
@@ -32,7 +33,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => {
   useRealtimeGlobalSubscriber();
-  const [, setIsLoadingMaintenance] = useState(true);
+  const [isLoadingMaintenance, setIsLoadingMaintenance] = useState(true);
+  const [isSplashExiting, setIsSplashExiting] = useState(false);
+  const [isSplashVisible, setIsSplashVisible] = useState(true);
   const [maintenance, setMaintenance] = useState({
     enabled: false,
     variant: "resort-hero",
@@ -114,6 +117,13 @@ const App = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (isLoadingMaintenance) {
+      return;
+    }
+    setIsSplashExiting(true);
+  }, [isLoadingMaintenance]);
+
   if (maintenance.enabled) {
     return (
       <ErrorBoundary>
@@ -164,6 +174,12 @@ const App = () => {
           </Routes>
         </Suspense>
       </Router>
+      {isSplashVisible && (
+        <GlobalSplash
+          isExiting={isSplashExiting}
+          onComplete={() => setIsSplashVisible(false)}
+        />
+      )}
       <ToastContainer newestOnTop pauseOnFocusLoss={false} limit={3} />
     </ErrorBoundary>
   );
