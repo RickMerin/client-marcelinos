@@ -8,6 +8,7 @@ import {
   sortRoomSelectionStable,
 } from "@/lib/utils/booking.utils";
 import { deriveBookingKindFromCart } from "@/lib/utils/bookingBarDates";
+import { mergeReservationDetailsWithActiveBar } from "@/lib/utils/reservationBarMerge";
 import {
   bedSpecificationLine,
   roomInventoryGroupKey,
@@ -15,7 +16,6 @@ import {
 } from "@/lib/formatters/roomDisplayName";
 import type { BookingKind, RoomTypeFilter } from "@/types/booking.types";
 import type { FormData } from "@/types/booking.types";
-import { defaultFormData } from "@/lib/constants/booking.constants";
 import {
   BOOKING_EXPIRATION,
   getFromLocalStorage,
@@ -353,14 +353,20 @@ export function syncCartToReservationDetails(
   roomList: any[],
   venueList: any[],
   roomsResponse?: unknown,
+  /**
+   * Live booking form state from React. Step1's cart sync runs in a child
+   * `useEffect` before the parent persists `formData` to localStorage, so
+   * storage can lag one commit — overlay avoids stale reads and update loops.
+   */
+  reservationDetailsOverlay?: Partial<FormData> | null,
 ): FormData {
   const stored = getFromLocalStorage("reservationDetails") as
     | Partial<FormData>
     | null;
-  const base: FormData = {
-    ...defaultFormData,
+  const base = mergeReservationDetailsWithActiveBar({
     ...(stored || {}),
-  } as FormData;
+    ...(reservationDetailsOverlay || {}),
+  });
 
   const items = readCartItems();
   const { rooms, venues } = reconcileFormDataFromCart(

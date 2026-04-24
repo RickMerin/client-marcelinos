@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FormData } from "@/types/booking.types";
-import { defaultFormData } from "@/lib/constants/booking.constants";
-import { formatDate } from "@/lib/formatters/formatDate";
 import {
   saveToLocalStorage,
   getFromLocalStorage,
@@ -13,11 +11,8 @@ import {
   calculateGrandTotalPrice,
   calculateVenuesLineTotal,
 } from "@/lib/math/calculate";
-import {
-  alignFormDataToBookingType,
-  parseRoomTypeFilters,
-} from "@/lib/utils/booking.utils";
-import { deriveBookingKindFromCart } from "@/lib/utils/bookingBarDates";
+import { alignFormDataToBookingType } from "@/lib/utils/booking.utils";
+import { mergeReservationDetailsWithActiveBar } from "@/lib/utils/reservationBarMerge";
 import { API } from "@/lib/api/apiClient";
 import { endpoints } from "@/lib/api/endpoints";
 
@@ -25,27 +20,6 @@ type BookingPaymentSettings = {
 	onlinePaymentEnabled: boolean;
 	partialPaymentPercent: number;
 };
-
-function normalizeStoredVenueEventType(
-  v: string | undefined,
-): FormData["venue_event_type"] {
-  if (!v) return "";
-  if (v === "seminar") return "meeting_staff";
-  return v as FormData["venue_event_type"];
-}
-
-function resolveBookingTypeInit(args: {
-  reservationDate: ReturnType<typeof getFromLocalStorage>;
-  storedFormData: ReturnType<typeof getFromLocalStorage>;
-}): FormData["booking_type"] {
-  return (
-    deriveBookingKindFromCart() ??
-    (args.reservationDate?.booking_type as FormData["booking_type"]) ??
-    (args.storedFormData as Partial<FormData> | null | undefined)
-      ?.booking_type ??
-    defaultFormData.booking_type
-  );
-}
 
 /**
  * Custom hook for managing booking form state and persistence
@@ -62,49 +36,8 @@ export const useBookingForm = () => {
     navigate("/");
   }
 
-	const bookingTypeInit = resolveBookingTypeInit({
-		reservationDate,
-		storedFormData,
-	});
-
-  const initialFormData: FormData = {
-		...defaultFormData,
-		...(storedFormData || {}),
-		booking_type: bookingTypeInit,
-		venue_event_date:
-			(reservationDate?.venue_event_date &&
-				formatDate(reservationDate.venue_event_date)) ||
-			storedFormData?.venue_event_date ||
-			(bookingTypeInit === "both" && reservationDate?.check_in
-				? formatDate(reservationDate.check_in)
-				: "") ||
-			"",
-		check_in:
-			formatDate(reservationDate?.check_in) || storedFormData?.check_in || "",
-		check_out:
-			formatDate(reservationDate?.check_out) || storedFormData?.check_out || "",
-		days: reservationDate?.days || storedFormData?.days || 1,
-		room_type_filters:
-			bookingTypeInit === "venue"
-				? []
-				: parseRoomTypeFilters(
-						reservationDate?.room_type_filters ??
-							storedFormData?.room_type_filters,
-					),
-		venue_event_type: (() => {
-			const v = normalizeStoredVenueEventType(
-				storedFormData?.venue_event_type as string | undefined,
-			);
-			if (v) return v;
-			if (
-				Array.isArray(storedFormData?.venues) &&
-				storedFormData.venues.length > 0
-			) {
-				return "wedding";
-			}
-			return defaultFormData.venue_event_type;
-		})(),
-	};
+	const initialFormData = mergeReservationDetailsWithActiveBar(storedFormData);
+	const bookingTypeInit = initialFormData.booking_type;
 
   const [formData, setFormData] = useState<FormData>(
     alignFormDataToBookingType(initialFormData, bookingTypeInit),
@@ -127,21 +60,11 @@ export const useBookingForm = () => {
       | Partial<FormData>
       | undefined;
     if (saved) {
-      const merged = { ...saved };
-      if (typeof merged.venue_event_type === "string") {
-        merged.venue_event_type = normalizeStoredVenueEventType(
-          merged.venue_event_type,
-        );
-      }
-      const rd = getFromLocalStorage("reservationDate");
-      const effectiveKind = resolveBookingTypeInit({
-        reservationDate: rd,
-        storedFormData: saved,
-      });
+      const full = mergeReservationDetailsWithActiveBar(saved);
       setFormData((prev) =>
         alignFormDataToBookingType(
-          { ...prev, ...merged, booking_type: effectiveKind },
-          effectiveKind,
+          { ...prev, ...full, booking_type: full.booking_type },
+          full.booking_type,
         ),
       );
     }

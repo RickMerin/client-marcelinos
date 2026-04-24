@@ -139,7 +139,6 @@ export function Step1({
   formData,
   updateFormData,
 }: Props) {
-  const [recentlyUnselectedCount, setRecentlyUnselectedCount] = useState(0);
   const [cartRev, setCartRev] = useState(0);
   const bookingType = formData.booking_type ?? "room";
   const checkIn = formData.check_in || "";
@@ -344,21 +343,11 @@ export function Step1({
       const venueChanged =
         venueIdsKey(effNextVenues) !== venueIdsKey(formData.venues);
 
-      if (roomChanged) {
-        if (
-          nextRooms != null &&
-          nextRooms.length < formData.rooms.length
-        ) {
-          setRecentlyUnselectedCount(formData.rooms.length - nextRooms.length);
-        }
-      } else if (recentlyUnselectedCount !== 0) {
-        setRecentlyUnselectedCount(0);
-      }
-
       const aligned = syncCartToReservationDetails(
         roomList,
         venueList,
         roomsResponse,
+        formData as Partial<FormData>,
       );
 
       const roomFiltersEqual =
@@ -371,8 +360,6 @@ export function Step1({
         aligned.booking_type !== (formData.booking_type ?? "room") ||
         aligned.venue_event_date !== (formData.venue_event_date ?? "") ||
         aligned.venue_event_type !== (formData.venue_event_type ?? "") ||
-        aligned.totalPrice !== formData.totalPrice ||
-        aligned.grandTotalPrice !== formData.grandTotalPrice ||
         !roomFiltersEqual;
 
       if (patchNeeded) {
@@ -383,8 +370,6 @@ export function Step1({
           room_type_filters: aligned.room_type_filters,
           venue_event_date: aligned.venue_event_date,
           venue_event_type: aligned.venue_event_type,
-          totalPrice: aligned.totalPrice,
-          grandTotalPrice: aligned.grandTotalPrice,
         });
       }
     };
@@ -407,11 +392,8 @@ export function Step1({
     formData.booking_type,
     formData.venue_event_date,
     formData.venue_event_type,
-    formData.totalPrice,
-    formData.grandTotalPrice,
     formData.room_type_filters,
     updateFormData,
-    recentlyUnselectedCount,
   ]);
 
   const onSelectVenue = (venue: any) => {
