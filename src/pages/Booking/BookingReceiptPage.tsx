@@ -42,6 +42,7 @@ function splitLegacyBookingStatus(merged: string | undefined): {
     s === "partial" ||
     s === "paid" ||
     s === "refunded" ||
+    s === "refund_pending" ||
     s === "occupied" ||
     s === "completed" ||
     s === "cancelled" ||
@@ -61,7 +62,8 @@ function splitLegacyBookingStatus(merged: string | undefined): {
       s === "unpaid" ||
       s === "partial" ||
       s === "paid" ||
-      s === "refunded"
+      s === "refunded" ||
+      s === "refund_pending"
         ? s
         : paymentFromStay(s);
     return { booking_status, payment_status };
@@ -193,6 +195,7 @@ function toBookingReceipt(
 		amount_paid: Number.isFinite(amountPaid) ? amountPaid : 0,
 		balance: Number.isFinite(balance) ? balance : 0,
 		amount_due_now: Number.isFinite(amountDueNow) ? amountDueNow : 0,
+		cancellation_refund: res.cancellation_refund,
 	};
 }
 
