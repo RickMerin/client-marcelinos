@@ -470,7 +470,26 @@ function buildMessengerChatUrl(baseUrl: string, message: string): string {
 
   try {
     const parsed = new URL(safeBaseUrl);
-    // Keep configured deep links (ex: m.me) untouched so mobile clients can open Messenger app directly.
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    let pageTarget = "";
+
+    if (host === "m.me") {
+      pageTarget = parsed.pathname.replace(/^\/+/, "");
+    } else if (host === "facebook.com" || host === "fb.com") {
+      const path = parsed.pathname.replace(/^\/+/, "");
+      const matched = /^messages\/t\/([^/?#]+)/i.exec(path);
+      if (matched?.[1]) pageTarget = matched[1];
+    }
+
+    if (pageTarget) {
+      // Prefer facebook.com/messages for browser reliability, while app handoff is handled separately.
+      const browserUrl = new URL(
+        `https://www.facebook.com/messages/t/${encodeURIComponent(pageTarget)}`,
+      );
+      browserUrl.searchParams.set("text", message);
+      return browserUrl.toString();
+    }
+
     parsed.searchParams.set("text", message);
     return parsed.toString();
   } catch {
@@ -861,7 +880,7 @@ export function Step5(props: Props) {
     "Thank you!",
   ];
   const messengerPrefilledMessage = messengerMessageLines.join("\n");
-  const messengerChatUrlWithMessage = buildMessengerChatUrl(
+  const messengerBrowserUrlWithMessage = buildMessengerChatUrl(
     MESSENGER_CHAT_URL,
     messengerPrefilledMessage,
   );
@@ -875,7 +894,7 @@ export function Step5(props: Props) {
     const fallbackTimer = window.setTimeout(() => {
       fallbackTriggered = true;
       window.open(
-        messengerChatUrlWithMessage || MESSENGER_CHAT_URL,
+        messengerBrowserUrlWithMessage || MESSENGER_CHAT_URL,
         "_blank",
         "noopener,noreferrer",
       );
@@ -1360,7 +1379,7 @@ export function Step5(props: Props) {
                       {unpaidCancellationDayLabel} if not settled.
                     </p>
                     <a
-                      href={messengerChatUrlWithMessage || MESSENGER_CHAT_URL}
+                      href={messengerBrowserUrlWithMessage || MESSENGER_CHAT_URL}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={handleOpenMessenger}
@@ -1368,6 +1387,14 @@ export function Step5(props: Props) {
                     >
                       <MessengerGlyph className="size-5 shrink-0" aria-hidden />
                       <span>Open Messenger</span>
+                    </a>
+                    <a
+                      href={messengerBrowserUrlWithMessage || MESSENGER_CHAT_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 inline-flex items-center rounded-lg border border-sand-dark/35 bg-white px-3 py-2 text-xs font-semibold text-ink shadow-sm hover:bg-sage-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sea/40"
+                    >
+                      Open in Browser
                     </a>
                   </div>
                 )}
