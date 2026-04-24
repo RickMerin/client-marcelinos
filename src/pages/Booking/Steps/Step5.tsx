@@ -810,11 +810,14 @@ export function Step5(props: Props) {
   const useMessengerFromApi =
     isFromApi && receipt?.use_messenger_deposit_instructions === true;
 
+  const messengerNoticeEligible =
+    bookingStatusLower === "reserved" ||
+    bookingStatusLower === "rescheduled";
+
   const showMessengerDepositBlock =
     isFromApi &&
-    !isCancelled &&
     paymentStatusLower === "unpaid" &&
-    useMessengerFromApi;
+    messengerNoticeEligible;
 
   const showLegacyThreeDayDepositBlock =
     isFromApi &&
@@ -822,7 +825,8 @@ export function Step5(props: Props) {
     paymentStatusLower === "unpaid" &&
     unpaidExpiresIso != null &&
     downPaymentNoticeApplies &&
-    !useMessengerFromApi;
+    !useMessengerFromApi &&
+    !showMessengerDepositBlock;
 
   const showDepositSplit =
     showMessengerDepositBlock || showLegacyThreeDayDepositBlock;
