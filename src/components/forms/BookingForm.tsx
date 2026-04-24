@@ -68,11 +68,11 @@ export default function BookingForm() {
         <span className="text-gold-light text-[13px] tracking-[0.2em] uppercase font-medium">
           Booking Type
         </span>
-        <div className="relative w-full max-w-full">
+        <div className="booking-kind-select-wrap w-full max-w-full">
           <select
             value={kind}
             onChange={(e) => setKind(e.target.value as BookingKind)}
-            className="bg-transparent border-none outline-none font-display text-lg text-cream w-full min-w-0 cursor-pointer appearance-none px-6 text-center"
+            className="booking-kind-select bg-transparent border-none outline-none font-display text-cream w-full min-w-0 cursor-pointer appearance-none text-center"
             style={{ fontFamily: "var(--font-display)" }}
           >
             {KIND_OPTIONS.map((opt) => (
@@ -85,7 +85,7 @@ export default function BookingForm() {
               </option>
             ))}
           </select>
-          <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 size-4 text-cream/40 pointer-events-none" />
+          <ChevronDown className="booking-kind-chevron size-4 text-cream/40 pointer-events-none" />
         </div>
       </div>
 
