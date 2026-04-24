@@ -3,7 +3,7 @@ import { formatDate } from "@/lib/formatters/formatDate";
 import { getFromLocalStorage } from "@/lib/storage/localStorage";
 import type { FormData } from "@/types/booking.types";
 import { parseRoomTypeFilters } from "@/lib/utils/booking.utils";
-import { deriveBookingKindFromCart } from "@/lib/utils/bookingBarDates";
+import { deriveBookingKindFromCart, mergeBookingKindWithCart } from "@/lib/utils/bookingBarDates";
 
 function normalizeStoredVenueEventType(
   v: string | undefined,
@@ -17,11 +17,13 @@ export function resolveBookingTypeInit(args: {
   reservationDate: ReturnType<typeof getFromLocalStorage>;
   storedFormData: Partial<FormData> | null | undefined;
 }): FormData["booking_type"] {
-  return (
-    deriveBookingKindFromCart() ??
+  const explicit =
     (args.reservationDate?.booking_type as FormData["booking_type"]) ??
-    args.storedFormData?.booking_type ??
-    defaultFormData.booking_type
+    args.storedFormData?.booking_type;
+  return mergeBookingKindWithCart(
+    explicit,
+    deriveBookingKindFromCart(),
+    defaultFormData.booking_type,
   );
 }
 

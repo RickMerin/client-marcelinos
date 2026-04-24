@@ -7,7 +7,10 @@ import {
   normalizeRoomTypeSlug,
   sortRoomSelectionStable,
 } from "@/lib/utils/booking.utils";
-import { deriveBookingKindFromCart } from "@/lib/utils/bookingBarDates";
+import {
+  deriveBookingKindFromCart,
+  mergeBookingKindWithCart,
+} from "@/lib/utils/bookingBarDates";
 import { mergeReservationDetailsWithActiveBar } from "@/lib/utils/reservationBarMerge";
 import {
   bedSpecificationLine,
@@ -377,7 +380,10 @@ export function syncCartToReservationDetails(
   );
 
   const cartKind = deriveBookingKindFromCart();
-  const kind = (cartKind ?? base.booking_type) as BookingKind;
+  const kind = mergeBookingKindWithCart(
+    base.booking_type,
+    cartKind,
+  ) as BookingKind;
 
   const merged: FormData = {
     ...base,

@@ -172,9 +172,14 @@ export function Step1({
     () => buildAvailabilityUrl("/rooms", checkIn, checkOut),
     [checkIn, checkOut],
   );
+  const venueEventType =
+    (formData.venue_event_type as string | undefined) || "wedding";
   const venuesUrl = useMemo(
-    () => buildAvailabilityUrl("/venues", venueRangeStart, venueRangeEnd),
-    [venueRangeStart, venueRangeEnd],
+    () =>
+      buildAvailabilityUrl("/venues", venueRangeStart, venueRangeEnd, {
+        venue_event_type: venueEventType,
+      }),
+    [venueRangeStart, venueRangeEnd, venueEventType],
   );
 
   const {
@@ -193,7 +198,7 @@ export function Step1({
 		isLoading: venuesLoading,
 		error: venuesError,
 	} = useApiQuery<ApiListResponse<any>>(
-		["venues", venueRangeStart, venueRangeEnd],
+		["venues", venueRangeStart, venueRangeEnd, venueEventType],
 		venuesUrl,
 		{ enabled: showVenues },
 	);

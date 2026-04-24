@@ -12,6 +12,7 @@ import {
   buildBookingBarFields,
   buildSchema,
   deriveBookingKindFromCart,
+  mergeBookingKindWithCart,
   persistBarReservation,
 } from "@/lib/utils/bookingBarDates";
 import BookingBarSkeleton from "@/components/skeleton/BookingBarSkeleton";
@@ -26,12 +27,12 @@ export default function BookingForm() {
   const navigate = useNavigate();
 
   const reservationDate = getFromLocalStorage("reservationDate") ?? {};
-  const cartDrivenKind = deriveBookingKindFromCart();
 
-  const [kind, setKind] = useState<BookingKind>(
-    (cartDrivenKind ||
-      (reservationDate.booking_type as BookingKind) ||
-      "room") as BookingKind,
+  const [kind, setKind] = useState<BookingKind>(() =>
+    mergeBookingKindWithCart(
+      reservationDate.booking_type as BookingKind | undefined,
+      deriveBookingKindFromCart(),
+    ),
   );
 
   const { blockedSet, isLoadingBlocked } = useBookingBarBlockedSet();
