@@ -1004,11 +1004,6 @@ export function Step5(props: Props) {
                   Marcelino&apos;s Resort Hotel
                 </p>
                 <p className="text-sm opacity-80 truncate">Billing Statement</p>
-                {hasDiscountedPricing ? (
-                  <span className="mt-1 inline-block rounded-full bg-gold px-2 py-0.5 text-[10px] font-semibold tracking-wide text-ink">
-                    Discounted
-                  </span>
-                ) : null}
               </div>
             </div>
             {/* Invoice Section */}
