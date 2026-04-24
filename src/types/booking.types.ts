@@ -65,6 +65,17 @@ export interface BookingReferenceResponse {
 	down_payment_notice_min_lead_days?: number;
 	/** Deposit share of total from admin payment settings (partial_payment_options[0]). */
 	down_payment_percent?: number;
+	/**
+	 * When booking is cancelled with refund pending/refunded and guest had paid:
+	 * policy breakdown for billing statement transparency.
+	 */
+	cancellation_refund?: {
+		fee_percent: number;
+		fee_from_total: number;
+		amount_paid: number;
+		retained: number;
+		refund_to_guest: number;
+	};
 	/** True when check-in is strictly after today (Manila): Messenger settlement instructions. */
 	use_messenger_deposit_instructions?: boolean;
 	payment?: {
@@ -209,6 +220,14 @@ export interface BookingReceipt {
 	amount_paid?: number;
 	balance?: number;
 	amount_due_now?: number;
+	/** Set from API when cancelled + refund pipeline + guest had paid. */
+	cancellation_refund?: {
+		fee_percent: number;
+		fee_from_total: number;
+		amount_paid: number;
+		retained: number;
+		refund_to_guest: number;
+	};
 }
 
 export interface FormData {

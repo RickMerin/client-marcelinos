@@ -989,11 +989,19 @@ export function Step5(props: Props) {
         return "bg-amber-100 text-amber-800";
       case "unpaid":
         return "bg-yellow-100 text-yellow-800";
+      case "refund_pending":
+        return "bg-orange-100 text-orange-800";
       case "refunded":
         return "bg-rose-100 text-rose-800";
       default:
         return "bg-sand text-ink";
     }
+  };
+
+  const formatPaymentStatusLabel = (status: string) => {
+    const s = String(status ?? "").toLowerCase();
+    if (s === "refund_pending") return "Refund pending";
+    return s.replace(/_/g, " ");
   };
 
   const handleCancel = () => {
@@ -1144,7 +1152,7 @@ export function Step5(props: Props) {
                 {isFromApi && (
                   <ReceiptRow
                     label="Payment status"
-                    value={paymentStatus}
+                    value={formatPaymentStatusLabel(String(paymentStatus ?? ""))}
                     valueClassName={
                       paymentStatus
                         ? `font-semibold ${getPaymentStatusColor(
@@ -1197,6 +1205,55 @@ export function Step5(props: Props) {
                 )}
               </div>
             </div>
+
+            {isFromApi && receipt?.cancellation_refund ? (
+              <div
+                role="region"
+                aria-label="Cancellation refund summary"
+                className="mx-0 sm:mx-0 mt-4 rounded-lg border border-orange-200 bg-orange-50/95 px-4 py-3 text-left text-xs sm:text-sm text-amber-950 shadow-sm">
+                <p className="font-semibold text-amber-950">
+                  Cancellation — refund transparency
+                </p>
+                <p className="mt-1 text-[11px] sm:text-xs text-amber-900/90 leading-snug">
+                  Based on the cancellation policy in effect now:{" "}
+                  <span className="font-semibold tabular-nums">
+                    {receipt.cancellation_refund.fee_percent}%
+                  </span>{" "}
+                  of your booking total is the cancellation fee. The amounts below
+                  show how that applies to what you paid.
+                </p>
+                <div className="mt-3 space-y-1.5 border-t border-orange-200/80 pt-3">
+                  <ReceiptRow
+                    label="Booking total (for fee calculation)"
+                    value={pricingFormat(Number(receipt.grand_total ?? 0))}
+                  />
+                  <ReceiptRow
+                    label={`Cancellation fee (${receipt.cancellation_refund.fee_percent}% of booking total)`}
+                    value={pricingFormat(
+                      receipt.cancellation_refund.fee_from_total,
+                    )}
+                    valueClassName="tabular-nums"
+                  />
+                  <ReceiptRow
+                    label="Amount you paid"
+                    value={pricingFormat(receipt.cancellation_refund.amount_paid)}
+                    valueClassName="tabular-nums"
+                  />
+                  <ReceiptRow
+                    label="Deducted / retained (non-refundable portion)"
+                    value={pricingFormat(receipt.cancellation_refund.retained)}
+                    valueClassName="tabular-nums font-medium text-amber-900"
+                  />
+                  <ReceiptRow
+                    label="Refund to you (after deduction)"
+                    value={pricingFormat(
+                      receipt.cancellation_refund.refund_to_guest,
+                    )}
+                    valueClassName="tabular-nums font-semibold text-amber-950"
+                  />
+                </div>
+              </div>
+            ) : null}
 
             {bookingType === "venue" && venues.length > 0 && (
               <div className="flex justify-center mt-3 mb-1">
