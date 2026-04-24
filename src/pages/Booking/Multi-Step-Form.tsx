@@ -13,6 +13,7 @@ import { useBookingValidation } from "@/hooks/useBookingValidation";
 import { useBookingSubmission } from "@/hooks/useBookingSubmission";
 import { NavigationButtons } from "./components/NavigationButtons";
 import { clearCartStorage } from "@/lib/storage/localStorage";
+import toast from "@/lib/logger/toast";
 
 /**
  * Multi-step booking form component
@@ -62,7 +63,7 @@ export function MultiStepForm() {
 
   const handleSubmit = async (websiteHoneypot: string) => {
     if (!isStepComplete(2) || !isStepComplete(4)) {
-      alert("Please complete required fields.");
+      toast.error({ content: "Please complete required fields." });
       return;
     }
 
