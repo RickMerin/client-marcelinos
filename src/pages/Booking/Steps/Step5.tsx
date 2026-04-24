@@ -503,40 +503,6 @@ function buildMessengerChatUrl(baseUrl: string, message: string): string {
   }
 }
 
-function extractMessengerPageTarget(baseUrl: string): string {
-  const safeBaseUrl = (baseUrl ?? "").trim();
-  if (!safeBaseUrl) return "";
-
-  try {
-    const parsed = new URL(safeBaseUrl);
-    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
-
-    let pageTarget = "";
-    if (host === "m.me") {
-      pageTarget = parsed.pathname.replace(/^\/+/, "");
-    } else if (host === "facebook.com" || host === "fb.com") {
-      const path = parsed.pathname.replace(/^\/+/, "");
-      const matched = /^messages\/t\/([^/?#]+)/i.exec(path);
-      if (matched?.[1]) pageTarget = matched[1];
-    }
-
-    return pageTarget;
-  } catch {
-    return "";
-  }
-}
-
-function buildMessengerMobileUrl(baseUrl: string, message: string): string {
-  const pageTarget = extractMessengerPageTarget(baseUrl);
-  if (!pageTarget) return buildMessengerChatUrl(baseUrl, message);
-  return `https://m.me/${encodeURIComponent(pageTarget)}?text=${encodeURIComponent(message)}`;
-}
-
-function isLikelyMobileDevice(): boolean {
-  if (typeof navigator === "undefined") return false;
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
 export function Step5(props: Props) {
   const navigate = useNavigate();
 
@@ -896,17 +862,11 @@ export function Step5(props: Props) {
     "Thank you!",
   ];
   const messengerPrefilledMessage = messengerMessageLines.join("\n");
-  const messengerBrowserUrlWithMessage = buildMessengerChatUrl(
+  const messengerMobileUrlWithMessage = buildMessengerChatUrl(
     MESSENGER_CHAT_URL,
     messengerPrefilledMessage,
   );
-  const messengerMobileUrlWithMessage = buildMessengerMobileUrl(
-    MESSENGER_CHAT_URL,
-    messengerPrefilledMessage,
-  );
-  const messengerPrimaryUrl = isLikelyMobileDevice()
-    ? messengerMobileUrlWithMessage
-    : messengerBrowserUrlWithMessage;
+  const messengerPrimaryUrl = messengerMobileUrlWithMessage;
 
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
 
