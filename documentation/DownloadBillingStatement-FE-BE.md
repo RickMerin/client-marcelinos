@@ -20,8 +20,8 @@ This document explains the full billing statement download feature used in Step 
 
 - Function: `downloadReceipt()`
 - API call:
-	- `GET /bookings/{reference_number}/billing-statement/pdf`
-	- Called via `API.get<Blob>(..., { responseType: "blob" })`
+  - `GET /bookings/{reference_number}/billing-statement/pdf`
+  - Called via `API.get<Blob>(..., { responseType: "blob" })`
 
 ### Button behavior
 
@@ -34,15 +34,15 @@ This document explains the full billing statement download feature used in Step 
 
 - Mobile is detected by `isMobilePdfClient()` (user-agent based)
 - On mobile:
-	- opens PDF blob in a new tab/window
-	- falls back to `window.location.href` if popup is blocked
-	- revokes object URL after timeout
+  - opens PDF blob in a new tab/window
+  - falls back to `window.location.href` if popup is blocked
+  - revokes object URL after timeout
 
 ### Desktop behavior
 
 - Creates a temporary `<a>` element
 - Sets `download` filename to:
-	- `marcelinos-billing-statement-{reference}.pdf`
+  - `marcelinos-billing-statement-{reference}.pdf`
 - Triggers browser download
 
 ### Frontend error handling
@@ -56,10 +56,10 @@ This document explains the full billing statement download feature used in Step 
 
 - File: `Marcelinos-Backend/routes/api.php`
 - Route:
-	- `GET /bookings/{booking:reference_number}/billing-statement/pdf`
+  - `GET /bookings/{booking:reference_number}/billing-statement/pdf`
 - Middleware:
-	- API key group (`EnsureApiKeyIsValid`)
-	- throttle: `receipt_lookup`
+  - API key group (`EnsureApiKeyIsValid`)
+  - throttle: `receipt_lookup`
 
 ### Controller method
 
@@ -73,8 +73,8 @@ Flow inside method:
 3. Block pending email-verification bookings via `rejectIfPendingVerification(...)`
 4. Build statement data with `buildBillingStatementData($booking)`
 5. Generate PDF with DomPDF:
-	 - `Pdf::loadView('billing-statements.step5', $statement)`
-	 - paper: A4 portrait
+   - `Pdf::loadView('billing-statements.step5', $statement)`
+   - paper: A4 portrait
 6. Return file download response with timestamped filename
 
 ### PDF template
@@ -95,22 +95,22 @@ Current template includes:
 
 - Built by `buildBillingStatementData(...)` in `BookingController`
 - Includes:
-	- booking and guest identity fields
-	- room and venue computed items
-	- totals and balance
-	- status and payment labels
-	- issued/check-in/check-out times
-	- QR image data URI
-	- down payment and deposit note values
-	- Messenger prefilled link
+  - booking and guest identity fields
+  - room and venue computed items
+  - totals and balance
+  - status and payment labels
+  - issued/check-in/check-out times
+  - QR image data URI
+  - down payment and deposit note values
+  - Messenger prefilled link
 
 ## Messenger Link in PDF
 
 - Base URL is resolved by `messengerChatUrl()` in backend controller
 - Env key supported:
-	- `FRONTEND_MESSENGER_CHAT_URL`
+  - `FRONTEND_MESSENGER_CHAT_URL`
 - Fallback used when missing:
-	- `https://m.me/61557457680496`
+  - `https://m.me/61557457680496`
 
 ## Security and Integrity Notes
 
@@ -128,7 +128,7 @@ If download fails or PDF looks incorrect, check in this order:
 3. Confirm route exists in `routes/api.php`
 4. Confirm `downloadBillingStatementPdf()` is reachable and error-free
 5. Rebuild blade cache:
-	 - `php artisan view:cache`
+   - `php artisan view:cache`
 6. Verify DomPDF package is available and configured
 7. Verify QR file exists in `storage/public` when expected
 
@@ -137,7 +137,7 @@ If download fails or PDF looks incorrect, check in this order:
 1. Desktop download creates `.pdf` file with expected filename
 2. Mobile opens PDF in tab/app viewer
 3. Download button state transitions:
-	 - `Download Receipt` -> `Generating PDF...` -> `Downloaded`
+   - `Download Receipt` -> `Generating PDF...` -> `Downloaded`
 4. Booking not found returns 404 JSON
 5. Pending verification booking is blocked
 6. PDF shows centered QR and friendly wording
