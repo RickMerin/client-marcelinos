@@ -1,18 +1,12 @@
 import { z } from "zod";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormWrapper } from "@/components/forms/FormWrapper";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import BookingBarSkeleton from "@/components/skeleton/BookingBarSkeleton";
 import { getFromLocalStorage } from "@/lib/storage/localStorage";
 import { cn } from "@/lib/utils";
 import type { BookingKind } from "@/types/booking.types";
 import { useBookingBarBlockedSet } from "@/hooks/useBookingBarBlockedSet";
+import Modal from "@/components/modals/Modal";
 import {
   applyBookingBarOnChangeFields,
   buildBookingBarFields,
@@ -35,15 +29,16 @@ type Props = {
  * causes overlap inside a max-width ~32rem card.
  */
 const sheetFormClass = cn(
-  "relative z-10 flex w-full min-w-0 max-w-full flex-col gap-3 sm:gap-4",
+  "relative z-10 flex w-full min-w-0 max-w-full flex-col gap-2.5 sm:gap-3.5",
   "[&_label]:w-full [&_label]:text-center",
-  "[&_label]:text-gold-light [&_label]:text-[13px] [&_label]:tracking-[0.2em] [&_label]:uppercase [&_label]:font-medium",
+  "[&_label]:text-gold-light [&_label]:text-[11px] sm:[&_label]:text-[12px] [&_label]:tracking-[0.16em] sm:[&_label]:tracking-[0.2em] [&_label]:uppercase [&_label]:font-medium",
   "[&_.booking-bar-field]:w-full min-w-0",
   "[&_.booking-bar-field>button]:!w-full",
   "[&_.booking-bar-reset>div>button]:shrink-0",
   "[&_.booking-bar-reset]:flex w-full min-w-0 justify-center",
-  "[&_.booking-bar-submit]:w-full pt-1",
+  "[&_.booking-bar-submit]:w-full pt-0.5 sm:pt-1",
   "[&_.booking-bar-submit>button]:!w-full",
+  "[&_.booking-bar-field>button]:min-h-10 [&_.booking-bar-field>button]:rounded-[10px] [&_.booking-bar-field>button]:border-cream/40 [&_.booking-bar-field>button]:bg-white/6 [&_.booking-bar-field>button]:text-cream",
 );
 
 export function StayDateRangeSheet({
@@ -118,41 +113,64 @@ export function StayDateRangeSheet({
   const showSkeleton = !r.check_in && isLoadingBlocked;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="center"
-        className="border-cream/15 bg-ink p-0 text-cream gap-0 shadow-[0_24px_80px_rgba(0,0,0,0.45)] [scrollbar-gutter:stable]"
-      >
-        <SheetHeader className="space-y-1 border-b border-cream/[0.07] px-4 py-4 text-left sm:px-5 sm:pr-12">
-          <SheetTitle className="font-display text-lg font-medium text-cream pr-2 sm:text-xl">
-            Stay dates
-          </SheetTitle>
-          <SheetDescription className="text-cream/70 text-sm leading-relaxed">
-            Select check-in and check-out. Blocked dates match the home booking
-            bar.
-          </SheetDescription>
-        </SheetHeader>
-
-        <div className="px-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 sm:px-5 sm:pb-6 sm:pt-4">
-          {showSkeleton ? (
-            <BookingBarSkeleton />
-          ) : (
-            <FormWrapper
-              key={`${kind}-${sheetFormMountKey}`}
-              schema={schema}
-              fields={fields}
-              onSubmit={handleSubmit}
-              submitLabel="Save dates"
-              blockedDateStayMode={
-                kind === "venue" ? "single_calendar" : "nights"
-              }
-              isSubmitDisabled={isSubmitDisabled}
-              className={sheetFormClass}
-              onChangeFields={onChangeFields}
-            />
+    <Modal
+    open={open}
+    onClose={() => onOpenChange(false)}
+    contentClassName="
+      relative 
+  
+      w-[calc(100vw-2rem)] 
+      max-w-[28rem]   /* 🔥 smaller modal */
+  
+      mx-auto
+  
+      rounded-xl 
+      border border-[#d7c089]/25 
+      bg-[#0c2c27]/95 
+  
+      px-3 py-3
+      text-center text-cream 
+      shadow-2xl backdrop-blur-sm
+    "
+  >
+    {/* HEADER */}
+    <div className="mx-auto mb-2 max-w-md rounded-lg border border-white/16 bg-white/6 px-3 py-2 text-center">
+      <p className="text-[15px] font-semibold tracking-[0.18em] text-gold-light/90 uppercase">
+        Welcome
+      </p>
+  
+      <h2 className="mt-0.5 font-display text-xl font-semibold text-cream">
+        Stay dates
+      </h2>
+  
+      <p className="mt-1 text-[11px] text-cream/75 leading-tight">
+        Select check-in and check-out.
+      </p>
+    </div>
+  
+    {/* FORM */}
+    <div className="mx-auto max-w-md rounded-lg border border-white/16 bg-white/6 px-2.5 py-2.5">
+      {showSkeleton ? (
+        <BookingBarSkeleton />
+      ) : (
+        <FormWrapper
+          key={`${kind}-${sheetFormMountKey}`}
+          schema={schema}
+          fields={fields}
+          onSubmit={handleSubmit}
+          submitLabel="Save dates"
+          blockedDateStayMode={
+            kind === "venue" ? "single_calendar" : "nights"
+          }
+          isSubmitDisabled={isSubmitDisabled}
+          className={cn(
+            sheetFormClass,
+            "gap-2 [&_label]:text-[10px] [&_.booking-bar-field>button]:min-h-9"
           )}
-        </div>
-      </SheetContent>
-    </Sheet>
+          onChangeFields={onChangeFields}
+        />
+      )}
+    </div>
+  </Modal>
   );
 }
