@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { CalendarClock, CircleX, Download, House } from "lucide-react";
-import domtoimage from "dom-to-image";
 import { BookingReceipt } from "@/types/booking.types";
 import {
   calculateVenuesLineTotal,
@@ -20,6 +19,7 @@ import {
   formatRoomLineTitle,
 } from "@/lib/formatters/roomDisplayName";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
+import { API } from "@/lib/api/apiClient";
 import CancelBookingContent from "@/components/modals/CancelBookingContent";
 import RescheduleBookingContent from "@/components/modals/RescheduleBookingContent";
 import Modal from "@/components/modals/Modal";
@@ -295,6 +295,11 @@ function parseDateInput(value?: string): Date | null {
   if (!value) return null;
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isMobilePdfClient(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 }
 
 function formatReceiptDate(value?: string, includeTime = true): string {
@@ -847,6 +852,7 @@ export function Step5(props: Props) {
   const unpaidCancellationDayLabel = getDeadlineDayLabel(unpaidExpiresIso);
 
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isReceiptDownloaded, setIsReceiptDownloaded] = useState(false);
   const messengerMessageLines = [
     "Hello Marcelino's Resort Hotel!",
     "",
@@ -903,21 +909,42 @@ export function Step5(props: Props) {
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
 
   const downloadReceipt = async () => {
-    if (isDownloading) return;
+    if (isDownloading || isReceiptDownloaded) return;
+    if (!referenceNumber) {
+      toast.error({ content: "No booking reference is available for this billing statement." });
+      return;
+    }
+
     setIsDownloading(true);
     try {
-      const element = document.getElementById("receipt");
-      if (element) {
-        const dataUrl = await domtoimage.toPng(element);
-        const link = document.createElement("a");
-        link.download = `marcelinos-hotel-resort-billing-statement-${referenceNumber || "-"}.png`;
-        link.href = dataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      const pdfBlob = await API.get<Blob>(
+        `/bookings/${encodeURIComponent(referenceNumber)}/billing-statement/pdf`,
+        { responseType: "blob" },
+      );
+
+      const pdfUrl = window.URL.createObjectURL(pdfBlob);
+
+      if (isMobilePdfClient()) {
+        const opened = window.open(pdfUrl, "_blank", "noopener,noreferrer");
+        if (!opened) {
+          window.location.href = pdfUrl;
+        }
+        window.setTimeout(() => window.URL.revokeObjectURL(pdfUrl), 15000);
+        setIsReceiptDownloaded(true);
+        return;
       }
+
+      const link = document.createElement("a");
+      link.download = `marcelinos-billing-statement-${referenceNumber}.pdf`;
+      link.href = pdfUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.setTimeout(() => window.URL.revokeObjectURL(pdfUrl), 1000);
+      setIsReceiptDownloaded(true);
     } catch (error) {
-      // Error downloading receipt
+      console.error(error);
+      toast.error({ content: "Failed to generate the PDF billing statement." });
     } finally {
       setIsDownloading(false);
     }
@@ -1501,9 +1528,9 @@ export function Step5(props: Props) {
             <button
               type="button"
               onClick={downloadReceipt}
-              disabled={isDownloading}
+              disabled={isDownloading || isReceiptDownloaded}
               className={`min-h-11 px-5 py-2.5 rounded-lg font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 w-full sm:w-auto text-ink bg-gold hover:bg-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/80 focus-visible:ring-offset-2 ${
-                isDownloading
+                isDownloading || isReceiptDownloaded
                   ? "opacity-80 cursor-not-allowed"
                   : "cursor-pointer"
               }`}
@@ -1511,8 +1538,10 @@ export function Step5(props: Props) {
               {isDownloading ? (
                 <>
                   <ButtonLoader size="sm" />
-                  Downloading...
+                  Generating PDF...
                 </>
+              ) : isReceiptDownloaded ? (
+                <>Downloaded</>
               ) : (
                 <>
                   <Download className="w-4 h-4 shrink-0" />
