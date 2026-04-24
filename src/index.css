@@ -827,6 +827,36 @@
 .booking-bar-segment {
   transition: background-color 0.2s ease;
 }
+
+/* Booking type select: keep value and chevron aligned on narrow phones */
+.first-fold-booking .booking-kind-select-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.first-fold-booking .booking-kind-select {
+  font-size: clamp(1.04rem, 2.9vw, 1.125rem);
+  line-height: 1.3;
+  min-height: 1.3em;
+  width: auto;
+  max-width: 100%;
+  padding: 0;
+  text-align: center;
+  text-align-last: center;
+}
+
+.first-fold-booking .booking-kind-chevron {
+  flex-shrink: 0;
+}
+
+@media (max-width: 420px) {
+  .first-fold-booking .booking-kind-select {
+    font-size: 1rem;
+  }
+}
+
 @media (hover: hover) {
   .first-fold-booking .booking-bar-field:has(button:hover),
   .first-fold-booking .booking-bar-field:has(select:hover),
