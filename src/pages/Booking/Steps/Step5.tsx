@@ -503,7 +503,7 @@ function buildMessengerChatUrl(baseUrl: string, message: string): string {
   }
 }
 
-function buildMessengerAppUrl(baseUrl: string): string {
+function extractMessengerPageTarget(baseUrl: string): string {
   const safeBaseUrl = (baseUrl ?? "").trim();
   if (!safeBaseUrl) return "";
 
@@ -520,11 +520,16 @@ function buildMessengerAppUrl(baseUrl: string): string {
       if (matched?.[1]) pageTarget = matched[1];
     }
 
-    if (!pageTarget) return "";
-    return `fb-messenger://user-thread/${encodeURIComponent(pageTarget)}`;
+    return pageTarget;
   } catch {
     return "";
   }
+}
+
+function buildMessengerMobileUrl(baseUrl: string, message: string): string {
+  const pageTarget = extractMessengerPageTarget(baseUrl);
+  if (!pageTarget) return buildMessengerChatUrl(baseUrl, message);
+  return `https://m.me/${encodeURIComponent(pageTarget)}?text=${encodeURIComponent(message)}`;
 }
 
 export function Step5(props: Props) {
@@ -886,44 +891,11 @@ export function Step5(props: Props) {
     "Thank you!",
   ];
   const messengerPrefilledMessage = messengerMessageLines.join("\n");
-  const messengerBrowserUrlWithMessage = buildMessengerChatUrl(
+  const messengerMobileUrlWithMessage = buildMessengerMobileUrl(
     MESSENGER_CHAT_URL,
     messengerPrefilledMessage,
   );
-  const messengerAppUrl = buildMessengerAppUrl(MESSENGER_CHAT_URL);
-  const handleOpenMessenger = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!messengerAppUrl || typeof window === "undefined") return;
-
-    event.preventDefault();
-    let fallbackTriggered = false;
-    const fallbackDelayMs = 900;
-    const fallbackTimer = window.setTimeout(() => {
-      fallbackTriggered = true;
-      window.open(
-        messengerBrowserUrlWithMessage || MESSENGER_CHAT_URL,
-        "_blank",
-        "noopener,noreferrer",
-      );
-    }, fallbackDelayMs);
-
-    const clearFallback = () => {
-      if (!fallbackTriggered) {
-        window.clearTimeout(fallbackTimer);
-      }
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("pagehide", clearFallback);
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        clearFallback();
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("pagehide", clearFallback, { once: true });
-    window.location.href = messengerAppUrl;
-  };
+  const messengerPrimaryUrl = messengerMobileUrlWithMessage;
 
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
 
@@ -1463,22 +1435,13 @@ export function Step5(props: Props) {
                       {unpaidCancellationDayLabel} if not settled.
                     </p>
                     <a
-                      href={messengerBrowserUrlWithMessage || MESSENGER_CHAT_URL}
+                      href={messengerPrimaryUrl || MESSENGER_CHAT_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={handleOpenMessenger}
                       className="inline-flex items-center gap-2 rounded-lg bg-[#0084FF] px-3 py-2 text-white text-xs font-semibold shadow-sm hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0084FF]"
                     >
                       <MessengerGlyph className="size-5 shrink-0" aria-hidden />
                       <span>Open Messenger</span>
-                    </a>
-                    <a
-                      href={messengerBrowserUrlWithMessage || MESSENGER_CHAT_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-2 inline-flex items-center rounded-lg border border-sand-dark/35 bg-white px-3 py-2 text-xs font-semibold text-ink shadow-sm hover:bg-sage-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sea/40"
-                    >
-                      Open in Browser
                     </a>
                   </div>
                 )}
