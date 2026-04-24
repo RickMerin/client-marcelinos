@@ -981,7 +981,7 @@ export function Step5(props: Props) {
         id="receipt"
         role="document"
         aria-label="Billing Statement"
-        className="w-full max-w-3xl shadow-lg border border-gold-light/50 rounded-lg overflow-hidden bg-white print:shadow-none relative"
+        className="w-[calc(100vw-0.75rem)] sm:w-full max-w-3xl shadow-lg border border-gold-light/50 rounded-lg overflow-hidden bg-white print:shadow-none relative"
         style={{
           borderColor: receiptBorder || "var(--color-sage-muted, #d1e7dd)",
         }}
@@ -1030,7 +1030,7 @@ export function Step5(props: Props) {
           </div>
 
           {/* Main content */}
-          <div className="px-6 py-6 sm:px-8 sm:py-7 space-y-6 text-sm">
+          <div className="px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-7 space-y-6 text-sm">
             {(isFromApi &&
               (receipt?.email_verification_required === true ||
                 bookingStatusResolved === "pending_verification")) ? (
@@ -1040,7 +1040,8 @@ export function Step5(props: Props) {
                 <p className="font-semibold">Confirm your booking by email</p>
                 <p className="mt-1 opacity-90">
                   We sent a secure link to <strong>{guestEmail}</strong>. Your reservation is not
-                  active until you open that link. You can refresh this page after confirming.
+                  active until you open that link and click "
+                  <strong>Confirm and Verify</strong>". You can refresh this page after confirming.
                 </p>
               </div>
             ) : null}

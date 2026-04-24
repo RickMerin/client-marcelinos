@@ -217,10 +217,8 @@ export function Step4({
           <div className="space-y-1">
             <h4 className="font-semibold text-sea">Pay in Cash</h4>
             <p className="text-sm leading-relaxed opacity-85 text-black">
-             You may pay directly at the resort upon check-in for same-day bookings. 
-             For advance bookings, a down payment is required immediately after booking to secure your reservation. 
-             It must be settled before 9:00 PM on the same day, otherwise the booking may be cancelled. 
-             The remaining balance can be paid in cash upon arrival.
+            All bookings require at least partial or full payment, which must be completed anytime 
+            until 9:00 PM on the same day, otherwise the reservation will be automatically cancelled.
             </p>
           </div>
         </label>

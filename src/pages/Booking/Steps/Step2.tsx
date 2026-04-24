@@ -286,7 +286,7 @@ export function Step2({ formData, onUpdate, onValuesChange }: Props) {
                           />
                         </FormControl>
                         <p className="italic text-xs text-yellow-500 mt-1">
-                        A valid Phone Number is required for booking verification
+                        A valid 11 digit Philippine phone number is required for local guests.
                       </p>
                         <FormMessage />
                       </FormItem>
