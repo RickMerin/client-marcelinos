@@ -3,7 +3,14 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { CalendarClock, CircleX, Download, House } from "lucide-react";
-import { BookingReceipt } from "@/types/booking.types";
+import type {
+  BookingReceipt,
+  FormData,
+  FormDataRoom,
+  FormDataVenue,
+  Step5DisplayRoom,
+  Step5RoomLineRow,
+} from "@/types/booking.types";
 import {
   calculateVenuesLineTotal,
   venueEffectiveUnitPrice,
@@ -31,7 +38,7 @@ import BubbleChat from "@/components/BubbleChat";
 import { toast } from "@/lib/logger/toast";
 
 interface Step5FormDataProps {
-  formData: any;
+  formData: FormData;
   /** Admin payment policy deposit % (from GET /payment-settings); defaults if omitted. */
   depositPercent?: number;
   receiptData?: never;
@@ -61,6 +68,9 @@ interface Booking {
   total_price: number;
 }
 
+type BookingCancelledEvent = { status?: string };
+type BookingRescheduledEvent = { booking: { status?: string } };
+
 export default function ReceiptPage({
   referenceNumber,
 }: {
@@ -71,22 +81,18 @@ export default function ReceiptPage({
     const echo = getEcho();
     if (!echo || !referenceNumber) return;
     const channel = echo.private(RealtimeChannels.booking(referenceNumber));
-    channel.listen(".booking.cancelled", (e: any) => {
-      setBooking((prev) => (prev ? { ...prev, status: e.status } : prev));
-    });
-    //    channel.listen(".booking.cancelled", (e: any) => {
-    //   setBooking((prev) =>
-    //     prev ? { ...prev, status: e.status } : prev
-    //   );
-    // });
-
-    // ✅ RESCHEDULE EVENT (ADD THIS HERE)
-    channel.listen(".booking.rescheduled", (e: any) => {
+    channel.listen(".booking.cancelled", (e: BookingCancelledEvent) => {
       setBooking((prev) =>
-        prev
+        prev ? { ...prev, status: e.status ?? prev.status } : prev,
+      );
+    });
+
+    channel.listen(".booking.rescheduled", (e: BookingRescheduledEvent) => {
+      setBooking((prev) =>
+        prev && e.booking
           ? {
               ...prev,
-              status: e.booking.status,
+              status: e.booking.status ?? prev.status,
             }
           : prev,
       );
@@ -658,10 +664,10 @@ export function Step5(props: Props) {
     }
   }, [bookingStatusResolved]);
 
-  const roomsFromApi =
+  const roomsFromApi: FormDataRoom[] =
     receipt != null
       ? Array.isArray(receipt.rooms) && receipt.rooms.length > 0
-        ? receipt.rooms.map((r: any) => ({
+        ? receipt.rooms.map((r) => ({
             room_number: r.number ?? null,
             type: r.type ?? "",
             name: r.name ?? "",
@@ -678,8 +684,7 @@ export function Step5(props: Props) {
               {
                 room_number: receipt.room.number,
                 type: receipt.room.type,
-                bed_specifications:
-                  (receipt.room as any).bed_specifications ?? [],
+                bed_specifications: receipt.room.bed_specifications ?? [],
                 capacity: receipt.room.capacity,
                 price: parseFloat(receipt.room.price),
                 status: "",
@@ -688,7 +693,7 @@ export function Step5(props: Props) {
           : []
       : [];
 
-  const roomLinesFromApi =
+  const roomLinesFromApi: Step5RoomLineRow[] =
     isFromApi && receipt?.room_lines?.length
       ? receipt.room_lines.map((l) => ({
           kind: "line" as const,
@@ -701,17 +706,21 @@ export function Step5(props: Props) {
               : parseFloat(String(l.unit_price_per_night || 0)),
         }))
       : [];
-  const roomsFromForm = Array.isArray(form?.rooms) ? form.rooms : [];
-  const rooms =
+  const roomsFromForm: FormDataRoom[] = Array.isArray(form?.rooms)
+    ? form.rooms
+    : [];
+  const rooms: Step5DisplayRoom[] =
     isFromApi && roomsFromApi.length === 0 && roomLinesFromApi.length > 0
       ? roomLinesFromApi
       : isFromApi
         ? roomsFromApi
         : roomsFromForm;
 
-  const venuesFromApi = receipt?.venues ?? [];
-  const venuesFromForm = Array.isArray(form?.venues) ? form.venues : [];
-  const venues = isFromApi ? venuesFromApi : venuesFromForm;
+  const venuesFromApi: FormDataVenue[] = (receipt?.venues ?? []) as FormDataVenue[];
+  const venuesFromForm: FormDataVenue[] = Array.isArray(form?.venues)
+    ? form.venues
+    : [];
+  const venues: FormDataVenue[] = isFromApi ? venuesFromApi : venuesFromForm;
 
   const venueEventTypeRaw = (() => {
     const raw =
@@ -736,16 +745,16 @@ export function Step5(props: Props) {
     ? Math.max(1, billingDuration)
     : Math.max(1, form?.days ?? billingDuration);
 
-  const roomsTotal = rooms.reduce((sum: number, r: any) => {
+  const roomsTotal = rooms.reduce((sum: number, r: Step5DisplayRoom) => {
     const p =
       typeof r.price === "number" ? r.price : parseFloat(String(r.price || 0));
-    if (r.kind === "line") {
+    if ("kind" in r && r.kind === "line") {
       return sum + p * (r.quantity || 1);
     }
     return sum + p;
   }, 0);
   const venuesLinePerNight = calculateVenuesLineTotal(
-    venues as Parameters<typeof calculateVenuesLineTotal>[0],
+    venues,
     venueEventTypeRaw as "wedding" | "birthday" | "meeting_staff" | "",
   );
   const roomsGrandTotal = roomsTotal * nightsForPricing;
@@ -1174,44 +1183,85 @@ export function Step5(props: Props) {
                 <p className="font-semibold text-amber-950">
                   Cancellation — refund transparency
                 </p>
-                <p className="mt-1 text-[11px] sm:text-xs text-amber-900/90 leading-snug">
-                  Based on the cancellation policy in effect now:{" "}
-                  <span className="font-semibold tabular-nums">
-                    {receipt.cancellation_refund.fee_percent}%
-                  </span>{" "}
-                  of your booking total is the cancellation fee. The amounts below
-                  show how that applies to what you paid.
-                </p>
-                <div className="mt-3 space-y-1.5 border-t border-orange-200/80 pt-3">
-                  <ReceiptRow
-                    label="Booking total (for fee calculation)"
-                    value={pricingFormat(Number(receipt.grand_total ?? 0))}
-                  />
-                  <ReceiptRow
-                    label={`Cancellation fee (${receipt.cancellation_refund.fee_percent}% of booking total)`}
-                    value={pricingFormat(
-                      receipt.cancellation_refund.fee_from_total,
-                    )}
-                    valueClassName="tabular-nums"
-                  />
-                  <ReceiptRow
-                    label="Amount you paid"
-                    value={pricingFormat(receipt.cancellation_refund.amount_paid)}
-                    valueClassName="tabular-nums"
-                  />
-                  <ReceiptRow
-                    label="Deducted / retained (non-refundable portion)"
-                    value={pricingFormat(receipt.cancellation_refund.retained)}
-                    valueClassName="tabular-nums font-medium text-amber-900"
-                  />
-                  <ReceiptRow
-                    label="Refund to you (after deduction)"
-                    value={pricingFormat(
-                      receipt.cancellation_refund.refund_to_guest,
-                    )}
-                    valueClassName="tabular-nums font-semibold text-amber-950"
-                  />
-                </div>
+                {receipt.cancellation_refund.applies_cancellation_percent ===
+                false ? (
+                  <>
+                    <p className="mt-1 text-[11px] sm:text-xs text-amber-900/90 leading-snug">
+                      {receipt.cancellation_refund.statement_note ??
+                        "The amount you paid was a partial payment toward your stay and serves as a non-refundable reservation fee. If you cancel before completing the full balance, there is no refundable amount."}
+                    </p>
+                    <div className="mt-3 space-y-1.5 border-t border-orange-200/80 pt-3">
+                      <ReceiptRow
+                        label="Booking total"
+                        value={pricingFormat(Number(receipt.grand_total ?? 0))}
+                      />
+                      <ReceiptRow
+                        label="Amount you paid (partial / reservation)"
+                        value={pricingFormat(
+                          receipt.cancellation_refund.amount_paid,
+                        )}
+                        valueClassName="tabular-nums"
+                      />
+                      <ReceiptRow
+                        label="Non-refundable (reservation fee)"
+                        value={pricingFormat(receipt.cancellation_refund.retained)}
+                        valueClassName="tabular-nums font-medium text-amber-900"
+                      />
+                      <ReceiptRow
+                        label="Refund to you"
+                        value={pricingFormat(
+                          receipt.cancellation_refund.refund_to_guest,
+                        )}
+                        valueClassName="tabular-nums font-semibold text-amber-950"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="mt-1 text-[11px] sm:text-xs text-amber-900/90 leading-snug">
+                      Based on the cancellation policy in effect now:{" "}
+                      <span className="font-semibold tabular-nums">
+                        {receipt.cancellation_refund.fee_percent}%
+                      </span>{" "}
+                      of your booking total is the cancellation fee. The amounts
+                      below show how that applies to what you paid.
+                    </p>
+                    <div className="mt-3 space-y-1.5 border-t border-orange-200/80 pt-3">
+                      <ReceiptRow
+                        label="Booking total (for fee calculation)"
+                        value={pricingFormat(Number(receipt.grand_total ?? 0))}
+                      />
+                      <ReceiptRow
+                        label={`Cancellation fee (${receipt.cancellation_refund.fee_percent}% of booking total)`}
+                        value={pricingFormat(
+                          receipt.cancellation_refund.fee_from_total,
+                        )}
+                        valueClassName="tabular-nums"
+                      />
+                      <ReceiptRow
+                        label="Amount you paid"
+                        value={pricingFormat(
+                          receipt.cancellation_refund.amount_paid,
+                        )}
+                        valueClassName="tabular-nums"
+                      />
+                      <ReceiptRow
+                        label="Deducted / retained (non-refundable portion)"
+                        value={pricingFormat(
+                          receipt.cancellation_refund.retained,
+                        )}
+                        valueClassName="tabular-nums font-medium text-amber-900"
+                      />
+                      <ReceiptRow
+                        label="Refund to you (after deduction)"
+                        value={pricingFormat(
+                          receipt.cancellation_refund.refund_to_guest,
+                        )}
+                        valueClassName="tabular-nums font-semibold text-amber-950"
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             ) : null}
 
@@ -1253,20 +1303,20 @@ export function Step5(props: Props) {
                       </tr>
                     ) : (
                       <>
-                        {rooms.map((room: any, idx: number) => {
+                        {rooms.map((room: Step5DisplayRoom, idx: number) => {
                           const unitPrice =
                             typeof room.price === "number"
                               ? room.price
                               : parseFloat(String(room.price || 0));
                           const qty = stayNights || 1;
                           const title =
-                            room.kind === "line"
+                            "kind" in room && room.kind === "line"
                               ? formatRoomLineTitle({
                                   room_type: room.room_type,
                                   inventory_group_key: room.inventory_group_key,
                                   quantity: room.quantity,
                                 })
-                              : assignedRoomBillingTitle(room);
+                              : assignedRoomBillingTitle(room as FormDataRoom);
                           return (
                             <tr
                               key={`room-${idx}`}
@@ -1324,7 +1374,7 @@ export function Step5(props: Props) {
                       </tr>
                     ) : (
                       <>
-                        {venues.map((venue: any, idx: number) => {
+                        {venues.map((venue: FormDataVenue, idx: number) => {
                           const unitPrice = venueEffectiveUnitPrice(
                             venue,
                             venueEventTypeRaw as
