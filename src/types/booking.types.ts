@@ -75,6 +75,10 @@ export interface BookingReferenceResponse {
 		amount_paid: number;
 		retained: number;
 		refund_to_guest: number;
+		/** When true, admin cancellation % applies; when false, partial payment is non-refundable reservation fee. */
+		applies_cancellation_percent?: boolean;
+		settlement_type?: "full_settlement" | "partial_deposit";
+		statement_note?: string;
 	};
 	/** True when check-in is strictly after today (Manila): Messenger settlement instructions. */
 	use_messenger_deposit_instructions?: boolean;
@@ -164,12 +168,14 @@ export interface BookingReceipt {
 	guest_address: string;
 	/** Assigned physical rooms (optional until staff assigns). */
 	rooms?: Array<{
-		name: string;
-		type: string;
-		capacity: number;
-		price: number | string;
-		bed_specifications?: BedSpecificationValue[];
-	}>;
+			name: string;
+			type: string;
+			capacity: number;
+			price: number | string;
+			/** Some API payloads use `number` for assigned room # */
+			number?: number | null;
+			bed_specifications?: BedSpecificationValue[];
+		}>;
 	/** Requested room types from guest checkout (no room name yet). */
 	room_lines?: Array<{
 		room_type: string;
@@ -197,6 +203,7 @@ export interface BookingReceipt {
 		type: string;
 		capacity: number;
 		price: string;
+		bed_specifications?: BedSpecificationValue[];
 	};
 	subtotal: string;
 	grand_total: string;
@@ -227,8 +234,49 @@ export interface BookingReceipt {
 		amount_paid: number;
 		retained: number;
 		refund_to_guest: number;
+		applies_cancellation_percent?: boolean;
+		settlement_type?: "full_settlement" | "partial_deposit";
+		statement_note?: string;
 	};
 }
+
+/** Room row from the multi-step cart (Step 1) — physical assignment comes later. */
+export interface FormDataRoom {
+  name?: string;
+  type?: string;
+  description?: string | null;
+  bed_specifications?: BedSpecificationValue[] | null;
+  capacity?: number;
+  price?: number | string;
+  room_number?: number | null;
+  number?: number | null;
+  /** Present on some receipt-derived rows (Step 5 display). */
+  status?: string;
+}
+
+/** Venue row from the multi-step cart. */
+export interface FormDataVenue {
+  /** Cart / API venue id for POST /bookings (see `toId` in booking.utils). */
+  id?: number;
+  name: string;
+  capacity?: number;
+  price?: number | string;
+  wedding_price?: number | string;
+  birthday_price?: number | string;
+  meeting_staff_price?: number | string;
+}
+
+/** Room-type line (no room name until staff assigns) — used on Step 5 from API. */
+export interface Step5RoomLineRow {
+  kind: "line";
+  room_type: string;
+  inventory_group_key: string;
+  quantity: number;
+  price: number;
+}
+
+/** Union of cart rooms and line-only rows shown on the receipt. */
+export type Step5DisplayRoom = FormDataRoom | Step5RoomLineRow;
 
 export interface FormData {
   reference_number?: string;
@@ -247,8 +295,8 @@ export interface FormData {
    * Ignored for `venue`-only bookings.
    */
   room_type_filters: RoomTypeFilter[];
-  rooms: any[];
-  venues: any[];
+  rooms: FormDataRoom[];
+  venues: FormDataVenue[];
 
   firstName: string;
   middleName: string | null;
