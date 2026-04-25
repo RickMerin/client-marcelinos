@@ -11,12 +11,36 @@ import {
 import toast from "@/lib/logger/toast";
 
 type ErrorWithResponse = Error & {
-  response?: { data?: BookingConflictResponse };
+  response?: {
+    data?: BookingConflictResponse & {
+      errors?: Record<string, string[]>;
+    };
+  };
 };
 
 function formatConflictMessage(error: ErrorWithResponse): string {
-  const msg = error.message;
   const data = error.response?.data;
+  const fallbackMessage = "Failed to complete booking.";
+  const msg = (data?.message || error.message || fallbackMessage).trim();
+  const validationErrors = data?.errors;
+
+  if (validationErrors && Object.keys(validationErrors).length > 0) {
+    const flatErrors = Object.values(validationErrors)
+      .flat()
+      .map((entry) => String(entry).trim())
+      .filter(Boolean);
+
+    const overlapError = flatErrors.find((entry) =>
+      /overlap|already have an active booking/i.test(entry),
+    );
+
+    if (overlapError) {
+      return `${overlapError}\nPlease choose a different date range or use another email if this is a new reservation.`;
+    }
+
+    return flatErrors.join("\n");
+  }
+
   if (!data?.conflicts) return msg;
   const parts: string[] = [msg];
   if (data.conflicts.rooms?.length) {

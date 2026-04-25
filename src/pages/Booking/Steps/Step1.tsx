@@ -59,6 +59,7 @@ interface Props {
     grandTotalPrice?: number;
   };
   updateFormData: (updates: Partial<FormData>) => void;
+  dateConflictNotice?: string;
 }
 
 function RoomCardSkeleton() {
@@ -138,6 +139,7 @@ function VenueCardSkeleton() {
 export function Step1({
   formData,
   updateFormData,
+  dateConflictNotice,
 }: Props) {
   const [cartRev, setCartRev] = useState(0);
   const bookingType = formData.booking_type ?? "room";
@@ -446,6 +448,18 @@ export function Step1({
 				</p>
 				<h2 className="landing-section-title">{stepTitle}</h2>
 				<p className="max-w-3xl text-ink-soft">{stepIntro}</p>
+        {dateConflictNotice ? (
+          <div
+            role="alert"
+            className="mt-3 max-w-3xl rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+          >
+            <p className="font-semibold">Booking conflict detected</p>
+            <p className="mt-1 whitespace-pre-line">{dateConflictNotice}</p>
+            <p className="mt-1">
+              Update your dates above to continue.
+            </p>
+          </div>
+        ) : null}
 
 				<br />
 
