@@ -43,7 +43,7 @@ const FAQS_FALLBACK: BubbleChatFaq[] = [
     id: 4,
     question: "Is there a cancellation fee?",
     answer:
-      "Cancellations made within 24 hours of the check-in date may incur a fee. Please review your booking details for more information.",
+      "Cancellations may incur a fee. For both partial and fully paid bookings, a corresponding deduction will be applied. Please review your booking details for more information.",
   },
   {
     id: 5,
