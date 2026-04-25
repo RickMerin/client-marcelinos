@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { ProgressIndicator } from "./ProgressIndicator";
 import { Step1 } from "./Steps/Step1";
 import { Step2 } from "./Steps/Step2";
@@ -15,12 +16,27 @@ import { NavigationButtons } from "./components/NavigationButtons";
 import { clearCartStorage } from "@/lib/storage/localStorage";
 import toast from "@/lib/logger/toast";
 
+type BookingSubmitError = Error & {
+  response?: {
+    data?: {
+      message?: string;
+      error?: string;
+      errors?: Record<string, string[]>;
+    };
+  };
+};
+
 /**
  * Multi-step booking form component
  * Orchestrates the booking flow across multiple steps
  */
 export function MultiStepForm() {
   const navigate = useNavigate();
+  const [dateConflictNotice, setDateConflictNotice] = useState("");
+  const [dateConflictSnapshot, setDateConflictSnapshot] = useState<{
+    checkIn: string;
+    checkOut: string;
+  } | null>(null);
   const {
 		formData,
 		setSelectedRooms,
@@ -40,6 +56,42 @@ export function MultiStepForm() {
   );
 
   const { submitBooking, isSubmitting } = useBookingSubmission();
+
+  useEffect(() => {
+    if (!dateConflictSnapshot) return;
+    const checkInChanged = formData.check_in !== dateConflictSnapshot.checkIn;
+    const checkOutChanged = formData.check_out !== dateConflictSnapshot.checkOut;
+
+    if (checkInChanged || checkOutChanged) {
+      setDateConflictNotice("");
+      setDateConflictSnapshot(null);
+    }
+  }, [
+    dateConflictSnapshot,
+    formData.check_in,
+    formData.check_out,
+  ]);
+
+  const extractSubmitErrorMessage = (error: unknown): string => {
+    if (!(error instanceof Error)) return "Failed to complete booking.";
+    const typedError = error as BookingSubmitError;
+    const payload = typedError.response?.data;
+    const fallback = (
+      payload?.message ||
+      typedError.message ||
+      "Failed to complete booking."
+    ).trim();
+
+    const fieldErrors = payload?.errors;
+    if (!fieldErrors || Object.keys(fieldErrors).length === 0) return fallback;
+
+    const details = Object.values(fieldErrors)
+      .flat()
+      .map((entry) => String(entry).trim())
+      .filter(Boolean);
+
+    return details.length > 0 ? details.join("\n") : fallback;
+  };
 
   const handleNext = () => {
     if (
@@ -114,7 +166,28 @@ export function MultiStepForm() {
           goToStep(5);
         }
       },
-      undefined,
+      (error) => {
+        const message = extractSubmitErrorMessage(error);
+        toast.error({ content: message });
+
+        const normalized = message.toLowerCase();
+        const hasDateOverlap =
+          normalized.includes("overlap") ||
+          normalized.includes("active booking");
+
+        if (hasDateOverlap) {
+          setDateConflictNotice(message);
+          setDateConflictSnapshot({
+            checkIn: formData.check_in,
+            checkOut: formData.check_out,
+          });
+          if (window.location.pathname !== "/create-booking") {
+            navigate("/create-booking");
+          }
+          goToStep(1);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      },
       { website: websiteHoneypot },
     );
   };
@@ -130,6 +203,7 @@ export function MultiStepForm() {
 							<Step1
 								formData={formData}
 								updateFormData={updateFormData}
+                dateConflictNotice={dateConflictNotice}
 							/>
 						</motion.div>
 					)}
