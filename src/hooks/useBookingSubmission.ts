@@ -33,6 +33,13 @@ function formatConflictMessage(error: ErrorWithResponse): string {
     const overlapError = flatErrors.find((entry) =>
       /overlap|already have an active booking/i.test(entry),
     );
+    const duplicateDetailsError = flatErrors.find((entry) =>
+      /same room and venue details.*already on file/i.test(entry),
+    );
+
+    if (duplicateDetailsError) {
+      return `${duplicateDetailsError}\nIf you meant a different selection, change rooms, venues, or dates and submit again.`;
+    }
 
     if (overlapError) {
       return `${overlapError}\nPlease choose a different date range or use another email if this is a new reservation.`;
