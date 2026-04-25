@@ -1005,9 +1005,6 @@ export function Step5(props: Props) {
             </div>
             {/* Invoice Section */}
             <div className="flex flex-col items-end md:text-right w-full md:w-auto">
-              <p className="text-lg sm:text-2xl font-semibold tracking-[0.22em] uppercase leading-snug">
-                Invoice
-              </p>
               <div className="mt-2 text-xs space-y-0.5 opacity-90">
                 <p className="flex w-full flex-wrap justify-end gap-x-1 text-right">
                   <span className="font-semibold whitespace-nowrap">
@@ -1455,10 +1452,6 @@ export function Step5(props: Props) {
                           = {pricingFormat(displayGrandTotal)}
                         </span>
                       </div>
-                      <div className="flex justify-between pt-2 border-t border-sand-dark/35">
-                        <span className="opacity-80">Tax (0%)</span>
-                        <span className="tabular-nums">{pricingFormat(0)}</span>
-                      </div>
                     </>
                   ) : (
                     <>
@@ -1478,10 +1471,6 @@ export function Step5(props: Props) {
                           </div>
                         </>
                       ) : null}
-                      <div className="flex justify-between">
-                        <span className="opacity-80">Tax (0%)</span>
-                        <span className="tabular-nums">{pricingFormat(0)}</span>
-                      </div>
                       <div className="flex justify-between border-t border-sand-dark/35 pt-2 mt-1 font-semibold text-base">
                         <span>{hasDiscountedPricing ? "Discounted total" : "Total"}</span>
                         <span className="tabular-nums text-sea">
