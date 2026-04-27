@@ -2,6 +2,10 @@
 
 interface ImportMetaEnv {
   readonly VITE_SITE_URL?: string;
+  /** Build-time robots directive for index.html (e.g. index, follow or noindex, nofollow). */
+  readonly VITE_ROBOTS_CONTENT?: string;
+  /** When false, generate-sitemap emits Disallow: / in public/robots.txt. */
+  readonly VITE_INDEXABLE?: string;
   readonly VITE_ENV: string;
   readonly VITE_API_URL_DEV: string;
   readonly VITE_API_URL_PROD: string;

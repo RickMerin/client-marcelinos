@@ -14,6 +14,12 @@ export type PageSEOOptions = {
 const DEFAULT_OG_IMAGE =
   "https://i.pinimg.com/736x/d0/12/ff/d012ff9db63632a5d2fda38c45e886fc.jpg";
 
+function getCanonicalBaseUrl(): string {
+  const fromEnv = import.meta.env.VITE_SITE_URL?.replace(/\/+$/, "");
+  if (fromEnv) return fromEnv;
+  return typeof window !== "undefined" ? window.location.origin : "";
+}
+
 function getOrCreateMeta(
   document: Document,
   attribute: "name" | "property",
@@ -47,7 +53,7 @@ export function usePageSEO(options: PageSEOOptions | null) {
     if (!options) return;
 
     const { title, description, path, image = DEFAULT_OG_IMAGE, keywords } = options;
-    const baseUrl = `${window.location.origin}${path}`;
+    const baseUrl = `${getCanonicalBaseUrl()}${path}`;
 
     const prev: { title: string; meta: Record<string, string>; linkCanonical: string } = {
       title: document.title,

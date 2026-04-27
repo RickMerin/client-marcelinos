@@ -139,6 +139,30 @@ async function getDynamicEntries(siteUrl, apiBaseUrl, apiKey) {
   return [...blogEntries, ...roomEntries, ...venueEntries];
 }
 
+function normalizeSiteUrl(value) {
+  return (value || "https://marcelinos-resort-hotel.com").replace(/\/+$/, "");
+}
+
+/** Staging / non-production builds: disallow all crawlers; omit Sitemap line. */
+function isNonIndexableBuild(env) {
+  const indexable = String(env.VITE_INDEXABLE ?? "")
+    .trim()
+    .toLowerCase();
+  if (indexable === "false") return true;
+  const robots = String(env.VITE_ROBOTS_CONTENT ?? "")
+    .trim()
+    .toLowerCase();
+  return robots.includes("noindex");
+}
+
+function buildRobotsTxt(siteUrl, env) {
+  if (isNonIndexableBuild(env)) {
+    return "User-agent: *\nDisallow: /\n";
+  }
+  const base = normalizeSiteUrl(siteUrl);
+  return `User-agent: *\nAllow: /\n\nSitemap: ${base}/sitemap.xml\n`;
+}
+
 function buildSitemap(urlEntries) {
   const lines = [
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -161,10 +185,7 @@ function buildSitemap(urlEntries) {
 async function main() {
   const fileEnv = await readEnv();
   const env = { ...fileEnv, ...process.env };
-  const siteUrl = (env.VITE_SITE_URL || "https://marcelinos-resort-hotel.com").replace(
-    /\/+$/,
-    "",
-  );
+  const siteUrl = normalizeSiteUrl(env.VITE_SITE_URL);
   const apiBaseUrl = (
     env.VITE_ENV === "production" ? env.VITE_API_URL_PROD : env.VITE_API_URL_DEV
   )?.replace(/\/+$/, "");
@@ -188,7 +209,13 @@ async function main() {
   await mkdir(publicDir, { recursive: true });
   await writeFile(path.join(publicDir, "sitemap.xml"), sitemapContent, "utf8");
 
+  const robotsContent = buildRobotsTxt(siteUrl, env);
+  await writeFile(path.join(publicDir, "robots.txt"), robotsContent, "utf8");
+
   console.log(`[sitemap] Generated ${uniqueEntries.length} URLs at public/sitemap.xml`);
+  console.log(
+    `[sitemap] Wrote public/robots.txt (${isNonIndexableBuild(env) ? "non-indexable" : "indexable"})`,
+  );
 }
 
 main().catch((error) => {
