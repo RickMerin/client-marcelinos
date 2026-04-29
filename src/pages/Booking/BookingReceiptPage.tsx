@@ -72,7 +72,7 @@ function splitLegacyBookingStatus(merged: string | undefined): {
 }
 
 /** Transform GET /bookings/receipt/:token (or legacy reference) response into BookingReceipt format for Step5 */
-function toBookingReceipt(
+export function toBookingReceipt(
   res: BookingReferenceResponse,
 ): BookingReceipt | null {
   const b = res.booking;
@@ -116,6 +116,9 @@ function toBookingReceipt(
   const legacy = splitLegacyBookingStatus(b.status);
   const booking_status = b.booking_status ?? legacy.booking_status;
   const payment_status = b.payment_status ?? legacy.payment_status;
+  const billingStatementPdfUrl = [res.billing_statement_pdf_url, b.billing_statement_pdf_url].find(
+    (value): value is string => typeof value === "string" && value.trim().length > 0,
+  );
   return {
 		reference_number: b.reference_number ?? "",
 		unpaid_expires_at: res.unpaid_expires_at ?? null,
@@ -196,6 +199,7 @@ function toBookingReceipt(
 		balance: Number.isFinite(balance) ? balance : 0,
 		amount_due_now: Number.isFinite(amountDueNow) ? amountDueNow : 0,
 		cancellation_refund: res.cancellation_refund,
+    billing_statement_pdf_url: billingStatementPdfUrl,
 	};
 }
 

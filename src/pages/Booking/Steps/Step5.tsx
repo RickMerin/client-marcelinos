@@ -881,15 +881,22 @@ export function Step5(props: Props) {
 
   const downloadReceipt = async () => {
     if (isDownloading || isReceiptDownloaded) return;
-    if (!referenceNumber) {
-      toast.error({ content: "No booking reference is available for this billing statement." });
+    const billingStatementUrl = receipt?.billing_statement_pdf_url?.trim();
+    const downloadPath = billingStatementUrl
+      ? billingStatementUrl
+      : referenceNumber
+        ? `/bookings/${encodeURIComponent(referenceNumber)}/billing-statement/pdf`
+        : "";
+
+    if (!downloadPath) {
+      toast.error({ content: "No billing statement URL or booking reference is available." });
       return;
     }
 
     setIsDownloading(true);
     try {
       const pdfBlob = await API.get<Blob>(
-        `/bookings/${encodeURIComponent(referenceNumber)}/billing-statement/pdf`,
+        downloadPath,
         { responseType: "blob" },
       );
 
@@ -906,7 +913,7 @@ export function Step5(props: Props) {
       }
 
       const link = document.createElement("a");
-      link.download = `marcelinos-billing-statement-${referenceNumber}.pdf`;
+      link.download = `marcelinos-billing-statement-${referenceNumber || "statement"}.pdf`;
       link.href = pdfUrl;
       document.body.appendChild(link);
       link.click();
