@@ -13,6 +13,7 @@ const SinglePage = lazy(() => import("../pages/SinglePage"));
 const RedirectToBackend = lazy(() => import("../pages/RedirectToBackend"));
 const Blog = lazy(() => import("../pages/Blog"));
 const BlogPost = lazy(() => import("../pages/BlogPost"));
+const BillingStatement = lazy(() => import("../pages/Billing/BillingStatementPage"));
 
 export const routes = [
   { path: "/login", component: RedirectToBackend },
@@ -30,6 +31,7 @@ export const routes = [
     component: Booking,
     current_step: 5,
   },
+  { path: "/billing/:id", component: BillingStatement },
   { path: "/rooms", component: SinglePage },
   { path: "/rooms/:roomId", component: SinglePage },
   { path: "/venues", component: SinglePage },
