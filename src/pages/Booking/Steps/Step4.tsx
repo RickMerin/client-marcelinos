@@ -67,6 +67,11 @@ export function Step4({
   const [receiptToken, setReceiptToken] = useState("");
 
   useEffect(() => {
+    if (!emailVerified) return;
+    onEmailVerified?.();
+  }, [emailVerified, onEmailVerified]);
+
+  useEffect(() => {
     setEmailVerified(false);
     setBillingStatementUrl("");
     setReceiptToken("");

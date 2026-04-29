@@ -247,6 +247,8 @@ export interface BookingReceipt {
 
 /** Room row from the multi-step cart (Step 1) — physical assignment comes later. */
 export interface FormDataRoom {
+  /** Room id from GET /rooms (optional for line-only/receipt-derived rows). */
+  id?: number;
   name?: string;
   type?: string;
   description?: string | null;

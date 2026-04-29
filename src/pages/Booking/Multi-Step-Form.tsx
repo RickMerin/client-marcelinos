@@ -24,6 +24,10 @@ type BookingSubmitError = Error & {
       message?: string;
       error?: string;
       errors?: Record<string, string[]>;
+      conflicts?: {
+        rooms?: Array<{ id: number; name: string }>;
+        venues?: Array<{ id: number; name: string }>;
+      };
     };
   };
 };
@@ -145,8 +149,9 @@ export function MultiStepForm() {
 
     if (payload?.error === "room_unavailable") {
       const roomNames =
-        payload.conflicts?.rooms?.map((room) => room.name).filter(Boolean) ??
-        [];
+        payload.conflicts?.rooms
+          ?.map((room: { name: string }) => room.name)
+          .filter(Boolean) ?? [];
       const roomLine =
         roomNames.length > 0 ? `\nRooms: ${roomNames.join(", ")}` : "";
       return `${payload.message ?? fallback}${roomLine}\nPlease reload the page or pick another room before trying again.`;
@@ -209,7 +214,7 @@ export function MultiStepForm() {
           setEmailVerificationPending({
             active: true,
             email: guestEmail,
-            referenceNumber,
+            referenceNumber: String(referenceNumber ?? ""),
           });
           return;
         }
