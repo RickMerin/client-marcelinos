@@ -20,6 +20,7 @@ interface Step4Props {
     onlinePaymentEnabled: boolean;
     partialPaymentPercent: number;
   };
+  submitConflictNotice?: string;
   onBack: () => void;
   onProceed: (websiteHoneypot: string) => void;
   isSubmitting?: boolean;
@@ -31,6 +32,7 @@ export function Step4({
   onlinePaymentPlan,
   setOnlinePaymentPlan,
   paymentSettings,
+  submitConflictNotice,
   onBack,
   onProceed,
   isSubmitting = false,
@@ -56,7 +58,9 @@ export function Step4({
 
   const handleProceed = () => {
     if (!paymentMethod) {
-      toast.error({ content: "Please select a payment method before proceeding." });
+      toast.error({
+        content: "Please select a payment method before proceeding.",
+      });
       return;
     }
 
@@ -101,7 +105,9 @@ export function Step4({
         const options = Array.isArray(response?.data?.partial_payment_options)
           ? response.data.partial_payment_options
               .map((value) => Number(value))
-              .filter((value) => Number.isFinite(value) && value > 0 && value < 100)
+              .filter(
+                (value) => Number.isFinite(value) && value > 0 && value < 100,
+              )
           : [30];
         const uniqueOptions = [...new Set(options)].sort((a, b) => a - b);
 
@@ -127,7 +133,12 @@ export function Step4({
       setPaymentMethod("");
       setOnlinePaymentPlan("");
     }
-  }, [isOnlinePaymentEnabled, paymentMethod, setOnlinePaymentPlan, setPaymentMethod]);
+  }, [
+    isOnlinePaymentEnabled,
+    paymentMethod,
+    setOnlinePaymentPlan,
+    setPaymentMethod,
+  ]);
 
   useEffect(() => {
     if (paymentMethod !== PAYMENT_METHODS.ONLINE) {
@@ -162,7 +173,9 @@ export function Step4({
 
   const selectedPartialPercent = parsePartialPercent(String(onlinePaymentPlan));
 
-  const handleSelectOnlinePaymentPlan = (plan: "full" | `partial_${number}`) => {
+  const handleSelectOnlinePaymentPlan = (
+    plan: "full" | `partial_${number}`,
+  ) => {
     setOnlinePaymentPlan(plan);
     setIsPaymentPlanModalOpen(false);
     setIsProceedModalOpen(true);
@@ -182,6 +195,13 @@ export function Step4({
         <p className="booking-funnel-eyebrow">Checkout</p>
         <h2 className="landing-section-title">Payment</h2>
       </div>
+
+      {submitConflictNotice ? (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 shadow-sm">
+          <p className="font-semibold">Availability changed</p>
+          <p className="mt-1 whitespace-pre-line">{submitConflictNotice}</p>
+        </div>
+      ) : null}
 
       <div className="text-center space-y-2">
         <h3 className="font-display text-lg font-semibold text-sea">
@@ -205,7 +225,8 @@ export function Step4({
               paymentMethod === PAYMENT_METHODS.CASH
                 ? "ring-2 ring-gold/60 bg-sage-muted border-gold"
                 : "bg-cream border-sage-muted hover:bg-sand hover:border-sea/35"
-            }`}>
+            }`}
+        >
           <input
             type="checkbox"
             checked={paymentMethod === PAYMENT_METHODS.CASH}
@@ -217,8 +238,9 @@ export function Step4({
           <div className="space-y-1">
             <h4 className="font-semibold text-sea">Pay in Cash</h4>
             <p className="text-sm leading-relaxed opacity-85 text-black">
-            All bookings require at least partial or full payment, which must be completed anytime 
-            until 9:00 PM on the same day, otherwise the reservation will be automatically cancelled.
+              All bookings require at least partial or full payment, which must
+              be completed anytime until 9:00 PM on the same day, otherwise the
+              reservation will be automatically cancelled.
             </p>
           </div>
         </label>
@@ -235,7 +257,8 @@ export function Step4({
               isOnlinePaymentEnabled
                 ? "cursor-pointer hover:bg-sand"
                 : "cursor-not-allowed opacity-55"
-            }`}>
+            }`}
+        >
           <input
             type="checkbox"
             checked={paymentMethod === PAYMENT_METHODS.ONLINE}
@@ -272,7 +295,8 @@ export function Step4({
         <button
           type="button"
           onClick={onBack}
-          className="px-5 py-2.5 text-sm font-medium text-ink hover:bg-sage-muted rounded-md transition-colors">
+          className="px-5 py-2.5 text-sm font-medium text-ink hover:bg-sage-muted rounded-md transition-colors"
+        >
           ← Back
         </button>
 
@@ -280,21 +304,28 @@ export function Step4({
           type="button"
           onClick={handleProceed}
           disabled={!paymentMethod}
-          className="btn-primary-mockup">
+          className="btn-primary-mockup"
+        >
           Proceed to Payment
         </button>
       </div>
 
       <Modal
         open={isPaymentPlanModalOpen}
-        onClose={isSubmitting ? () => {} : () => setIsPaymentPlanModalOpen(false)}
+        onClose={
+          isSubmitting ? () => {} : () => setIsPaymentPlanModalOpen(false)
+        }
         showCloseButton={!isSubmitting}
         contentClassName="relative w-full max-w-xl mx-4 overflow-hidden rounded-xl border border-[#d7c089]/25 bg-[#0c2c27]/95 px-5 py-6 text-center shadow-2xl backdrop-blur-sm md:px-8 md:py-8"
-        backgroundImage={undefined}>
+        backgroundImage={undefined}
+      >
         <div className="space-y-5 text-white">
-          <h3 className="text-xl font-semibold">Choose Online Payment Option</h3>
+          <h3 className="text-xl font-semibold">
+            Choose Online Payment Option
+          </h3>
           <p className="text-sm text-white/85">
-            Select how your client will settle payment before continuing to booking policy confirmation.
+            Select how your client will settle payment before continuing to
+            booking policy confirmation.
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <button
@@ -304,20 +335,26 @@ export function Step4({
                 onlinePaymentPlan === "full"
                   ? "border-gold bg-white/15"
                   : "border-white/20 bg-white/5 hover:bg-white/10"
-              }`}>
+              }`}
+            >
               <p className="font-semibold">Pay Full</p>
-              <p className="text-xs text-white/80">Collect the total booking amount now.</p>
+              <p className="text-xs text-white/80">
+                Collect the total booking amount now.
+              </p>
             </button>
             <button
               type="button"
               onClick={() =>
-                handleSelectOnlinePaymentPlan(buildPartialPlan(partialPaymentPercent))
+                handleSelectOnlinePaymentPlan(
+                  buildPartialPlan(partialPaymentPercent),
+                )
               }
               className={`rounded-lg border px-4 py-3 text-left transition ${
                 selectedPartialPercent === partialPaymentPercent
                   ? "border-gold bg-white/15"
                   : "border-white/20 bg-white/5 hover:bg-white/10"
-              }`}>
+              }`}
+            >
               <p className="font-semibold">{`Pay Partial (${partialPaymentPercent}%)`}</p>
               <p className="text-xs text-white/80">{`Collect ${partialPaymentPercent}% now and settle the balance later.`}</p>
             </button>
@@ -331,7 +368,8 @@ export function Step4({
         onClose={isSubmitting ? () => {} : () => setIsProceedModalOpen(false)}
         showCloseButton={!isSubmitting}
         contentClassName="relative w-full max-w-3xl mx-4 overflow-hidden rounded-xl border border-[#d7c089]/25 bg-[#0c2c27]/95 px-5 py-6 text-center shadow-2xl backdrop-blur-sm md:px-8 md:py-8"
-        backgroundImage={undefined}>
+        backgroundImage={undefined}
+      >
         <input
           type="text"
           name="website"

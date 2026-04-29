@@ -41,30 +41,48 @@ export function useRealtimeGlobalSubscriber(): void {
 
 		const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
-		channels.forEach(({ channel, event, queryKey }) => {
-			const ch = echo.channel(channel);
+    channels.forEach(({ channel, event, queryKey }) => {
+      const ch = echo.channel(channel);
 
-			ch.listen(event, () => {
-				// Invalidate first (cheap)
-				queryClient.invalidateQueries({ queryKey });
+      ch.listen(event, () => {
+        // Invalidate first (cheap)
+        queryClient.invalidateQueries({ queryKey });
 
-				const key = JSON.stringify(queryKey);
+        // When blocked dates change, also refetch room and venue availability
+        // so Steps 1 and 3 see real-time inventory updates
+        if (event === ".BlockedDatesUpdated") {
+          queryClient.invalidateQueries({ queryKey: queryKeys.rooms.all });
+          queryClient.invalidateQueries({ queryKey: queryKeys.venues.all });
+        }
 
-				const existing = debounceTimers.get(key);
-				if (existing) {
-					clearTimeout(existing);
-				}
+        const key = JSON.stringify(queryKey);
 
-				debounceTimers.set(
-					key,
-					setTimeout(() => {
-						debounceTimers.delete(key);
-						void queryClient.refetchQueries({ queryKey, type: "active" });
-					}, 350),
-				);
-			});
-		});
+        const existing = debounceTimers.get(key);
+        if (existing) {
+          clearTimeout(existing);
+        }
 
+        debounceTimers.set(
+          key,
+          setTimeout(() => {
+            debounceTimers.delete(key);
+            void queryClient.refetchQueries({ queryKey, type: "active" });
+
+            // Also refetch active room and venue queries on blocked date updates
+            if (event === ".BlockedDatesUpdated") {
+              void queryClient.refetchQueries({
+                queryKey: queryKeys.rooms.all,
+                type: "active",
+              });
+              void queryClient.refetchQueries({
+                queryKey: queryKeys.venues.all,
+                type: "active",
+              });
+            }
+          }, 350),
+        );
+      });
+    });
 		return () => {
 			debounceTimers.forEach(clearTimeout);
 			channels.forEach(({ channel }) => echo.leave(channel));
