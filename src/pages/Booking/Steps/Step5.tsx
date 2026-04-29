@@ -26,7 +26,6 @@ import {
   formatRoomLineTitle,
 } from "@/lib/formatters/roomDisplayName";
 import { useApiMutation } from "@/lib/api/mutations/useApiMutation";
-import { API } from "@/lib/api/apiClient";
 import CancelBookingContent from "@/components/modals/CancelBookingContent";
 import RescheduleBookingContent from "@/components/modals/RescheduleBookingContent";
 import Modal from "@/components/modals/Modal";
@@ -716,7 +715,8 @@ export function Step5(props: Props) {
         ? roomsFromApi
         : roomsFromForm;
 
-  const venuesFromApi: FormDataVenue[] = (receipt?.venues ?? []) as FormDataVenue[];
+  const venuesFromApi: FormDataVenue[] = (receipt?.venues ??
+    []) as FormDataVenue[];
   const venuesFromForm: FormDataVenue[] = Array.isArray(form?.venues)
     ? form.venues
     : [];
@@ -766,8 +766,13 @@ export function Step5(props: Props) {
     : isFromApi && receipt
       ? grandTotal
       : calculatedGrandTotal;
-  const discountType = String(receipt?.special_discount_type ?? "").toLowerCase();
-  const discountValue = Math.max(0, Number(receipt?.special_discount_value ?? 0));
+  const discountType = String(
+    receipt?.special_discount_type ?? "",
+  ).toLowerCase();
+  const discountValue = Math.max(
+    0,
+    Number(receipt?.special_discount_value ?? 0),
+  );
   const discountAmount = Math.max(
     0,
     Number(receipt?.special_discount_amount_applied ?? 0),
@@ -820,13 +825,10 @@ export function Step5(props: Props) {
     isFromApi && receipt?.use_messenger_deposit_instructions === true;
 
   const messengerNoticeEligible =
-    bookingStatusLower === "reserved" ||
-    bookingStatusLower === "rescheduled";
+    bookingStatusLower === "reserved" || bookingStatusLower === "rescheduled";
 
   const showMessengerDepositBlock =
-    isFromApi &&
-    paymentStatusLower === "unpaid" &&
-    messengerNoticeEligible;
+    isFromApi && paymentStatusLower === "unpaid" && messengerNoticeEligible;
 
   const showLegacyThreeDayDepositBlock =
     isFromApi &&
@@ -889,40 +891,31 @@ export function Step5(props: Props) {
         : "";
 
     if (!downloadPath) {
-      toast.error({ content: "No billing statement URL or booking reference is available." });
+      toast.error({
+        content: "No billing statement URL or booking reference is available.",
+      });
       return;
     }
 
     setIsDownloading(true);
     try {
-      const pdfBlob = await API.get<Blob>(
-        downloadPath,
-        { responseType: "blob" },
-      );
-
-      const pdfUrl = window.URL.createObjectURL(pdfBlob);
-
-      if (isMobilePdfClient()) {
-        const opened = window.open(pdfUrl, "_blank", "noopener,noreferrer");
-        if (!opened) {
-          window.location.href = pdfUrl;
-        }
-        window.setTimeout(() => window.URL.revokeObjectURL(pdfUrl), 15000);
-        setIsReceiptDownloaded(true);
-        return;
-      }
-
       const link = document.createElement("a");
-      link.download = `marcelinos-billing-statement-${referenceNumber || "statement"}.pdf`;
-      link.href = pdfUrl;
+      link.href = downloadPath;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.setTimeout(() => window.URL.revokeObjectURL(pdfUrl), 1000);
+      if (isMobilePdfClient()) {
+        window.location.href = downloadPath;
+      }
       setIsReceiptDownloaded(true);
     } catch (error) {
       console.error(error);
-      toast.error({ content: "Failed to generate the PDF billing statement." });
+      toast.error({
+        content:
+          "Unable to open the billing statement download. Please try again.",
+      });
     } finally {
       setIsDownloading(false);
     }
@@ -1044,17 +1037,19 @@ export function Step5(props: Props) {
 
           {/* Main content */}
           <div className="px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-7 space-y-6 text-sm">
-            {(isFromApi &&
-              (receipt?.email_verification_required === true ||
-                bookingStatusResolved === "pending_verification")) ? (
+            {isFromApi &&
+            (receipt?.email_verification_required === true ||
+              bookingStatusResolved === "pending_verification") ? (
               <div
                 role="status"
-                className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+              >
                 <p className="font-semibold">Confirm your booking by email</p>
                 <p className="mt-1 opacity-90">
-                  We sent a secure link to <strong>{guestEmail}</strong>. Your reservation is not
-                  active until you open that link and click "
-                  <strong>Confirm and Verify</strong>". You can refresh this page after confirming.
+                  We sent a secure link to <strong>{guestEmail}</strong>. Your
+                  reservation is not active until you open that link and click "
+                  <strong>Confirm and Verify</strong>". You can refresh this
+                  page after confirming.
                 </p>
               </div>
             ) : null}
@@ -1128,7 +1123,9 @@ export function Step5(props: Props) {
                 {isFromApi && (
                   <ReceiptRow
                     label="Payment status"
-                    value={formatPaymentStatusLabel(String(paymentStatus ?? ""))}
+                    value={formatPaymentStatusLabel(
+                      String(paymentStatus ?? ""),
+                    )}
                     valueClassName={
                       paymentStatus
                         ? `font-semibold ${getPaymentStatusColor(
@@ -1186,7 +1183,8 @@ export function Step5(props: Props) {
               <div
                 role="region"
                 aria-label="Cancellation refund summary"
-                className="mx-0 sm:mx-0 mt-4 rounded-lg border border-orange-200 bg-orange-50/95 px-4 py-3 text-left text-xs sm:text-sm text-amber-950 shadow-sm">
+                className="mx-0 sm:mx-0 mt-4 rounded-lg border border-orange-200 bg-orange-50/95 px-4 py-3 text-left text-xs sm:text-sm text-amber-950 shadow-sm"
+              >
                 <p className="font-semibold text-amber-950">
                   Cancellation — refund transparency
                 </p>
@@ -1211,7 +1209,9 @@ export function Step5(props: Props) {
                       />
                       <ReceiptRow
                         label="Non-refundable (reservation fee)"
-                        value={pricingFormat(receipt.cancellation_refund.retained)}
+                        value={pricingFormat(
+                          receipt.cancellation_refund.retained,
+                        )}
                         valueClassName="tabular-nums font-medium text-amber-900"
                       />
                       <ReceiptRow
@@ -1521,7 +1521,9 @@ export function Step5(props: Props) {
                             </span>
                           </div>
                           <div className="flex justify-between text-emerald-700">
-                            <span className="opacity-90">Discount ({discountBadgeText})</span>
+                            <span className="opacity-90">
+                              Discount ({discountBadgeText})
+                            </span>
                             <span className="tabular-nums">
                               - {pricingFormat(discountAmount)}
                             </span>
@@ -1529,7 +1531,9 @@ export function Step5(props: Props) {
                         </>
                       ) : null}
                       <div className="flex justify-between border-t border-sand-dark/35 pt-2 mt-1 font-semibold text-base">
-                        <span>{hasDiscountedPricing ? "Discounted total" : "Total"}</span>
+                        <span>
+                          {hasDiscountedPricing ? "Discounted total" : "Total"}
+                        </span>
                         <span className="tabular-nums text-sea">
                           {pricingFormat(displayGrandTotal)}
                         </span>

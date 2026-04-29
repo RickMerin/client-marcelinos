@@ -48,6 +48,16 @@ function formatConflictMessage(error: ErrorWithResponse): string {
     return flatErrors.join("\n");
   }
 
+  if (data?.error === "room_unavailable") {
+    const roomNames = data.conflicts?.rooms
+      ?.map((room) => room.name)
+      .filter(Boolean);
+    const roomSuffix = roomNames?.length
+      ? `\nRooms: ${roomNames.join(", ")}`
+      : "";
+    return `${msg}${roomSuffix}\nPlease refresh availability and choose a different room.`;
+  }
+
   if (!data?.conflicts) return msg;
   const parts: string[] = [msg];
   if (data.conflicts.rooms?.length) {

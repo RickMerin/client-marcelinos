@@ -24,8 +24,9 @@ const ROOM_TYPE_SLUGS = new Set<RoomTypeFilter>([
 /** Parse stored room-type filters; falls back to all types when missing or invalid. */
 export function parseRoomTypeFilters(raw: unknown): RoomTypeFilter[] {
   if (!Array.isArray(raw)) return [...DEFAULT_ROOM_TYPE_FILTERS];
-  const next = raw.filter((x): x is RoomTypeFilter =>
-    typeof x === "string" && ROOM_TYPE_SLUGS.has(x as RoomTypeFilter),
+  const next = raw.filter(
+    (x): x is RoomTypeFilter =>
+      typeof x === "string" && ROOM_TYPE_SLUGS.has(x as RoomTypeFilter),
   );
   return next.length > 0 ? next : [...DEFAULT_ROOM_TYPE_FILTERS];
 }
@@ -59,7 +60,8 @@ export function alignFormDataToBookingType(
   const venues = next.venues ?? [];
   const venueEventType = next.venue_event_type || "wedding";
   const totalPrice =
-    calculateTotalPrice(rooms) + calculateVenuesLineTotal(venues, venueEventType);
+    calculateTotalPrice(rooms) +
+    calculateVenuesLineTotal(venues, venueEventType);
   const grandTotalPrice = calculateGrandTotalPrice(
     rooms,
     next.days,
@@ -243,7 +245,8 @@ export function roomSelectionsDiffer(
     const p = a[i] as { id?: number; price?: number | string };
     const n = next[i] as { id?: number; price?: number | string };
     if (Number(p?.id) !== Number(n?.id)) return true;
-    if (normalizeUnitPrice(p?.price) !== normalizeUnitPrice(n?.price)) return true;
+    if (normalizeUnitPrice(p?.price) !== normalizeUnitPrice(n?.price))
+      return true;
   }
   return false;
 }
@@ -257,7 +260,12 @@ export function collapseRoomsToLines(rooms: unknown[]): RoomLinePayload[] {
   if (!Array.isArray(rooms) || rooms.length === 0) return [];
   const map = new Map<
     string,
-    { room_type: string; inventory_group_key: string; quantity: number; unit_price: number }
+    {
+      room_type: string;
+      inventory_group_key: string;
+      quantity: number;
+      unit_price: number;
+    }
   >();
   for (const r of rooms) {
     const room = r as {
@@ -265,7 +273,9 @@ export function collapseRoomsToLines(rooms: unknown[]): RoomLinePayload[] {
       price?: number | string;
     };
     const type = normalizeRoomTypeSlug(room.type) ?? "standard";
-    const key = roomInventoryGroupKey(r as Parameters<typeof roomInventoryGroupKey>[0]);
+    const key = roomInventoryGroupKey(
+      r as Parameters<typeof roomInventoryGroupKey>[0],
+    );
     const unit = normalizeUnitPrice(room.price);
     const lineKey = `${type}|${key}|${unit}`;
     const existing = map.get(lineKey);
@@ -338,20 +348,29 @@ export const buildBookingPayload = (
   formData: FormData,
   options?: BuildBookingPayloadOptions,
 ): BookingPayload => {
-  const storedAddress = getFromLocalStorage(PH_ADDRESS_STORAGE_KEY) as StoredPHAddress | null;
+  const storedAddress = getFromLocalStorage(
+    PH_ADDRESS_STORAGE_KEY,
+  ) as StoredPHAddress | null;
   const isIntl = storedAddress?.addressType === "international";
   const validInternationalCountry = isIntl
     ? normalizeInternationalCountry(formData.address)
     : null;
+  const roomIds = (formData.rooms || [])
+    .map(toId)
+    .filter((id) => Number.isFinite(id) && id > 0);
   const roomLines = collapseRoomsToLines(formData.rooms || []);
   const venueIds = (formData.venues || []).map(toId).filter(Boolean);
 
   const parsedLocal = !isIntl ? parseLocalPHAddress(formData.address) : null;
-  const province = isIntl ? null : formData.state || parsedLocal?.province || null;
-  const municipality =
-    isIntl ? null : formData.city || parsedLocal?.municipality || null;
-  const barangay =
-    isIntl ? null : parsedLocal?.barangay || formData.address || null;
+  const province = isIntl
+    ? null
+    : formData.state || parsedLocal?.province || null;
+  const municipality = isIntl
+    ? null
+    : formData.city || parsedLocal?.municipality || null;
+  const barangay = isIntl
+    ? null
+    : parsedLocal?.barangay || formData.address || null;
 
   const captcha = options?.captchaToken?.trim();
   const websiteHoneypot = options?.website ?? "";
@@ -367,12 +386,15 @@ export const buildBookingPayload = (
     check_in: formData.check_in,
     check_out: formData.check_out,
     days: formData.days,
+    ...(roomIds.length > 0 && { room_ids: roomIds }),
     ...(roomLines.length > 0 && { room_lines: roomLines }),
     ...(venueIds.length > 0 && { venues: venueIds }),
     ...(venueIds.length > 0 && {
       venue_event_type: formData.venue_event_type || "wedding",
     }),
-    total_price: formData.grandTotalPrice ?? (formData.totalPrice ?? 0) * (formData.days ?? 1),
+    total_price:
+      formData.grandTotalPrice ??
+      (formData.totalPrice ?? 0) * (formData.days ?? 1),
 
     first_name: formData.firstName || "N/A",
     middle_name: formData.middleName || null,
