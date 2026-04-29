@@ -12,3 +12,11 @@
   # All other requests → single-page app shell
   RewriteRule ^ index.html [L]
 </IfModule>
+
+# Basic Authentication (staging only, not on production)
+<If "%{HTTP_HOST} != 'marcelinos.tech'">
+  AuthType Basic
+  AuthName "Restricted Area"
+  AuthUserFile /home/dfoiwidm/public_html/staging-meowmeow/client-marcelinos/public/.htpasswd
+  Require valid-user
+</If>
