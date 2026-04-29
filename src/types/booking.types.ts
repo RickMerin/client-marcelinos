@@ -116,6 +116,7 @@ export interface BookingReferenceResponse {
     xendit_invoice_id?: string;
     xendit_invoice_url?: string;
     created_at?: string;
+    email_verified_at?: string | null;
     guest?: {
       first_name?: string;
       middle_name?: string | null;

@@ -64,14 +64,15 @@ function mergeReservationDetailsWithBarPayload(
   kind: BookingKind,
   payload: NonNullable<ReturnType<typeof buildReservationDatePayload>>,
 ) {
-  const stored = getFromLocalStorage("reservationDetails") as
-    | Partial<FormData>
-    | null;
+  const stored = getFromLocalStorage(
+    "reservationDetails",
+  ) as Partial<FormData> | null;
   if (!stored) return;
 
   const merged: FormData = {
     ...defaultFormData,
     ...stored,
+    current_step: 1,
     booking_type: kind,
     check_in: String(payload.check_in),
     check_out: String(payload.check_out),
@@ -81,8 +82,8 @@ function mergeReservationDetailsWithBarPayload(
     "room_type_filters" in payload &&
     Array.isArray(payload.room_type_filters)
   ) {
-    merged.room_type_filters = payload
-      .room_type_filters as FormData["room_type_filters"];
+    merged.room_type_filters =
+      payload.room_type_filters as FormData["room_type_filters"];
   }
   if (kind === "both" && payload.venue_event_date) {
     merged.venue_event_date = String(payload.venue_event_date);
@@ -115,5 +116,6 @@ export function persistBarReservation(
     kind,
     payload as NonNullable<ReturnType<typeof buildReservationDatePayload>>,
   );
+  localStorage.removeItem("emailVerificationPending");
   window.dispatchEvent(new Event("reservation-date-updated"));
 }
