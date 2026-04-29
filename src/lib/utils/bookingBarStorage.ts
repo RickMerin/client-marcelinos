@@ -64,9 +64,9 @@ function mergeReservationDetailsWithBarPayload(
   kind: BookingKind,
   payload: NonNullable<ReturnType<typeof buildReservationDatePayload>>,
 ) {
-  const stored = getFromLocalStorage("reservationDetails") as
-    | Partial<FormData>
-    | null;
+  const stored = getFromLocalStorage(
+    "reservationDetails",
+  ) as Partial<FormData> | null;
   if (!stored) return;
 
   const merged: FormData = {
@@ -82,8 +82,8 @@ function mergeReservationDetailsWithBarPayload(
     "room_type_filters" in payload &&
     Array.isArray(payload.room_type_filters)
   ) {
-    merged.room_type_filters = payload
-      .room_type_filters as FormData["room_type_filters"];
+    merged.room_type_filters =
+      payload.room_type_filters as FormData["room_type_filters"];
   }
   if (kind === "both" && payload.venue_event_date) {
     merged.venue_event_date = String(payload.venue_event_date);

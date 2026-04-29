@@ -70,7 +70,10 @@ export function Step4({
     setEmailVerified(false);
     setBillingStatementUrl("");
     setReceiptToken("");
-  }, [emailVerificationPending?.referenceNumber, emailVerificationPending?.active]);
+  }, [
+    emailVerificationPending?.referenceNumber,
+    emailVerificationPending?.active,
+  ]);
 
   const handleSelect = (method: string) => {
     const newValue = paymentMethod === method ? "" : method;
@@ -210,7 +213,8 @@ export function Step4({
         setBillingStatementUrl("");
         setReceiptToken("");
         toast.success({
-          content: "Email confirmed! You can now proceed to your booking details.",
+          content:
+            "Email confirmed! You can now proceed to your booking details.",
         });
       }
     });
@@ -221,7 +225,10 @@ export function Step4({
         RealtimeChannels.booking(emailVerificationPending.referenceNumber),
       );
     };
-  }, [emailVerificationPending?.active, emailVerificationPending?.referenceNumber]);
+  }, [
+    emailVerificationPending?.active,
+    emailVerificationPending?.referenceNumber,
+  ]);
 
   // Polling fallback to check email verification status
   useEffect(() => {
@@ -247,10 +254,13 @@ export function Step4({
         const verifiedAt = response?.booking?.email_verified_at;
         if (verifiedAt) {
           setEmailVerified(true);
-          setBillingStatementUrl(response?.billing_statement_pdf_url?.trim() ?? "");
+          setBillingStatementUrl(
+            response?.billing_statement_pdf_url?.trim() ?? "",
+          );
           setReceiptToken(response?.booking?.receipt_token?.trim() ?? "");
           toast.success({
-            content: "Email confirmed! You can now proceed to your booking details.",
+            content:
+              "Email confirmed! You can now proceed to your booking details.",
           });
         }
       } catch {
@@ -268,7 +278,11 @@ export function Step4({
       isMounted = false;
       clearInterval(pollInterval);
     };
-  }, [emailVerificationPending?.active, emailVerificationPending?.referenceNumber, emailVerified]);
+  }, [
+    emailVerificationPending?.active,
+    emailVerificationPending?.referenceNumber,
+    emailVerified,
+  ]);
 
   const parsePartialPercent = (plan: string): number | null => {
     const match = /^partial_(\d{1,2})$/.exec(plan);
@@ -342,8 +356,9 @@ export function Step4({
                     Thank you for booking!
                   </p>
                   <p className="text-green-800 text-sm">
-                    Your email has been successfully confirmed. Your booking is now verified.
-                    You can view your billing statement or create another reservation.
+                    Your email has been successfully confirmed. Your booking is
+                    now verified. You can view your billing statement or create
+                    another reservation.
                   </p>
                 </div>
                 <div className="flex flex-wrap justify-center gap-3">
@@ -379,9 +394,9 @@ export function Step4({
                     {emailVerificationPending.email}
                   </p>
                   <p className="text-amber-800 text-sm leading-relaxed">
-                    Please check your inbox and click the confirmation link to verify
-                    your email address. Once confirmed, you&apos;ll be able to access
-                    your billing statement and booking details.
+                    Please check your inbox and click the confirmation link to
+                    verify your email address. Once confirmed, you&apos;ll be
+                    able to access your billing statement and booking details.
                   </p>
                 </div>
 
@@ -397,7 +412,8 @@ export function Step4({
                 </div>
 
                 <p className="text-center text-xs text-ink-soft">
-                  This page will automatically update once you confirm your email.
+                  This page will automatically update once you confirm your
+                  email.
                 </p>
                 <div className="flex justify-center">
                   <button
@@ -446,9 +462,9 @@ export function Step4({
             <p className="max-w-2xl mx-auto text-sm leading-relaxed opacity-85 text-black">
               Guests are encouraged to pay online through secure methods such as
               GCash, PayMaya, PayPal, or bank transfer for a fast and convenient
-              transaction. Please double-check all payment details before sending,
-              as the resort will not be held responsible for incorrect or misplaced
-              payments.
+              transaction. Please double-check all payment details before
+              sending, as the resort will not be held responsible for incorrect
+              or misplaced payments.
             </p>
           </div>
 
@@ -474,9 +490,9 @@ export function Step4({
               <div className="space-y-1">
                 <h4 className="font-semibold text-sea">Pay in Cash</h4>
                 <p className="text-sm leading-relaxed opacity-85 text-black">
-                  All bookings require at least partial or full payment, which must
-                  be completed anytime until 9:00 PM on the same day, otherwise the
-                  reservation will be automatically cancelled.
+                  All bookings require at least partial or full payment, which
+                  must be completed anytime until 9:00 PM on the same day,
+                  otherwise the reservation will be automatically cancelled.
                 </p>
               </div>
             </label>
@@ -501,7 +517,9 @@ export function Step4({
                 onChange={() => handleSelect(PAYMENT_METHODS.ONLINE)}
                 disabled={!isOnlinePaymentEnabled}
                 className={`absolute top-3 right-3 w-5 h-5 ${
-                  isOnlinePaymentEnabled ? "cursor-pointer" : "cursor-not-allowed"
+                  isOnlinePaymentEnabled
+                    ? "cursor-pointer"
+                    : "cursor-not-allowed"
                 }`}
                 style={{ accentColor: "var(--color-gold)" }}
               />
@@ -515,7 +533,8 @@ export function Step4({
                 <h4 className="font-semibold text-sea">Pay Online</h4>
                 <p className="text-sm leading-relaxed opacity-85 text-ink-soft">
                   Pay securely via GCash, PayMaya, debit/credit card, or bank
-                  transfer. You will be redirected to our payment partner Xendit.
+                  transfer. You will be redirected to our payment partner
+                  Xendit.
                 </p>
                 {!isOnlinePaymentEnabled && (
                   <p className="text-xs font-medium text-amber-700">
@@ -601,7 +620,9 @@ export function Step4({
           {/* Proceed Confirmation Modal – stay open during submit so loader is visible */}
           <Modal
             open={isProceedModalOpen}
-            onClose={isSubmitting ? () => {} : () => setIsProceedModalOpen(false)}
+            onClose={
+              isSubmitting ? () => {} : () => setIsProceedModalOpen(false)
+            }
             showCloseButton={!isSubmitting}
             contentClassName="relative w-full max-w-3xl mx-4 overflow-hidden rounded-xl border border-[#d7c089]/25 bg-[#0c2c27]/95 px-5 py-6 text-center shadow-2xl backdrop-blur-sm md:px-8 md:py-8"
             backgroundImage={undefined}
