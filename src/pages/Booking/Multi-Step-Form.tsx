@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ProgressIndicator } from "./ProgressIndicator";
 import { Step1 } from "./Steps/Step1";
 import { Step2 } from "./Steps/Step2";
@@ -15,6 +15,8 @@ import { useBookingSubmission } from "@/hooks/useBookingSubmission";
 import { NavigationButtons } from "./components/NavigationButtons";
 import { clearCartStorage } from "@/lib/storage/localStorage";
 import toast from "@/lib/logger/toast";
+
+const EMAIL_VERIFICATION_PENDING_KEY = "emailVerificationPending";
 
 type BookingSubmitError = Error & {
   response?: {
@@ -38,6 +40,12 @@ export function MultiStepForm() {
     checkIn: string;
     checkOut: string;
   } | null>(null);
+  const [emailVerificationPending, setEmailVerificationPending] = useState<{
+    active: boolean;
+    email: string;
+    referenceNumber: string;
+  } | null>(null);
+  const hasRestoredRef = useRef(false);
   const {
     formData,
     setSelectedRooms,
@@ -50,6 +58,53 @@ export function MultiStepForm() {
     nextStep,
     previousStep,
   } = useBookingForm();
+
+  // Restore emailVerificationPending from localStorage on mount (once only)
+  useEffect(() => {
+    if (hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+
+    const stored = localStorage.getItem(EMAIL_VERIFICATION_PENDING_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        const canResumePending = formData.current_step === 4;
+        if (
+          canResumePending &&
+          parsed?.active &&
+          parsed?.email &&
+          parsed?.referenceNumber
+        ) {
+          setEmailVerificationPending(parsed);
+          goToStep(4);
+        } else {
+          localStorage.removeItem(EMAIL_VERIFICATION_PENDING_KEY);
+        }
+      } catch {
+        localStorage.removeItem(EMAIL_VERIFICATION_PENDING_KEY);
+      }
+    }
+  }, []);
+
+  // Persist emailVerificationPending to localStorage whenever it changes
+  useEffect(() => {
+    if (emailVerificationPending?.active) {
+      localStorage.setItem(
+        EMAIL_VERIFICATION_PENDING_KEY,
+        JSON.stringify(emailVerificationPending),
+      );
+    } else {
+      localStorage.removeItem(EMAIL_VERIFICATION_PENDING_KEY);
+    }
+  }, [emailVerificationPending]);
+
+  useEffect(() => {
+    if (formData.current_step < 4 && emailVerificationPending?.active) {
+      setEmailVerificationPending(null);
+      localStorage.removeItem(EMAIL_VERIFICATION_PENDING_KEY);
+    }
+  }, [emailVerificationPending?.active, formData.current_step]);
+
   const selectedRoomIdsSignature = formData.rooms
     .map((room) => String(room?.id ?? ""))
     .join(",");
@@ -143,21 +198,19 @@ export function MultiStepForm() {
         clearCartStorage();
 
         if (response?.email_verification_required) {
-          const receiptToken =
-            response?.booking?.receipt_token ??
-            (response?.bookings?.[0] as { receipt_token?: string } | undefined)
-              ?.receipt_token;
+          // Extract email and reference number from response
           const referenceNumber =
             response?.booking?.reference_number ??
             response?.bookings?.[0]?.reference_number ??
             formData.reference_number;
-          if (receiptToken) {
-            navigate(`/booking-receipt/${encodeURIComponent(receiptToken)}`);
-          } else if (referenceNumber) {
-            navigate(`/booking-receipt/${encodeURIComponent(referenceNumber)}`);
-          } else {
-            goToStep(5);
-          }
+          const guestEmail = formData.email || "";
+
+          // Show email confirmation state on Step 4 instead of navigating away
+          setEmailVerificationPending({
+            active: true,
+            email: guestEmail,
+            referenceNumber,
+          });
           return;
         }
 
@@ -166,6 +219,8 @@ export function MultiStepForm() {
           window.location.href = response.payment_url;
           return;
         }
+
+        // Navigate to receipt page
         const receiptToken =
           response?.booking?.receipt_token ??
           (response?.bookings?.[0] as { receipt_token?: string } | undefined)
@@ -264,6 +319,18 @@ export function MultiStepForm() {
                 onBack={() => goToStep(3)}
                 onProceed={handleSubmit}
                 isSubmitting={isSubmitting}
+                emailVerificationPending={emailVerificationPending}
+                onEmailVerified={() => {
+                  setEmailVerificationPending(null);
+                  localStorage.removeItem(EMAIL_VERIFICATION_PENDING_KEY);
+                  goToStep(5);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                onBookAnother={() => {
+                  setEmailVerificationPending(null);
+                  localStorage.removeItem(EMAIL_VERIFICATION_PENDING_KEY);
+                  navigate("/");
+                }}
               />
             </motion.div>
           )}

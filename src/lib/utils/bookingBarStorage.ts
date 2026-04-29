@@ -72,6 +72,7 @@ function mergeReservationDetailsWithBarPayload(
   const merged: FormData = {
     ...defaultFormData,
     ...stored,
+    current_step: 1,
     booking_type: kind,
     check_in: String(payload.check_in),
     check_out: String(payload.check_out),
@@ -115,5 +116,6 @@ export function persistBarReservation(
     kind,
     payload as NonNullable<ReturnType<typeof buildReservationDatePayload>>,
   );
+  localStorage.removeItem("emailVerificationPending");
   window.dispatchEvent(new Event("reservation-date-updated"));
 }
