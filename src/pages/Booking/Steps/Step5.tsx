@@ -508,6 +508,20 @@ function buildMessengerChatUrl(baseUrl: string, message: string): string {
   }
 }
 
+function buildAdminBookingUrl(apiUrlProd: string, bookingId: number | undefined): string {
+  if (!Number.isFinite(bookingId)) return "";
+  const safeApiUrlProd = (apiUrlProd ?? "").trim();
+  if (!safeApiUrlProd) return "";
+
+  try {
+    const parsed = new URL(safeApiUrlProd);
+    const adminBaseUrl = `${parsed.protocol}//${parsed.host}`;
+    return `${adminBaseUrl}/admin/bookings/${bookingId}`;
+  } catch {
+    return "";
+  }
+}
+
 export function Step5(props: Props) {
   const navigate = useNavigate();
 
@@ -859,6 +873,10 @@ export function Step5(props: Props) {
 
   const [isDownloading, setIsDownloading] = useState(false);
   const [isReceiptDownloaded, setIsReceiptDownloaded] = useState(false);
+  const adminBookingUrl = buildAdminBookingUrl(
+    import.meta.env.VITE_API_URL_PROD,
+    receipt?.booking_id,
+  );
   const messengerMessageLines = [
     "Hello Marcelino's Resort Hotel!",
     "",
@@ -871,6 +889,7 @@ export function Step5(props: Props) {
     `Deposit Amount (${downPaymentPercentLabel}): ${pricingFormat(downPaymentAmount)}`,
     "",
     "Thank you!",
+    ...(adminBookingUrl ? ["", adminBookingUrl] : []),
   ];
   const messengerPrefilledMessage = messengerMessageLines.join("\n");
   const messengerMobileUrlWithMessage = buildMessengerChatUrl(

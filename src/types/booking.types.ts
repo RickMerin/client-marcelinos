@@ -157,6 +157,7 @@ export interface BookingReferenceResponse {
 export interface BookingReceipt {
   /** QR code image URL for check-in */
   qr_code_url?: string | null;
+  booking_id?: number;
   reference_number: string;
   created_at: string;
   booking_status: string;
