@@ -880,8 +880,6 @@ export function Step5(props: Props) {
   const messengerMessageLines = [
     "Hello Marcelino's Resort Hotel!",
     "",
-    'If I want to pay now, I will type "Payment".',
-    "",
     `I would like to settle my ${downPaymentPercentLabel} deposit for this booking.`,
     `Reference No.: ${referenceNumber || "—"}`,
     `Guest Name: ${guestName || "—"}`,
@@ -889,9 +887,11 @@ export function Step5(props: Props) {
     `Check-out: ${formattedCheckOut || "—"}`,
     `Reservation Total: ${pricingFormat(displayGrandTotal)}`,
     `Deposit Amount (${downPaymentPercentLabel}): ${pricingFormat(downPaymentAmount)}`,
+    ...(adminBookingUrl ? ["", adminBookingUrl] : []),
     "",
     "Thank you!",
-    ...(adminBookingUrl ? ["", adminBookingUrl] : []),
+    "",
+    'If I want to make a partial or full payment now, I will type and enter "Payment."',
   ];
   const messengerPrefilledMessage = messengerMessageLines.join("\n");
   const messengerMobileUrlWithMessage = buildMessengerChatUrl(
