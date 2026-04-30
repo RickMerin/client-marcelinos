@@ -326,7 +326,7 @@ export function MultiStepForm() {
                 isSubmitting={isSubmitting}
                 emailVerificationPending={emailVerificationPending}
                 onEmailVerified={({
-                                   bookingId,
+                  bookingId,
                   billingToken,
                   billingStatementUrl,
                 }) => {
@@ -341,7 +341,11 @@ export function MultiStepForm() {
                   }
 
                   if (billingStatementUrl) {
-                    window.open(billingStatementUrl, "_blank", "noopener,noreferrer");
+                    window.open(
+                      billingStatementUrl,
+                      "_blank",
+                      "noopener,noreferrer",
+                    );
                     return;
                   }
 

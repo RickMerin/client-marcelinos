@@ -266,7 +266,7 @@ export function Step4({
               "Email confirmed! You can now proceed to your booking details.",
           });
           onEmailVerified?.({
-                       bookingId: Number(response?.booking?.id),
+            bookingId: Number(response?.booking?.id),
             billingToken: resolvedBillingToken,
             billingStatementUrl: resolvedBillingStatementUrl,
           });
@@ -289,7 +289,9 @@ export function Step4({
   }, [
     emailVerificationPending?.active,
     emailVerificationPending?.referenceNumber,
-    emailVerified,    onEmailVerified,  ]);
+    emailVerified,
+    onEmailVerified,
+  ]);
 
   const parsePartialPercent = (plan: string): number | null => {
     const match = /^partial_(\d{1,2})$/.exec(plan);
