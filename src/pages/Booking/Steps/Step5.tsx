@@ -880,6 +880,8 @@ export function Step5(props: Props) {
   const messengerMessageLines = [
     "Hello Marcelino's Resort Hotel!",
     "",
+    'If I want to pay now, I will type "Payment".',
+    "",
     `I would like to settle my ${downPaymentPercentLabel} deposit for this booking.`,
     `Reference No.: ${referenceNumber || "—"}`,
     `Guest Name: ${guestName || "—"}`,
