@@ -930,6 +930,23 @@ export function Step5(props: Props) {
     window.open(messengerWebUrl, "_blank", "noopener,noreferrer");
   };
 
+  const copyMessengerMessage = async () => {
+    const messageToCopy = messengerPrefilledMessage.trim();
+    if (!messageToCopy) {
+      toast.error({ content: "No message available to copy." });
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(messageToCopy);
+      toast.success({ content: "Message copied. Paste it in Messenger chat." });
+    } catch {
+      toast.error({
+        content: "Unable to copy message. Please copy it manually.",
+      });
+    }
+  };
+
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
 
   const downloadReceipt = async () => {
@@ -1511,19 +1528,30 @@ export function Step5(props: Props) {
                       cancelled after 9:00 PM (Philippine time) on{" "}
                       {unpaidCancellationDayLabel} if not settled.
                     </p>
-                    <a
-                      href={messengerWebUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        openMessengerChat();
-                      }}
-                      className="inline-flex items-center gap-2 rounded-lg bg-[#0084FF] px-3 py-2 text-white text-xs font-semibold shadow-sm hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0084FF]"
-                    >
-                      <MessengerGlyph className="size-5 shrink-0" aria-hidden />
-                      <span>Open Messenger</span>
-                    </a>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <a
+                        href={messengerWebUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          openMessengerChat();
+                        }}
+                        className="inline-flex items-center gap-2 rounded-lg bg-[#0084FF] px-3 py-2 text-white text-xs font-semibold shadow-sm hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0084FF]"
+                      >
+                        <MessengerGlyph className="size-5 shrink-0" aria-hidden />
+                        <span>Open Messenger</span>
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void copyMessengerMessage();
+                        }}
+                        className="inline-flex items-center gap-2 rounded-lg border border-[#0084FF] px-3 py-2 text-[#0084FF] text-xs font-semibold shadow-sm hover:bg-[#0084FF]/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0084FF]"
+                      >
+                        <span>Copy message</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
