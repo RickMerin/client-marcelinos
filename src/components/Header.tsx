@@ -124,7 +124,8 @@ export default function Header() {
     Number(stayWindow?.days) > 0;
   const shouldHideLuggageIcon =
     location.pathname.includes("/booking-receipt/") ||
-    location.pathname.includes("/billing/");
+    location.pathname.includes("/billing/") ||
+    location.pathname === "/create-booking";
 
   const headerRef = useRef<HTMLElement>(null);
   const scrollingToRef = useRef<string | null>(null);
