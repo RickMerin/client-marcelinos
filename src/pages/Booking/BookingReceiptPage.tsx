@@ -120,6 +120,12 @@ export function toBookingReceipt(
     (value): value is string => typeof value === "string" && value.trim().length > 0,
   );
   return {
+		booking_id:
+			typeof b.id === "number"
+				? b.id
+				: Number.isFinite(Number(b.id))
+					? Number(b.id)
+					: undefined,
 		reference_number: b.reference_number ?? "",
 		unpaid_expires_at: res.unpaid_expires_at ?? null,
 		unpaid_expiry_days: res.unpaid_expiry_days ?? 3,
