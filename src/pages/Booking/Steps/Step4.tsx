@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Mail, CheckCircle2 } from "lucide-react";
 import Modal from "@/components/modals/Modal";
 import PaymentConfirmContent from "@/components/modals/PolicyDisclaimer";
@@ -56,7 +55,6 @@ export function Step4({
   onEmailVerified,
   onBookAnother,
 }: Step4Props) {
-  const navigate = useNavigate();
   const [honeypot, setHoneypot] = useState("");
   const [isProceedModalOpen, setIsProceedModalOpen] = useState(false);
   const [isPaymentPlanModalOpen, setIsPaymentPlanModalOpen] = useState(false);
@@ -213,7 +211,6 @@ export function Step4({
       if (isMounted) {
         setEmailVerified(true);
         setBillingStatementUrl("");
-        setReceiptToken("");
         toast.success({
           content:
             "Email confirmed! You can now proceed to your booking details.",
