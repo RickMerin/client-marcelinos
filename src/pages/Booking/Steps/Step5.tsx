@@ -887,7 +887,7 @@ export function Step5(props: Props) {
     const downloadPath = billingStatementUrl
       ? billingStatementUrl
       : referenceNumber
-        ? `/bookings/${encodeURIComponent(referenceNumber)}/billing-statement/pdf`
+        ? `/billing-statements/${encodeURIComponent(referenceNumber)}/pdf`
         : "";
 
     if (!downloadPath) {

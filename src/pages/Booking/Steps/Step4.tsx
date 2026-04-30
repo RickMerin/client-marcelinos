@@ -34,7 +34,11 @@ interface Step4Props {
     email: string;
     referenceNumber: string;
   } | null;
-  onEmailVerified?: () => void;
+  onEmailVerified?: (payload: {
+    bookingId: number;
+    billingToken: string;
+    billingStatementUrl: string;
+  }) => void;
   onBookAnother?: () => void;
 }
 
@@ -64,17 +68,10 @@ export function Step4({
   );
   const [emailVerified, setEmailVerified] = useState(false);
   const [billingStatementUrl, setBillingStatementUrl] = useState("");
-  const [receiptToken, setReceiptToken] = useState("");
-
-  useEffect(() => {
-    if (!emailVerified) return;
-    onEmailVerified?.();
-  }, [emailVerified, onEmailVerified]);
 
   useEffect(() => {
     setEmailVerified(false);
     setBillingStatementUrl("");
-    setReceiptToken("");
   }, [
     emailVerificationPending?.referenceNumber,
     emailVerificationPending?.active,
@@ -258,14 +255,20 @@ export function Step4({
         // Check if email has been verified
         const verifiedAt = response?.booking?.email_verified_at;
         if (verifiedAt) {
+          const resolvedBillingToken = response?.billing_token?.trim() ?? "";
+          const resolvedBillingStatementUrl =
+            response?.billing_statement_pdf_url?.trim() ?? "";
+
           setEmailVerified(true);
-          setBillingStatementUrl(
-            response?.billing_statement_pdf_url?.trim() ?? "",
-          );
-          setReceiptToken(response?.booking?.receipt_token?.trim() ?? "");
+          setBillingStatementUrl(resolvedBillingStatementUrl);
           toast.success({
             content:
               "Email confirmed! You can now proceed to your booking details.",
+          });
+          onEmailVerified?.({
+                       bookingId: Number(response?.booking?.id),
+            billingToken: resolvedBillingToken,
+            billingStatementUrl: resolvedBillingStatementUrl,
           });
         }
       } catch {
@@ -286,8 +289,7 @@ export function Step4({
   }, [
     emailVerificationPending?.active,
     emailVerificationPending?.referenceNumber,
-    emailVerified,
-  ]);
+    emailVerified,    onEmailVerified,  ]);
 
   const parsePartialPercent = (plan: string): number | null => {
     const match = /^partial_(\d{1,2})$/.exec(plan);
@@ -325,13 +327,6 @@ export function Step4({
 
     if (trimmedUrl) {
       window.open(trimmedUrl, "_blank", "noopener,noreferrer");
-      return;
-    }
-
-    if (emailVerificationPending?.referenceNumber && receiptToken) {
-      navigate(
-        `/billing/${encodeURIComponent(emailVerificationPending.referenceNumber)}?token=${encodeURIComponent(receiptToken)}`,
-      );
       return;
     }
 

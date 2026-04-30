@@ -325,9 +325,26 @@ export function MultiStepForm() {
                 onProceed={handleSubmit}
                 isSubmitting={isSubmitting}
                 emailVerificationPending={emailVerificationPending}
-                onEmailVerified={() => {
+                onEmailVerified={({
+                                   bookingId,
+                  billingToken,
+                  billingStatementUrl,
+                }) => {
                   setEmailVerificationPending(null);
                   localStorage.removeItem(EMAIL_VERIFICATION_PENDING_KEY);
+
+                  if (bookingId && billingToken) {
+                    navigate(
+                      `/billing/${bookingId}?token=${encodeURIComponent(billingToken)}`,
+                    );
+                    return;
+                  }
+
+                  if (billingStatementUrl) {
+                    window.open(billingStatementUrl, "_blank", "noopener,noreferrer");
+                    return;
+                  }
+
                   goToStep(5);
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
