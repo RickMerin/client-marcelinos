@@ -17,6 +17,7 @@ import {
 } from "@/lib/math/calculate";
 import {
   MESSENGER_CHAT_URL,
+  MESSENGER_PAGE_ID,
   VENUE_EVENT_OPTIONS,
 } from "@/lib/constants/booking.constants";
 import { clearBookingStorage } from "@/lib/storage/localStorage";
@@ -508,6 +509,19 @@ function buildMessengerChatUrl(baseUrl: string, message: string): string {
   }
 }
 
+function isLargeViewport(minWidth = 1024): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+  return window.matchMedia(`(min-width: ${minWidth}px)`).matches;
+}
+
+function buildMessengerAppDeepLink(pageId: string): string {
+  const target = String(pageId ?? "").trim();
+  if (!target) return "";
+  return `fb-messenger://user-thread/${encodeURIComponent(target)}`;
+}
+
 function buildAdminBookingUrl(apiUrlProd: string, bookingId: number | undefined): string {
   if (!Number.isFinite(bookingId)) return "";
   const safeApiUrlProd = (apiUrlProd ?? "").trim();
@@ -899,6 +913,22 @@ export function Step5(props: Props) {
     messengerPrefilledMessage,
   );
   const messengerPrimaryUrl = messengerMobileUrlWithMessage;
+  const messengerWebUrl = messengerPrimaryUrl || MESSENGER_CHAT_URL;
+  const messengerAppDeepLink = buildMessengerAppDeepLink(MESSENGER_PAGE_ID);
+
+  const openMessengerChat = () => {
+    const shouldOpenApp = isMobilePdfClient() && !isLargeViewport();
+
+    if (shouldOpenApp && messengerAppDeepLink) {
+      window.location.href = messengerAppDeepLink;
+      window.setTimeout(() => {
+        window.location.href = messengerWebUrl;
+      }, 1200);
+      return;
+    }
+
+    window.open(messengerWebUrl, "_blank", "noopener,noreferrer");
+  };
 
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
 
@@ -1482,9 +1512,13 @@ export function Step5(props: Props) {
                       {unpaidCancellationDayLabel} if not settled.
                     </p>
                     <a
-                      href={messengerPrimaryUrl || MESSENGER_CHAT_URL}
+                      href={messengerWebUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        openMessengerChat();
+                      }}
                       className="inline-flex items-center gap-2 rounded-lg bg-[#0084FF] px-3 py-2 text-white text-xs font-semibold shadow-sm hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0084FF]"
                     >
                       <MessengerGlyph className="size-5 shrink-0" aria-hidden />
