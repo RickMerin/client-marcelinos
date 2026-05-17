@@ -42,18 +42,29 @@ function amenityPills(amenities: any[] | undefined): string[] {
     .filter(Boolean);
 }
 
+function uniqueImageUrls(urls: (string | null | undefined)[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const url of urls) {
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    result.push(url);
+  }
+  return result;
+}
+
 function roomImages(room: any): string[] {
   if (!room || typeof room !== "object") return [];
   const featured = room.featured_image;
   const gallery = Array.isArray(room.gallery) ? room.gallery : [];
-  return [featured, ...gallery].filter((url): url is string => Boolean(url));
+  return uniqueImageUrls([featured, ...gallery]);
 }
 
 function venueImages(venue: any): string[] {
   if (!venue || typeof venue !== "object") return [];
   const featured = venue.featured_image;
   const gallery = Array.isArray(venue.gallery) ? venue.gallery : [];
-  return [featured, ...gallery].filter((url): url is string => Boolean(url));
+  return uniqueImageUrls([featured, ...gallery]);
 }
 
 /** Format date string for summary card (e.g. "Feb 26") */

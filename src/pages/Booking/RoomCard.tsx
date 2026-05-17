@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { BookingCardGallery } from "@/components/booking/BookingCardGallery";
 import { RoomTypeBadge } from "@/components/ui/RoomTypeBadge";
 import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
 
@@ -55,11 +56,6 @@ export const RoomCard: React.FC<RoomCardProps> = ({
   const showCapacity = capacity && capacity !== EMPTY_FIELD;
   const isAvailable = availability !== false;
 
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const hasGallery = images.length > 1;
-  const mainImage =
-    images[activeImageIndex] ?? images[0] ?? "/placeholder-room.jpg";
-
   const pills: string[] =
     amenityPills && amenityPills.length > 0
       ? amenityPills
@@ -69,15 +65,6 @@ export const RoomCard: React.FC<RoomCardProps> = ({
             .map((s) => s.trim())
             .filter(Boolean)
         : [];
-
-  const goPrev = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveImageIndex((i) => (i - 1 + images.length) % images.length);
-  };
-  const goNext = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveImageIndex((i) => (i + 1) % images.length);
-  };
 
   const handleSelect = () => {
     if (!isAvailable) return;
@@ -114,30 +101,24 @@ export const RoomCard: React.FC<RoomCardProps> = ({
         }
       }}
     >
-      {/* Image on top */}
-      <div
-        className="relative w-full h-[250px] bg-gray-100 overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          backgroundImage: `url(${mainImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-        role="img"
-        aria-label={title}
-      >
-        {/* Not available for selected dates — text only, readable on any background */}
+      <motion.div className="relative">
+        <BookingCardGallery
+          images={images}
+          alt={title}
+          mainHeightClass="h-[250px]"
+        />
         {!isAvailable && (
           <UnavailableReasonOverlay
             title={unavailableHeadline}
             detail={unavailableSub}
           />
         )}
-        {hasGallery && (
+      </div>
+      {false ? (
           <>
             <button
               type="button"
-              onClick={goPrev}
+              onClick={() => {}}
               className="absolute left-2 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 backdrop-blur-sm hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-(--color-sage)"
               aria-label="Previous image"
             >

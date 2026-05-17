@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 import { pricingFormat } from "@/lib/formatters/pricingFormat";
+import { BookingCardGallery } from "@/components/booking/BookingCardGallery";
 import { UnavailableReasonOverlay } from "@/components/booking/UnavailableReasonOverlay";
 
 interface VenueCardProps {
@@ -41,20 +42,6 @@ export const VenueCard: React.FC<VenueCardProps> = ({
   const showCapacity = capacity && capacity.trim() !== "" && capacity !== "—";
   const isAvailable = availability !== false;
 
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const hasGallery = images.length > 1;
-  const mainImage =
-    images[activeImageIndex] ?? images[0] ?? "/placeholder-room.jpg";
-
-  const goPrev = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveImageIndex((i) => (i - 1 + images.length) % images.length);
-  };
-  const goNext = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveImageIndex((i) => (i + 1) % images.length);
-  };
-
   const handleSelect = () => {
     if (!isAvailable) return;
     onSelectVenue(id);
@@ -89,89 +76,18 @@ export const VenueCard: React.FC<VenueCardProps> = ({
 					onSelectVenue(id);
 				}
 			}}>
-			{/* Image on top */}
-			<div
-				className="relative w-full h-[200px] bg-gray-100 overflow-hidden"
-				onClick={(e) => e.stopPropagation()}
-				style={{
-					backgroundImage: `url(${mainImage})`,
-					backgroundSize: "cover",
-					backgroundPosition: "center",
-				}}
-				role="img"
-				aria-label={name}>
-				{/* Not available for selected dates — text only, readable on any background */}
+			<div className="relative">
+				<BookingCardGallery
+					images={images}
+					alt={name}
+					mainHeightClass="h-[200px]"
+					placeholderSrc="/placeholder-room.jpg"
+				/>
 				{!isAvailable && (
 					<UnavailableReasonOverlay
 						title={unavailableHeadline}
 						detail={unavailableSub}
 					/>
-				)}
-				{hasGallery && (
-					<>
-						<button
-							type="button"
-							onClick={goPrev}
-							className="absolute left-2 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 backdrop-blur-sm hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-(--color-sage)"
-							aria-label="Previous image">
-							<svg
-								className="h-5 w-5 text-gray-700"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth={2}
-								viewBox="0 0 24 24">
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M15 19l-7-7 7-7"
-								/>
-							</svg>
-						</button>
-						<button
-							type="button"
-							onClick={goNext}
-							className="absolute right-2 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-md ring-1 ring-black/10 backdrop-blur-sm hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-(--color-sage)"
-							aria-label="Next image">
-							<svg
-								className="h-5 w-5 text-gray-700"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth={2}
-								viewBox="0 0 24 24">
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M9 5l7 7-7 7"
-								/>
-							</svg>
-						</button>
-						<div className="absolute bottom-2 left-2 right-2 flex gap-1.5 overflow-x-auto pb-1">
-							{images.map((img, i) => (
-								<button
-									key={i}
-									type="button"
-									onClick={(e) => {
-										e.stopPropagation();
-										setActiveImageIndex(i);
-									}}
-									className={cn(
-										"aspect-4/3 w-14 shrink-0 rounded-lg overflow-hidden ring-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-(--color-sage) focus-visible:ring-offset-2 focus-visible:ring-offset-white",
-										i === activeImageIndex
-											? "ring-(--color-sage) shadow-lg shadow-black/20"
-											: "ring-white/80 opacity-90",
-									)}
-									aria-label={`View image ${i + 1}`}
-									aria-pressed={i === activeImageIndex}
-									style={{
-										backgroundImage: `url(${img})`,
-										backgroundSize: "cover",
-										backgroundPosition: "center",
-									}}>
-									<span className="sr-only">Image {i + 1}</span>
-								</button>
-							))}
-						</div>
-					</>
 				)}
 			</div>
 
